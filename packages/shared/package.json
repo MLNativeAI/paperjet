@@ -1,0 +1,17 @@
+{
+    "name": "shared",
+    "version": "0.0.1",
+    "private": true,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "lint": "eslint \"src/**/*.ts*\""
+    },
+    "devDependencies": {
+        "eslint": "^9.22.0",
+        "tsup": "^8.0.2",
+        "typescript": "~5.7.2"
+    }
+}

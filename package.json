@@ -1,0 +1,18 @@
+{
+    "name": "hono-react",
+    "private": true,
+    "packageManager": "bun@1.2.0",
+    "scripts": {
+        "build": "turbo build",
+        "dev": "turbo dev",
+        "lint": "turbo lint"
+    },
+    "devDependencies": {
+        "prettier": "^3.2.5",
+        "turbo": "^2.0.0"
+    },
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ]
+}

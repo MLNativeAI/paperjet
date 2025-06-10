@@ -1,0 +1,33 @@
+# Version control
+.git
+.gitignore
+
+# Dependencies
+**/node_modules
+**/dist
+
+# Environment files
+.env
+.env.*
+
+# Development files
+**/.vscode
+**/.idea
+**/*.log
+**/coverage
+**/.nyc_output
+
+# Build files
+**/build
+**/dist
+**/*.tsbuildinfo
+
+# Backend specific
+backend/node_modules
+backend/dist
+backend/*.log
+
+# Frontend specific
+frontend/node_modules
+frontend/dist
+frontend/.cache 
