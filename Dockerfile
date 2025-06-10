@@ -27,8 +27,8 @@ WORKDIR /usr/src/app
 # Copy necessary files for production
 # Copy root node_modules and workspace files
 COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/apps/backend ./apps/backend
-COPY --from=build /usr/src/app/apps/frontend/dist ./apps/backend/public
+COPY --from=build /usr/src/app/apps/api ./apps/api
+COPY --from=build /usr/src/app/apps/frontend/dist ./apps/api/public
 COPY --from=build /usr/src/app/packages/shared/dist ./packages/shared/dist
 
 # Make the startup script executable
