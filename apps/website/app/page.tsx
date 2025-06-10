@@ -72,40 +72,40 @@ export default function LandingPage() {
 
   const features = [
     {
-      title: "Smart Automation",
+      title: "Privacy-First Processing",
       description:
-        "Automate repetitive tasks and workflows to save time and reduce errors.",
-      icon: <Zap className="size-5" />,
-    },
-    {
-      title: "Advanced Analytics",
-      description:
-        "Gain valuable insights with real-time data visualization and reporting.",
-      icon: <BarChart className="size-5" />,
-    },
-    {
-      title: "Team Collaboration",
-      description:
-        "Work together seamlessly with integrated communication tools.",
-      icon: <Users className="size-5" />,
-    },
-    {
-      title: "Enterprise Security",
-      description:
-        "Keep your data safe with end-to-end encryption and compliance features.",
+        "Keep your sensitive documents secure with local processing and no data leaving your infrastructure.",
       icon: <Shield className="size-5" />,
     },
     {
-      title: "Seamless Integration",
+      title: "Custom Workflows",
       description:
-        "Connect with your favorite tools through our extensive API ecosystem.",
+        "Build tailored document processing workflows that match your specific business requirements.",
       icon: <Layers className="size-5" />,
     },
     {
-      title: "24/7 Support",
+      title: "Universal Document Support",
       description:
-        "Get help whenever you need it with our dedicated support team.",
+        "Process any document type - from simple invoices to complex construction blueprints and legal contracts.",
       icon: <Star className="size-5" />,
+    },
+    {
+      title: "Open Source Flexibility",
+      description:
+        "Full access to source code means complete control and the ability to customize for your needs.",
+      icon: <Zap className="size-5" />,
+    },
+    {
+      title: "Advanced Extraction",
+      description:
+        "Leverage AI-powered extraction to pull structured data from unstructured documents with high accuracy.",
+      icon: <BarChart className="size-5" />,
+    },
+    {
+      title: "Enterprise Ready",
+      description:
+        "Self-hosted deployment options with enterprise-grade security and compliance features.",
+      icon: <Users className="size-5" />,
     },
   ];
 
@@ -117,9 +117,9 @@ export default function LandingPage() {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 font-bold">
             <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground">
-              S
+              D
             </div>
-            <span>SaaSify</span>
+            <span>DocWrench</span>
           </div>
           <nav className="hidden md:flex gap-8">
             <Link
@@ -269,15 +269,16 @@ export default function LandingPage() {
                 className="mb-4 rounded-full px-4 py-1.5 text-sm font-medium"
                 variant="secondary"
               >
-                Launching Soon
+                Open Source & Privacy-First
               </Badge>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                Elevate Your Workflow with SaaSify
+                Extract Any Information from Any Document
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                The all-in-one platform that helps teams collaborate, automate,
-                and deliver exceptional results. Streamline your processes and
-                focus on what matters most.
+                DocWrench is an open-source, privacy-first document processing
+                platform that allows companies to securely extract information
+                from any document. Build custom workflows that support
+                everything from invoices to complex construction documents.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="rounded-full h-12 px-8 text-base">
@@ -295,15 +296,15 @@ export default function LandingPage() {
               <div className="flex items-center justify-center gap-4 mt-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Check className="size-4 text-primary" />
-                  <span>No credit card</span>
+                  <span>Open source</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Check className="size-4 text-primary" />
-                  <span>14-day trial</span>
+                  <span>Privacy-first</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Check className="size-4 text-primary" />
-                  <span>Cancel anytime</span>
+                  <span>Self-hosted</span>
                 </div>
               </div>
             </motion.div>
@@ -319,7 +320,7 @@ export default function LandingPage() {
                   src="https://cdn.dribbble.com/userupload/12302729/file/original-fa372845e394ee85bebe0389b9d86871.png?resize=1504x1128&vertical=center"
                   width={1280}
                   height={720}
-                  alt="SaaSify dashboard"
+                  alt="DocWrench dashboard"
                   className="w-full h-auto"
                   priority
                 />
@@ -336,7 +337,7 @@ export default function LandingPage() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <p className="text-sm font-medium text-muted-foreground">
-                Trusted by innovative companies worldwide
+                Trusted by organizations that value privacy and control
               </p>
               <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:gap-16">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -371,12 +372,12 @@ export default function LandingPage() {
                 Features
               </Badge>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                Everything You Need to Succeed
+                Everything You Need for Document Processing
               </h2>
               <p className="max-w-[800px] text-muted-foreground md:text-lg">
                 Our comprehensive platform provides all the tools you need to
-                streamline your workflow, boost productivity, and achieve your
-                goals.
+                extract, process, and analyze documents while maintaining
+                complete privacy and control.
               </p>
             </motion.div>
 
@@ -427,11 +428,11 @@ export default function LandingPage() {
                 How It Works
               </Badge>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                Simple Process, Powerful Results
+                Simple Setup, Powerful Results
               </h2>
               <p className="max-w-[800px] text-muted-foreground md:text-lg">
-                Get started in minutes and see the difference our platform can
-                make for your business.
+                Get started with DocWrench in minutes and begin processing
+                documents securely on your own infrastructure.
               </p>
             </motion.div>
 
@@ -441,21 +442,21 @@ export default function LandingPage() {
               {[
                 {
                   step: "01",
-                  title: "Create Account",
+                  title: "Deploy DocWrench",
                   description:
-                    "Sign up in seconds with just your email. No credit card required to get started.",
+                    "Self-host DocWrench on your infrastructure or use our cloud option with complete data isolation.",
                 },
                 {
                   step: "02",
-                  title: "Configure Workspace",
+                  title: "Configure Workflows",
                   description:
-                    "Customize your workspace to match your team's unique workflow and requirements.",
+                    "Set up custom document processing workflows tailored to your specific document types and extraction needs.",
                 },
                 {
                   step: "03",
-                  title: "Boost Productivity",
+                  title: "Process Documents",
                   description:
-                    "Start using our powerful features to streamline processes and achieve your goals.",
+                    "Start extracting structured data from your documents with privacy-first processing and enterprise-grade security.",
                 },
               ].map((step, i) => (
                 <motion.div
@@ -494,11 +495,11 @@ export default function LandingPage() {
                 Testimonials
               </Badge>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                Loved by Teams Worldwide
+                Trusted by Privacy-Conscious Organizations
               </h2>
               <p className="max-w-[800px] text-muted-foreground md:text-lg">
-                Don't just take our word for it. See what our customers have to
-                say about their experience.
+                See how organizations are using DocWrench to process sensitive
+                documents while maintaining complete control over their data.
               </p>
             </motion.div>
 
@@ -506,44 +507,44 @@ export default function LandingPage() {
               {[
                 {
                   quote:
-                    "SaaSify has transformed how we manage our projects. The automation features have saved us countless hours of manual work.",
-                  author: "Sarah Johnson",
-                  role: "Project Manager, TechCorp",
+                    "DocWrench has revolutionized how we process construction documents. The privacy-first approach means we can handle sensitive blueprints without worrying about data breaches.",
+                  author: "Sarah Chen",
+                  role: "IT Director, BuildCorp",
                   rating: 5,
                 },
                 {
                   quote:
-                    "The analytics dashboard provides insights we never had access to before. It's helped us make data-driven decisions that have improved our ROI.",
-                  author: "Michael Chen",
-                  role: "Marketing Director, GrowthLabs",
+                    "Being open-source was crucial for our compliance requirements. We can audit the code and ensure our financial documents are processed exactly how we need them.",
+                  author: "Michael Torres",
+                  role: "Compliance Officer, FinanceFirst",
                   rating: 5,
                 },
                 {
                   quote:
-                    "Customer support is exceptional. Any time we've had an issue, the team has been quick to respond and resolve it. Couldn't ask for better service.",
+                    "The custom workflows feature is incredible. We process everything from invoices to legal contracts, and DocWrench handles them all with amazing accuracy.",
                   author: "Emily Rodriguez",
-                  role: "Operations Lead, StartupX",
+                  role: "Operations Manager, LegalTech Inc",
                   rating: 5,
                 },
                 {
                   quote:
-                    "We've tried several similar solutions, but none compare to the ease of use and comprehensive features of SaaSify. It's been a game-changer.",
+                    "Self-hosting DocWrench gives us complete control over our document processing pipeline. No more sending sensitive data to third-party services.",
                   author: "David Kim",
-                  role: "CEO, InnovateNow",
+                  role: "CTO, SecureData Systems",
                   rating: 5,
                 },
                 {
                   quote:
-                    "The collaboration tools have made remote work so much easier for our team. We're more productive than ever despite being spread across different time zones.",
+                    "The extraction accuracy on our complex engineering documents is outstanding. DocWrench understands document structure better than any solution we've tried.",
                   author: "Lisa Patel",
-                  role: "HR Director, RemoteFirst",
+                  role: "Document Manager, EngineerPro",
                   rating: 5,
                 },
                 {
                   quote:
-                    "Implementation was seamless, and the ROI was almost immediate. We've reduced our operational costs by 30% since switching to SaaSify.",
+                    "Implementation was straightforward, and the ROI was immediate. We've automated 90% of our invoice processing while keeping everything in-house.",
                   author: "James Wilson",
-                  role: "COO, ScaleUp Inc",
+                  role: "Finance Director, ManufactureCorp",
                   rating: 5,
                 },
               ].map((testimonial, i) => (
@@ -613,8 +614,8 @@ export default function LandingPage() {
                 Simple, Transparent Pricing
               </h2>
               <p className="max-w-[800px] text-muted-foreground md:text-lg">
-                Choose the plan that's right for your business. All plans
-                include a 14-day free trial.
+                Choose the deployment option that's right for your organization.
+                All plans include the full DocWrench platform.
               </p>
             </motion.div>
 
@@ -634,42 +635,44 @@ export default function LandingPage() {
                   <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
                     {[
                       {
-                        name: "Starter",
-                        price: "$29",
-                        description: "Perfect for small teams and startups.",
+                        name: "Community",
+                        price: "Free",
+                        description: "Perfect for small teams and evaluation.",
                         features: [
-                          "Up to 5 team members",
-                          "Basic analytics",
-                          "5GB storage",
-                          "Email support",
+                          "Up to 1,000 documents/month",
+                          "Basic document extraction",
+                          "Community support",
+                          "Self-hosted deployment",
+                          "Open source license",
                         ],
-                        cta: "Start Free Trial",
+                        cta: "Get Started",
                       },
                       {
                         name: "Professional",
-                        price: "$79",
+                        price: "$99",
                         description: "Ideal for growing businesses.",
                         features: [
-                          "Up to 20 team members",
+                          "Up to 10,000 documents/month",
+                          "Advanced AI extraction",
+                          "Custom workflows",
+                          "Priority support",
                           "Advanced analytics",
-                          "25GB storage",
-                          "Priority email support",
                           "API access",
                         ],
-                        cta: "Start Free Trial",
+                        cta: "Start Trial",
                         popular: true,
                       },
                       {
                         name: "Enterprise",
-                        price: "$199",
+                        price: "Custom",
                         description:
-                          "For large organizations with complex needs.",
+                          "For large organizations with high-volume needs.",
                         features: [
-                          "Unlimited team members",
-                          "Custom analytics",
-                          "Unlimited storage",
-                          "24/7 phone & email support",
-                          "Advanced API access",
+                          "Unlimited document processing",
+                          "Custom AI model training",
+                          "Dedicated support",
+                          "On-premise deployment",
+                          "SLA guarantees",
                           "Custom integrations",
                         ],
                         cta: "Contact Sales",
@@ -727,42 +730,44 @@ export default function LandingPage() {
                   <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
                     {[
                       {
-                        name: "Starter",
-                        price: "$23",
-                        description: "Perfect for small teams and startups.",
+                        name: "Community",
+                        price: "Free",
+                        description: "Perfect for small teams and evaluation.",
                         features: [
-                          "Up to 5 team members",
-                          "Basic analytics",
-                          "5GB storage",
-                          "Email support",
+                          "Up to 1,000 documents/month",
+                          "Basic document extraction",
+                          "Community support",
+                          "Self-hosted deployment",
+                          "Open source license",
                         ],
-                        cta: "Start Free Trial",
+                        cta: "Get Started",
                       },
                       {
                         name: "Professional",
-                        price: "$63",
+                        price: "$79",
                         description: "Ideal for growing businesses.",
                         features: [
-                          "Up to 20 team members",
+                          "Up to 10,000 documents/month",
+                          "Advanced AI extraction",
+                          "Custom workflows",
+                          "Priority support",
                           "Advanced analytics",
-                          "25GB storage",
-                          "Priority email support",
                           "API access",
                         ],
-                        cta: "Start Free Trial",
+                        cta: "Start Trial",
                         popular: true,
                       },
                       {
                         name: "Enterprise",
-                        price: "$159",
+                        price: "Custom",
                         description:
-                          "For large organizations with complex needs.",
+                          "For large organizations with high-volume needs.",
                         features: [
-                          "Unlimited team members",
-                          "Custom analytics",
-                          "Unlimited storage",
-                          "24/7 phone & email support",
-                          "Advanced API access",
+                          "Unlimited document processing",
+                          "Custom AI model training",
+                          "Dedicated support",
+                          "On-premise deployment",
+                          "SLA guarantees",
                           "Custom integrations",
                         ],
                         cta: "Contact Sales",
@@ -849,35 +854,34 @@ export default function LandingPage() {
               <Accordion type="single" collapsible className="w-full">
                 {[
                   {
-                    question: "How does the 14-day free trial work?",
+                    question: "How does DocWrench ensure document privacy?",
                     answer:
-                      "Our 14-day free trial gives you full access to all features of your selected plan. No credit card is required to sign up, and you can cancel at any time during the trial period with no obligation.",
+                      "DocWrench processes all documents locally on your infrastructure. No document data ever leaves your environment, ensuring complete privacy and compliance with data protection regulations.",
                   },
                   {
-                    question: "Can I change plans later?",
+                    question: "What types of documents can DocWrench process?",
                     answer:
-                      "Yes, you can upgrade or downgrade your plan at any time. If you upgrade, the new pricing will be prorated for the remainder of your billing cycle. If you downgrade, the new pricing will take effect at the start of your next billing cycle.",
+                      "DocWrench can process virtually any document type including PDFs, images, invoices, contracts, construction blueprints, medical records, legal documents, and more. Our AI adapts to different document structures and layouts.",
                   },
                   {
-                    question: "Is there a limit to how many users I can add?",
+                    question: "Is DocWrench really open source?",
                     answer:
-                      "The number of users depends on your plan. The Starter plan allows up to 5 team members, the Professional plan allows up to 20, and the Enterprise plan has no limit on team members.",
+                      "Yes, DocWrench is fully open source under the MIT license. You have complete access to the source code, can modify it for your needs, and contribute back to the community.",
                   },
                   {
-                    question:
-                      "Do you offer discounts for nonprofits or educational institutions?",
+                    question: "How do custom workflows work?",
                     answer:
-                      "Yes, we offer special pricing for nonprofits, educational institutions, and open-source projects. Please contact our sales team for more information.",
+                      "Custom workflows allow you to define specific extraction rules, validation steps, and output formats for different document types. You can create workflows through our visual interface or programmatically via our API.",
                   },
                   {
-                    question: "How secure is my data?",
+                    question: "What deployment options are available?",
                     answer:
-                      "We take security very seriously. All data is encrypted both in transit and at rest. We use industry-standard security practices and regularly undergo security audits. Our platform is compliant with GDPR, CCPA, and other relevant regulations.",
+                      "DocWrench can be deployed on your own infrastructure (on-premise or cloud), in isolated cloud instances, or you can use our managed service with complete data isolation. All options maintain the same privacy-first principles.",
                   },
                   {
-                    question: "What kind of support do you offer?",
+                    question: "How accurate is the document extraction?",
                     answer:
-                      "Support varies by plan. All plans include email support, with the Professional plan offering priority email support. The Enterprise plan includes 24/7 phone and email support. We also have an extensive knowledge base and community forum available to all users.",
+                      "Our AI-powered extraction typically achieves 95%+ accuracy on structured documents like invoices and forms. For complex documents, accuracy varies but improves over time as the system learns from your specific document types and feedback.",
                   },
                 ].map((faq, i) => (
                   <motion.div
@@ -920,11 +924,11 @@ export default function LandingPage() {
               className="flex flex-col items-center justify-center space-y-6 text-center"
             >
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-                Ready to Transform Your Workflow?
+                Ready to Process Documents Privately?
               </h2>
               <p className="mx-auto max-w-[700px] text-primary-foreground/80 md:text-xl">
-                Join thousands of satisfied customers who have streamlined their
-                processes and boosted productivity with our platform.
+                Join organizations worldwide who trust DocWrench to handle their
+                most sensitive documents with complete privacy and control.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
                 <Button
@@ -932,7 +936,7 @@ export default function LandingPage() {
                   variant="secondary"
                   className="rounded-full h-12 px-8 text-base"
                 >
-                  Start Free Trial
+                  Start Free
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
                 <Button
@@ -940,11 +944,11 @@ export default function LandingPage() {
                   variant="outline"
                   className="rounded-full h-12 px-8 text-base bg-transparent border-white text-white hover:bg-white/10"
                 >
-                  Schedule a Demo
+                  View Documentation
                 </Button>
               </div>
               <p className="text-sm text-primary-foreground/80 mt-4">
-                No credit card required. 14-day free trial. Cancel anytime.
+                Open source. Self-hosted. Privacy-first.
               </p>
             </motion.div>
           </div>
@@ -956,13 +960,14 @@ export default function LandingPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 font-bold">
                 <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground">
-                  S
+                  D
                 </div>
-                <span>SaaSify</span>
+                <span>DocWrench</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Streamline your workflow with our all-in-one SaaS platform.
-                Boost productivity and scale your business.
+                Privacy-first document processing platform. Extract any
+                information from any document while maintaining complete control
+                over your data.
               </p>
               <div className="flex gap-4">
                 <Link
@@ -1030,7 +1035,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="space-y-4">
-              <h4 className="text-sm font-bold">Product</h4>
+              <h4 className="text-sm font-bold">Platform</h4>
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link
@@ -1053,7 +1058,7 @@ export default function LandingPage() {
                     href="#"
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Integrations
+                    Self-Hosting
                   </Link>
                 </li>
                 <li>
@@ -1082,7 +1087,7 @@ export default function LandingPage() {
                     href="#"
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Guides
+                    GitHub
                   </Link>
                 </li>
                 <li>
@@ -1090,7 +1095,7 @@ export default function LandingPage() {
                     href="#"
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Blog
+                    Community
                   </Link>
                 </li>
                 <li>
@@ -1143,7 +1148,7 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col gap-4 sm:flex-row justify-between items-center border-t border-border/40 pt-8">
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} SaaSify. All rights reserved.
+              &copy; {new Date().getFullYear()} DocWrench. All rights reserved.
             </p>
             <div className="flex gap-4">
               <Link
