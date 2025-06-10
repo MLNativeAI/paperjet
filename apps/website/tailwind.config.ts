@@ -2,7 +2,12 @@ import baseConfig from "@docwrench/ui/tailwind.config";
 import type { Config } from "tailwindcss";
 
 export default {
-    content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
+    content: [
+        "./app/**/*.{ts,tsx}",
+        "./components/**/*.{ts,tsx}",
+        "./hooks/**/*.{ts,tsx}",
+        "../../packages/ui/src/**/*.{ts,tsx}"
+    ],
     presets: [baseConfig],
     theme: {
         container: {

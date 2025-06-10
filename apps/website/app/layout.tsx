@@ -1,4 +1,4 @@
-import "@/styles/globals.css";
+import "./globals.css";
 import "@docwrench/ui/globals.css";
 import type React from "react";
 import { Inter } from "next/font/google";

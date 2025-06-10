@@ -14,10 +14,10 @@
     "@hookform/resolvers": "^3.9.1",
     "autoprefixer": "^10.4.20",
     "framer-motion": "latest",
-    "next": "14.2.16",
+    "next": "15.3.3",
     "next-themes": "latest",
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "^19",
+    "react-dom": "^19",
     "react-hook-form": "^7.54.1",
     "zod": "^3.24.1"
   },

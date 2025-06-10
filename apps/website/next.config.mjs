@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    inlineCss: true,
+  },
   transpilePackages: ["@docwrench/ui"],
   eslint: {
     ignoreDuringBuilds: true,
