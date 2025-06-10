@@ -1,8 +1,9 @@
-import type React from "react";
 import "@/styles/globals.css";
+import "@docwrench/ui/globals.css";
+import type React from "react";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
-import { ThemeProvider } from "@/website/components/theme-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 

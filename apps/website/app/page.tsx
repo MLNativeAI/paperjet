@@ -19,21 +19,16 @@ import {
   BarChart,
   Layers,
 } from "lucide-react";
-import { Button } from "@docwrench/ui";
+import { Button } from "@docwrench/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/website/components/ui/accordion";
-import { Badge } from "@/website/components/ui/badge";
-import { Card, CardContent } from "@/website/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/website/components/ui/tabs";
+} from "@docwrench/ui/accordion";
+import { Badge } from "@docwrench/ui/badge";
+import { Card, CardContent } from "@docwrench/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@docwrench/ui/tabs";
 import { useTheme } from "next-themes";
 
 export default function LandingPage() {
