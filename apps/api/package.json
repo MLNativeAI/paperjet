@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "api",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.5.0",
+    "@paperjet/db": "workspace:*",
     "@tanstack/react-router-devtools": "^1.117.1",
     "better-auth": "^1.2.7",
     "dotenv": "^16.5.0",

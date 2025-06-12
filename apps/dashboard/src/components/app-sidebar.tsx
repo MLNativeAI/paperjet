@@ -18,7 +18,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/website/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 import { Route as UploadFileRoute } from "@/routes/_app.upload";
 import { Link } from "@tanstack/react-router";
 import { Route as IndexRoute } from "@/routes/_app.index";

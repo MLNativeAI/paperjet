@@ -1,9 +1,9 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { s3 } from '@/lib/s3'
-import { db } from '@repo/db'
-import { file } from '@repo/db/schema'
-import { uploadFileSchema, type FileDataWithPresignedUrl } from '@repo/db/types'
+import { db } from '@paperjet/db'
+import { file } from '@paperjet/db/schema'
+import { uploadFileSchema, type FileDataWithPresignedUrl } from '@paperjet/db/types'
 import { inArray, eq } from 'drizzle-orm'
 import { getUser } from '@/lib/auth'
 

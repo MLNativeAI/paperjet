@@ -1,8 +1,9 @@
 {
-  "name": "@repo/db",
+  "name": "@paperjet/db",
   "exports": {
     ".": "./index.ts",
-    "./schema": "./schema.ts"
+    "./schema": "./schema.ts",
+    "./types": "./types.ts"
   },
   "scripts": {
     "db:migrate": "drizzle-kit migrate",

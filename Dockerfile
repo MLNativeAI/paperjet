@@ -1,41 +1,59 @@
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
+# Use the official Bun image
+# See all versions at https://hub.docker.com/r/oven/bun/tags
 FROM oven/bun:1 AS base
 WORKDIR /usr/src/app
 
-# Install dependencies and build all packages
-FROM base AS build
-# Copy package.json files for all workspaces
-COPY package.json turbo.json ./
-COPY apps/backend/package.json apps/backend/bun.lock ./apps/backend/
-COPY apps/frontend/package.json apps/frontend/bun.lock ./apps/frontend/
-COPY packages/shared/package.json ./packages/shared/
+# Install turbo globally
+RUN bun install -g turbo@^2
 
-# Install all dependencies
-RUN bun install --frozen-lockfile
-
-# Copy source code
+# Pruner stage - create minimal workspace for both API and dashboard apps
+FROM base AS pruner
 COPY . .
+RUN turbo prune api dashboard --docker
 
-# Build all packages with Turborepo
-RUN bun turbo build
+# Installer stage - install dependencies using pruned lockfile
+FROM base AS installer
+WORKDIR /usr/src/app
+
+# First install the dependencies (as they change less often)
+# Copy the pruned package.json files and lockfile
+COPY --from=pruner /usr/src/app/out/json/ .
+COPY --from=pruner /usr/src/app/out/bun.lock ./bun.lock
+RUN bun install
+
+# Builder stage - build both projects
+FROM base AS builder
+WORKDIR /usr/src/app
+
+# Copy the full pruned source code
+COPY --from=pruner /usr/src/app/out/full/ .
+# Copy installed dependencies from installer stage
+COPY --from=installer /usr/src/app/ .
+
+# Build both the API and dashboard using turbo
+RUN turbo build --filter=api --filter=dashboard
 
 # Final production image
 FROM base AS release
 WORKDIR /usr/src/app
 
 # Copy necessary files for production
-# Copy root node_modules and workspace files
-COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/apps/api ./apps/api
-COPY --from=build /usr/src/app/apps/frontend/dist ./apps/api/public
-COPY --from=build /usr/src/app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder --chown=bun:bun /usr/src/app/apps/api ./apps/api
+COPY --from=builder --chown=bun:bun /usr/src/app/packages ./packages
+COPY --from=builder --chown=bun:bun /usr/src/app/node_modules ./node_modules
 
-# Make the startup script executable
-COPY apps/backend/start.sh .
+# Copy the dashboard build output to the API's public directory
+COPY --from=builder --chown=bun:bun /usr/src/app/apps/dashboard/dist ./apps/api/public
+
+# Copy and make the startup script executable
+COPY --chown=bun:bun apps/api/start.sh .
 RUN chmod +x start.sh
 
-# Run the app
+# Switch to non-root user
 USER bun
+
+# Expose port
 EXPOSE 3000/tcp
-ENTRYPOINT [ "./start.sh" ]
+
+# Run the app
+ENTRYPOINT ["./start.sh"]

@@ -1,7 +1,7 @@
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "../db";
-import * as schema from "../db/schema";
+import { db } from "@paperjet/db";
+import * as schema from "@paperjet/db/schema";
 import { env } from "bun";
 
 const publicRoutes = [

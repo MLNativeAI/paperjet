@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { SidebarProvider, SidebarInset } from "@/website/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 

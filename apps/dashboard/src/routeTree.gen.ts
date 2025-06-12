@@ -8,103 +8,134 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as AuthRouteRouteImport } from './routes/auth/route'
+import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
+import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
+import { Route as AppUploadRouteImport } from './routes/_app.upload'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as AppImport } from './routes/_app'
-import { Route as AuthRouteImport } from './routes/auth/route'
-import { Route as AppIndexImport } from './routes/_app.index'
-import { Route as AuthSignUpImport } from './routes/auth/sign-up'
-import { Route as AuthSignInImport } from './routes/auth/sign-in'
-import { Route as AppUploadImport } from './routes/_app.upload'
-
-// Create/Update Routes
-
-const AppRoute = AppImport.update({
+const AppRoute = AppRouteImport.update({
   id: '/_app',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthRouteRoute = AuthRouteImport.update({
+const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AppIndexRoute = AppIndexImport.update({
+const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-
-const AuthSignUpRoute = AuthSignUpImport.update({
+const AuthSignUpRoute = AuthSignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthSignInRoute = AuthSignInImport.update({
+const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AppUploadRoute = AppUploadImport.update({
+const AppUploadRoute = AppUploadRouteImport.update({
   id: '/upload',
   path: '/upload',
   getParentRoute: () => AppRoute,
 } as any)
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/auth': typeof AuthRouteRouteWithChildren
+  '': typeof AppRouteWithChildren
+  '/upload': typeof AppUploadRoute
+  '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
+  '/': typeof AppIndexRoute
+}
+export interface FileRoutesByTo {
+  '/auth': typeof AuthRouteRouteWithChildren
+  '/upload': typeof AppUploadRoute
+  '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
+  '/': typeof AppIndexRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/auth': typeof AuthRouteRouteWithChildren
+  '/_app': typeof AppRouteWithChildren
+  '/_app/upload': typeof AppUploadRoute
+  '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
+  '/_app/': typeof AppIndexRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/auth' | '' | '/upload' | '/auth/sign-in' | '/auth/sign-up' | '/'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/auth' | '/upload' | '/auth/sign-in' | '/auth/sign-up' | '/'
+  id:
+    | '__root__'
+    | '/auth'
+    | '/_app'
+    | '/_app/upload'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
+    | '/_app/'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  AppRoute: typeof AppRouteWithChildren
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRoute
-    }
     '/_app': {
       id: '/_app'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AppImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/upload': {
-      id: '/_app/upload'
-      path: '/upload'
-      fullPath: '/upload'
-      preLoaderRoute: typeof AppUploadImport
-      parentRoute: typeof AppImport
-    }
-    '/auth/sign-in': {
-      id: '/auth/sign-in'
-      path: '/sign-in'
-      fullPath: '/auth/sign-in'
-      preLoaderRoute: typeof AuthSignInImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/auth/sign-up': {
-      id: '/auth/sign-up'
-      path: '/sign-up'
-      fullPath: '/auth/sign-up'
-      preLoaderRoute: typeof AuthSignUpImport
-      parentRoute: typeof AuthRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/': {
       id: '/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AppIndexImport
-      parentRoute: typeof AppImport
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/auth/sign-up': {
+      id: '/auth/sign-up'
+      path: '/sign-up'
+      fullPath: '/auth/sign-up'
+      preLoaderRoute: typeof AuthSignUpRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/sign-in': {
+      id: '/auth/sign-in'
+      path: '/sign-in'
+      fullPath: '/auth/sign-in'
+      preLoaderRoute: typeof AuthSignInRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_app/upload': {
+      id: '/_app/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof AppUploadRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
-
-// Create and export the route tree
 
 interface AuthRouteRouteChildren {
   AuthSignInRoute: typeof AuthSignInRoute
@@ -132,103 +163,10 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
-export interface FileRoutesByFullPath {
-  '/auth': typeof AuthRouteRouteWithChildren
-  '': typeof AppRouteWithChildren
-  '/upload': typeof AppUploadRoute
-  '/auth/sign-in': typeof AuthSignInRoute
-  '/auth/sign-up': typeof AuthSignUpRoute
-  '/': typeof AppIndexRoute
-}
-
-export interface FileRoutesByTo {
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/upload': typeof AppUploadRoute
-  '/auth/sign-in': typeof AuthSignInRoute
-  '/auth/sign-up': typeof AuthSignUpRoute
-  '/': typeof AppIndexRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/_app': typeof AppRouteWithChildren
-  '/_app/upload': typeof AppUploadRoute
-  '/auth/sign-in': typeof AuthSignInRoute
-  '/auth/sign-up': typeof AuthSignUpRoute
-  '/_app/': typeof AppIndexRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/auth' | '' | '/upload' | '/auth/sign-in' | '/auth/sign-up' | '/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/upload' | '/auth/sign-in' | '/auth/sign-up' | '/'
-  id:
-    | '__root__'
-    | '/auth'
-    | '/_app'
-    | '/_app/upload'
-    | '/auth/sign-in'
-    | '/auth/sign-up'
-    | '/_app/'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  AppRoute: typeof AppRouteWithChildren
-}
-
 const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   AppRoute: AppRouteWithChildren,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/auth",
-        "/_app"
-      ]
-    },
-    "/auth": {
-      "filePath": "auth/route.tsx",
-      "children": [
-        "/auth/sign-in",
-        "/auth/sign-up"
-      ]
-    },
-    "/_app": {
-      "filePath": "_app.tsx",
-      "children": [
-        "/_app/upload",
-        "/_app/"
-      ]
-    },
-    "/_app/upload": {
-      "filePath": "_app.upload.tsx",
-      "parent": "/_app"
-    },
-    "/auth/sign-in": {
-      "filePath": "auth/sign-in.tsx",
-      "parent": "/auth"
-    },
-    "/auth/sign-up": {
-      "filePath": "auth/sign-up.tsx",
-      "parent": "/auth"
-    },
-    "/_app/": {
-      "filePath": "_app.index.tsx",
-      "parent": "/_app"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

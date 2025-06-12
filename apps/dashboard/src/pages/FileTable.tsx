@@ -22,8 +22,8 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 
-import { Button } from "@/website/components/ui/button";
-import { Checkbox } from "@/website/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -32,8 +32,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/website/components/ui/dropdown-menu";
-import { Input } from "@/website/components/ui/input";
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -41,8 +41,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/website/components/ui/table";
-import { type FileDataWithPresignedUrl } from "@backend/db/types";
+} from "@/components/ui/table";
+// import { type FileDataWithPresignedUrl } from "@paperjet/db/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteFilesMutation, getAllFilesQueryOptions } from "@/lib/api";
 
@@ -78,9 +78,7 @@ export function FileTable() {
     const selectedRowIds = Object.keys(rowSelection);
     const selectedFileIds = selectedRowIds
       .map((rowId) => {
-        const fileData = data.find(
-          (file: FileDataWithPresignedUrl) => file.id.toString() === rowId
-        );
+        const fileData = data.find((file: any) => file.id.toString() === rowId);
         return fileData?.id;
       })
       .filter((id): id is string => id !== undefined);
@@ -91,7 +89,7 @@ export function FileTable() {
   };
 
   // Define columns inside the component to have access to the mutation
-  const columns = React.useMemo<ColumnDef<FileDataWithPresignedUrl>[]>(
+  const columns = React.useMemo<ColumnDef<any>[]>(
     () => [
       {
         id: "select",

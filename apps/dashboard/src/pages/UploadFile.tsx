@@ -3,9 +3,7 @@
 import { File, Loader2 } from "lucide-react";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/website/components/ui/button";
-// import { type ApiRoutes } from "../../../backend";
-// import { hc } from "hono/client";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { uploadFile } from "@/lib/api";
