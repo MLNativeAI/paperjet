@@ -7,10 +7,8 @@ import type { Metadata } from "next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SaaSify - Streamline Your Workflow",
-  description:
-    "Boost productivity, reduce costs, and scale your business with our all-in-one SaaS platform.",
-  generator: "v0.dev",
+  title: "PaperJet",
+  description: "Secure document processing for your business.",
 };
 
 export default function RootLayout({
