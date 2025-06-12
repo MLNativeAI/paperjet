@@ -1,0 +1,18 @@
+[phases.setup]
+# Add 'bun' to the nixPkgs list
+nixPkgs = [
+#   'nodejs_18', # You might still need nodejs for some dependencies, but Bun is the primary here.
+  'bun',       # <--- Add this line to include Bun
+#   'npm-9_x',   # You might not need npm if you're fully on Bun, but leaving it for now.
+]
+# nixOverlays = ['https://github.com/railwayapp/nix-npm-overlay/archive/main.tar.gz']
+# nixpkgsArchive = 'ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7' # Keep this as it is from your logs
+
+# [phases.install]
+# cmds = ['bun i']
+
+# [phases.build]
+# cmds = ['bun run build']
+
+# [start]
+# cmd = 'bun start'
