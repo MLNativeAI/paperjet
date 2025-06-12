@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@docwrench/ui/button";
+import { Button } from "@paperjet/ui/button";
 
 export function CTA() {
   return (
@@ -23,8 +23,8 @@ export function CTA() {
             Ready to Process Documents Privately?
           </h2>
           <p className="mx-auto max-w-[700px] text-primary-foreground/80 md:text-xl">
-            Join organizations worldwide who trust DocWrench to handle their
-            most sensitive documents with complete privacy and control.
+            Join organizations worldwide who trust PaperJet to handle their most
+            sensitive documents with complete privacy and control.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
             <Button

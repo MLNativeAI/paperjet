@@ -1,1 +1,1 @@
-module.exports = require("@docwrench/ui/postcss");
+module.exports = require("@paperjet/ui/postcss");

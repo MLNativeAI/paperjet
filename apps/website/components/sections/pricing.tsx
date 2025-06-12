@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
-import { Badge } from "@docwrench/ui/badge";
-import { Button } from "@docwrench/ui/button";
-import { Card, CardContent } from "@docwrench/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@docwrench/ui/tabs";
+import { Badge } from "@paperjet/ui/badge";
+import { Button } from "@paperjet/ui/button";
+import { Card, CardContent } from "@paperjet/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@paperjet/ui/tabs";
 
 const monthlyPlans = [
   {
@@ -128,7 +128,7 @@ export function Pricing() {
           </h2>
           <p className="max-w-[800px] text-muted-foreground md:text-lg">
             Choose the deployment option that's right for your organization. All
-            plans include the full DocWrench platform.
+            plans include the full PaperJet platform.
           </p>
         </motion.div>
 

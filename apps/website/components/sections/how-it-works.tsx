@@ -1,20 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Badge } from "@docwrench/ui/badge";
+import { Badge } from "@paperjet/ui/badge";
 
 const steps = [
   {
     step: "01",
     title: "Upload a Document",
     description:
-      "Simply drag and drop or upload any document - PDFs, images, forms, or scanned files. DocWrench handles all formats.",
+      "Simply drag and drop or upload any document - PDFs, images, forms, or scanned files. PaperJet handles all formats.",
   },
   {
     step: "02",
     title: "Describe What You Want",
     description:
-      "Tell DocWrench what data to extract in plain English. No complex configuration - just describe your needs naturally.",
+      "Tell PaperJet what data to extract in plain English. No complex configuration - just describe your needs naturally.",
   },
   {
     step: "03",
@@ -47,7 +47,7 @@ export function HowItWorks() {
             Simple Setup, Powerful Results
           </h2>
           <p className="max-w-[800px] text-muted-foreground md:text-lg">
-            Get started with DocWrench in minutes and begin processing documents
+            Get started with PaperJet in minutes and begin processing documents
             securely on your own terms.
           </p>
         </motion.div>

@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@docwrench/ui": "workspace:*",
+    "@paperjet/ui": "workspace:*",
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.9.1",
     "autoprefixer": "^10.4.20",

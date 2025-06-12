@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronRight, Menu, X, Moon, Sun } from "lucide-react";
-import { Button } from "@docwrench/ui/button";
+import { Button } from "@paperjet/ui/button";
 import { useTheme } from "next-themes";
 
 const navigationLinks = [
@@ -47,7 +47,7 @@ export const Header = () => {
           <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground">
             D
           </div>
-          <span>DocWrench</span>
+          <span>PaperJet</span>
         </div>
         <nav className="hidden md:flex gap-8">
           {navigationLinks.map((link) => (

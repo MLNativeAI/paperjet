@@ -1,29 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Badge } from "@docwrench/ui/badge";
+import { Badge } from "@paperjet/ui/badge";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@docwrench/ui/accordion";
+} from "@paperjet/ui/accordion";
 
 const faqs = [
   {
-    question: "How does DocWrench ensure document privacy?",
+    question: "How does PaperJet ensure document privacy?",
     answer:
-      "DocWrench processes all documents locally on your infrastructure. No document data ever leaves your environment, ensuring complete privacy and compliance with data protection regulations.",
+      "PaperJet processes all documents locally on your infrastructure. No document data ever leaves your environment, ensuring complete privacy and compliance with data protection regulations.",
   },
   {
-    question: "What types of documents can DocWrench process?",
+    question: "What types of documents can PaperJet process?",
     answer:
-      "DocWrench can process virtually any document type including PDFs, images, invoices, contracts, construction blueprints, medical records, legal documents, and more. Our AI adapts to different document structures and layouts.",
+      "PaperJet can process virtually any document type including PDFs, images, invoices, contracts, construction blueprints, medical records, legal documents, and more. Our AI adapts to different document structures and layouts.",
   },
   {
-    question: "Is DocWrench really open source?",
+    question: "Is PaperJet really open source?",
     answer:
-      "Yes, DocWrench is fully open source under the MIT license. You have complete access to the source code, can modify it for your needs, and contribute back to the community.",
+      "Yes, PaperJet is fully open source under the MIT license. You have complete access to the source code, can modify it for your needs, and contribute back to the community.",
   },
   {
     question: "How do custom workflows work?",
@@ -33,7 +33,7 @@ const faqs = [
   {
     question: "What deployment options are available?",
     answer:
-      "DocWrench can be deployed on your own infrastructure (on-premise or cloud), in isolated cloud instances, or you can use our managed service with complete data isolation. All options maintain the same privacy-first principles.",
+      "PaperJet can be deployed on your own infrastructure (on-premise or cloud), in isolated cloud instances, or you can use our managed service with complete data isolation. All options maintain the same privacy-first principles.",
   },
   {
     question: "How accurate is the document extraction?",

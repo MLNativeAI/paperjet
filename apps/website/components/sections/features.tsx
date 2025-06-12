@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Zap, Shield, Users, BarChart, Layers, Star } from "lucide-react";
-import { Badge } from "@docwrench/ui/badge";
-import { Card, CardContent } from "@docwrench/ui/card";
+import { Badge } from "@paperjet/ui/badge";
+import { Card, CardContent } from "@paperjet/ui/card";
 
 const container = {
   hidden: { opacity: 0 },

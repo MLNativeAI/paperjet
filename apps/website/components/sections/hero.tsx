@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Check } from "lucide-react";
-import { Button } from "@docwrench/ui/button";
-import { Badge } from "@docwrench/ui/badge";
+import { Button } from "@paperjet/ui/button";
+import { Badge } from "@paperjet/ui/badge";
 
 export function Hero() {
   return (
@@ -64,7 +64,7 @@ export function Hero() {
               src="https://cdn.dribbble.com/userupload/12302729/file/original-fa372845e394ee85bebe0389b9d86871.png?resize=1504x1128&vertical=center"
               width={1280}
               height={720}
-              alt="DocWrench dashboard"
+              alt="PaperJet dashboard"
               className="w-full h-auto"
               priority
             />

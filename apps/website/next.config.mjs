@@ -3,7 +3,7 @@ const nextConfig = {
   experimental: {
     inlineCss: true,
   },
-  transpilePackages: ["@docwrench/ui"],
+  transpilePackages: ["@paperjet/ui"],
   eslint: {
     ignoreDuringBuilds: true,
   },

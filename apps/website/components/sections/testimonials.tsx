@@ -2,13 +2,13 @@
 
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
-import { Badge } from "@docwrench/ui/badge";
-import { Card, CardContent } from "@docwrench/ui/card";
+import { Badge } from "@paperjet/ui/badge";
+import { Card, CardContent } from "@paperjet/ui/card";
 
 const testimonials = [
   {
     quote:
-      "DocWrench has revolutionized how we process construction documents. The privacy-first approach means we can handle sensitive blueprints without worrying about data breaches.",
+      "PaperJet has revolutionized how we process construction documents. The privacy-first approach means we can handle sensitive blueprints without worrying about data breaches.",
     author: "Sarah Chen",
     role: "IT Director, BuildCorp",
     rating: 5,
@@ -22,21 +22,21 @@ const testimonials = [
   },
   {
     quote:
-      "The custom workflows feature is incredible. We process everything from invoices to legal contracts, and DocWrench handles them all with amazing accuracy.",
+      "The custom workflows feature is incredible. We process everything from invoices to legal contracts, and PaperJet handles them all with amazing accuracy.",
     author: "Emily Rodriguez",
     role: "Operations Manager, LegalTech Inc",
     rating: 5,
   },
   {
     quote:
-      "Self-hosting DocWrench gives us complete control over our document processing pipeline. No more sending sensitive data to third-party services.",
+      "Self-hosting PaperJet gives us complete control over our document processing pipeline. No more sending sensitive data to third-party services.",
     author: "David Kim",
     role: "CTO, SecureData Systems",
     rating: 5,
   },
   {
     quote:
-      "The extraction accuracy on our complex engineering documents is outstanding. DocWrench understands document structure better than any solution we've tried.",
+      "The extraction accuracy on our complex engineering documents is outstanding. PaperJet understands document structure better than any solution we've tried.",
     author: "Lisa Patel",
     role: "Document Manager, EngineerPro",
     rating: 5,
@@ -71,7 +71,7 @@ export function Testimonials() {
             Trusted by Privacy-Conscious Organizations
           </h2>
           <p className="max-w-[800px] text-muted-foreground md:text-lg">
-            See how organizations are using DocWrench to process sensitive
+            See how organizations are using PaperJet to process sensitive
             documents while maintaining complete control over their data.
           </p>
         </motion.div>

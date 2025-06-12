@@ -9,7 +9,7 @@ export const Footer = () => (
             <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground">
               D
             </div>
-            <span>DocWrench</span>
+            <span>PaperJet</span>
           </div>
           <p className="text-sm text-muted-foreground">
             Privacy-first document processing platform. Extract any information
@@ -194,7 +194,7 @@ export const Footer = () => (
       </div>
       <div className="flex flex-col gap-4 sm:flex-row justify-between items-center border-t border-border/40 pt-8">
         <p className="text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} DocWrench. All rights reserved.
+          &copy; {new Date().getFullYear()} PaperJet. All rights reserved.
         </p>
         <div className="flex gap-4">
           <Link

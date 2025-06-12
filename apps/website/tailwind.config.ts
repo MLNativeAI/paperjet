@@ -1,4 +1,4 @@
-import baseConfig from "@docwrench/ui/tailwind.config";
+import baseConfig from "@paperjet/ui/tailwind.config";
 import type { Config } from "tailwindcss";
 
 export default {
