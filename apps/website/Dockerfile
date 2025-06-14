@@ -8,6 +8,7 @@ WORKDIR /app
 # Copy package files from monorepo root and workspace
 COPY package.json bun.lock ./
 COPY packages/ui/package.json ./packages/ui/package.json
+COPY packages/email/package.json ./packages/email/package.json
 COPY apps/website/package.json ./apps/website/package.json
 
 # Install dependencies
