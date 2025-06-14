@@ -90,30 +90,30 @@ export const Footer = () => (
                 Features
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 href="#pricing"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Pricing
               </Link>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <Link
                 href="#"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Self-Hosting
               </Link>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <Link
                 href="#"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 API
               </Link>
-            </li>
+            </li> */}
           </ul>
         </div>
         <div className="space-y-4">
@@ -121,7 +121,7 @@ export const Footer = () => (
           <ul className="space-y-2 text-sm">
             <li>
               <Link
-                href="#"
+                href="https://docs.paperjet.com"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Documentation
@@ -129,23 +129,23 @@ export const Footer = () => (
             </li>
             <li>
               <Link
-                href="#"
+                href="https://github.com/mlnativeai/paperjet"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 GitHub
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 href="#"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Community
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link
-                href="#"
+                href="https://github.com/MLNativeAI/paperjet/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Support
@@ -158,18 +158,10 @@ export const Footer = () => (
           <ul className="space-y-2 text-sm">
             <li>
               <Link
-                href="#"
+                href="https://mlnative.com"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 About
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Careers
               </Link>
             </li>
             <li>
@@ -191,11 +183,11 @@ export const Footer = () => (
           </ul>
         </div>
       </div>
-      <div className="flex flex-col gap-4 sm:flex-row justify-between items-center border-t border-border/40 pt-8">
+      <div className="flex flex-col gap-4 sm:flex-row justify-between items-center border-t border-border/40 mt-4 pt-4">
         <p className="text-xs text-center sm:text-left text-muted-foreground">
-          &copy; {new Date().getFullYear()} PaperJet. All rights reserved.
+          &copy; {new Date().getFullYear()} mlnative. All rights reserved.
         </p>
-        <div className="flex flex-wrap justify-center sm:justify-end gap-4">
+        {/* <div className="flex flex-wrap justify-center sm:justify-end gap-4">
           <Link
             href="#"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -214,7 +206,7 @@ export const Footer = () => (
           >
             Cookie Policy
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   </footer>
