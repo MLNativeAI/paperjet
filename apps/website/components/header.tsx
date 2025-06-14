@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronRight, Menu, X } from "lucide-react";
-import { Button } from "@paperjet/ui/button";
+import { SignupModal } from "@/components/signup-modal";
 
 const navigationLinks = [
   { href: "#features", label: "Features" },
@@ -13,11 +13,7 @@ const navigationLinks = [
   { href: "#faq", label: "FAQ" },
 ];
 
-interface HeaderProps {
-  onSignupClick: () => void;
-}
-
-export const Header = ({ onSignupClick }: HeaderProps) => {
+export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -35,11 +31,6 @@ export const Header = ({ onSignupClick }: HeaderProps) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSignupClick = () => {
-    onSignupClick();
-    setMobileMenuOpen(false); // Close mobile menu if open
-  };
 
   return (
     <header
@@ -64,21 +55,18 @@ export const Header = ({ onSignupClick }: HeaderProps) => {
           ))}
         </nav>
         <div className="hidden md:flex gap-4 items-center">
-          <button
-            onClick={handleSignupClick}
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Log in
-          </button>
-          <Button
-            onClick={handleSignupClick}
-            className="rounded-full cursor-pointer"
-          >
-            <span className="flex items-center">
-              Get Started
-              <ChevronRight className="ml-1 size-4" />
-            </span>
-          </Button>
+          <SignupModal
+            triggerText="Log in"
+            triggerVariant="ghost"
+            triggerSize="default"
+            triggerClassName="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          />
+          <SignupModal
+            triggerText="Get Started"
+            triggerVariant="default"
+            triggerSize="default"
+            triggerClassName="rounded-full cursor-pointer flex items-center"
+          />
         </div>
 
         {/* Mobile menu button */}
@@ -116,21 +104,18 @@ export const Header = ({ onSignupClick }: HeaderProps) => {
               ))}
             </nav>
             <div className="flex flex-col gap-2 pt-2 border-t">
-              <button
-                onClick={handleSignupClick}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground py-2"
-              >
-                Log in
-              </button>
-              <Button
-                onClick={handleSignupClick}
-                className="rounded-full cursor-pointer"
-              >
-                <span className="flex items-center">
-                  Get Started
-                  <ChevronRight className="ml-1 size-4" />
-                </span>
-              </Button>
+              <SignupModal
+                triggerText="Log in"
+                triggerVariant="ghost"
+                triggerSize="default"
+                triggerClassName="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground py-2 justify-start"
+              />
+              <SignupModal
+                triggerText="Get Started"
+                triggerVariant="default"
+                triggerSize="default"
+                triggerClassName="rounded-full cursor-pointer flex items-center"
+              />
             </div>
           </div>
         </motion.div>

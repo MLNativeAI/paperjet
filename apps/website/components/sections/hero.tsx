@@ -4,13 +4,10 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Check } from "lucide-react";
-import { Button } from "@paperjet/ui/button";
+import { Button } from "@/components/ui/button";
+import { SignupModal } from "@/components/signup-modal";
 
-interface HeroProps {
-  onSignupClick: () => void;
-}
-
-export function Hero({ onSignupClick }: HeroProps) {
+export function Hero() {
   return (
     <section className="w-full py-20 md:py-32 lg:py-40 overflow-hidden">
       <div className="container px-4 md:px-6 relative">
@@ -28,16 +25,13 @@ export function Hero({ onSignupClick }: HeroProps) {
             Build custom workflows while keeping your data private.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="rounded-full h-12 px-8 text-base cursor-pointer"
-              onClick={onSignupClick}
-            >
-              <span className="flex items-center">
-                Get Early Access
-                <ArrowRight className="ml-2 size-4" />
-              </span>
-            </Button>
+            <SignupModal
+              triggerText="Get Early Access"
+              triggerVariant="default"
+              triggerSize="lg"
+              triggerClassName="rounded-full h-12 px-8 text-base cursor-pointer flex items-center"
+              showArrow={true}
+            />
             <Button
               size="lg"
               variant="outline"

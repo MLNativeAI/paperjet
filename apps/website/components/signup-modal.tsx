@@ -2,26 +2,50 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "@paperjet/ui/button";
+import {
+  X,
+  Mail,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@paperjet/ui/dialog";
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface SignupModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  triggerText?: string;
+  triggerVariant?:
+    | "default"
+    | "outline"
+    | "ghost"
+    | "link"
+    | "destructive"
+    | "secondary";
+  triggerSize?: "default" | "sm" | "lg" | "icon";
+  triggerClassName?: string;
+  showArrow?: boolean;
 }
 
-export function SignupModal({ isOpen, onClose }: SignupModalProps) {
+export function SignupModal({
+  triggerText = "Get Early Access",
+  triggerVariant = "default",
+  triggerSize = "lg",
+  triggerClassName = "",
+  showArrow = false,
+}: SignupModalProps = {}) {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [open, setOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +75,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         setMessage("Thank you! We'll notify you when PaperJet launches.");
         setEmail("");
         setTimeout(() => {
-          onClose();
+          setOpen(false);
           setStatus("idle");
           setMessage("");
         }, 3000);
@@ -67,17 +91,29 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     }
   };
 
-  const handleClose = () => {
+  const handleOpenChange = (newOpen: boolean) => {
     if (!isLoading) {
-      onClose();
-      setEmail("");
-      setStatus("idle");
-      setMessage("");
+      setOpen(newOpen);
+      if (!newOpen) {
+        setEmail("");
+        setStatus("idle");
+        setMessage("");
+      }
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button
+          variant={triggerVariant}
+          size={triggerSize}
+          className={triggerClassName}
+        >
+          {triggerText}
+          {showArrow && <ArrowRight className="ml-2 h-4 w-4" />}
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
@@ -141,7 +177,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             <Button
               type="button"
               variant="outline"
-              onClick={handleClose}
+              onClick={() => handleOpenChange(false)}
               disabled={isLoading}
             >
               Cancel

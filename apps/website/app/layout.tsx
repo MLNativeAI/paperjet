@@ -1,4 +1,4 @@
-import "@paperjet/ui/globals.css";
+import "../styles.css";
 import type React from "react";
 import type { Metadata } from "next";
 

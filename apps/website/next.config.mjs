@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@paperjet/ui"],
+  // transpilePackages: ["@paperjet/ui"],
   // eslint: {
   //   ignoreDuringBuilds: true,
   // },

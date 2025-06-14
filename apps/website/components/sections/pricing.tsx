@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
-import { Badge } from "@paperjet/ui/badge";
-import { Button } from "@paperjet/ui/button";
-import { Card, CardContent } from "@paperjet/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@paperjet/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const monthlyPlans = [
   {

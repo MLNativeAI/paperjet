@@ -3,12 +3,9 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@paperjet/ui/button";
+import { SignupModal } from "@/components/signup-modal";
 
-interface CTAProps {
-  onSignupClick: () => void;
-}
-
-export function CTA({ onSignupClick }: CTAProps) {
+export function CTA() {
   return (
     <section className="w-full py-20 md:py-32 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
@@ -31,17 +28,12 @@ export function CTA({ onSignupClick }: CTAProps) {
             sensitive documents with complete privacy and control.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
-            <Button
-              size="lg"
-              variant="default"
-              className="rounded-full h-12 px-8 text-base text-primary-foreground cursor-pointer"
-              onClick={onSignupClick}
-            >
-              <span className="flex items-center">
-                Start Free
-                <ArrowRight className="ml-2 size-4" />
-              </span>
-            </Button>
+            <SignupModal
+              triggerText="Start Free"
+              triggerVariant="default"
+              triggerSize="lg"
+              triggerClassName="rounded-full h-12 px-8 text-base text-primary-foreground cursor-pointer flex items-center"
+            />
             <Button
               size="lg"
               variant="outline"

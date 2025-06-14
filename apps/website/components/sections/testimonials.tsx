@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
-import { Badge } from "@paperjet/ui/badge";
-import { Card, CardContent } from "@paperjet/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 const testimonials = [
   {
