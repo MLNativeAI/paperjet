@@ -12,8 +12,7 @@ export const Footer = () => (
             <span>PaperJet</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Privacy-first document processing platform. Extract any information
-            from any document while maintaining complete control over your data.
+            Privacy-first document processing platform.
           </p>
           <div className="flex gap-4">
             <Link
