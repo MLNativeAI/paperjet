@@ -13,17 +13,17 @@ const faqs = [
   {
     question: "How does PaperJet ensure document privacy?",
     answer:
-      "PaperJet processes all documents locally on your infrastructure. No document data ever leaves your environment, ensuring complete privacy and compliance with data protection regulations.",
+      "Our solutions is fully open source and you can host it on your own infrastructure. We also offer a managed service with complete data isolation.",
   },
   {
     question: "What types of documents can PaperJet process?",
     answer:
-      "PaperJet can process virtually any document type including PDFs, images, invoices, contracts, construction blueprints, medical records, legal documents, and more. Our AI adapts to different document structures and layouts.",
+      "PaperJet can process virtually any document type including PDFs, images, invoices, contracts, construction blueprints, medical records, legal documents, and more. If you have a niche use case you'd like to solve, feel free to reach out to us.",
   },
   {
-    question: "Is PaperJet really open source?",
+    question: "Can I use PaperJet for my business?",
     answer:
-      "Yes, PaperJet is fully open source under the MIT license. You have complete access to the source code, can modify it for your needs, and contribute back to the community.",
+      "PaperJet is free for personal use under the MIT license. For business use, you'll need to purchase a commercial license. ",
   },
   {
     question: "How do custom workflows work?",

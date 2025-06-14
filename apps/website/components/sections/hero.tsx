@@ -36,8 +36,15 @@ export function Hero() {
               size="lg"
               variant="outline"
               className="rounded-full h-12 px-8 text-base cursor-pointer"
+              asChild
             >
-              Book a Demo
+              <Link
+                href="https://calendly.com/mlnative/chat"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Book a Demo
+              </Link>
             </Button>
           </div>
           <div className="flex items-center justify-center gap-4 mt-6 text-sm text-muted-foreground">
