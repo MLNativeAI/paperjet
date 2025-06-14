@@ -13,7 +13,7 @@ const faqs = [
   {
     question: "How does PaperJet ensure document privacy?",
     answer:
-      "Our solutions is fully open source and you can host it on your own infrastructure. We also offer a managed service with complete data isolation.",
+      "Our solution is fully open source and you can host it on your own infrastructure. This means that no data ever leaves your environment. We also do not depend on any 3rd party tooling on our core infrastructure - everything can be set up with a simple Docker setup. Our cloud service uses models from large AI providers, however we plan on moving to dedicated deployment in the future.",
   },
   {
     question: "What types of documents can PaperJet process?",
@@ -26,9 +26,9 @@ const faqs = [
       "PaperJet is free for personal use under the MIT license. For business use, you'll need to purchase a commercial license. ",
   },
   {
-    question: "How do custom workflows work?",
+    question: "What are workflows?",
     answer:
-      "Custom workflows allow you to define specific extraction rules, validation steps, and output formats for different document types. You can create workflows through our visual interface or programmatically via our API.",
+      "Workflows are a way to define specific extraction rules, validation steps, and output formats for different document types. It's a blueprint for how PaperJet should process your documents.",
   },
   {
     question: "What deployment options are available?",
@@ -36,9 +36,9 @@ const faqs = [
       "PaperJet can be deployed on your own infrastructure (on-premise or cloud), in isolated cloud instances, or you can use our managed service with complete data isolation. All options maintain the same privacy-first principles.",
   },
   {
-    question: "How accurate is the document extraction?",
+    question: "Can I use my own LLM?",
     answer:
-      "Our AI-powered extraction typically achieves 95%+ accuracy on structured documents like invoices and forms. For complex documents, accuracy varies but improves over time as the system learns from your specific document types and feedback.",
+      "Yes, you can use your own LLM. We support any LLM that supports the OpenAI API format.",
   },
 ];
 
