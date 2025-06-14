@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@paperjet/ui/button";
-import { Badge } from "@paperjet/ui/badge";
-import { SignupModal } from "../signup-modal";
 
-export function Hero() {
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+interface HeroProps {
+  onSignupClick: () => void;
+}
+
+export function Hero({ onSignupClick }: HeroProps) {
   return (
     <section className="w-full py-20 md:py-32 lg:py-40 overflow-hidden">
       <div className="container px-4 md:px-6 relative">
@@ -30,16 +30,18 @@ export function Hero() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
-              className="rounded-full h-12 px-8 text-base"
-              onClick={() => setIsSignupModalOpen(true)}
+              className="rounded-full h-12 px-8 text-base cursor-pointer"
+              onClick={onSignupClick}
             >
-              Get Early Access
-              <ArrowRight className="ml-2 size-4" />
+              <span className="flex items-center">
+                Get Early Access
+                <ArrowRight className="ml-2 size-4" />
+              </span>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="rounded-full h-12 px-8 text-base"
+              className="rounded-full h-12 px-8 text-base cursor-pointer"
             >
               Book a Demo
             </Button>
@@ -81,11 +83,6 @@ export function Hero() {
           <div className="absolute -top-6 -left-6 -z-10 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-secondary/30 to-primary/30 blur-3xl opacity-70"></div>
         </motion.div>
       </div>
-
-      <SignupModal
-        isOpen={isSignupModalOpen}
-        onClose={() => setIsSignupModalOpen(false)}
-      />
     </section>
   );
 }

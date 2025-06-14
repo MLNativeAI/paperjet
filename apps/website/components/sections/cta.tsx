@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@paperjet/ui/button";
-import { SignupModal } from "../signup-modal";
 
-export function CTA() {
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+interface CTAProps {
+  onSignupClick: () => void;
+}
 
+export function CTA({ onSignupClick }: CTAProps) {
   return (
     <section className="w-full py-20 md:py-32 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
@@ -33,17 +33,19 @@ export function CTA() {
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
             <Button
               size="lg"
-              variant="secondary"
-              className="rounded-full h-12 px-8 text-base"
-              onClick={() => setIsSignupModalOpen(true)}
+              variant="default"
+              className="rounded-full h-12 px-8 text-base text-primary-foreground cursor-pointer"
+              onClick={onSignupClick}
             >
-              Start Free
-              <ArrowRight className="ml-2 size-4" />
+              <span className="flex items-center">
+                Start Free
+                <ArrowRight className="ml-2 size-4" />
+              </span>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="rounded-full h-12 px-8 text-base bg-transparent border-white text-white hover:bg-white/10"
+              className="rounded-full h-12 px-8 text-base bg-transparent border-white text-white hover:bg-white/10 cursor-pointer"
             >
               View Documentation
             </Button>
@@ -53,11 +55,6 @@ export function CTA() {
           </p>
         </motion.div>
       </div>
-
-      <SignupModal
-        isOpen={isSignupModalOpen}
-        onClose={() => setIsSignupModalOpen(false)}
-      />
     </section>
   );
 }

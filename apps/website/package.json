@@ -13,7 +13,6 @@
     "@hookform/resolvers": "^3.9.1",
     "@paperjet/ui": "workspace:*",
     "@paperjet/email": "workspace:*",
-    "autoprefixer": "^10.4.20",
     "framer-motion": "latest",
     "next": "15.3.3",
     "next-themes": "latest",

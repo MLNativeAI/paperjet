@@ -1,1 +1,6 @@
-module.exports = require("@paperjet/ui/postcss");
+module.exports = {
+    plugins: {
+      "@tailwindcss/postcss": {},
+    },
+  };
+  

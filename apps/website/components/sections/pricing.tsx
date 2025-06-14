@@ -186,10 +186,12 @@ export function Pricing() {
                           ))}
                         </ul>
                         <Button
-                          className={`w-full mt-auto rounded-full ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-muted hover:bg-muted/80"}`}
+                          className={`w-full mt-auto rounded-full cursor-pointer ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-muted hover:bg-muted/80"}`}
                           variant={plan.popular ? "default" : "outline"}
                         >
-                          {plan.cta}
+                          <span className="flex items-center justify-center">
+                            {plan.cta}
+                          </span>
                         </Button>
                       </CardContent>
                     </Card>
@@ -239,10 +241,12 @@ export function Pricing() {
                           ))}
                         </ul>
                         <Button
-                          className={`w-full mt-auto rounded-full ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-muted hover:bg-muted/80"}`}
+                          className={`w-full mt-auto rounded-full cursor-pointer ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-muted hover:bg-muted/80"}`}
                           variant={plan.popular ? "default" : "outline"}
                         >
-                          {plan.cta}
+                          <span className="flex items-center justify-center">
+                            {plan.cta}
+                          </span>
                         </Button>
                       </CardContent>
                     </Card>

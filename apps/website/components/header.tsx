@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronRight, Menu, X, Moon, Sun } from "lucide-react";
+import { ChevronRight, Menu, X } from "lucide-react";
 import { Button } from "@paperjet/ui/button";
-import { useTheme } from "next-themes";
-import { SignupModal } from "./signup-modal";
 
 const navigationLinks = [
   { href: "#features", label: "Features" },
@@ -15,11 +13,13 @@ const navigationLinks = [
   { href: "#faq", label: "FAQ" },
 ];
 
-export const Header = () => {
+interface HeaderProps {
+  onSignupClick: () => void;
+}
+
+export const Header = ({ onSignupClick }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-  //   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -36,12 +36,8 @@ export const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  //   const toggleTheme = () => {
-  //     setTheme(theme === "dark" ? "light" : "dark");
-  //   };
-
   const handleSignupClick = () => {
-    setIsSignupModalOpen(true);
+    onSignupClick();
     setMobileMenuOpen(false); // Close mobile menu if open
   };
 
@@ -49,7 +45,7 @@ export const Header = () => {
     <header
       className={`sticky top-0 z-50 w-full backdrop-blur-lg transition-all duration-300 ${isScrolled ? "bg-background/80 shadow-sm" : "bg-transparent"}`}
     >
-      <div className="container flex h-16 items-center justify-between">
+      <div className="mx-auto max-w-7xl flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2 font-bold">
           <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground">
             D
@@ -68,96 +64,77 @@ export const Header = () => {
           ))}
         </nav>
         <div className="hidden md:flex gap-4 items-center">
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="rounded-full"
-          >
-            {mounted && theme === "dark" ? (
-              <Sun className="size-[18px]" />
-            ) : (
-              <Moon className="size-[18px]" />
-            )}
-            <span className="sr-only">Toggle theme</span>
-          </Button> */}
           <button
             onClick={handleSignupClick}
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Log in
           </button>
-          <Button className="rounded-full" onClick={handleSignupClick}>
-            Get Started
-            <ChevronRight className="ml-1 size-4" />
-          </Button>
-        </div>
-        <div className="flex items-center gap-4 md:hidden">
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="rounded-full"
-          >
-            {mounted && theme === "dark" ? (
-              <Sun className="size-[18px]" />
-            ) : (
-              <Moon className="size-[18px]" />
-            )}
-          </Button> */}
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={handleSignupClick}
+            className="rounded-full cursor-pointer"
           >
-            {mobileMenuOpen ? (
-              <X className="size-5" />
-            ) : (
-              <Menu className="size-5" />
-            )}
-            <span className="sr-only">Toggle menu</span>
+            <span className="flex items-center">
+              Get Started
+              <ChevronRight className="ml-1 size-4" />
+            </span>
           </Button>
         </div>
+
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden"
+        >
+          {mobileMenuOpen ? (
+            <X className="size-6" />
+          ) : (
+            <Menu className="size-6" />
+          )}
+        </button>
       </div>
+
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="md:hidden absolute top-16 inset-x-0 bg-background/95 backdrop-blur-lg border-b"
+          className="md:hidden border-t bg-background/95 backdrop-blur-lg"
         >
-          <div className="container py-4 flex flex-col gap-4">
-            {navigationLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="py-2 text-sm font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="container py-4 px-4 md:px-6 flex flex-col gap-4">
+            <nav className="flex flex-col gap-2">
+              {navigationLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground py-2"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
             <div className="flex flex-col gap-2 pt-2 border-t">
               <button
                 onClick={handleSignupClick}
-                className="py-2 text-sm font-medium text-left"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground py-2"
               >
                 Log in
               </button>
-              <Button className="rounded-full" onClick={handleSignupClick}>
-                Get Started
-                <ChevronRight className="ml-1 size-4" />
+              <Button
+                onClick={handleSignupClick}
+                className="rounded-full cursor-pointer"
+              >
+                <span className="flex items-center">
+                  Get Started
+                  <ChevronRight className="ml-1 size-4" />
+                </span>
               </Button>
             </div>
           </div>
         </motion.div>
       )}
-
-      <SignupModal
-        isOpen={isSignupModalOpen}
-        onClose={() => setIsSignupModalOpen(false)}
-      />
     </header>
   );
 };
