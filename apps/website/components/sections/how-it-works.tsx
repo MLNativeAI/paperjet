@@ -53,7 +53,7 @@ export function HowItWorks() {
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8 md:gap-12 relative">
-          <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-border to-transparent -translate-y-1/2 z-0"></div>
+          {/* <div className="hidden md:block absolute top-8 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-border to-transparent z-0"></div> */}
 
           {steps.map((step, i) => (
             <motion.div

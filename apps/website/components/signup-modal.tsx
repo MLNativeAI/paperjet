@@ -39,7 +39,7 @@ export function SignupModal({
   triggerVariant = "default",
   triggerSize = "lg",
   triggerClassName = "",
-  showArrow = false,
+  showArrow = true,
 }: SignupModalProps = {}) {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -108,10 +108,10 @@ export function SignupModal({
         <Button
           variant={triggerVariant}
           size={triggerSize}
-          className={triggerClassName}
+          className={`px-6 ${triggerClassName}`}
         >
           {triggerText}
-          {showArrow && <ArrowRight className="ml-2 h-4 w-4" />}
+          {showArrow && <ArrowRight className="ml-1 h-4 w-4" />}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

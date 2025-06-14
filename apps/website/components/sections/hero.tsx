@@ -64,7 +64,7 @@ export function Hero() {
         >
           <div className="rounded-xl overflow-hidden shadow-2xl border border-border/40 bg-gradient-to-b from-background to-muted/20">
             <Image
-              src="https://cdn.dribbble.com/userupload/12302729/file/original-fa372845e394ee85bebe0389b9d86871.png?resize=1504x1128&vertical=center"
+              src="/screenshot.png"
               width={1280}
               height={720}
               alt="PaperJet dashboard"
