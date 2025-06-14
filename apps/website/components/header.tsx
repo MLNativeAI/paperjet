@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ChevronRight, Menu, X } from "lucide-react";
 import { SignupModal } from "@/components/signup-modal";
@@ -38,9 +39,13 @@ export const Header = () => {
     >
       <div className="mx-auto max-w-7xl flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2 font-bold">
-          <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground">
-            D
-          </div>
+          <Image
+            src="/logo.png"
+            alt="PaperJet Logo"
+            width={32}
+            height={32}
+            className="size-8"
+          />
           <span>PaperJet</span>
         </div>
         <nav className="hidden md:flex gap-8">
