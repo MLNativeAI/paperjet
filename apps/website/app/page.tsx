@@ -27,11 +27,11 @@ export default function LandingPage() {
       <Header />
       <main className="flex-1">
         <Hero />
-        <Logos />
+        {/* <Logos /> */}
         <Features />
         <HowItWorks />
-        <Testimonials />
-        <Pricing />
+        {/* <Testimonials /> */}
+        {/* <Pricing /> */}
         <FAQ />
         <CTA />
       </main>

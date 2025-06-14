@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@paperjet/ui/button";
 import { Badge } from "@paperjet/ui/badge";
+import { SignupModal } from "../signup-modal";
 
 export function Hero() {
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   return (
     <section className="w-full py-20 md:py-32 lg:py-40 overflow-hidden">
       <div className="container px-4 md:px-6 relative">
@@ -25,8 +28,12 @@ export function Hero() {
             Build custom workflows while keeping your data private.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="rounded-full h-12 px-8 text-base">
-              Try now
+            <Button
+              size="lg"
+              className="rounded-full h-12 px-8 text-base"
+              onClick={() => setIsSignupModalOpen(true)}
+            >
+              Get Early Access
               <ArrowRight className="ml-2 size-4" />
             </Button>
             <Button
@@ -74,6 +81,11 @@ export function Hero() {
           <div className="absolute -top-6 -left-6 -z-10 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-secondary/30 to-primary/30 blur-3xl opacity-70"></div>
         </motion.div>
       </div>
+
+      <SignupModal
+        isOpen={isSignupModalOpen}
+        onClose={() => setIsSignupModalOpen(false)}
+      />
     </section>
   );
 }

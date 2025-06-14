@@ -6,17 +6,19 @@ import { motion } from "framer-motion";
 import { ChevronRight, Menu, X, Moon, Sun } from "lucide-react";
 import { Button } from "@paperjet/ui/button";
 import { useTheme } from "next-themes";
+import { SignupModal } from "./signup-modal";
 
 const navigationLinks = [
   { href: "#features", label: "Features" },
-  { href: "#testimonials", label: "Testimonials" },
-  { href: "#pricing", label: "Pricing" },
+  // { href: "#testimonials", label: "Testimonials" },
+  // { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
 ];
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   //   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -37,6 +39,11 @@ export const Header = () => {
   //   const toggleTheme = () => {
   //     setTheme(theme === "dark" ? "light" : "dark");
   //   };
+
+  const handleSignupClick = () => {
+    setIsSignupModalOpen(true);
+    setMobileMenuOpen(false); // Close mobile menu if open
+  };
 
   return (
     <header
@@ -74,13 +81,13 @@ export const Header = () => {
             )}
             <span className="sr-only">Toggle theme</span>
           </Button> */}
-          <Link
-            href="#"
+          <button
+            onClick={handleSignupClick}
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Log in
-          </Link>
-          <Button className="rounded-full">
+          </button>
+          <Button className="rounded-full" onClick={handleSignupClick}>
             Get Started
             <ChevronRight className="ml-1 size-4" />
           </Button>
@@ -132,14 +139,13 @@ export const Header = () => {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-2 border-t">
-              <Link
-                href="#"
-                className="py-2 text-sm font-medium"
-                onClick={() => setMobileMenuOpen(false)}
+              <button
+                onClick={handleSignupClick}
+                className="py-2 text-sm font-medium text-left"
               >
                 Log in
-              </Link>
-              <Button className="rounded-full">
+              </button>
+              <Button className="rounded-full" onClick={handleSignupClick}>
                 Get Started
                 <ChevronRight className="ml-1 size-4" />
               </Button>
@@ -147,6 +153,11 @@ export const Header = () => {
           </div>
         </motion.div>
       )}
+
+      <SignupModal
+        isOpen={isSignupModalOpen}
+        onClose={() => setIsSignupModalOpen(false)}
+      />
     </header>
   );
 };

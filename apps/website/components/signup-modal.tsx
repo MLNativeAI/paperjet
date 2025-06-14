@@ -1,0 +1,162 @@
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Button } from "@paperjet/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@paperjet/ui/dialog";
+
+interface SignupModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function SignupModal({ isOpen, onClose }: SignupModalProps) {
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email.trim()) {
+      setStatus("error");
+      setMessage("Please enter your email address");
+      return;
+    }
+
+    setIsLoading(true);
+    setStatus("idle");
+
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setStatus("success");
+        setMessage("Thank you! We'll notify you when PaperJet launches.");
+        setEmail("");
+        setTimeout(() => {
+          onClose();
+          setStatus("idle");
+          setMessage("");
+        }, 3000);
+      } else {
+        setStatus("error");
+        setMessage(data.error || "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      setStatus("error");
+      setMessage("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (!isLoading) {
+      onClose();
+      setEmail("");
+      setStatus("idle");
+      setMessage("");
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <Mail className="h-5 w-5 text-primary" />
+            Get Notified When We Launch
+          </DialogTitle>
+          <DialogDescription>
+            Be the first to experience privacy-first document processing. We'll
+            send you an email as soon as PaperJet is ready!
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading || status === "success"}
+              className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+              required
+            />
+
+            <AnimatePresence mode="wait">
+              {message && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`flex items-center gap-2 text-sm p-3 rounded-lg ${
+                    status === "success"
+                      ? "bg-green-50 text-green-700 border border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-800"
+                      : "bg-red-50 text-red-700 border border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
+                  }`}
+                >
+                  {status === "success" ? (
+                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  )}
+                  <span>{message}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              type="submit"
+              disabled={isLoading || status === "success"}
+              className="flex-1"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Mail className="h-4 w-4 mr-2" />
+              )}
+              {isLoading ? "Subscribing..." : "Notify Me"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+
+        <div className="text-xs text-muted-foreground text-center">
+          <p>
+            We respect your privacy. No spam, just launch notifications.
+            <br />
+            You can unsubscribe at any time.
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

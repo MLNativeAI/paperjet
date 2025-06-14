@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@paperjet/ui/button";
+import { SignupModal } from "../signup-modal";
 
 export function CTA() {
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+
   return (
     <section className="w-full py-20 md:py-32 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
@@ -31,6 +35,7 @@ export function CTA() {
               size="lg"
               variant="secondary"
               className="rounded-full h-12 px-8 text-base"
+              onClick={() => setIsSignupModalOpen(true)}
             >
               Start Free
               <ArrowRight className="ml-2 size-4" />
@@ -48,6 +53,11 @@ export function CTA() {
           </p>
         </motion.div>
       </div>
+
+      <SignupModal
+        isOpen={isSignupModalOpen}
+        onClose={() => setIsSignupModalOpen(false)}
+      />
     </section>
   );
 }

@@ -9,9 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@paperjet/ui": "workspace:*",
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.9.1",
+    "@paperjet/ui": "workspace:*",
+    "@paperjet/email": "workspace:*",
     "autoprefixer": "^10.4.20",
     "framer-motion": "latest",
     "next": "15.3.3",
@@ -19,6 +20,7 @@
     "react": "^19",
     "react-dom": "^19",
     "react-hook-form": "^7.54.1",
+    "resend": "^4.6.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
