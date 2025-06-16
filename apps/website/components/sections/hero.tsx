@@ -17,6 +17,16 @@ export function Hero() {
           transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-12"
         >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="inline-block mb-4"
+          >
+            <div className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full border border-primary/20">
+              Launching Q3 2025
+            </div>
+          </motion.div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 pb-4">
             Privacy-First Document Processing
           </h1>

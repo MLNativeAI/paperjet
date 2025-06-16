@@ -23,7 +23,7 @@ const faqs = [
   {
     question: "Can I use PaperJet for my business?",
     answer:
-      "PaperJet is free for personal use under the MIT license. For business use, you'll need to purchase a commercial license. ",
+      "PaperJet is free for personal use under the AGPL v3 license. For business use, you'll need to purchase a commercial license. ",
   },
   {
     question: "What are workflows?",
