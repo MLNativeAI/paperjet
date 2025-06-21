@@ -103,3 +103,55 @@ ENVIRONMENT=dev
 - **Styling**: Tailwind CSS v4 across all apps
 - **Imports**: Organized by Biome rules
 - **Error Handling**: Try-catch with specific error responses, toast notifications for user feedback
+
+## Product Vision & Roadmap
+
+### Product Overview
+
+PaperJet is a document processing platform that creates custom AI workflows to process various document types and extract any desired information.
+
+**Core Functionality:**
+- Creates custom AI workflows to process various document types
+- Extracts and processes any desired information from documents
+- Handles diverse documents: invoices, purchase orders, receipts, contracts, agreements, tax forms, bank statements, medical forms, insurance claims, shipping labels, packing slips, quotes, proposals, timesheets, expense reports, utility bills, registration forms
+- Supports various formats: normal PDFs, scanned documents, images, technical drawings
+- Processes complex content: mixed layouts, infographics, images (not just plain text)
+- Facilitates bi-directional data flow (in and out of the system)
+
+### Core Extraction System (MVP Focus)
+
+#### Workflow Creation & Usage
+1. User uploads a document to create a new workflow
+2. AI analyzes the document and suggests relevant fields for extraction
+3. User reviews AI suggestions, then selects and customizes specific fields or tables to extract
+4. This configuration is saved as a reusable workflow for similar document types
+5. Future documents can use this workflow for consistent data extraction
+
+#### Pre-built Workflows
+- System includes ready-to-use workflows for common document types (invoices, receipts, contracts, purchase orders, bank statements, tax forms)
+- Users can immediately process documents without creating custom workflows
+- Workflows store field names, descriptions, and extraction rules
+- Extracted data can be exported in various formats (JSON, CSV, Excel)
+
+### User Experience
+
+Users simply upload documents and receive extracted data without needing technical knowledge. The system provides pre-built workflows for common document types to get started immediately.
+
+### Integrations & Connectors
+
+**Input Sources:**
+- Uses connectors to ingest documents from any data source (e.g., Google Drive, Google Notes, Gmail, any email server)
+- Supports automated ingestion (e.g., an incoming email with an invoice triggers processing)
+
+**Output Integrations:**
+- Integrates with tools like Zapier, Make.com (formerly Integromat)
+- Exports processed data to other platforms (e.g., Excel)
+
+### Security & Deployment
+
+- Pitched as a "privacy-first" application
+- Can run fully locally, including AI models
+- Also offered as a public SaaS with document quotas, hosted on our infrastructure
+- Designed for super easy deployments with minimal 3rd party service dependencies
+- Self-contained architecture that can run anywhere (local machine, private cloud, or our SaaS)
+- Simple deployment options: desktop app, Docker container, or cloud service
