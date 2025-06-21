@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: postgres
+    container_name: paperjet-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -16,7 +16,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: minio
+    container_name: paperjet-s3
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -37,7 +37,7 @@ services:
 
   minio-setup:
     image: minio/mc
-    container_name: minio-setup
+    container_name: paperjet-s3-setup
     depends_on:
       - minio
     environment:

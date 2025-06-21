@@ -1,17 +1,17 @@
 import { cn } from "@/lib/utils";
-import { Button } from "@/website/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/website/components/ui/card";
-import { Input } from "@/website/components/ui/input";
-import { Label } from "@/website/components/ui/label";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
-import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -22,7 +22,6 @@ export function SignInForm({
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { redirect } = useSearch({ strict: false });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,12 +43,7 @@ export function SignInForm({
         return;
       }
 
-      // Navigate to the redirect URL if available, otherwise to files
-      if (redirect && typeof redirect === "string") {
-        navigate({ to: redirect as any });
-      } else {
-        navigate({ to: "/" });
-      }
+      navigate({ to: "/" });
 
       toast.success("Signed in successfully");
     } catch (err) {

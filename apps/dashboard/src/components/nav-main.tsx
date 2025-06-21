@@ -1,12 +1,12 @@
 import { type Icon } from "@tabler/icons-react";
 
-import {
+  import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/website/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
 
 export function NavMain({

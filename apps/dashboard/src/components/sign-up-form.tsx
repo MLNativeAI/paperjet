@@ -1,14 +1,14 @@
 import { cn } from "@/lib/utils";
-import { Button } from "@/website/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/website/components/ui/card";
-import { Input } from "@/website/components/ui/input";
-import { Label } from "@/website/components/ui/label";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";

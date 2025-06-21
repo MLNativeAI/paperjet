@@ -10,7 +10,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@/website/components/ui/avatar";
+} from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,13 +19,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/website/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/website/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
