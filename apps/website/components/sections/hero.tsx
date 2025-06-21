@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
 import { SignupModal } from "@/components/signup-modal";
+import { Button } from "@/components/ui/button";
 
 export function Hero() {
   return (

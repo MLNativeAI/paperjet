@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   IconArrowsUpDown,
   IconChevronDown,
@@ -7,9 +6,11 @@ import {
   IconDownload,
   IconTrash,
 } from "@tabler/icons-react";
+// import { type FileDataWithPresignedUrl } from "@paperjet/db/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ColumnDef,
-  ColumnFiltersState,
+  type ColumnDef,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -17,11 +18,11 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
+  type SortingState,
   useReactTable,
-  VisibilityState,
+  type VisibilityState,
 } from "@tanstack/react-table";
-
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -42,14 +43,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-// import { type FileDataWithPresignedUrl } from "@paperjet/db/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteFilesMutation, getAllFilesQueryOptions } from "@/lib/api";
 
 export function FileTable() {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
@@ -186,7 +185,7 @@ export function FileTable() {
         },
       },
     ],
-    [deleteMutation]
+    [deleteMutation],
   );
 
   const table = useReactTable({
@@ -276,7 +275,7 @@ export function FileTable() {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -317,7 +316,7 @@ export function FileTable() {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

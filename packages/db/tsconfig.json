@@ -1,26 +1,15 @@
 {
-  "include": [
-    "index.ts",
-    "schema.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
+  "include": ["index.ts", "schema.ts"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@paperjet/db/*": [
-        "./*"
-      ]
+      "@paperjet/db/*": ["./*"]
     },
     "esModuleInterop": true,
     "incremental": false,
     "isolatedModules": true,
-    "lib": [
-      "es2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["es2022", "DOM", "DOM.Iterable"],
     "module": "NodeNext",
     "moduleDetection": "force",
     "moduleResolution": "NodeNext",
@@ -28,6 +17,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2022",
+    "target": "ES2022"
   }
 }

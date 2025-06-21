@@ -1,13 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Badge } from "@paperjet/ui/badge";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@paperjet/ui/accordion";
+import { Badge } from "@paperjet/ui/badge";
+import { motion } from "framer-motion";
 
 const faqs = [
   {

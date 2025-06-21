@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Zap, Shield, Users, BarChart, Layers, Star } from "lucide-react";
 import { Badge } from "@paperjet/ui/badge";
 import { Card, CardContent } from "@paperjet/ui/card";
+import { motion } from "framer-motion";
+import { BarChart, Layers, Shield, Star, Users, Zap } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0 },

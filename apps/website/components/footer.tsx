@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 export const Footer = () => (
   <footer className="w-full border-t bg-background/95 backdrop-blur-sm">

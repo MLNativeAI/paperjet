@@ -1,23 +1,23 @@
 {
-    "name": "@paperjet/email",
-    "exports": {
-        ".": "./index.ts",
-        "./emails": "./emails"
-    },
-    "scripts": {
-        "dev": "email dev",
-        "build": "email export",
-        "preview": "email dev --port 3001"
-    },
-    "devDependencies": {
-        "typescript": "~5.7.2"
-    },
-    "dependencies": {
-        "@paperjet/ui": "workspace:*",
-        "@react-email/components": "0.0.42",
-        "@react-email/render": "^1.1.2",
-        "react": "19.1.0",
-        "react-dom": "19.1.0",
-        "react-email": "4.0.16"
-    }
+  "name": "@paperjet/email",
+  "exports": {
+    ".": "./index.ts",
+    "./emails": "./emails"
+  },
+  "scripts": {
+    "dev": "email dev",
+    "build": "email export",
+    "preview": "email dev --port 3001"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.2"
+  },
+  "dependencies": {
+    "@paperjet/ui": "workspace:*",
+    "@react-email/components": "0.0.42",
+    "@react-email/render": "^1.1.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-email": "4.0.16"
+  }
 }

@@ -1,8 +1,8 @@
 "use client";
 
+import { Button } from "@paperjet/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@paperjet/ui/button";
 import { SignupModal } from "@/components/signup-modal";
 
 export function CTA() {

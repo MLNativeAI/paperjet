@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   IconFile,
   IconHelp,
@@ -6,7 +5,8 @@ import {
   IconSettings,
   IconUpload,
 } from "@tabler/icons-react";
-
+import { Link } from "@tanstack/react-router";
+import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
@@ -19,9 +19,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Route as UploadFileRoute } from "@/routes/_app.upload";
-import { Link } from "@tanstack/react-router";
 import { Route as IndexRoute } from "@/routes/_app.index";
+import { Route as UploadFileRoute } from "@/routes/_app.upload";
+
 const data = {
   user: {
     name: "shadcn",

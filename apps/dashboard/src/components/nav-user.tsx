@@ -5,12 +5,9 @@ import {
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { useRouter } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,8 +24,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "@tanstack/react-router";
-import { toast } from "sonner";
 
 export function NavUser({
   user,

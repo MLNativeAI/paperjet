@@ -1,24 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { ChevronRight, Menu, X, Moon, Sun } from "lucide-react";
 import { Button } from "@paperjet/ui/button";
+import { motion } from "framer-motion";
+import { ChevronRight, Menu, Moon, Sun, X } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
-import {
-  Hero,
-  Logos,
-  Features,
-  HowItWorks,
-  Testimonials,
-  Pricing,
-  FAQ,
-  CTA,
-} from "../components/sections";
-import { Header } from "@/components/header";
+import { useEffect, useState } from "react";
 import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 import { SignupModal } from "@/components/signup-modal";
+import {
+  CTA,
+  FAQ,
+  Features,
+  Hero,
+  HowItWorks,
+  Logos,
+  Pricing,
+  Testimonials,
+} from "../components/sections";
 
 export default function LandingPage() {
   return (

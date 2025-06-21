@@ -1,8 +1,8 @@
-export { Hero } from "./hero";
-export { Logos } from "./logos";
-export { Features } from "./features";
-export { HowItWorks } from "./how-it-works";
-export { Testimonials } from "./testimonials";
-export { Pricing } from "./pricing";
+export { CTA } from "./cta";
 export { FAQ } from "./faq";
-export { CTA } from "./cta"; 
+export { Features } from "./features";
+export { Hero } from "./hero";
+export { HowItWorks } from "./how-it-works";
+export { Logos } from "./logos";
+export { Pricing } from "./pricing";
+export { Testimonials } from "./testimonials";

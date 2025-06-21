@@ -1,18 +1,22 @@
 {
-    "name": "paperjet",
-    "private": true,
-    "packageManager": "bun@1.2.0",
-    "scripts": {
-        "build": "turbo build",
-        "dev": "turbo dev --parallel",
-        "lint": "turbo lint"
-    },
-    "devDependencies": {
-        "prettier": "^3.2.5",
-        "turbo": "^2.0.0"
-    },
-    "workspaces": [
-        "apps/*",
-        "packages/*"
-    ]
+  "name": "paperjet",
+  "private": true,
+  "packageManager": "bun@1.2.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev --parallel",
+    "lint": "biome check --write"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.0.3",
+    "prettier": "^3.2.5",
+    "turbo": "^2.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@biomejs/cli-linux-x64": "^2.0.3"
+  }
 }
