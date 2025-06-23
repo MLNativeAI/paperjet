@@ -9,6 +9,7 @@ const envSchema = z.object({
   MINIO_BUCKET: z.string().min(1, "MINIO_BUCKET is required"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  POLAR_ACCESS_TOKEN: z.string(),
   PORT: z
     .string()
     .regex(/^\d+$/, "Port must be a numeric string")
@@ -31,5 +32,5 @@ export const envVars = validateEnv();
 
 // Type augmentation for Bun
 declare module "bun" {
-  interface Env extends z.infer<typeof envSchema> {}
+  interface Env extends z.infer<typeof envSchema> { }
 }

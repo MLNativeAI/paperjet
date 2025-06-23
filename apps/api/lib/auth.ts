@@ -3,8 +3,18 @@ import * as schema from "@paperjet/db/schema";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "bun";
+import { polar, checkout, portal, usage, webhooks } from "@polar-sh/better-auth";
+import { Polar } from "@polar-sh/sdk";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];
+
+const polarClient = new Polar({
+  accessToken: process.env.POLAR_ACCESS_TOKEN,
+  // Use 'sandbox' if you're using the Polar Sandbox environment
+  // Remember that access tokens, products, etc. are completely separated between environments.
+  // Access tokens obtained in Production are for instance not usable in the Sandbox environment.
+  server: 'sandbox'
+});
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -31,6 +41,30 @@ export const auth = betterAuth({
   trustedOrigins: [
     Bun.env.ENVIRONMENT === "dev" ? "http://localhost:5173" : "",
   ],
+  plugins: [
+    polar({
+      client: polarClient,
+      createCustomerOnSignUp: true,
+      use: [
+        checkout({
+          products: [
+            {
+              productId: "123-456-789", // ID of Product from Polar Dashboard
+              slug: "pro" // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
+            }
+          ],
+          successUrl: "/success?checkout_id={CHECKOUT_ID}",
+          authenticatedUsersOnly: true
+        }),
+        portal(),
+        usage(),
+        webhooks({
+          secret: process.env.POLAR_WEBHOOK_SECRET || "",
+          onPayload: (payload) => console.log(payload)
+        })
+      ],
+    })
+  ]
 });
 
 // Helper function to check if a path matches a pattern with wildcards
