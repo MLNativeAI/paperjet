@@ -58,3 +58,26 @@ export const verification = pgTable("verification", {
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
 });
+
+export const workflow = pgTable("workflow", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  documentType: text("document_type").notNull(),
+  configuration: text("configuration").notNull(), // JSON string
+  ownerId: text("owner_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const workflowFile = pgTable("workflow_file", {
+  id: text("id").primaryKey(),
+  workflowId: text("workflow_id")
+    .notNull()
+    .references(() => workflow.id, { onDelete: "cascade" }),
+  fileId: text("file_id")
+    .notNull()
+    .references(() => file.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull(),
+});

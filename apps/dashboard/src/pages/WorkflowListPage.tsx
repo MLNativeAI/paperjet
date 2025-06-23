@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Card,
   CardDescription,
@@ -67,13 +68,19 @@ const workflowTemplates = [
 ];
 
 export default function WorkflowListPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-8">
           What would you like to process today?
         </h1>
-        <Button size="lg" className="gap-2">
+        <Button 
+          size="lg" 
+          className="gap-2"
+          onClick={() => navigate({ to: "/workflows/new" })}
+        >
           <Plus className="h-5 w-5" />
           Create New Workflow
         </Button>

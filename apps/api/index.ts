@@ -6,6 +6,7 @@ import { type auth, authHandler, requireAuth } from "./lib/auth";
 import { corsMiddleware } from "./lib/cors";
 import { envVars } from "./lib/env";
 import files from "./routes/files";
+import workflows from "./routes/workflows";
 
 const app = new Hono<{
   Variables: {
@@ -30,7 +31,10 @@ app.get("/api/health", async (c) => {
   });
 });
 
-export const apiRoutes = app.basePath("/api").route("/files", files);
+export const apiRoutes = app
+  .basePath("/api")
+  .route("/files", files)
+  .route("/workflows", workflows);
 
 if (envVars.ENVIRONMENT === "prod") {
   // Serve static files

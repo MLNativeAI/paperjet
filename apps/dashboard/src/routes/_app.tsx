@@ -40,20 +40,25 @@ function PathlessLayoutComponent() {
     
     if (pathname === "/") {
       return {
-        parent: "Workflows",
-        current: "New Workflow"
+        parent: null,
+        current: "Workflows"
       };
     } else if (pathname === "/settings") {
       return {
         parent: null,
         current: "Settings"
       };
+    } else if (pathname === "/workflows/new") {
+      return {
+        parent: "Workflows",
+        current: "New Workflow"
+      };
     }
     
     // Default fallback
     return {
       parent: "Workflows",
-      current: "New Workflow"
+      current: "Dashboard"
     };
   };
   

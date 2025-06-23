@@ -15,6 +15,7 @@ import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
+import { Route as AppWorkflowsNewRouteImport } from './routes/_app.workflows.new'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -45,14 +46,19 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWorkflowsNewRoute = AppWorkflowsNewRouteImport.update({
+  id: '/workflows/new',
+  path: '/workflows/new',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
-  '': typeof AppRouteWithChildren
   '/settings': typeof AppSettingsRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/': typeof AppIndexRoute
+  '/workflows/new': typeof AppWorkflowsNewRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
@@ -60,6 +66,7 @@ export interface FileRoutesByTo {
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/': typeof AppIndexRoute
+  '/workflows/new': typeof AppWorkflowsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -69,18 +76,25 @@ export interface FileRoutesById {
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/workflows/new': typeof AppWorkflowsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/auth'
-    | ''
     | '/settings'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/'
+    | '/workflows/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/settings' | '/auth/sign-in' | '/auth/sign-up' | '/'
+  to:
+    | '/auth'
+    | '/settings'
+    | '/auth/sign-in'
+    | '/auth/sign-up'
+    | '/'
+    | '/workflows/new'
   id:
     | '__root__'
     | '/auth'
@@ -89,6 +103,7 @@ export interface FileRouteTypes {
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/_app/'
+    | '/_app/workflows/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -140,6 +155,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/workflows/new': {
+      id: '/_app/workflows/new'
+      path: '/workflows/new'
+      fullPath: '/workflows/new'
+      preLoaderRoute: typeof AppWorkflowsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -160,11 +182,13 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppWorkflowsNewRoute: typeof AppWorkflowsNewRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
+  AppWorkflowsNewRoute: AppWorkflowsNewRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
