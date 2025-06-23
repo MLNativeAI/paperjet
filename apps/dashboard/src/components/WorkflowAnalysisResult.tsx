@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { Check, X, Plus, Trash2 } from "lucide-react";
+import { DocumentPreview } from "@/components/DocumentPreview";
+import { ExtractionResults } from "@/components/ExtractionResults";
 import type { DocumentAnalysis, ExtractionField, ExtractionTable } from "@paperjet/db/types";
 
 interface WorkflowAnalysisResultProps {
@@ -22,19 +23,14 @@ interface WorkflowAnalysisResultProps {
 export function WorkflowAnalysisResult({ analysis, fileId }: WorkflowAnalysisResultProps) {
   const navigate = useNavigate();
   const [workflowName, setWorkflowName] = useState(`${analysis.analysis.documentType} Workflow`);
-  const [fields, setFields] = useState<ExtractionField[]>(analysis.analysis.suggestedFields);
-  const [tables, setTables] = useState<ExtractionTable[]>(analysis.analysis.suggestedTables);
 
   const createWorkflow = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (config: { fields: ExtractionField[], tables: ExtractionTable[] }) => {
       const response = await api.workflows.$post({
         json: {
           name: workflowName,
           documentType: analysis.analysis.documentType,
-          configuration: {
-            fields,
-            tables,
-          },
+          configuration: config,
           fileId,
         },
       });
@@ -54,36 +50,15 @@ export function WorkflowAnalysisResult({ analysis, fileId }: WorkflowAnalysisRes
     },
   });
 
-  const updateField = (index: number, updates: Partial<ExtractionField>) => {
-    setFields(fields.map((field, i) => i === index ? { ...field, ...updates } : field));
-  };
-
-  const removeField = (index: number) => {
-    setFields(fields.filter((_, i) => i !== index));
-  };
-
-  const addField = () => {
-    setFields([...fields, {
-      name: "",
-      description: "",
-      type: "text",
-      required: false,
-    }]);
-  };
-
-  const updateTable = (index: number, updates: Partial<ExtractionTable>) => {
-    setTables(tables.map((table, i) => i === index ? { ...table, ...updates } : table));
-  };
-
-  const removeTable = (index: number) => {
-    setTables(tables.filter((_, i) => i !== index));
+  const handleCreateWorkflow = (fields: ExtractionField[], tables: ExtractionTable[]) => {
+    createWorkflow.mutate({ fields, tables });
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Document Analysis Complete</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 mb-4">
           <p className="text-muted-foreground">
             Detected document type: <span className="font-semibold">{analysis.analysis.documentType}</span>
           </p>
@@ -91,14 +66,13 @@ export function WorkflowAnalysisResult({ analysis, fileId }: WorkflowAnalysisRes
             {Math.round(analysis.analysis.confidence * 100)}% confidence
           </Badge>
         </div>
-      </div>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Workflow Configuration</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        
+        {/* Workflow Name Input */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Workflow Configuration</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div>
               <Label htmlFor="workflow-name">Workflow Name</Label>
               <Input
@@ -106,153 +80,35 @@ export function WorkflowAnalysisResult({ analysis, fileId }: WorkflowAnalysisRes
                 value={workflowName}
                 onChange={(e) => setWorkflowName(e.target.value)}
                 placeholder="Enter workflow name"
+                className="max-w-md"
               />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex justify-between items-center">
-            Fields to Extract
-            <Button size="sm" variant="outline" onClick={addField}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add Field
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {fields.map((field, index) => (
-              <div key={index} className="border rounded-lg p-4 space-y-3">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1 grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Field Name</Label>
-                      <Input
-                        value={field.name}
-                        onChange={(e) => updateField(index, { name: e.target.value })}
-                        placeholder="e.g., invoice_number"
-                      />
-                    </div>
-                    <div>
-                      <Label>Type</Label>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
-                        value={field.type}
-                        onChange={(e) => updateField(index, { type: e.target.value as any })}
-                      >
-                        <option value="text">Text</option>
-                        <option value="number">Number</option>
-                        <option value="date">Date</option>
-                        <option value="currency">Currency</option>
-                        <option value="boolean">Boolean</option>
-                      </select>
-                    </div>
-                  </div>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => removeField(index)}
-                    className="ml-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div>
-                  <Label>Description</Label>
-                  <Input
-                    value={field.description}
-                    onChange={(e) => updateField(index, { description: e.target.value })}
-                    placeholder="Brief description of this field"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id={`required-${index}`}
-                    checked={field.required}
-                    onChange={(e) => updateField(index, { required: e.target.checked })}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor={`required-${index}`} className="cursor-pointer">
-                    Required field
-                  </Label>
-                </div>
-              </div>
-            ))}
-            {fields.length === 0 && (
-              <p className="text-muted-foreground text-center py-4">
-                No fields configured. Click "Add Field" to get started.
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {tables.length > 0 && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Tables to Extract</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {tables.map((table, index) => (
-                <div key={index} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="flex-1">
-                      <Label>Table Name</Label>
-                      <Input
-                        value={table.name}
-                        onChange={(e) => updateTable(index, { name: e.target.value })}
-                        placeholder="e.g., line_items"
-                      />
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => removeTable(index)}
-                      className="ml-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="mb-3">
-                    <Label>Description</Label>
-                    <Input
-                      value={table.description}
-                      onChange={(e) => updateTable(index, { description: e.target.value })}
-                      placeholder="Brief description of this table"
-                    />
-                  </div>
-                  <div>
-                    <Label>Columns</Label>
-                    <div className="mt-2 space-y-2">
-                      {table.columns.map((column, colIndex) => (
-                        <div key={colIndex} className="flex items-center gap-2 text-sm">
-                          <Badge variant="outline">{column.name}</Badge>
-                          <span className="text-muted-foreground">({column.type})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </CardContent>
         </Card>
-      )}
+      </div>
 
-      <div className="flex justify-between">
+      {/* Two-panel layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Panel - Document Preview */}
+        <div className="lg:sticky lg:top-4 lg:h-fit">
+          <DocumentPreview fileId={fileId} />
+        </div>
+
+        {/* Right Panel - Extraction Results */}
+        <div>
+          <ExtractionResults
+            fileId={fileId}
+            analysis={analysis.analysis}
+            onCreateWorkflow={handleCreateWorkflow}
+            isCreatingWorkflow={createWorkflow.isPending}
+          />
+        </div>
+      </div>
+
+      {/* Back button */}
+      <div className="mt-8 text-center">
         <Button variant="outline" onClick={() => window.location.reload()}>
           Start Over
-        </Button>
-        <Button 
-          onClick={() => createWorkflow.mutate()}
-          disabled={createWorkflow.isPending || !workflowName || fields.length === 0}
-        >
-          {createWorkflow.isPending ? "Creating..." : "Create Workflow"}
         </Button>
       </div>
     </div>

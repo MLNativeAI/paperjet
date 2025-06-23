@@ -50,3 +50,29 @@ export const documentAnalysisSchema = z.object({
 });
 
 export type DocumentAnalysis = z.infer<typeof documentAnalysisSchema>;
+
+// Data extraction schemas
+export const extractedValueSchema = z.object({
+  fieldName: z.string(),
+  value: z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
+  confidence: z.number().min(0).max(1),
+});
+
+export const extractedTableRowSchema = z.object({
+  values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable()),
+});
+
+export const extractedTableSchema = z.object({
+  tableName: z.string(),
+  rows: z.array(extractedTableRowSchema),
+  confidence: z.number().min(0).max(1),
+});
+
+export const extractionResultSchema = z.object({
+  fields: z.array(extractedValueSchema),
+  tables: z.array(extractedTableSchema),
+});
+
+export type ExtractedValue = z.infer<typeof extractedValueSchema>;
+export type ExtractedTable = z.infer<typeof extractedTableSchema>;
+export type ExtractionResult = z.infer<typeof extractionResultSchema>;

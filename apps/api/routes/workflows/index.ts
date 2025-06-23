@@ -3,8 +3,10 @@ import { file, workflow, workflowFile } from "@paperjet/db/schema";
 import {
   type DocumentAnalysis,
   type WorkflowConfiguration,
+  type ExtractionResult,
   documentAnalysisSchema,
   workflowConfigurationSchema,
+  extractionResultSchema,
 } from "@paperjet/db/types";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -138,17 +140,25 @@ const router = app
 2. Key fields that should be extracted from this type of document
 3. Any tables or repeated data structures that should be extracted
 
-Consider common fields for this document type and what would be most useful for business processes.
+IMPORTANT: For each field, provide a DETAILED description that explains:
+- What specific information this field contains
+- Where it's typically located on this type of document  
+- Any formatting or characteristics that help identify it
+- Examples of what the extracted value should look like
 
-Provide a structured analysis with:
-- Document type identification
-- Confidence score (0-1)
-- Suggested fields with name, description, and data type
-- Suggested tables with column definitions
+For each table, describe:
+- What type of data rows it contains
+- The business purpose of the table
+- How to identify the table boundaries
 
-Focus on practical, commonly needed information extraction.
+The descriptions will be used by an AI system to locate and extract the actual data, so be precise and comprehensive.
 
-Please analyze this document and suggest fields to extract.`,
+Examples of good field descriptions:
+- "merchant_name": "The business name or company name that issued this invoice, typically found at the top of the document in large text or letterhead"
+- "total_amount": "The final amount due including all taxes and fees, usually labeled as 'Total', 'Amount Due', or 'Balance Due' and displayed prominently"
+- "invoice_date": "The date when the invoice was created or issued, typically labeled as 'Invoice Date', 'Date', or 'Issued' in MM/DD/YYYY or similar format"
+
+Provide a structured analysis with practical, commonly needed information extraction focused on business processes.`,
               },
               {
                 type: "image",
@@ -166,6 +176,206 @@ Please analyze this document and suggest fields to extract.`,
     } catch (error) {
       console.error("Document analysis error:", error);
       return c.json({ error: "Failed to analyze document" }, 500);
+    }
+  })
+  .post("/extract", async (c) => {
+    try {
+      const user = await getUser(c);
+      const body = await c.req.json();
+      
+      const extractSchema = z.object({
+        fileId: z.string(),
+        fields: z.array(z.object({
+          name: z.string(),
+          description: z.string(),
+          type: z.enum(["text", "number", "date", "currency", "boolean"]),
+        })),
+        tables: z.array(z.object({
+          name: z.string(),
+          description: z.string(),
+          columns: z.array(z.object({
+            name: z.string(),
+            description: z.string(),
+            type: z.enum(["text", "number", "date", "currency", "boolean"]),
+          })),
+        })),
+      });
+
+      const validatedData = extractSchema.parse(body);
+
+      // Get file from database
+      const [fileRecord] = await db
+        .select()
+        .from(file)
+        .where(eq(file.id, validatedData.fileId));
+
+      if (!fileRecord || fileRecord.ownerId !== user.id) {
+        return c.json({ error: "File not found" }, 404);
+      }
+
+      // Get presigned URL for the file
+      const presignedUrl = await s3.presign(fileRecord.filename);
+
+      // Create dynamic schema based on provided fields and tables
+      const fieldSchemas = validatedData.fields.map(field => {
+        let zodType;
+        switch (field.type) {
+          case "number":
+            zodType = "z.number().nullable()";
+            break;
+          case "date":
+            zodType = "z.string().nullable()"; // Date as ISO string
+            break;
+          case "currency":
+            zodType = "z.number().nullable()"; // Currency as number
+            break;
+          case "boolean":
+            zodType = "z.boolean().nullable()";
+            break;
+          default:
+            zodType = "z.string().nullable()";
+        }
+        return `${field.name}: ${zodType}`;
+      }).join(",\n  ");
+
+      const tableSchemas = validatedData.tables.map(table => {
+        const columnSchemas = table.columns.map(col => {
+          let zodType;
+          switch (col.type) {
+            case "number":
+              zodType = "z.number().nullable()";
+              break;
+            case "date":
+              zodType = "z.string().nullable()";
+              break;
+            case "currency":
+              zodType = "z.number().nullable()";
+              break;
+            case "boolean":
+              zodType = "z.boolean().nullable()";
+              break;
+            default:
+              zodType = "z.string().nullable()";
+          }
+          return `${col.name}: ${zodType}`;
+        }).join(",\n    ");
+        
+        return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
+      }).join(",\n  ");
+
+      const fullSchema = `z.object({
+  ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
+})`;
+
+      // Build extraction prompt with field descriptions
+      const fieldDescriptions = validatedData.fields.map(field => 
+        `- ${field.name} (${field.type}): ${field.description}`
+      ).join("\n");
+
+      const tableDescriptions = validatedData.tables.map(table => {
+        const columnDescs = table.columns.map(col => 
+          `    - ${col.name} (${col.type}): ${col.description}`
+        ).join("\n");
+        return `- ${table.name}: ${table.description}\n${columnDescs}`;
+      }).join("\n");
+
+      const prompt = `Extract the following information from this document:
+
+FIELDS TO EXTRACT:
+${fieldDescriptions}
+
+${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ''}
+
+Instructions:
+- Extract exact values as they appear in the document
+- For currency fields, extract as numbers (remove currency symbols)
+- For date fields, use ISO format (YYYY-MM-DD) 
+- For boolean fields, return true/false based on presence or checkmarks
+- If a field is not found or unclear, return null
+- For tables, extract all rows found
+- Maintain data accuracy and completeness`;
+
+      const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+      if (!apiKey) {
+        throw new Error("Google API key not configured");
+      }
+
+      const model = google("gemini-2.5-flash");
+
+      // Build dynamic schema object for generateObject
+      const schemaObj = eval(`(${fullSchema})`);
+
+      const { object } = await generateObject({
+        model,
+        schema: schemaObj,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: prompt,
+              },
+              {
+                type: "image",
+                image: new URL(presignedUrl),
+              },
+            ],
+          },
+        ],
+      });
+
+      // Transform the result to match our extraction result schema
+      const extractionResult: ExtractionResult = {
+        fields: validatedData.fields.map(field => ({
+          fieldName: field.name,
+          value: (object as any)[field.name],
+          confidence: 0.9, // Default confidence, could be enhanced
+        })),
+        tables: validatedData.tables.map(table => ({
+          tableName: table.name,
+          rows: ((object as any)[table.name] || []).map((row: any) => ({
+            values: row,
+          })),
+          confidence: 0.9,
+        })),
+      };
+
+      return c.json({
+        fileId: validatedData.fileId,
+        extractionResult,
+      });
+    } catch (error) {
+      console.error("Data extraction error:", error);
+      return c.json({ error: "Failed to extract data from document" }, 500);
+    }
+  })
+  .get("/:fileId/document", async (c) => {
+    try {
+      const user = await getUser(c);
+      const fileId = c.req.param("fileId");
+
+      // Get file from database
+      const [fileRecord] = await db
+        .select()
+        .from(file)
+        .where(eq(file.id, fileId));
+
+      if (!fileRecord || fileRecord.ownerId !== user.id) {
+        return c.json({ error: "File not found" }, 404);
+      }
+
+      // Get presigned URL for the file
+      const presignedUrl = await s3.presign(fileRecord.filename);
+
+      return c.json({
+        fileId,
+        filename: fileRecord.filename,
+        presignedUrl,
+      });
+    } catch (error) {
+      console.error("Get document error:", error);
+      return c.json({ error: "Failed to get document" }, 500);
     }
   });
 
