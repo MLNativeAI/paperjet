@@ -3,10 +3,10 @@ import { z } from "zod";
 const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
-  MINIO_ENDPOINT: z.string().url("MINIO_ENDPOINT must be a valid URL"),
-  MINIO_ACCESS_KEY: z.string().min(1, "MINIO_ACCESS_KEY is required"),
-  MINIO_SECRET_KEY: z.string().min(1, "MINIO_SECRET_KEY is required"),
-  MINIO_BUCKET: z.string().min(1, "MINIO_BUCKET is required"),
+  S3_ENDPOINT: z.string().url("S3_ENDPOINT must be a valid URL"),
+  S3_ACCESS_KEY: z.string().min(1, "S3_ACCESS_KEY is required"),
+  S3_SECRET_KEY: z.string().min(1, "S3_SECRET_KEY is required"),
+  S3_BUCKET: z.string().min(1, "S3_BUCKET is required"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   PORT: z

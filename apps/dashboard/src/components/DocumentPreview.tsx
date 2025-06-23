@@ -8,17 +8,21 @@ interface DocumentPreviewProps {
 }
 
 export function DocumentPreview({ fileId }: DocumentPreviewProps) {
-  const { data: documentData, isLoading, error } = useQuery({
+  const {
+    data: documentData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["document", fileId],
     queryFn: async () => {
       const response = await api.workflows[":fileId"].document.$get({
         param: { fileId },
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch document");
       }
-      
+
       return response.json();
     },
   });
@@ -48,7 +52,9 @@ export function DocumentPreview({ fileId }: DocumentPreviewProps) {
         <CardContent className="flex items-center justify-center h-96">
           <div className="text-center">
             <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Failed to load document</p>
+            <p className="text-sm text-muted-foreground">
+              Failed to load document
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -59,8 +65,10 @@ export function DocumentPreview({ fileId }: DocumentPreviewProps) {
     return null;
   }
 
-  const isPdf = documentData.filename.toLowerCase().endsWith('.pdf');
-  const isImage = documentData.filename.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
+  const isPdf = documentData.filename.toLowerCase().endsWith(".pdf");
+  const isImage = documentData.filename
+    .toLowerCase()
+    .match(/\.(jpg|jpeg|png|gif|webp)$/);
 
   return (
     <Card className="h-full">
@@ -75,7 +83,7 @@ export function DocumentPreview({ fileId }: DocumentPreviewProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="h-96 md:h-[600px] w-full">
+        <div className="h-[500px] md:h-[800px] w-full">
           {isPdf ? (
             <iframe
               src={documentData.presignedUrl}

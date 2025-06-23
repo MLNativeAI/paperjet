@@ -89,10 +89,10 @@ Create `.env` files:
 ```env
 BETTER_AUTH_SECRET=<generate-secret>
 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/app
-MINIO_ENDPOINT=http://localhost:9000
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin
-MINIO_BUCKET=files
+S3_ENDPOINT=http://localhost:9000
+S3_ACCESS_KEY=minioadmin
+S3_SECRET_KEY=minioadmin
+S3_BUCKET=files
 ENVIRONMENT=dev
 ```
 
