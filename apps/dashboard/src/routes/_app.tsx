@@ -1,6 +1,5 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
 import {
   SidebarInset,
   SidebarProvider,
@@ -33,6 +32,33 @@ export const Route = createFileRoute("/_app")({
 });
 
 function PathlessLayoutComponent() {
+  const location = useLocation();
+  
+  // Determine breadcrumb based on current path
+  const getBreadcrumbs = () => {
+    const pathname = location.pathname;
+    
+    if (pathname === "/") {
+      return {
+        parent: "Workflows",
+        current: "New Workflow"
+      };
+    } else if (pathname === "/settings") {
+      return {
+        parent: null,
+        current: "Settings"
+      };
+    }
+    
+    // Default fallback
+    return {
+      parent: "Workflows",
+      current: "New Workflow"
+    };
+  };
+  
+  const breadcrumbs = getBreadcrumbs();
+  
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -46,24 +72,23 @@ function PathlessLayoutComponent() {
             />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Workflows</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
+                {breadcrumbs.parent && (
+                  <>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="#">{breadcrumbs.parent}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  </>
+                )}
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                  <BreadcrumbPage>{breadcrumbs.current}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-          </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          <Outlet />
         </div>
       </SidebarInset>
     </SidebarProvider>
