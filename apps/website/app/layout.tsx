@@ -20,7 +20,7 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "PaperJet | Secure document processing for your business.",
+  title: "PaperJet - Secure document processing for your business.",
   description: "Secure document processing for your business.",
   icons: {
     icon: [
