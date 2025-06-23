@@ -29,6 +29,7 @@
     "hono": "^4.7.8",
     "pg": "^8.15.6",
     "postgres": "^3.4.5",
+    "resend": "^4.6.0",
     "shared": "workspace:*",
     "zod": "^3.24.3"
   }

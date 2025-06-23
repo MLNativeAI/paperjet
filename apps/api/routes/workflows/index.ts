@@ -182,7 +182,7 @@ Provide a structured analysis with practical, commonly needed information extrac
     try {
       const user = await getUser(c);
       const body = await c.req.json();
-      
+
       const extractSchema = z.object({
         fileId: z.string(),
         fields: z.array(z.object({
@@ -259,7 +259,7 @@ Provide a structured analysis with practical, commonly needed information extrac
           }
           return `${col.name}: ${zodType}`;
         }).join(",\n    ");
-        
+
         return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
       }).join(",\n  ");
 
@@ -268,12 +268,12 @@ Provide a structured analysis with practical, commonly needed information extrac
 })`;
 
       // Build extraction prompt with field descriptions
-      const fieldDescriptions = validatedData.fields.map(field => 
+      const fieldDescriptions = validatedData.fields.map(field =>
         `- ${field.name} (${field.type}): ${field.description}`
       ).join("\n");
 
       const tableDescriptions = validatedData.tables.map(table => {
-        const columnDescs = table.columns.map(col => 
+        const columnDescs = table.columns.map(col =>
           `    - ${col.name} (${col.type}): ${col.description}`
         ).join("\n");
         return `- ${table.name}: ${table.description}\n${columnDescs}`;
