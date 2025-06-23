@@ -15,8 +15,5 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ],
-  "dependencies": {
-    "@biomejs/cli-linux-x64": "^2.0.3"
-  }
+  ]
 }
