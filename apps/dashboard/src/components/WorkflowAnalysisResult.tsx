@@ -55,7 +55,7 @@ export function WorkflowAnalysisResult({ analysis, fileId }: WorkflowAnalysisRes
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="w-full px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Document Analysis Complete</h1>
         <div className="flex items-center gap-4 mb-4">
@@ -80,7 +80,7 @@ export function WorkflowAnalysisResult({ analysis, fileId }: WorkflowAnalysisRes
                 value={workflowName}
                 onChange={(e) => setWorkflowName(e.target.value)}
                 placeholder="Enter workflow name"
-                className="max-w-md"
+                className="w-full"
               />
             </div>
           </CardContent>
@@ -106,7 +106,7 @@ export function WorkflowAnalysisResult({ analysis, fileId }: WorkflowAnalysisRes
       </div>
 
       {/* Back button */}
-      <div className="mt-8 text-center">
+      <div className="mt-8">
         <Button variant="outline" onClick={() => window.location.reload()}>
           Start Over
         </Button>

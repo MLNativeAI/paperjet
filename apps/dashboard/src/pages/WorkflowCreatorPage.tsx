@@ -76,8 +76,8 @@ export default function WorkflowCreatorPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <div className="text-center mb-8">
+    <div className="w-full px-4 py-8">
+      <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Create New Workflow</h1>
         <p className="text-muted-foreground">
           Upload a document to get started. We'll analyze it and suggest fields to extract.
@@ -127,7 +127,7 @@ export default function WorkflowCreatorPage() {
         </CardContent>
       </Card>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8">
         <Button variant="ghost" onClick={() => navigate({ to: "/" })}>
           Back to Workflows
         </Button>
