@@ -11,7 +11,10 @@ import workflows from "./routes/workflows";
 import { otel } from "@hono/otel";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
+import { LoggerProvider, SimpleLogRecordProcessor, ConsoleLogRecordExporter } from "@opentelemetry/sdk-logs";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { logs } from "@opentelemetry/api-logs";
 
 const traceExporter = new OTLPTraceExporter({
   url: "https://api.axiom.co/v1/traces",
@@ -21,17 +24,31 @@ const traceExporter = new OTLPTraceExporter({
   },
 })
 
-const sdk = new NodeSDK({
-  traceExporter: traceExporter,
-  instrumentations: [getNodeAutoInstrumentations()],
+const logExporter = new OTLPLogExporter({
+  url: "https://api.axiom.co/v1/logs",
+  headers: {
+    "Authorization": `Bearer ${envVars.AXIOM_TOKEN}`,
+    "X-Axiom-Dataset": "paperjet",
+  },
 });
 
-// const sdk = new NodeSDK({
-//   traceExporter,
-//   instrumentations: [
-//     getNodeAutoInstrumentations({}),
-//   ],
-// });
+// Create and configure LoggerProvider
+const loggerProvider = new LoggerProvider();
+loggerProvider.addLogRecordProcessor(new SimpleLogRecordProcessor(logExporter));
+
+// Also add console exporter for development
+if (envVars.ENVIRONMENT === "dev") {
+  loggerProvider.addLogRecordProcessor(new SimpleLogRecordProcessor(new ConsoleLogRecordExporter()));
+}
+
+// Set the global logger provider
+logs.setGlobalLoggerProvider(loggerProvider);
+
+const sdk = new NodeSDK({
+  traceExporter: traceExporter,
+  logRecordProcessor: new SimpleLogRecordProcessor(logExporter),
+  instrumentations: [getNodeAutoInstrumentations()],
+});
 
 sdk.start();
 
