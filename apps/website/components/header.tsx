@@ -12,6 +12,7 @@ const navigationLinks = [
   // { href: "#testimonials", label: "Testimonials" },
   // { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export const Header = () => {
