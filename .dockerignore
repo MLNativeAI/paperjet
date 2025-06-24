@@ -1,0 +1,76 @@
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+*.md
+docs
+LICENSE
+
+# Development
+.env*
+!.env.example
+.vscode
+.idea
+*.log
+*.swp
+*.swo
+*~
+
+# Dependencies
+node_modules
+.npm
+.yarn
+.pnp.*
+
+# Build outputs
+dist
+build
+out
+.next
+.turbo
+.cache
+tmp
+
+# Test files
+coverage
+.nyc_output
+*.test.*
+*.spec.*
+__tests__
+test
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.gitlab-ci.yml
+.travis.yml
+circle.yml
+jenkins*
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Package manager files (keep lock files)
+!package.json
+!package-lock.json
+!yarn.lock
+!pnpm-lock.yaml
+!bun.lockb
+
+# Misc
+*.zip
+*.tar.gz
+*.tgz
+screenshots
+videos

@@ -1,13 +1,14 @@
 # Use the official Bun image
-# See all versions at https://hub.docker.com/r/oven/bun/tags
 FROM oven/bun:1 AS base
 WORKDIR /usr/src/app
 
-# Install turbo globally
-RUN bun install -g turbo@^2
+# Install turbo globally with cache mount
+FROM base AS turbo-installer
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install -g turbo@^2
 
 # Pruner stage - create minimal workspace for both API and dashboard apps
-FROM base AS pruner
+FROM turbo-installer AS pruner
 COPY . .
 RUN turbo prune api dashboard --docker
 
@@ -15,15 +16,22 @@ RUN turbo prune api dashboard --docker
 FROM base AS installer
 WORKDIR /usr/src/app
 
-# First install the dependencies (as they change less often)
-# Copy the pruned package.json files and lockfile
+# Copy pruned package files
 COPY --from=pruner /usr/src/app/out/json/ .
-COPY --from=pruner /usr/src/app/out/bun.lock ./bun.lock
-RUN bun install
+
+# Copy the actual lockfile from root, not from pruned output
+COPY bun.lockb ./bun.lockb
+
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
 
 # Builder stage - build both projects
 FROM base AS builder
 WORKDIR /usr/src/app
+
+# Copy turbo from installer
+COPY --from=turbo-installer /usr/local/bin/turbo /usr/local/bin/turbo
 
 # Copy the full pruned source code
 COPY --from=pruner /usr/src/app/out/full/ .
