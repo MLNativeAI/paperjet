@@ -1,5 +1,6 @@
 # Use the official Bun image
-FROM oven/bun:1 AS base
+FROM oven/bun:alpine AS base
+
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -54,4 +55,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["bun", "apps/website/server.js"]
+CMD ["node", "apps/website/server.js"]
