@@ -8,8 +8,6 @@ import { env } from "bun";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];
 
-const resend = new Resend(env.RESEND_API_KEY);
-
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -38,43 +36,6 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    magicLink({
-      disableSignUp: false,
-      expiresIn: 300, // 5 minutes
-      sendMagicLink: async ({ email, url }) => {
-        if (!env.RESEND_API_KEY) {
-          console.log("Magic link URL:", url);
-          return;
-        }
-
-        try {
-          await resend.emails.send({
-            from: env.RESEND_FROM_EMAIL || "PaperJet <noreply@paperjet.com>",
-            to: email,
-            subject: "Sign in to PaperJet",
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h1 style="color: #333; text-align: center;">Sign in to PaperJet</h1>
-                <p style="color: #666; font-size: 16px;">
-                  Click the button below to sign in to your PaperJet account. This link will expire in 5 minutes.
-                </p>
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="${url}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                    Sign in to PaperJet
-                  </a>
-                </div>
-                <p style="color: #888; font-size: 14px;">
-                  If you didn't request this email, you can safely ignore it.
-                </p>
-              </div>
-            `,
-          });
-        } catch (error) {
-          console.error("Failed to send magic link email:", error);
-          throw error;
-        }
-      },
-    }),
   ],
   trustedOrigins: [
     env.TRUSTED_ORIGIN || "http://localhost:5173",

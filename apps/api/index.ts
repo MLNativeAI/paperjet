@@ -8,6 +8,34 @@ import { envVars } from "./lib/env";
 import files from "./routes/files";
 import workflows from "./routes/workflows";
 
+import { otel } from "@hono/otel";
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+
+const traceExporter = new OTLPTraceExporter({
+  url: "https://api.axiom.co/v1/traces",
+  headers: {
+    "Authorization": `Bearer ${envVars.AXIOM_TOKEN}`,
+    "X-Axiom-Dataset": "paperjet",
+  },
+})
+
+const sdk = new NodeSDK({
+  traceExporter: traceExporter,
+  instrumentations: [getNodeAutoInstrumentations()],
+});
+
+// const sdk = new NodeSDK({
+//   traceExporter,
+//   instrumentations: [
+//     getNodeAutoInstrumentations({}),
+//   ],
+// });
+
+sdk.start();
+
+
 const app = new Hono<{
   Variables: {
     user: typeof auth.$Infer.Session.user | null;
@@ -15,6 +43,7 @@ const app = new Hono<{
   };
 }>();
 
+app.use('*', otel())
 app.use(poweredBy({ serverName: "mlnative.com" }));
 app.use(logger());
 // Cors middleware for local development
@@ -26,6 +55,7 @@ app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
 // Health check
 app.get("/api/health", async (c) => {
+  console.log("health check");
   return c.json({
     status: "ok",
   });

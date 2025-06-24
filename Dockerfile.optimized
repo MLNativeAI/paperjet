@@ -15,7 +15,7 @@ FROM base AS deps
 WORKDIR /usr/src/app
 
 # Copy only package files first for better layer caching
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 COPY apps/*/package.json ./apps/
 COPY packages/*/package.json ./packages/
 
@@ -47,7 +47,7 @@ FROM oven/bun:1-slim AS release
 WORKDIR /usr/src/app
 
 # Install only production dependencies
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/*/package.json ./packages/
 

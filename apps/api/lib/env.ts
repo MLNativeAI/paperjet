@@ -15,6 +15,7 @@ const envSchema = z.object({
     .default("3000")
     .transform(Number),
   ENVIRONMENT: z.enum(["dev", "prod"]).default("dev"),
+  AXIOM_TOKEN: z.string(),
 });
 
 export const validateEnv = () => {

@@ -51,7 +51,7 @@ The optimized Dockerfile uses:
 ### 6. Fixed Lockfile Issues
 **Impact: Medium (consistent builds)**
 
-- Copies `bun.lockb` instead of `bun.lock`
+- Copies `bun.lock` instead of `bun.lock`
 - Uses `--frozen-lockfile` flag
 - Prevents dependency resolution on every build
 
@@ -60,7 +60,7 @@ The optimized Dockerfile uses:
 ### Before Optimization:
 - Context transfer: 18.9s (1.22GB)
 - Dependencies install: ~21s (with failures)
-- Build time: 82.1s (ARM64), 7.1s (AMD64)  
+- Build time: 82.1s (ARM64), 7.1s (AMD64)
 - Cache export: 307.8s
 - **Total: ~10 minutes**
 
