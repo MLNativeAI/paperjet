@@ -58,8 +58,10 @@ jenkins*
 
 # Logs and databases
 *.log
-*.sql
 *.sqlite
+
+# Keep migration files
+!**/migrations/**/*.sql
 
 # Package manager files (keep lock files)
 !package.json

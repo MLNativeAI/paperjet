@@ -51,6 +51,9 @@ COPY --from=builder --chown=bun:bun /usr/src/app/apps/dashboard/dist ./apps/back
 COPY --chown=bun:bun apps/api/start.sh .
 RUN chmod +x start.sh
 
+# Set production environment
+ENV NODE_ENV=production
+
 # Switch to non-root user
 USER bun
 
