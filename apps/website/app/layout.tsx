@@ -53,12 +53,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable}`}
-      >
-        {children}
-      </body>
-    </html>
+    <PostHogProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable}`}
+        >
+          {children}
+        </body>
+      </html>
+    </PostHogProvider>
   );
 }

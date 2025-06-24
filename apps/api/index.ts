@@ -9,7 +9,7 @@ import { poweredBy } from "hono/powered-by";
 import { type auth, authHandler, requireAuth } from "./lib/auth";
 import { corsMiddleware } from "./lib/cors";
 import { envVars } from "./lib/env";
-import { logger } from "./lib/otel-logger";
+import { logger } from "./lib/logger";
 import files from "./routes/files";
 import workflows from "./routes/workflows";
 

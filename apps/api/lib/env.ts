@@ -17,6 +17,7 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   AXIOM_TOKEN: z.string().optional(),
+  AXIOM_DATASET: z.string().default("paperjet"),
 });
 
 export const validateEnv = () => {
