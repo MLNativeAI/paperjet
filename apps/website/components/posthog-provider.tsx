@@ -6,9 +6,8 @@ import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  console.log("PostHogProvider", process.env.NEXT_PUBLIC_POSTHOG_KEY);
   useEffect(() => {
-    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+    posthog.init("phc_PReo51BPqAWTQOsIJsLPu1TuwkxqA6XM3zjNwKoZrS6", {
       api_host: "/ingest",
       ui_host: "https://eu.posthog.com",
       capture_pageview: false, // We capture pageviews manually
