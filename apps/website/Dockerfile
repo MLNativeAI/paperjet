@@ -9,6 +9,8 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY packages/ui/package.json ./packages/ui/package.json
 COPY packages/email/package.json ./packages/email/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+COPY packages/tsconfig/package.json ./packages/tsconfig/package.json
 COPY apps/website/package.json ./apps/website/package.json
 
 # Install dependencies
