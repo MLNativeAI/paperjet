@@ -1,3 +1,4 @@
+import { PostHogProvider } from "@/components/posthog-provider";
 import "../styles.css";
 import type { Metadata } from "next";
 import { Fira_Code, Merriweather, Oxanium } from "next/font/google";
