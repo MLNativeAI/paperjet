@@ -1,20 +1,20 @@
+import { google } from "@ai-sdk/google";
 import { db } from "@paperjet/db";
 import { file, workflow, workflowFile } from "@paperjet/db/schema";
 import {
   type DocumentAnalysis,
-  type WorkflowConfiguration,
-  type ExtractionResult,
   documentAnalysisSchema,
-  workflowConfigurationSchema,
+  type ExtractionResult,
   extractionResultSchema,
+  type WorkflowConfiguration,
+  workflowConfigurationSchema,
 } from "@paperjet/db/types";
+import { generateObject } from "ai";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { s3 } from "@/lib/s3";
-import { google } from "@ai-sdk/google";
-import { generateObject } from "ai";
 
 const app = new Hono();
 
@@ -116,7 +116,7 @@ const router = app
       // Get presigned URL for the file
       const presignedUrl = await s3.presign(filename);
 
-      console.log(presignedUrl)
+      console.log(presignedUrl);
 
       // Analyze document with Gemini Flash
       const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
@@ -185,20 +185,26 @@ Provide a structured analysis with practical, commonly needed information extrac
 
       const extractSchema = z.object({
         fileId: z.string(),
-        fields: z.array(z.object({
-          name: z.string(),
-          description: z.string(),
-          type: z.enum(["text", "number", "date", "currency", "boolean"]),
-        })),
-        tables: z.array(z.object({
-          name: z.string(),
-          description: z.string(),
-          columns: z.array(z.object({
+        fields: z.array(
+          z.object({
             name: z.string(),
             description: z.string(),
             type: z.enum(["text", "number", "date", "currency", "boolean"]),
-          })),
-        })),
+          }),
+        ),
+        tables: z.array(
+          z.object({
+            name: z.string(),
+            description: z.string(),
+            columns: z.array(
+              z.object({
+                name: z.string(),
+                description: z.string(),
+                type: z.enum(["text", "number", "date", "currency", "boolean"]),
+              }),
+            ),
+          }),
+        ),
       });
 
       const validatedData = extractSchema.parse(body);
@@ -217,39 +223,18 @@ Provide a structured analysis with practical, commonly needed information extrac
       const presignedUrl = await s3.presign(fileRecord.filename);
 
       // Create dynamic schema based on provided fields and tables
-      const fieldSchemas = validatedData.fields.map(field => {
-        let zodType;
-        switch (field.type) {
-          case "number":
-            zodType = "z.number().nullable()";
-            break;
-          case "date":
-            zodType = "z.string().nullable()"; // Date as ISO string
-            break;
-          case "currency":
-            zodType = "z.number().nullable()"; // Currency as number
-            break;
-          case "boolean":
-            zodType = "z.boolean().nullable()";
-            break;
-          default:
-            zodType = "z.string().nullable()";
-        }
-        return `${field.name}: ${zodType}`;
-      }).join(",\n  ");
-
-      const tableSchemas = validatedData.tables.map(table => {
-        const columnSchemas = table.columns.map(col => {
+      const fieldSchemas = validatedData.fields
+        .map((field) => {
           let zodType;
-          switch (col.type) {
+          switch (field.type) {
             case "number":
               zodType = "z.number().nullable()";
               break;
             case "date":
-              zodType = "z.string().nullable()";
+              zodType = "z.string().nullable()"; // Date as ISO string
               break;
             case "currency":
-              zodType = "z.number().nullable()";
+              zodType = "z.number().nullable()"; // Currency as number
               break;
             case "boolean":
               zodType = "z.boolean().nullable()";
@@ -257,34 +242,63 @@ Provide a structured analysis with practical, commonly needed information extrac
             default:
               zodType = "z.string().nullable()";
           }
-          return `${col.name}: ${zodType}`;
-        }).join(",\n    ");
+          return `${field.name}: ${zodType}`;
+        })
+        .join(",\n  ");
 
-        return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
-      }).join(",\n  ");
+      const tableSchemas = validatedData.tables
+        .map((table) => {
+          const columnSchemas = table.columns
+            .map((col) => {
+              let zodType;
+              switch (col.type) {
+                case "number":
+                  zodType = "z.number().nullable()";
+                  break;
+                case "date":
+                  zodType = "z.string().nullable()";
+                  break;
+                case "currency":
+                  zodType = "z.number().nullable()";
+                  break;
+                case "boolean":
+                  zodType = "z.boolean().nullable()";
+                  break;
+                default:
+                  zodType = "z.string().nullable()";
+              }
+              return `${col.name}: ${zodType}`;
+            })
+            .join(",\n    ");
+
+          return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
+        })
+        .join(",\n  ");
 
       const fullSchema = `z.object({
   ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
 })`;
 
       // Build extraction prompt with field descriptions
-      const fieldDescriptions = validatedData.fields.map(field =>
-        `- ${field.name} (${field.type}): ${field.description}`
-      ).join("\n");
+      const fieldDescriptions = validatedData.fields
+        .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
+        .join("\n");
 
-      const tableDescriptions = validatedData.tables.map(table => {
-        const columnDescs = table.columns.map(col =>
-          `    - ${col.name} (${col.type}): ${col.description}`
-        ).join("\n");
-        return `- ${table.name}: ${table.description}\n${columnDescs}`;
-      }).join("\n");
+      const tableDescriptions = validatedData.tables
+        .map((table) => {
+          const columnDescs = table.columns
+            .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
+            .join("\n");
+          return `- ${table.name}: ${table.description}\n${columnDescs}`;
+        })
+        .join("\n");
 
       const prompt = `Extract the following information from this document:
 
 FIELDS TO EXTRACT:
 ${fieldDescriptions}
 
-${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ''}
+${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ""}
 
 Instructions:
 - Extract exact values as they appear in the document
@@ -327,12 +341,12 @@ Instructions:
 
       // Transform the result to match our extraction result schema
       const extractionResult: ExtractionResult = {
-        fields: validatedData.fields.map(field => ({
+        fields: validatedData.fields.map((field) => ({
           fieldName: field.name,
           value: (object as any)[field.name],
           confidence: 0.9, // Default confidence, could be enhanced
         })),
-        tables: validatedData.tables.map(table => ({
+        tables: validatedData.tables.map((table) => ({
           tableName: table.name,
           rows: ((object as any)[table.name] || []).map((row: any) => ({
             values: row,

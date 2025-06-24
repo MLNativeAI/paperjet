@@ -3,8 +3,8 @@ import * as schema from "@paperjet/db/schema";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
-import { Resend } from "resend";
 import { env } from "bun";
+import { Resend } from "resend";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];
 
@@ -35,11 +35,8 @@ export const auth = betterAuth({
       redirectUri: env.AUTH_REDIRECT_URI || "http://localhost:5173/",
     },
   },
-  plugins: [
-  ],
-  trustedOrigins: [
-    env.TRUSTED_ORIGIN || "http://localhost:5173",
-  ],
+  plugins: [],
+  trustedOrigins: [env.TRUSTED_ORIGIN || "http://localhost:5173"],
 });
 
 // Helper function to check if a path matches a pattern with wildcards
