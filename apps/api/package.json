@@ -26,6 +26,7 @@
     "@opentelemetry/exporter-trace-otlp-http": "^0.202.0",
     "@opentelemetry/sdk-node": "^0.202.0",
     "@paperjet/db": "workspace:*",
+    "@paperjet/email": "workspace:*",
     "@tanstack/react-router-devtools": "^1.117.1",
     "ai": "^4.3.16",
     "better-auth": "^1.2.7",
