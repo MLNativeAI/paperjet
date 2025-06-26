@@ -2,6 +2,8 @@
 
 // Re-export render utility for convenience
 export { render } from "@react-email/render";
+export type { MagicLinkEmailProps } from "./emails/magic-link";
+export { MagicLinkEmail } from "./emails/magic-link";
 export type { ResetPasswordEmailTemplateProps } from "./emails/password-reset";
 export { ResetPasswordEmailTemplate } from "./emails/password-reset";
 export type { SignupNotificationEmailProps } from "./emails/signup-notification";

@@ -1,5 +1,6 @@
 import { db } from "@paperjet/db";
 import * as schema from "@paperjet/db/schema";
+import { MagicLinkEmail, render } from "@paperjet/email";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
@@ -8,14 +9,37 @@ import { Resend } from "resend";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];
 
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: schema,
   }),
-  emailAndPassword: {
-    enabled: true,
-  },
+  plugins: [
+    magicLink({
+      sendMagicLink: async ({ email, token, url }, request) => {
+        if (!resend) {
+          console.log(`Magic link for ${email}: ${url}`);
+          return;
+        }
+
+        try {
+          const emailHtml = await render(MagicLinkEmail({ email, url }));
+
+          await resend.emails.send({
+            from: env.FROM_EMAIL || "noreply@getpaperjet.com",
+            to: email,
+            subject: "Sign in to PaperJet",
+            html: emailHtml,
+          });
+        } catch (error) {
+          console.error("Failed to send magic link email:", error);
+          throw error;
+        }
+      }
+    })
+  ],
   socialProviders: {
     google: {
       prompt: "select_account",
@@ -35,7 +59,6 @@ export const auth = betterAuth({
       redirectUri: env.AUTH_REDIRECT_URI || "http://localhost:5173/",
     },
   },
-  plugins: [],
   trustedOrigins: [env.TRUSTED_ORIGIN || "http://localhost:5173"],
 });
 

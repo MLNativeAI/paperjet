@@ -51,7 +51,8 @@ export function SignUpForm({
 }: React.ComponentProps<"div">) {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [authMethod, setAuthMethod] = useState<"social" | "password">("social");
+  const [authMethod, setAuthMethod] = useState<"social" | "magiclink">("social");
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
   const navigate = useNavigate();
 
   const handleSocialSignUp = async (provider: "google" | "microsoft") => {
@@ -69,30 +70,27 @@ export function SignUpForm({
     }
   };
 
-  const handlePasswordSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleMagicLinkSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const name = formData.get("name") as string;
 
     try {
-      const { error } = await authClient.signUp.email({
+      const { error } = await authClient.signIn.magicLink({
         email,
-        password,
-        name,
+        callbackURL: "/",
       });
 
       if (error) {
-        setError(error.message || "An error occurred during sign up");
+        setError(error.message || "An error occurred sending the magic link");
         return;
       }
 
-      navigate({ to: "/" });
-      toast.success("Account created successfully");
+      setMagicLinkSent(true);
+      toast.success("Magic link sent! Check your email to complete registration.");
     } catch (err) {
       setError("An unexpected error occurred");
     } finally {
@@ -160,65 +158,77 @@ export function SignUpForm({
                   type="button"
                   variant="ghost"
                   className="w-full"
-                  onClick={() => setAuthMethod("password")}
+                  onClick={() => setAuthMethod("magiclink")}
                 >
-                  Sign up with email & password
+                  Sign up with magic link
                 </Button>
               </>
             )}
 
-            {authMethod === "password" && (
-              <form onSubmit={handlePasswordSignUp}>
-                <div className="flex flex-col gap-3">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      type="text"
-                      placeholder="Your name"
-                      required
-                      disabled={isLoading}
-                    />
+            {authMethod === "magiclink" && (
+              <div className="flex flex-col gap-3">
+                {!magicLinkSent ? (
+                  <form onSubmit={handleMagicLinkSignUp}>
+                    <div className="flex flex-col gap-3">
+                      <div className="grid gap-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="m@example.com"
+                          required
+                          disabled={isLoading}
+                        />
+                      </div>
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Send magic link
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => {
+                          setAuthMethod("social");
+                          setError("");
+                        }}
+                      >
+                        Back to other options
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="text-center space-y-3">
+                    <div className="text-sm text-muted-foreground">
+                      Magic link sent! Check your email and click the link to create your account.
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setMagicLinkSent(false);
+                        setError("");
+                      }}
+                    >
+                      Send another link
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => {
+                        setAuthMethod("social");
+                        setMagicLinkSent(false);
+                        setError("");
+                      }}
+                    >
+                      Back to other options
+                    </Button>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create account
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full"
-                    onClick={() => {
-                      setAuthMethod("social");
-                      setError("");
-                    }}
-                  >
-                    Back to other options
-                  </Button>
-                </div>
-              </form>
+                )}
+              </div>
             )}
 
 
