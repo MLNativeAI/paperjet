@@ -143,10 +143,12 @@ jobs:
       - name: Extract production image tag
         id: image
         run: |
-          # Use the latest tag for production deployments
-          PRODUCTION_TAG="docker.io/mlnative/paperjet:latest"
-          echo "tag=${PRODUCTION_TAG}" >> $GITHUB_OUTPUT
-          echo "Deploying image: ${PRODUCTION_TAG}"
+          # Use the specific version tag for production deployments
+          VERSION_TAG="${{ needs.release.outputs.version }}"
+          IMAGE_NAME="mlnative/paperjet"
+          echo "tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
+          echo "name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
+          echo "Deploying image: docker.io/${IMAGE_NAME}:${VERSION_TAG}"
 
       - name: Update Coolify production application image
         run: |
@@ -155,7 +157,8 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.COOLIFY_PROD_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "docker_image": "${{ steps.image.outputs.tag }}"
+              "docker_registry_image_name": "${{ steps.image.outputs.name }}",
+              "docker_registry_image_tag": "${{ steps.image.outputs.tag }}"
             }'
 
       - name: Deploy to Coolify Production

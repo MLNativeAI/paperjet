@@ -72,10 +72,12 @@ jobs:
       - name: Extract image tag
         id: image
         run: |
-          # Extract the latest tag with SHA from the build metadata
-          FULL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}"
-          echo "tag=${FULL_TAG}" >> $GITHUB_OUTPUT
-          echo "Deploying image: ${FULL_TAG}"
+          # Extract the short SHA (first 7 characters)
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE_TAG="main-${SHORT_SHA}"
+          echo "tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "name=${{ env.IMAGE_NAME }}" >> $GITHUB_OUTPUT
+          echo "Deploying image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}"
 
       - name: Update Coolify application image
         run: |
@@ -84,8 +86,8 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.COOLIFY_DEV_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "docker_registry_image_name": "${{ env.IMAGE_NAME }}"
-              "docker_registry_image_tag":  "${{ steps.image.outputs.tag }}"
+              "docker_registry_image_name": "${{ steps.image.outputs.name }}",
+              "docker_registry_image_tag": "${{ steps.image.outputs.tag }}"
             }'
 
       - name: Deploy to Coolify
