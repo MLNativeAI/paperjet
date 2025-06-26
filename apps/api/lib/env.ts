@@ -3,6 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   OTEL_SERVICE_NAME: z.string().default("paperjet-api"),
   BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
+  BASE_URL: z.string().default("http://localhost:5173"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   S3_ENDPOINT: z.string().url("S3_ENDPOINT must be a valid URL"),
   S3_ACCESS_KEY: z.string().min(1, "S3_ACCESS_KEY is required"),

@@ -48,7 +48,7 @@ export const auth = betterAuth({
         env.GOOGLE_CLIENT_SECRET !== undefined,
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      redirectUri: env.AUTH_REDIRECT_URI || "http://localhost:5173/",
+      redirectUri: env.BASE_URL,
     },
     microsoft: {
       enabled:
@@ -56,10 +56,10 @@ export const auth = betterAuth({
         env.MICROSOFT_CLIENT_SECRET !== undefined,
       clientId: env.MICROSOFT_CLIENT_ID,
       clientSecret: env.MICROSOFT_CLIENT_SECRET,
-      redirectUri: env.AUTH_REDIRECT_URI || "http://localhost:5173/",
+      redirectUri: env.BASE_URL,
     },
   },
-  trustedOrigins: [env.TRUSTED_ORIGIN || "http://localhost:5173"],
+  trustedOrigins: [env.BASE_URL],
 });
 
 // Helper function to check if a path matches a pattern with wildcards

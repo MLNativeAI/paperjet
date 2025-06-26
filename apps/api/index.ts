@@ -49,7 +49,7 @@ if (envVars.ENVIRONMENT === "prod") {
   app.get("*", serveStatic({ path: "./public/index.html" }));
 } else {
   app.get("*", (c) => {
-    return c.redirect("http://localhost:5173");
+    return c.redirect(envVars.BASE_URL);
   });
 }
 
