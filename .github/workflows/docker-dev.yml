@@ -84,7 +84,8 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.COOLIFY_DEV_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "docker_image": "${{ steps.image.outputs.tag }}"
+              "docker_registry_image_name": "${{ env.IMAGE_NAME }}"
+              "docker_registry_image_tag":  "${{ steps.image.outputs.tag }}"
             }'
 
       - name: Deploy to Coolify
