@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@paperjet/ui/button";
 import { motion } from "framer-motion";
 import { ChevronRight, Menu, Moon, Sun, X } from "lucide-react";
@@ -19,6 +17,7 @@ import {
   Pricing,
   Testimonials,
 } from "../components/sections";
+import Blog from "@/components/blog";
 
 export default function LandingPage() {
   return (
@@ -34,6 +33,7 @@ export default function LandingPage() {
         {/* <Testimonials /> */}
         {/* <Pricing /> */}
         <FAQ />
+        <Blog />
         <CTA />
       </main>
       <Footer />

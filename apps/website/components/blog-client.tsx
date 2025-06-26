@@ -2,9 +2,11 @@
 
 import React, { useEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
-import { formatDate } from '@/lib/utils';
-import Image from 'next/image';
-import Link from 'next/link';
+import { formatDate } from "@/lib/utils";
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Badge } from "./ui/badge";
 
 type BlogPost = {
   metadata: {
@@ -49,14 +51,20 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
   return (
     <section id="blog" ref={sectionRef} className="pt-16 pb-40">
       <div className="container mx-auto px-4">
-        <div className="">
-          <h3 className="animate-on-scroll mb-4 text-lg text-muted-foreground">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center justify-center space-y-4 text-center mb-12"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
             Blog
-          </h3>
-          <h2 className="animate-on-scroll text-3xl sm:text-4xl md:text-5xl font-bold mb-12">
-            Latest news
           </h2>
-        </div>
+          <p className="max-w-[800px] text-muted-foreground md:text-lg">
+            Latest news
+          </p>
+        </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post, index) => (
@@ -86,9 +94,7 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
                         <span>•</span>
                       </>
                     )}
-                    <time>
-                      {formatDate(post.metadata.publishedAt, false)}
-                    </time>
+                    <time>{formatDate(post.metadata.publishedAt, false)}</time>
                   </div>
                   <h3 className="mt-2 text-xl font-semibold text-gray-800 dark:text-gray-100 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {post.metadata.title}
@@ -100,8 +106,18 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
                   )}
                   <div className="mt-4 flex items-center text-gray-600 dark:text-gray-400 text-sm font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     Read more
-                    <svg className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <svg
+                      className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </div>
                 </div>
