@@ -93,6 +93,6 @@ jobs:
       - name: Deploy to Coolify
         run: |
           curl -X GET \
-            "${{ secrets.COOLIFY_DEV_URL }}/api/v1/applications/${{ secrets.COOLIFY_DEV_APP_UUID }}/deploy" \
+            "${{ secrets.COOLIFY_DEV_URL }}/api/v1/deploy?uuid=${{ secrets.COOLIFY_DEV_APP_UUID }}" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_DEV_TOKEN }}" \
             -H "Content-Type: application/json"

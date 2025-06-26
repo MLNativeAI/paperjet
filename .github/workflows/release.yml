@@ -164,6 +164,6 @@ jobs:
       - name: Deploy to Coolify Production
         run: |
           curl -X GET \
-            "${{ secrets.COOLIFY_PROD_URL }}/api/v1/applications/${{ secrets.COOLIFY_PROD_APP_UUID }}/deploy" \
+            "${{ secrets.COOLIFY_PROD_URL }}/api/v1/deploy?uuid=${{ secrets.COOLIFY_PROD_APP_UUID }}" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_PROD_TOKEN }}" \
             -H "Content-Type: application/json"
