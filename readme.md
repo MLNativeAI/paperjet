@@ -8,7 +8,7 @@ PaperJet is a privacy-first document processing platform that creates custom AI 
 
 This repository includes GitHub Actions workflows for automatic deployment to Coolify:
 
-- **Development**: Automatically deploys to dev environment on every push to `main`
+- **Development**: Automatically deploys to staging environment on every push to `main`
 - **Production**: Automatically deploys to production on semantic releases
 
 See [`.github/COOLIFY_SETUP.md`](.github/COOLIFY_SETUP.md) for detailed setup instructions.

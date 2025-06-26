@@ -13,7 +13,7 @@ const envSchema = z.object({
     .regex(/^\d+$/, "Port must be a numeric string")
     .default("3000")
     .transform(Number),
-  ENVIRONMENT: z.enum(["dev", "prod"]).default("dev"),
+  ENVIRONMENT: z.enum(["dev", "staging", "prod"]).default("dev"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   AXIOM_TOKEN: z.string().optional(),
@@ -34,5 +34,5 @@ export const envVars = validateEnv();
 
 // Type augmentation for Bun
 declare module "bun" {
-  interface Env extends z.infer<typeof envSchema> {}
+  interface Env extends z.infer<typeof envSchema> { }
 }
