@@ -50,6 +50,7 @@ jobs:
 
       # Build for AMD64 only by default, ARM64 in separate job if needed
       - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -59,3 +60,36 @@ jobs:
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           platforms: linux/amd64
+
+  deploy-dev:
+    name: Deploy to Coolify Dev
+    needs: build-and-push
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: development
+    
+    steps:
+      - name: Extract image tag
+        id: image
+        run: |
+          # Extract the latest tag with SHA from the build metadata
+          FULL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}"
+          echo "tag=${FULL_TAG}" >> $GITHUB_OUTPUT
+          echo "Deploying image: ${FULL_TAG}"
+
+      - name: Update Coolify application image
+        run: |
+          curl -X PATCH \
+            "${{ secrets.COOLIFY_DEV_URL }}/api/v1/applications/${{ secrets.COOLIFY_DEV_APP_UUID }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_DEV_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "docker_image": "${{ steps.image.outputs.tag }}"
+            }'
+
+      - name: Deploy to Coolify
+        run: |
+          curl -X GET \
+            "${{ secrets.COOLIFY_DEV_URL }}/api/v1/applications/${{ secrets.COOLIFY_DEV_APP_UUID }}/deploy" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_DEV_TOKEN }}" \
+            -H "Content-Type: application/json"

@@ -78,6 +78,7 @@ jobs:
             type=raw,value=latest,enable=true
 
       - name: Build and push multi-platform Docker image
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -130,3 +131,36 @@ jobs:
               release_id: release.id,
               body: release.body + dockerInfo
             });
+
+  deploy-production:
+    name: Deploy to Coolify Production
+    needs: [release, docker-release]
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Extract production image tag
+        id: image
+        run: |
+          # Use the latest tag for production deployments
+          PRODUCTION_TAG="docker.io/mlnative/paperjet:latest"
+          echo "tag=${PRODUCTION_TAG}" >> $GITHUB_OUTPUT
+          echo "Deploying image: ${PRODUCTION_TAG}"
+
+      - name: Update Coolify production application image
+        run: |
+          curl -X PATCH \
+            "${{ secrets.COOLIFY_PROD_URL }}/api/v1/applications/${{ secrets.COOLIFY_PROD_APP_UUID }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_PROD_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "docker_image": "${{ steps.image.outputs.tag }}"
+            }'
+
+      - name: Deploy to Coolify Production
+        run: |
+          curl -X GET \
+            "${{ secrets.COOLIFY_PROD_URL }}/api/v1/applications/${{ secrets.COOLIFY_PROD_APP_UUID }}/deploy" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_PROD_TOKEN }}" \
+            -H "Content-Type: application/json"
