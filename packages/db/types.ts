@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { file, workflow, workflowFile } from "./schema";
+import type { file, workflow, workflowFile, workflowExecution, executionFile } from "./schema";
 
 export const uploadFileSchema = z.object({
   file: z.instanceof(File),
@@ -76,3 +76,31 @@ export const extractionResultSchema = z.object({
 export type ExtractedValue = z.infer<typeof extractedValueSchema>;
 export type ExtractedTable = z.infer<typeof extractedTableSchema>;
 export type ExtractionResult = z.infer<typeof extractionResultSchema>;
+
+// Workflow execution types
+export type WorkflowExecutionData = typeof workflowExecution.$inferSelect;
+export type ExecutionFileData = typeof executionFile.$inferSelect;
+
+export const executionStatusSchema = z.enum(["pending", "processing", "completed", "failed"]);
+export type ExecutionStatus = z.infer<typeof executionStatusSchema>;
+
+export const workflowExecutionWithFilesSchema = z.object({
+  id: z.string(),
+  workflowId: z.string(),
+  status: executionStatusSchema,
+  startedAt: z.date(),
+  completedAt: z.date().nullable(),
+  createdAt: z.date(),
+  ownerId: z.string(),
+  files: z.array(z.object({
+    id: z.string(),
+    fileId: z.string(),
+    extractionResult: z.string().nullable(),
+    status: executionStatusSchema,
+    errorMessage: z.string().nullable(),
+    createdAt: z.date(),
+    filename: z.string(),
+  })),
+});
+
+export type WorkflowExecutionWithFiles = z.infer<typeof workflowExecutionWithFilesSchema>;

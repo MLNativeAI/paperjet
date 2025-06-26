@@ -96,11 +96,6 @@ export function ExtractionResults({
     }
   };
 
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return "bg-green-100 text-green-800";
-    if (confidence >= 0.6) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
-  };
 
   return (
     <div className="space-y-4">
@@ -135,15 +130,6 @@ export function ExtractionResults({
                       <Badge variant="outline" className="text-xs">
                         {field.type}
                       </Badge>
-                      {extractionResult && (
-                        <Badge 
-                          className={`text-xs ${getConfidenceColor(
-                            extractionResult.fields.find(f => f.fieldName === field.name)?.confidence || 0
-                          )}`}
-                        >
-                          {Math.round((extractionResult.fields.find(f => f.fieldName === field.name)?.confidence || 0) * 100)}%
-                        </Badge>
-                      )}
                     </div>
                     
                     {editingField === index ? (
@@ -217,11 +203,6 @@ export function ExtractionResults({
                         <h4 className="font-medium">{table.name}</h4>
                         <p className="text-sm text-muted-foreground">{table.description}</p>
                       </div>
-                      {extractedTable && (
-                        <Badge className={getConfidenceColor(extractedTable.confidence)}>
-                          {Math.round(extractedTable.confidence * 100)}% confidence
-                        </Badge>
-                      )}
                     </div>
                     
                     {extractedTable && extractedTable.rows.length > 0 ? (

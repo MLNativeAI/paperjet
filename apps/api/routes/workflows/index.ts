@@ -1,16 +1,15 @@
 import { google } from "@ai-sdk/google";
 import { db } from "@paperjet/db";
-import { file, workflow, workflowFile } from "@paperjet/db/schema";
+import { file, workflow, workflowFile, workflowExecution, executionFile } from "@paperjet/db/schema";
 import {
   type DocumentAnalysis,
   documentAnalysisSchema,
   type ExtractionResult,
-  extractionResultSchema,
   type WorkflowConfiguration,
   workflowConfigurationSchema,
 } from "@paperjet/db/types";
 import { generateObject } from "ai";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
@@ -25,7 +24,13 @@ const router = app
       .select()
       .from(workflow)
       .where(eq(workflow.ownerId, user.id));
-    return c.json(workflows);
+    
+    const parsedWorkflows = workflows.map(w => ({
+      ...w,
+      configuration: JSON.parse(w.configuration)
+    }));
+    
+    return c.json(parsedWorkflows);
   })
   .get("/:id", async (c) => {
     const user = await getUser(c);
@@ -364,6 +369,77 @@ Instructions:
       return c.json({ error: "Failed to extract data from document" }, 500);
     }
   })
+  .post("/chat", async (c) => {
+    try {
+      const user = await getUser(c);
+      const body = await c.req.json();
+
+      const chatSchema = z.object({
+        message: z.string(),
+        currentConfiguration: workflowConfigurationSchema,
+        documentType: z.string(),
+      });
+
+      const validatedData = chatSchema.parse(body);
+
+      // Use Gemini to understand the user's intent and modify the configuration
+      const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+      if (!apiKey) {
+        throw new Error("Google API key not configured");
+      }
+
+      const model = google("gemini-2.5-flash");
+
+      const prompt = `You are a helpful assistant that modifies document extraction workflows based on user requests.
+
+Current workflow configuration:
+- Document Type: ${validatedData.documentType}
+- Current Fields: ${JSON.stringify(validatedData.currentConfiguration.fields, null, 2)}
+- Current Tables: ${JSON.stringify(validatedData.currentConfiguration.tables, null, 2)}
+
+User Request: "${validatedData.message}"
+
+Please modify the configuration based on the user's request. Common requests include:
+- Adding new fields (e.g., "add executive summary" -> add a new text field for executive summary)
+- Removing fields (e.g., "remove tax field" -> remove the tax-related field)
+- Modifying field descriptions or types
+- Adding or modifying table structures
+
+Respond with:
+1. The updated configuration (same structure as input)
+2. A friendly message explaining what you changed
+
+Be helpful and intuitive. If the user asks for something unclear, make reasonable assumptions based on the document type.`;
+
+      const configurationSchema = z.object({
+        updatedConfiguration: workflowConfigurationSchema,
+        assistantMessage: z.string(),
+      });
+
+      const { object } = await generateObject({
+        model,
+        schema: configurationSchema,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
+
+      return c.json({
+        updatedConfiguration: object.updatedConfiguration,
+        assistantMessage: object.assistantMessage,
+        shouldAutoExtract: true,
+      });
+    } catch (error) {
+      console.error("Chat processing error:", error);
+      if (error instanceof z.ZodError) {
+        return c.json({ error: "Invalid chat request" }, 400);
+      }
+      return c.json({ error: "Failed to process chat message" }, 500);
+    }
+  })
   .get("/:fileId/document", async (c) => {
     try {
       const user = await getUser(c);
@@ -390,6 +466,328 @@ Instructions:
     } catch (error) {
       console.error("Get document error:", error);
       return c.json({ error: "Failed to get document" }, 500);
+    }
+  })
+  .post("/:id/execute", async (c) => {
+    try {
+      const user = await getUser(c);
+      const workflowId = c.req.param("id");
+      const body = await c.req.formData();
+
+      // Get workflow and verify ownership
+      const [workflowData] = await db
+        .select()
+        .from(workflow)
+        .where(eq(workflow.id, workflowId));
+
+      if (!workflowData || workflowData.ownerId !== user.id) {
+        return c.json({ error: "Workflow not found" }, 404);
+      }
+
+      // Parse workflow configuration
+      const config = JSON.parse(workflowData.configuration) as WorkflowConfiguration;
+
+      // Handle uploaded files
+      const uploadedFiles = body.getAll("files") as File[];
+      if (uploadedFiles.length === 0) {
+        return c.json({ error: "No files provided" }, 400);
+      }
+
+      // Create execution record
+      const executionId = crypto.randomUUID();
+      await db.insert(workflowExecution).values({
+        id: executionId,
+        workflowId,
+        status: "processing",
+        startedAt: new Date(),
+        createdAt: new Date(),
+        ownerId: user.id,
+      });
+
+      // Process each file
+      const executionFiles = [];
+      for (const uploadedFile of uploadedFiles) {
+        try {
+          // Save file to storage
+          const fileId = crypto.randomUUID();
+          const filename = `executions/${executionId}/${fileId}-${uploadedFile.name}`;
+
+          await db.insert(file).values({
+            id: fileId,
+            filename,
+            createdAt: new Date(),
+            ownerId: user.id,
+          });
+
+          const fileBuffer = await uploadedFile.arrayBuffer();
+          await s3.file(filename).write(fileBuffer);
+
+          // Create execution file record
+          const executionFileId = crypto.randomUUID();
+          await db.insert(executionFile).values({
+            id: executionFileId,
+            executionId,
+            fileId,
+            status: "processing",
+            createdAt: new Date(),
+          });
+
+          // Extract data using existing extraction logic
+          const presignedUrl = await s3.presign(filename);
+
+          const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+          if (!apiKey) {
+            throw new Error("Google API key not configured");
+          }
+
+          const model = google("gemini-2.5-flash");
+
+          // Build extraction schema
+          const fieldSchemas = config.fields
+            .map((field) => {
+              let zodType;
+              switch (field.type) {
+                case "number":
+                  zodType = "z.number().nullable()";
+                  break;
+                case "date":
+                  zodType = "z.string().nullable()";
+                  break;
+                case "currency":
+                  zodType = "z.number().nullable()";
+                  break;
+                case "boolean":
+                  zodType = "z.boolean().nullable()";
+                  break;
+                default:
+                  zodType = "z.string().nullable()";
+              }
+              return `${field.name}: ${zodType}`;
+            })
+            .join(",\n  ");
+
+          const tableSchemas = config.tables
+            .map((table) => {
+              const columnSchemas = table.columns
+                .map((col) => {
+                  let zodType;
+                  switch (col.type) {
+                    case "number":
+                      zodType = "z.number().nullable()";
+                      break;
+                    case "date":
+                      zodType = "z.string().nullable()";
+                      break;
+                    case "currency":
+                      zodType = "z.number().nullable()";
+                      break;
+                    case "boolean":
+                      zodType = "z.boolean().nullable()";
+                      break;
+                    default:
+                      zodType = "z.string().nullable()";
+                  }
+                  return `${col.name}: ${zodType}`;
+                })
+                .join(",\n    ");
+
+              return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
+            })
+            .join(",\n  ");
+
+          const fullSchema = `z.object({
+  ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
+})`;
+
+          const fieldDescriptions = config.fields
+            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
+            .join("\n");
+
+          const tableDescriptions = config.tables
+            .map((table) => {
+              const columnDescs = table.columns
+                .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
+                .join("\n");
+              return `- ${table.name}: ${table.description}\n${columnDescs}`;
+            })
+            .join("\n");
+
+          const prompt = `Extract the following information from this document:
+
+FIELDS TO EXTRACT:
+${fieldDescriptions}
+
+${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ""}
+
+Instructions:
+- Extract exact values as they appear in the document
+- For currency fields, extract as numbers (remove currency symbols)
+- For date fields, use ISO format (YYYY-MM-DD) 
+- For boolean fields, return true/false based on presence or checkmarks
+- If a field is not found or unclear, return null
+- For tables, extract all rows found
+- Maintain data accuracy and completeness`;
+
+          const schemaObj = eval(`(${fullSchema})`);
+
+          const { object } = await generateObject({
+            model,
+            schema: schemaObj,
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: prompt,
+                  },
+                  {
+                    type: "image",
+                    image: new URL(presignedUrl),
+                  },
+                ],
+              },
+            ],
+          });
+
+          // Transform result to match our extraction result schema
+          const extractionResult: ExtractionResult = {
+            fields: config.fields.map((field) => ({
+              fieldName: field.name,
+              value: (object as any)[field.name],
+              confidence: 0.9,
+            })),
+            tables: config.tables.map((table) => ({
+              tableName: table.name,
+              rows: ((object as any)[table.name] || []).map((row: any) => ({
+                values: row,
+              })),
+              confidence: 0.9,
+            })),
+          };
+
+          // Update execution file with results
+          await db
+            .update(executionFile)
+            .set({
+              extractionResult: JSON.stringify(extractionResult),
+              status: "completed",
+            })
+            .where(eq(executionFile.id, executionFileId));
+
+          executionFiles.push({
+            executionFileId,
+            fileId,
+            filename: uploadedFile.name,
+            status: "completed",
+            extractionResult,
+          });
+
+        } catch (error) {
+          console.error("File processing error:", error);
+
+          // Update execution file with error
+          const executionFileId = crypto.randomUUID();
+          await db.insert(executionFile).values({
+            id: executionFileId,
+            executionId,
+            fileId: "error", // Placeholder for failed upload
+            status: "failed",
+            errorMessage: error instanceof Error ? error.message : "Unknown error",
+            createdAt: new Date(),
+          });
+
+          executionFiles.push({
+            executionFileId,
+            fileId: "error",
+            filename: uploadedFile.name,
+            status: "failed",
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
+        }
+      }
+
+      // Update execution status
+      const hasFailures = executionFiles.some(f => f.status === "failed");
+      const finalStatus = hasFailures ? "completed" : "completed"; // Even with some failures, mark as completed
+
+      await db
+        .update(workflowExecution)
+        .set({
+          status: finalStatus,
+          completedAt: new Date(),
+        })
+        .where(eq(workflowExecution.id, executionId));
+
+      return c.json({
+        executionId,
+        status: finalStatus,
+        files: executionFiles,
+      });
+
+    } catch (error) {
+      console.error("Execution error:", error);
+      return c.json({ error: "Failed to execute workflow" }, 500);
+    }
+  })
+  .get("/:id/executions", async (c) => {
+    try {
+      const user = await getUser(c);
+      const workflowId = c.req.param("id");
+
+      // Verify workflow ownership
+      const [workflowData] = await db
+        .select()
+        .from(workflow)
+        .where(eq(workflow.id, workflowId));
+
+      if (!workflowData || workflowData.ownerId !== user.id) {
+        return c.json({ error: "Workflow not found" }, 404);
+      }
+
+      // Get executions with file details
+      const executions = await db
+        .select({
+          id: workflowExecution.id,
+          workflowId: workflowExecution.workflowId,
+          status: workflowExecution.status,
+          startedAt: workflowExecution.startedAt,
+          completedAt: workflowExecution.completedAt,
+          createdAt: workflowExecution.createdAt,
+        })
+        .from(workflowExecution)
+        .where(eq(workflowExecution.workflowId, workflowId))
+        .orderBy(desc(workflowExecution.createdAt));
+
+      // Get file details for each execution
+      const executionsWithFiles = await Promise.all(
+        executions.map(async (execution) => {
+          const files = await db
+            .select({
+              id: executionFile.id,
+              fileId: executionFile.fileId,
+              extractionResult: executionFile.extractionResult,
+              status: executionFile.status,
+              errorMessage: executionFile.errorMessage,
+              createdAt: executionFile.createdAt,
+              filename: file.filename,
+            })
+            .from(executionFile)
+            .leftJoin(file, eq(executionFile.fileId, file.id))
+            .where(eq(executionFile.executionId, execution.id));
+
+          return {
+            ...execution,
+            files,
+          };
+        })
+      );
+
+      return c.json(executionsWithFiles);
+
+    } catch (error) {
+      console.error("Get executions error:", error);
+      return c.json({ error: "Failed to get executions" }, 500);
     }
   });
 

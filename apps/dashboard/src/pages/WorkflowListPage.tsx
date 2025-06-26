@@ -1,11 +1,29 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   FileText,
   Receipt,
@@ -14,7 +32,20 @@ import {
   DollarSign,
   Package,
   Plus,
+  MoreVertical,
+  Play,
+  Edit,
+  Trash2,
+  Calendar,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Eye,
 } from "lucide-react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 const workflowTemplates = [
   {
@@ -69,6 +100,172 @@ const workflowTemplates = [
 
 export default function WorkflowListPage() {
   const navigate = useNavigate();
+  const [expandedWorkflows, setExpandedWorkflows] = useState<Set<string>>(new Set());
+
+  const { data: workflows = [], isLoading, refetch } = useQuery({
+    queryKey: ["workflows"],
+    queryFn: async () => {
+      const response = await api.workflows.$get();
+      if (!response.ok) {
+        throw new Error("Failed to fetch workflows");
+      }
+      return response.json();
+    },
+  });
+
+  const toggleWorkflowExpansion = (workflowId: string) => {
+    setExpandedWorkflows(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(workflowId)) {
+        newSet.delete(workflowId);
+      } else {
+        newSet.add(workflowId);
+      }
+      return newSet;
+    });
+  };
+
+  // Custom hook to fetch executions for a specific workflow
+  const useWorkflowExecutions = (workflowId: string, enabled: boolean) => {
+    return useQuery({
+      queryKey: ["workflow-executions", workflowId],
+      queryFn: async () => {
+        const response = await fetch(`/api/workflows/${workflowId}/executions`, {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch executions");
+        }
+        return response.json();
+      },
+      enabled,
+    });
+  };
+
+  const handleDeleteWorkflow = async (workflowId: string, workflowName: string) => {
+    if (!confirm(`Are you sure you want to delete "${workflowName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/workflows/${workflowId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete workflow");
+      }
+
+      toast.success("Workflow deleted successfully");
+      refetch();
+    } catch (error) {
+      toast.error("Failed to delete workflow");
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
+      case 'processing':
+        return <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'failed':
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      default:
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'secondary';
+      case 'processing':
+        return 'default';
+      case 'completed':
+        return 'default';
+      case 'failed':
+        return 'destructive';
+      default:
+        return 'secondary';
+    }
+  };
+
+  // Component to render execution history for a workflow
+  const WorkflowExecutions = ({ workflowId }: { workflowId: string }) => {
+    const { data: executions = [], isLoading } = useWorkflowExecutions(
+      workflowId, 
+      expandedWorkflows.has(workflowId)
+    );
+
+    if (isLoading) {
+      return (
+        <div className="p-4 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          <span className="ml-2 text-sm text-muted-foreground">Loading executions...</span>
+        </div>
+      );
+    }
+
+    if (executions.length === 0) {
+      return (
+        <div className="p-4 text-center text-sm text-muted-foreground">
+          No executions yet. Run this workflow to see execution history.
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full p-4 bg-muted/20">
+        <h4 className="font-medium mb-3 text-sm">Recent Executions</h4>
+        <div className="w-full space-y-2">
+          {executions.slice(0, 5).map((execution: any) => (
+            <div key={execution.id} className="w-full flex items-center justify-between p-2 bg-background rounded border">
+              <div className="flex items-center gap-3 flex-1">
+                {getStatusIcon(execution.status)}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">
+                      {new Date(execution.startedAt).toLocaleDateString()}
+                    </span>
+                    <Badge variant={getStatusColor(execution.status) as any} className="text-xs">
+                      {execution.status}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {execution.files?.length || 0} files processed
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 px-2"
+                  onClick={() => navigate({ to: `/executions/${execution.id}` })}
+                >
+                  <Eye className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          ))}
+          {executions.length > 5 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full mt-2"
+              onClick={() => navigate({ to: `/workflows/${workflowId}/history` })}
+            >
+              View all {executions.length} executions
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -123,6 +320,134 @@ export default function WorkflowListPage() {
             );
           })}
         </div>
+      </div>
+
+      {/* My Workflows Section */}
+      <div className="space-y-6 mt-16">
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">My Workflows</h2>
+          <p className="text-muted-foreground mb-6">
+            Manage your existing document processing workflows
+          </p>
+        </div>
+
+        {isLoading ? (
+          <Card>
+            <div className="p-8">
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <span className="ml-2 text-muted-foreground">Loading workflows...</span>
+              </div>
+            </div>
+          </Card>
+        ) : workflows.length === 0 ? (
+          <Card>
+            <div className="p-8 text-center">
+              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No workflows yet</h3>
+              <p className="text-muted-foreground mb-4">
+                You haven't created any workflows yet. Start by creating your first workflow using one of the templates above.
+              </p>
+              <Button onClick={() => navigate({ to: "/workflows/new" })}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Workflow
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <Card>
+            <div className="divide-y">
+              {workflows.map((workflow) => {
+                const config = workflow.configuration;
+                const fieldCount = config.fields?.length || 0;
+                const tableCount = config.tables?.length || 0;
+                const isExpanded = expandedWorkflows.has(workflow.id);
+                
+                return (
+                  <Collapsible key={workflow.id} open={isExpanded} onOpenChange={() => toggleWorkflowExpansion(workflow.id)}>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 flex-1">
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                          
+                          <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                            <div className="font-medium">
+                              {workflow.name}
+                            </div>
+                            <div>
+                              <Badge variant="secondary">
+                                {workflow.documentType}
+                              </Badge>
+                            </div>
+                            <div className="text-muted-foreground text-sm">
+                              {fieldCount} fields
+                              {tableCount > 0 && `, ${tableCount} tables`}
+                            </div>
+                            <div className="text-muted-foreground text-sm">
+                              <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-2" />
+                                {new Date(workflow.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => navigate({ to: `/workflows/${workflow.id}/run` })}
+                            >
+                              <Play className="h-4 w-4 mr-2" />
+                              Run Workflow
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => navigate({ to: `/workflows/${workflow.id}/history` })}
+                            >
+                              <Calendar className="h-4 w-4 mr-2" />
+                              View History
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => navigate({ to: `/workflows/${workflow.id}/edit` })}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteWorkflow(workflow.id, workflow.name)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                    
+                    <CollapsibleContent>
+                      <div className="border-t">
+                        <WorkflowExecutions workflowId={workflow.id} />
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })}
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );

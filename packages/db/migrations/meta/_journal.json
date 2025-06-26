@@ -15,6 +15,13 @@
       "when": 1750672673298,
       "tag": "0001_sleepy_vision",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1750941772964,
+      "tag": "0002_known_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }
