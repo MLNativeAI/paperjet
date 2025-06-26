@@ -63,9 +63,10 @@ export function SignInForm({
       await authClient.signIn.social({
         provider,
       });
+      // Don't set loading to false here - let the redirect complete
+      // The loading state will be reset when the component unmounts or page reloads
     } catch (err) {
       setError("An error occurred during sign in");
-    } finally {
       setIsLoading(false);
     }
   };
