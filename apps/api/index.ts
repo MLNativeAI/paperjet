@@ -43,7 +43,7 @@ export const apiRoutes = app
   .route("/files", files)
   .route("/workflows", workflows);
 
-if (envVars.ENVIRONMENT === "prod") {
+if (process.env.NODE_ENV === "production") {
   // Serve static files
   app.get("*", serveStatic({ root: "./public" }));
   app.get("*", serveStatic({ path: "./public/index.html" }));
