@@ -70,8 +70,25 @@ const router = app
     .post("/", async (c) => {
         try {
             const user = await getUser(c);
-            const body = await c.req.json();
-            const result = await workflowService.createWorkflow(user.id, body);
+            const contentType = c.req.header("content-type");
+            
+            let result;
+            if (contentType?.includes("multipart/form-data")) {
+                // Handle file upload for workflow creation
+                const body = await c.req.formData();
+                const fileParam = body.get("file") as File;
+                
+                if (!fileParam) {
+                    return c.json({ error: "File is required" }, 400);
+                }
+                
+                result = await workflowService.createWorkflowFromFile(fileParam, user.id);
+            } else {
+                // Handle JSON workflow creation
+                const body = await c.req.json();
+                result = await workflowService.createWorkflow(user.id, body);
+            }
+            
             return c.json({ ...result, message: "Workflow created successfully" }, 201);
         } catch (error) {
             console.error("Create workflow error:", error);
@@ -81,9 +98,10 @@ const router = app
             return c.json({ error: "Internal server error" }, 500);
         }
     })
-    .post("/analyze", async (c) => {
+    .post("/:id/analyze", async (c) => {
         try {
             const user = await getUser(c);
+            const workflowId = c.req.param("id");
             const body = await c.req.formData();
             const fileParam = body.get("file") as File;
 
@@ -91,43 +109,30 @@ const router = app
                 return c.json({ error: "File is required" }, 400);
             }
 
-            const result = await workflowService.analyzeDocument(fileParam, user.id);
+            const result = await workflowService.analyzeDocument(fileParam, user.id, workflowId);
             return c.json(result);
         } catch (error) {
             console.error("Document analysis error:", error);
+            if (error instanceof Error && error.message === "Workflow not found") {
+                return c.json({ error: "Workflow not found" }, 404);
+            }
             return c.json({ error: "Failed to analyze document" }, 500);
         }
     })
-    .post("/create-from-file", async (c) => {
+    .post("/:id/extract", async (c) => {
         try {
             const user = await getUser(c);
-            const body = await c.req.formData();
-            const fileParam = body.get("file") as File;
-
-            if (!fileParam) {
-                return c.json({ error: "File is required" }, 400);
-            }
-
-            const result = await workflowService.createWorkflowFromFile(fileParam, user.id);
-            return c.json({
-                ...result,
-                message: "Workflow created successfully",
-            });
-        } catch (error) {
-            console.error("Create workflow from file error:", error);
-            return c.json({ error: "Failed to create workflow from file" }, 500);
-        }
-    })
-    .post("/extract", async (c) => {
-        try {
-            const user = await getUser(c);
+            const workflowId = c.req.param("id");
             const body = await c.req.json();
             const { fileId, ...extractionConfig } = body;
 
-            const result = await workflowService.extractDataFromDocument(fileId, user.id, extractionConfig);
+            const result = await workflowService.extractDataFromDocument(fileId, user.id, extractionConfig, workflowId);
             return c.json(result);
         } catch (error) {
             console.error("Data extraction error:", error);
+            if (error instanceof Error && error.message === "Workflow not found") {
+                return c.json({ error: "Workflow not found" }, 404);
+            }
             if (error instanceof Error && error.message === "File not found") {
                 return c.json({ error: "File not found" }, 404);
             }
@@ -149,40 +154,6 @@ const router = app
                 return c.json({ error: "File not found" }, 404);
             }
             return c.json({ error: "Failed to get document" }, 500);
-        }
-    })
-    .post("/:id/execute", async (c) => {
-        try {
-            const user = await getUser(c);
-            const workflowId = c.req.param("id");
-            const body = await c.req.formData();
-            const uploadedFiles = body.getAll("files") as File[];
-
-            const result = await workflowService.executeWorkflow(workflowId, user.id, uploadedFiles);
-            return c.json(result);
-        } catch (error) {
-            console.error("Execution error:", error);
-            if (error instanceof Error && error.message === "Workflow not found") {
-                return c.json({ error: "Workflow not found" }, 404);
-            }
-            if (error instanceof Error && error.message === "No files provided") {
-                return c.json({ error: "No files provided" }, 400);
-            }
-            return c.json({ error: "Failed to execute workflow" }, 500);
-        }
-    })
-    .get("/:id/executions", async (c) => {
-        try {
-            const user = await getUser(c);
-            const workflowId = c.req.param("id");
-            const executions = await workflowService.getWorkflowExecutions(workflowId, user.id);
-            return c.json(executions);
-        } catch (error) {
-            console.error("Get executions error:", error);
-            if (error instanceof Error && error.message === "Workflow not found") {
-                return c.json({ error: "Workflow not found" }, 404);
-            }
-            return c.json({ error: "Failed to get executions" }, 500);
         }
     })
     .delete("/:id", async (c) => {

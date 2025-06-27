@@ -68,7 +68,7 @@ export function useWorkflow(workflowId: string) {
             fields: ExtractionField[];
             tables: ExtractionTable[];
         }) => {
-            const response = await fetch("/api/workflows/extract", {
+            const response = await fetch(`/api/workflows/${workflowId}/extract`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -97,7 +97,7 @@ export function useWorkflow(workflowId: string) {
             const formData = new FormData();
             formData.append("file", file);
 
-            const response = await fetch("/api/workflows/create-from-file", {
+            const response = await fetch("/api/workflows", {
                 method: "POST",
                 body: formData,
                 credentials: "include",

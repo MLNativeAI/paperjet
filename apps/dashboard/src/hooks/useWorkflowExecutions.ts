@@ -4,7 +4,7 @@ export function useWorkflowExecutions(workflowId: string, enabled: boolean = tru
     return useQuery({
         queryKey: ["workflow-executions", workflowId],
         queryFn: async () => {
-            const response = await fetch(`/api/workflows/${workflowId}/executions`, {
+            const response = await fetch(`/api/executions/workflow/${workflowId}`, {
                 credentials: "include",
             });
             if (!response.ok) {

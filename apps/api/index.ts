@@ -12,6 +12,7 @@ import { envVars } from "./lib/env";
 import { logger } from "./lib/logger";
 import files from "./routes/files";
 import workflows from "./routes/workflows";
+import executions from "./routes/executions";
 
 const app = new Hono<{
     Variables: {
@@ -38,7 +39,7 @@ app.get("/api/health", async (c) => {
     });
 });
 
-export const apiRoutes = app.basePath("/api").route("/files", files).route("/workflows", workflows);
+export const apiRoutes = app.basePath("/api").route("/files", files).route("/workflows", workflows).route("/executions", executions);
 
 if (process.env.NODE_ENV === "production") {
     // Serve static files

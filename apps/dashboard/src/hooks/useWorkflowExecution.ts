@@ -15,9 +15,10 @@ export function useWorkflowExecution(workflowId: string) {
     const executeWorkflow = useMutation({
         mutationFn: async (files: File[]) => {
             const formData = new FormData();
+            formData.append("workflowId", workflowId);
             files.forEach((file) => formData.append("files", file));
 
-            const response = await fetch(`/api/workflows/${workflowId}/execute`, {
+            const response = await fetch("/api/executions", {
                 method: "POST",
                 body: formData,
                 credentials: "include",
