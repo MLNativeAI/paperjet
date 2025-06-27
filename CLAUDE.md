@@ -42,9 +42,16 @@ bun lint
 ### API (`/apps/api`)
 - **Framework**: Hono on Bun runtime
 - **Auth**: Better Auth with session-based authentication
-- **Routing**: Modular routes in `/routes` directory
+- **Routing**: Modular routes in `/routes` directory (e.g., `workflows.ts`, `files.ts`)
 - **Middleware**: Auth middleware validates sessions, public routes defined in array
 - **Type Export**: `ApiRoutes` type exported for frontend consumption
+- **Architecture**: Thin HTTP layer that delegates business logic to Engine package
+
+### Engine (`/apps/engine`)
+- **Purpose**: Centralized business logic and AI processing
+- **Services**: Domain-specific service classes (`WorkflowService`, `FileService`)
+- **Dependencies**: AI SDK, database, S3 storage
+- **Exports**: Services and types for consumption by API and other apps
 
 ### Dashboard (`/apps/dashboard`)
 - **Stack**: React + Vite + TanStack Router + TanStack Query
@@ -103,6 +110,136 @@ ENVIRONMENT=dev
 - **Styling**: Tailwind CSS v4 across all apps
 - **Imports**: Organized by Biome rules
 - **Error Handling**: Try-catch with specific error responses, toast notifications for user feedback
+
+## Backend Development Guidelines
+
+### Architecture Principles
+
+#### 1. Separation of Concerns (MANDATORY)
+- **API Layer** (`/apps/api`): HTTP handling, validation, authentication, response formatting
+- **Engine Layer** (`/apps/engine`): Business logic, AI processing, data operations
+- **Database Layer** (`/packages/db`): Schema, migrations, type definitions
+
+#### 2. Service-Oriented Architecture
+- **All business logic MUST be implemented in service classes within the Engine package**
+- **API routes should be thin wrappers that delegate to Engine services**
+- **Services should be dependency-injected with required resources (S3, database)**
+
+### Engine Package Structure
+
+```
+apps/engine/
+├── index.ts                    # Main exports
+├── src/
+│   ├── services/              # Business logic services
+│   │   ├── workflow-service.ts # Workflow operations
+│   │   ├── file-service.ts     # File operations
+│   │   └── [domain]-service.ts # Future domain services
+│   └── types/
+│       └── index.ts           # Engine-specific types
+```
+
+### Service Development Patterns
+
+#### 1. Service Class Structure
+```typescript
+export interface ServiceDeps {
+    s3: S3Interface;
+    // Other dependencies
+}
+
+export class DomainService {
+    constructor(private deps: ServiceDeps) {}
+
+    async operation(params: ValidationSchema): Promise<ResultType> {
+        // Business logic implementation
+    }
+}
+```
+
+#### 2. API Route Implementation
+```typescript
+import { DomainService } from "@paperjet/engine";
+
+const domainService = new DomainService({ s3 });
+
+const router = app
+    .get("/", async (c) => {
+        try {
+            const user = await getUser(c);
+            const result = await domainService.operation(user.id);
+            return c.json(result);
+        } catch (error) {
+            // Handle specific error types
+            if (error instanceof DomainError) {
+                return c.json({ error: error.message }, 400);
+            }
+            return c.json({ error: "Internal server error" }, 500);
+        }
+    });
+```
+
+### Development Rules
+
+#### 1. Business Logic Placement (MANDATORY)
+- **NEVER put business logic directly in API route handlers**
+- **ALL AI processing, data validation, and complex operations go in Engine services**
+- **API routes should only handle HTTP concerns (auth, validation, response formatting)**
+
+#### 2. Error Handling Patterns
+- **Services throw typed errors for specific failure cases**
+- **API routes catch and convert service errors to appropriate HTTP responses**
+- **Use specific error messages for client-side handling**
+
+#### 3. Dependency Injection
+- **Services receive dependencies through constructor injection**
+- **Abstract external dependencies (S3, AI models) behind interfaces**
+- **Makes services testable and environment-agnostic**
+
+#### 4. File Naming Conventions
+- **Service files**: `kebab-case-service.ts` (e.g., `workflow-service.ts`)
+- **Route files**: `kebab-case.ts` (e.g., `workflows.ts`, `files.ts`)
+- **Type files**: `kebab-case.ts` or `index.ts` for main exports
+
+### Code Review Checklist (Backend)
+
+When reviewing backend code, ensure:
+- [ ] No business logic in API route handlers
+- [ ] All complex operations delegated to Engine services
+- [ ] Services use dependency injection pattern
+- [ ] Proper error handling with specific error types
+- [ ] Input validation using Zod schemas
+- [ ] Type safety maintained end-to-end
+- [ ] File naming follows conventions
+
+### Testing Strategy
+
+#### Unit Testing
+- **Services are easily unit testable with mocked dependencies**
+- **Test business logic independently of HTTP layer**
+- **Mock S3, database, and AI services for isolated testing**
+
+#### Integration Testing
+- **Test API routes with real service instances**
+- **Verify end-to-end flow from HTTP request to response**
+- **Use test database and S3 instances**
+
+### Performance Considerations
+
+#### 1. AI Processing
+- **Background processing for long-running AI operations**
+- **Streaming responses for real-time feedback**
+- **Caching strategies for frequently accessed AI results**
+
+#### 2. Database Operations
+- **Use database transactions for multi-step operations**
+- **Implement proper indexing for common queries**
+- **Batch operations where possible**
+
+#### 3. File Storage
+- **Presigned URLs for direct client-to-S3 uploads**
+- **Efficient file metadata storage in database**
+- **Cleanup strategies for temporary files**
 
 ### Frontend Development Rules
 

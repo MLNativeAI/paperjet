@@ -2,7 +2,6 @@ import { db } from "@paperjet/db";
 import { file } from "@paperjet/db/schema";
 import { type FileDataWithPresignedUrl, uploadFileSchema } from "@paperjet/db/types";
 import { eq, inArray } from "drizzle-orm";
-import { z } from "zod";
 
 export interface FileServiceDeps {
     s3: {
