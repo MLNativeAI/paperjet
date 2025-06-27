@@ -283,7 +283,7 @@ export default function WorkflowCreatorPage() {
                                     extractData.mutate({
                                         fileId: firstFileId,
                                         fields: analysisStatus.suggestedFields,
-                                        tables: analysisStatus.suggestedTables || []
+                                        tables: analysisStatus.suggestedTables || [],
                                     });
                                 }
                             }}

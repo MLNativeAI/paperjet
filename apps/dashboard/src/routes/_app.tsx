@@ -39,6 +39,11 @@ function PathlessLayoutComponent() {
                 parent: null,
                 current: "Workflows",
             };
+        } else if (pathname === "/runs") {
+            return {
+                parent: null,
+                current: "Runs",
+            };
         } else if (pathname === "/settings") {
             return {
                 parent: null,

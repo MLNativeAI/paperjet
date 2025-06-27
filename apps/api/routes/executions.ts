@@ -9,6 +9,16 @@ const app = new Hono();
 const workflowService = new WorkflowService({ s3 });
 
 const router = app
+    .get("/", async (c) => {
+        try {
+            const user = await getUser(c);
+            const executions = await workflowService.getAllExecutions(user.id);
+            return c.json(executions);
+        } catch (error) {
+            console.error("Get all executions error:", error);
+            return c.json({ error: "Failed to get executions" }, 500);
+        }
+    })
     .post("/", async (c) => {
         try {
             const user = await getUser(c);

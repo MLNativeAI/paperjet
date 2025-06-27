@@ -686,6 +686,54 @@ Instructions:
         return executionsWithFiles;
     }
 
+    async getAllExecutions(userId: string) {
+        // Get all executions for user with workflow names
+        const executions = await db
+            .select({
+                id: workflowExecution.id,
+                workflowId: workflowExecution.workflowId,
+                workflowName: workflow.name,
+                status: workflowExecution.status,
+                startedAt: workflowExecution.startedAt,
+                completedAt: workflowExecution.completedAt,
+                createdAt: workflowExecution.createdAt,
+            })
+            .from(workflowExecution)
+            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
+            .where(eq(workflow.ownerId, userId))
+            .orderBy(desc(workflowExecution.createdAt));
+
+        // Get file details for each execution
+        const executionsWithFiles = await Promise.all(
+            executions.map(async (execution) => {
+                const files = await db
+                    .select({
+                        id: executionFile.id,
+                        fileId: executionFile.fileId,
+                        extractionResult: executionFile.extractionResult,
+                        status: executionFile.status,
+                        errorMessage: executionFile.errorMessage,
+                        createdAt: executionFile.createdAt,
+                        filename: file.filename,
+                    })
+                    .from(executionFile)
+                    .leftJoin(file, eq(executionFile.fileId, file.id))
+                    .where(eq(executionFile.executionId, execution.id));
+
+                return {
+                    ...execution,
+                    files: files.map((f) => ({
+                        ...f,
+                        // Extract just the filename without the path
+                        filename: f.filename ? f.filename.split("/").pop() || f.filename : "Unknown",
+                    })),
+                };
+            }),
+        );
+
+        return executionsWithFiles;
+    }
+
     async deleteWorkflow(workflowId: string, userId: string) {
         // Check if workflow exists and user owns it
         const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
@@ -714,7 +762,6 @@ Instructions:
         // Delete the workflow itself
         await db.delete(workflow).where(eq(workflow.id, workflowId));
     }
-
 
     private async processExecutionFile(filename: string, config: WorkflowConfiguration): Promise<ExtractionResult> {
         const presignedUrl = await this.deps.s3.presign(filename);

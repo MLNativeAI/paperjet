@@ -28,6 +28,10 @@ const data = {
             url: "/",
         },
         {
+            title: "Runs",
+            url: "/runs",
+        },
+        {
             title: "Settings",
             url: "/settings",
         },
