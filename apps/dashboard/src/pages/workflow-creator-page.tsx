@@ -173,8 +173,8 @@ export default function WorkflowCreatorPage() {
                                         ) : (
                                             <CheckCircle className="h-5 w-5 text-green-500" />
                                         )}
-                                        <span className={`text-sm font-medium ${isAnalyzing ? 'text-blue-600' : ''}`}>
-                                            {isAnalyzing ? 'Analyzing...' : 'Analysis'}
+                                        <span className={`text-sm font-medium ${isAnalyzing ? "text-blue-600" : ""}`}>
+                                            {isAnalyzing ? "Analyzing..." : "Analysis"}
                                         </span>
                                     </div>
                                     <div className="h-px bg-gray-200 w-8" />
@@ -189,8 +189,8 @@ export default function WorkflowCreatorPage() {
                                         ) : (
                                             <CheckCircle className="h-5 w-5 text-green-500" />
                                         )}
-                                        <span className={`text-sm font-medium ${isExtracting ? 'text-blue-600' : ''}`}>
-                                            {isExtracting ? 'Extracting...' : 'Extraction'}
+                                        <span className={`text-sm font-medium ${isExtracting ? "text-blue-600" : ""}`}>
+                                            {isExtracting ? "Extracting..." : "Extraction"}
                                         </span>
                                     </div>
                                 </div>
@@ -206,16 +206,24 @@ export default function WorkflowCreatorPage() {
                                         {isAnalyzing ? "Analyzing document structure..." : "Extracting data..."}
                                     </p>
                                     <p className="text-sm text-muted-foreground mt-2">
-                                        {isAnalyzing 
+                                        {isAnalyzing
                                             ? "AI is identifying fields and structure in your document"
-                                            : "Processing extracted data with the identified fields"
-                                        }
+                                            : "Processing extracted data with the identified fields"}
                                     </p>
                                     <div className="mt-4 flex justify-center">
                                         <div className="flex space-x-1">
-                                            <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
-                                            <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}} />
-                                            <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}} />
+                                            <div
+                                                className="h-2 w-2 bg-blue-500 rounded-full animate-bounce"
+                                                style={{ animationDelay: "0ms" }}
+                                            />
+                                            <div
+                                                className="h-2 w-2 bg-blue-500 rounded-full animate-bounce"
+                                                style={{ animationDelay: "150ms" }}
+                                            />
+                                            <div
+                                                className="h-2 w-2 bg-blue-500 rounded-full animate-bounce"
+                                                style={{ animationDelay: "300ms" }}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -269,6 +277,16 @@ export default function WorkflowCreatorPage() {
                             fields={analysisStatus?.suggestedFields || []}
                             tables={analysisStatus?.suggestedTables || []}
                             isLoading={extractData.isPending}
+                            onExtractData={() => {
+                                const firstFileId = workflow?.fileId;
+                                if (firstFileId && analysisStatus?.suggestedFields) {
+                                    extractData.mutate({
+                                        fileId: firstFileId,
+                                        fields: analysisStatus.suggestedFields,
+                                        tables: analysisStatus.suggestedTables || []
+                                    });
+                                }
+                            }}
                         />
 
                         <div className="mt-6 space-y-4">

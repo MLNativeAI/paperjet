@@ -17,6 +17,7 @@ interface ExtractedValuesProps {
     isLoading?: boolean;
     onFieldUpdate?: (fieldIndex: number, updatedField: ExtractionField) => void;
     onTableUpdate?: (tableIndex: number, updatedTable: ExtractionTable) => void;
+    onExtractData?: () => void;
 }
 
 export function ExtractedValues({
@@ -26,6 +27,7 @@ export function ExtractedValues({
     isLoading = false,
     onFieldUpdate,
     onTableUpdate,
+    onExtractData,
 }: ExtractedValuesProps) {
     const [editingField, setEditingField] = useState<number | null>(null);
     const [tempField, setTempField] = useState<ExtractionField | null>(null);
@@ -197,6 +199,10 @@ export function ExtractedValues({
                                                                     onClick={() => {
                                                                         if (tempField && onFieldUpdate) {
                                                                             onFieldUpdate(index, tempField);
+                                                                            // Trigger re-extraction after field update
+                                                                            if (onExtractData) {
+                                                                                onExtractData();
+                                                                            }
                                                                         }
                                                                         setEditingField(null);
                                                                         setTempField(null);
@@ -261,7 +267,9 @@ export function ExtractedValues({
                     <CardContent>
                         <div className="space-y-6">
                             {tables.map((table, tableIndex) => {
-                                const extractedTable = extractionResult?.tables?.find((t) => t.tableName === table.name);
+                                const extractedTable = extractionResult?.tables?.find(
+                                    (t) => t.tableName === table.name,
+                                );
                                 return (
                                     <div key={tableIndex} className="border rounded-lg p-4">
                                         <div className="mb-3">

@@ -46,7 +46,7 @@ export default function WorkflowConfigurePage() {
 
                 // Update workflow name in state
                 setWorkflowName(`${analysisData.documentType} Workflow`);
-                
+
                 // Update fields and tables from analysis if they're not already set
                 if (analysisData.suggestedFields && fields.length === 0) {
                     setFields(analysisData.suggestedFields);
@@ -134,6 +134,18 @@ export default function WorkflowConfigurePage() {
                                     newTables[index] = updatedTable;
                                     setTables(newTables);
                                 }}
+                                onExtractData={() => {
+                                    if (fileId) {
+                                        extractData.mutate(
+                                            { fileId, fields, tables },
+                                            {
+                                                onSuccess: (data) => {
+                                                    setExtractionResult(data.extractionResult);
+                                                },
+                                            },
+                                        );
+                                    }
+                                }}
                             />
                         </div>
                     </div>
@@ -166,8 +178,8 @@ export default function WorkflowConfigurePage() {
                                         <Button variant="outline" onClick={() => navigate({ to: "/" })}>
                                             Cancel
                                         </Button>
-                                        <Button 
-                                            variant="secondary" 
+                                        <Button
+                                            variant="secondary"
                                             onClick={handleExtractData}
                                             disabled={extractData.isPending || !fileId}
                                         >

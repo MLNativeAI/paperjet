@@ -71,24 +71,24 @@ const router = app
         try {
             const user = await getUser(c);
             const contentType = c.req.header("content-type");
-            
+
             let result;
             if (contentType?.includes("multipart/form-data")) {
                 // Handle file upload for workflow creation
                 const body = await c.req.formData();
                 const fileParam = body.get("file") as File;
-                
+
                 if (!fileParam) {
                     return c.json({ error: "File is required" }, 400);
                 }
-                
+
                 result = await workflowService.createWorkflowFromFile(fileParam, user.id);
             } else {
                 // Handle JSON workflow creation
                 const body = await c.req.json();
                 result = await workflowService.createWorkflow(user.id, body);
             }
-            
+
             return c.json({ ...result, message: "Workflow created successfully" }, 201);
         } catch (error) {
             console.error("Create workflow error:", error);
