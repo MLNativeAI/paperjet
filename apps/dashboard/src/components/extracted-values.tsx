@@ -1,13 +1,14 @@
 import type { ExtractionField, ExtractionResult, ExtractionTable } from "@paperjet/db/types";
-import { AlertTriangle, Edit3, Settings } from "lucide-react";
+import { ChevronDown, ChevronRight, Edit3, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
 interface ExtractedValuesProps {
@@ -16,6 +17,8 @@ interface ExtractedValuesProps {
     tables: ExtractionTable[];
     isLoading?: boolean;
     onFieldUpdate?: (fieldIndex: number, updatedField: ExtractionField) => void;
+    onFieldAdd?: (newField: ExtractionField) => void;
+    onFieldRemove?: (fieldIndex: number) => void;
     onTableUpdate?: (tableIndex: number, updatedTable: ExtractionTable) => void;
     onExtractData?: () => void;
 }
@@ -26,11 +29,32 @@ export function ExtractedValues({
     tables,
     isLoading = false,
     onFieldUpdate,
+    onFieldAdd,
+    onFieldRemove,
     onTableUpdate,
     onExtractData,
 }: ExtractedValuesProps) {
+    const [expandedFields, setExpandedFields] = useState<Set<number>>(new Set());
     const [editingField, setEditingField] = useState<number | null>(null);
     const [tempField, setTempField] = useState<ExtractionField | null>(null);
+    const [isAddingField, setIsAddingField] = useState(false);
+    const [newField, setNewField] = useState<ExtractionField>({
+        name: "",
+        description: "",
+        type: "text",
+    });
+
+    const toggleFieldExpansion = (fieldIndex: number) => {
+        setExpandedFields((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(fieldIndex)) {
+                newSet.delete(fieldIndex);
+            } else {
+                newSet.add(fieldIndex);
+            }
+            return newSet;
+        });
+    };
     const formatValue = (value: any, type: string) => {
         if (value === null || value === undefined) {
             return <span className="text-muted-foreground italic">No data found</span>;
@@ -89,170 +113,396 @@ export function ExtractedValues({
             {/* Field Values */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <span>Extracted Values</span>
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                            <span>Extracted Values</span>
+                        </CardTitle>
+                        <Button
+                            size="sm"
+                            onClick={() => setIsAddingField(true)}
+                            className="h-8"
+                        >
+                            <Plus className="h-3 w-3 mr-1" />
+                            Add Field
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
-                        {fields.map((field, index) => {
-                            const extractedValue = extractionResult?.fields?.find((f) => f.fieldName === field.name);
-                            const isEditing = editingField === index;
+                    {fields.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">No fields configured</div>
+                    ) : (
+                        <div className="space-y-2">
+                            {fields.map((field, index) => {
+                                const extractedValue = extractionResult?.fields?.find(
+                                    (f) => f.fieldName === field.name,
+                                );
+                                const isExpanded = expandedFields.has(index);
+                                const isEditing = editingField === index;
 
-                            return (
-                                <Accordion
-                                    key={index}
-                                    type="single"
-                                    collapsible
-                                    className="border-l-4 border-l-blue-500 bg-muted/50 rounded"
-                                >
-                                    <AccordionItem value={`field-${index}`} className="border-none">
-                                        <div className="p-3">
-                                            <div className="flex items-center justify-between gap-2 mb-1">
-                                                <div className="flex items-center gap-2">
-                                                    <Label className="font-medium text-sm">{field.name}</Label>
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {field.type}
-                                                    </Badge>
-                                                </div>
-                                                <AccordionTrigger className="p-0 h-auto hover:no-underline">
-                                                    <Settings className="h-4 w-4 text-muted-foreground" />
-                                                </AccordionTrigger>
-                                            </div>
-                                            <div className="text-sm font-medium mb-2">
-                                                {extractionResult ? (
-                                                    formatValue(extractedValue?.value, field.type)
-                                                ) : (
-                                                    <span className="text-muted-foreground italic">
-                                                        No extraction run yet
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <AccordionContent className="pt-2">
-                                                <div className="space-y-4 border-t pt-4">
-                                                    {isEditing ? (
-                                                        <div className="space-y-3">
-                                                            <div>
-                                                                <Label className="text-xs font-medium mb-1 block">
-                                                                    Field Name
-                                                                </Label>
-                                                                <Input
-                                                                    value={tempField?.name || field.name}
-                                                                    onChange={(e) =>
-                                                                        setTempField((prev) => ({
-                                                                            ...field,
-                                                                            ...prev,
-                                                                            name: e.target.value,
-                                                                        }))
-                                                                    }
-                                                                    className="h-8 text-sm"
-                                                                />
+                                return (
+                                    <Collapsible
+                                        key={index}
+                                        open={isExpanded}
+                                        onOpenChange={() => toggleFieldExpansion(index)}
+                                    >
+                                        <Card className="border">
+                                            <CollapsibleTrigger asChild>
+                                                <CardContent className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="flex items-center gap-2">
+                                                                {isExpanded ? (
+                                                                    <ChevronDown className="h-4 w-4" />
+                                                                ) : (
+                                                                    <ChevronRight className="h-4 w-4" />
+                                                                )}
                                                             </div>
-                                                            <div>
-                                                                <Label className="text-xs font-medium mb-1 block">
-                                                                    Type
-                                                                </Label>
-                                                                <Select
-                                                                    value={tempField?.type || field.type}
-                                                                    onValueChange={(value) =>
-                                                                        setTempField((prev) => ({
-                                                                            ...field,
-                                                                            ...prev,
-                                                                            type: value as any,
-                                                                        }))
-                                                                    }
-                                                                >
-                                                                    <SelectTrigger className="h-8 text-sm">
-                                                                        <SelectValue />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="text">Text</SelectItem>
-                                                                        <SelectItem value="number">Number</SelectItem>
-                                                                        <SelectItem value="date">Date</SelectItem>
-                                                                        <SelectItem value="currency">
-                                                                            Currency
-                                                                        </SelectItem>
-                                                                        <SelectItem value="boolean">Boolean</SelectItem>
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                            <div>
-                                                                <Label className="text-xs font-medium mb-1 block">
-                                                                    Description
-                                                                </Label>
-                                                                <Textarea
-                                                                    value={tempField?.description || field.description}
-                                                                    onChange={(e) =>
-                                                                        setTempField((prev) => ({
-                                                                            ...field,
-                                                                            ...prev,
-                                                                            description: e.target.value,
-                                                                        }))
-                                                                    }
-                                                                    className="text-sm min-h-[60px]"
-                                                                    placeholder="Describe what this field should extract..."
-                                                                />
-                                                            </div>
-                                                            <div className="flex gap-2">
-                                                                <Button
-                                                                    size="sm"
-                                                                    onClick={() => {
-                                                                        if (tempField && onFieldUpdate) {
-                                                                            onFieldUpdate(index, tempField);
-                                                                            // Trigger re-extraction after field update
-                                                                            if (onExtractData) {
-                                                                                onExtractData();
-                                                                            }
-                                                                        }
-                                                                        setEditingField(null);
-                                                                        setTempField(null);
-                                                                    }}
-                                                                >
-                                                                    Save
-                                                                </Button>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    onClick={() => {
-                                                                        setEditingField(null);
-                                                                        setTempField(null);
-                                                                    }}
-                                                                >
-                                                                    Cancel
-                                                                </Button>
+
+                                                            <div className="flex-1">
+                                                                <div className="text-base font-medium">
+                                                                    {extractionResult ? (
+                                                                        formatValue(extractedValue?.value, field.type)
+                                                                    ) : (
+                                                                        <span className="text-muted-foreground italic">
+                                                                            No extraction run yet
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center gap-2 mt-1">
+                                                                    <span className="text-sm text-muted-foreground">
+                                                                        {field.name}
+                                                                    </span>
+                                                                    <Badge variant="outline" className="text-xs">
+                                                                        {field.type}
+                                                                    </Badge>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    ) : (
-                                                        <div className="space-y-2">
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {field.description}
-                                                            </p>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                onClick={() => {
-                                                                    setEditingField(index);
-                                                                    setTempField(field);
-                                                                }}
-                                                                className="h-8"
-                                                            >
-                                                                <Edit3 className="h-3 w-3 mr-1" />
-                                                                Edit Field
-                                                            </Button>
-                                                        </div>
-                                                    )}
+                                                    </div>
+                                                </CardContent>
+                                            </CollapsibleTrigger>
+
+                                            <CollapsibleContent>
+                                                <CardContent className="pt-0 px-4 pb-4">
+                                                    <div className="border-t pt-4">
+                                                        <Table>
+                                                            <TableBody>
+                                                                <TableRow>
+                                                                    <TableCell className="font-medium w-32">
+                                                                        Field Name
+                                                                    </TableCell>
+                                                                    <TableCell>{field.name}</TableCell>
+                                                                </TableRow>
+                                                                <TableRow>
+                                                                    <TableCell className="font-medium">Type</TableCell>
+                                                                    <TableCell>
+                                                                        <Badge variant="outline">{field.type}</Badge>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                                <TableRow>
+                                                                    <TableCell className="font-medium">
+                                                                        Description
+                                                                    </TableCell>
+                                                                    <TableCell className="text-sm text-muted-foreground">
+                                                                        {field.description}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                                <TableRow>
+                                                                    <TableCell className="font-medium">
+                                                                        Extracted Value
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        {extractionResult ? (
+                                                                            formatValue(
+                                                                                extractedValue?.value,
+                                                                                field.type,
+                                                                            )
+                                                                        ) : (
+                                                                            <span className="text-muted-foreground italic">
+                                                                                No extraction run yet
+                                                                            </span>
+                                                                        )}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                                {isEditing ? (
+                                                                    <TableRow>
+                                                                        <TableCell className="font-medium">
+                                                                            Edit
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="space-y-3">
+                                                                                <div>
+                                                                                    <Label className="text-xs font-medium mb-1 block">
+                                                                                        Field Name
+                                                                                    </Label>
+                                                                                    <Input
+                                                                                        value={
+                                                                                            tempField?.name ||
+                                                                                            field.name
+                                                                                        }
+                                                                                        onChange={(e) =>
+                                                                                            setTempField((prev) => ({
+                                                                                                ...field,
+                                                                                                ...prev,
+                                                                                                name: e.target.value,
+                                                                                            }))
+                                                                                        }
+                                                                                        className="h-8 text-sm"
+                                                                                    />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <Label className="text-xs font-medium mb-1 block">
+                                                                                        Type
+                                                                                    </Label>
+                                                                                    <Select
+                                                                                        value={
+                                                                                            tempField?.type ||
+                                                                                            field.type
+                                                                                        }
+                                                                                        onValueChange={(value) =>
+                                                                                            setTempField((prev) => ({
+                                                                                                ...field,
+                                                                                                ...prev,
+                                                                                                type: value as any,
+                                                                                            }))
+                                                                                        }
+                                                                                    >
+                                                                                        <SelectTrigger className="h-8 text-sm">
+                                                                                            <SelectValue />
+                                                                                        </SelectTrigger>
+                                                                                        <SelectContent>
+                                                                                            <SelectItem value="text">
+                                                                                                Text
+                                                                                            </SelectItem>
+                                                                                            <SelectItem value="number">
+                                                                                                Number
+                                                                                            </SelectItem>
+                                                                                            <SelectItem value="date">
+                                                                                                Date
+                                                                                            </SelectItem>
+                                                                                            <SelectItem value="currency">
+                                                                                                Currency
+                                                                                            </SelectItem>
+                                                                                            <SelectItem value="boolean">
+                                                                                                Boolean
+                                                                                            </SelectItem>
+                                                                                        </SelectContent>
+                                                                                    </Select>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <Label className="text-xs font-medium mb-1 block">
+                                                                                        Description
+                                                                                    </Label>
+                                                                                    <Textarea
+                                                                                        value={
+                                                                                            tempField?.description ||
+                                                                                            field.description
+                                                                                        }
+                                                                                        onChange={(e) =>
+                                                                                            setTempField((prev) => ({
+                                                                                                ...field,
+                                                                                                ...prev,
+                                                                                                description:
+                                                                                                    e.target.value,
+                                                                                            }))
+                                                                                        }
+                                                                                        className="text-sm min-h-[60px]"
+                                                                                        placeholder="Describe what this field should extract..."
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="flex gap-2">
+                                                                                    <Button
+                                                                                        size="sm"
+                                                                                        onClick={() => {
+                                                                                            if (
+                                                                                                tempField &&
+                                                                                                onFieldUpdate
+                                                                                            ) {
+                                                                                                onFieldUpdate(
+                                                                                                    index,
+                                                                                                    tempField,
+                                                                                                );
+                                                                                                // Trigger re-extraction after field update
+                                                                                                if (onExtractData) {
+                                                                                                    onExtractData();
+                                                                                                }
+                                                                                            }
+                                                                                            setEditingField(null);
+                                                                                            setTempField(null);
+                                                                                        }}
+                                                                                    >
+                                                                                        Save
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        size="sm"
+                                                                                        variant="outline"
+                                                                                        onClick={() => {
+                                                                                            setEditingField(null);
+                                                                                            setTempField(null);
+                                                                                        }}
+                                                                                    >
+                                                                                        Cancel
+                                                                                    </Button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                ) : (
+                                                                    <TableRow>
+                                                                        <TableCell className="font-medium">
+                                                                            Actions
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="flex gap-2">
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="outline"
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        setEditingField(index);
+                                                                                        setTempField(field);
+                                                                                    }}
+                                                                                    className="h-8"
+                                                                                >
+                                                                                    <Edit3 className="h-3 w-3 mr-1" />
+                                                                                    Edit
+                                                                                </Button>
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="outline"
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        if (onFieldRemove) {
+                                                                                            onFieldRemove(index);
+                                                                                        }
+                                                                                    }}
+                                                                                    className="h-8 text-red-600 hover:text-red-700"
+                                                                                >
+                                                                                    <Trash2 className="h-3 w-3 mr-1" />
+                                                                                    Remove
+                                                                                </Button>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                )}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </div>
+                                                </CardContent>
+                                            </CollapsibleContent>
+                                        </Card>
+                                    </Collapsible>
+                                );
+                            })}
+                            
+                            {/* Add New Field Form */}
+                            {isAddingField && (
+                                <Card className="border-dashed border-2 border-primary/30">
+                                    <CardContent className="p-4">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <h3 className="font-medium text-sm">Add New Field</h3>
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => {
+                                                        setIsAddingField(false);
+                                                        setNewField({ name: "", description: "", type: "text" });
+                                                    }}
+                                                    className="h-6 w-6 p-0"
+                                                >
+                                                    ×
+                                                </Button>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <Label className="text-xs font-medium mb-1 block">
+                                                        Field Name
+                                                    </Label>
+                                                    <Input
+                                                        value={newField.name}
+                                                        onChange={(e) =>
+                                                            setNewField(prev => ({ ...prev, name: e.target.value }))
+                                                        }
+                                                        placeholder="e.g. invoice_number"
+                                                        className="h-8 text-sm"
+                                                    />
                                                 </div>
-                                            </AccordionContent>
+                                                <div>
+                                                    <Label className="text-xs font-medium mb-1 block">
+                                                        Type
+                                                    </Label>
+                                                    <Select
+                                                        value={newField.type}
+                                                        onValueChange={(value) =>
+                                                            setNewField(prev => ({ ...prev, type: value as any }))
+                                                        }
+                                                    >
+                                                        <SelectTrigger className="h-8 text-sm">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="text">Text</SelectItem>
+                                                            <SelectItem value="number">Number</SelectItem>
+                                                            <SelectItem value="date">Date</SelectItem>
+                                                            <SelectItem value="currency">Currency</SelectItem>
+                                                            <SelectItem value="boolean">Boolean</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div>
+                                                <Label className="text-xs font-medium mb-1 block">
+                                                    Description
+                                                </Label>
+                                                <Textarea
+                                                    value={newField.description}
+                                                    onChange={(e) =>
+                                                        setNewField(prev => ({ ...prev, description: e.target.value }))
+                                                    }
+                                                    placeholder="Describe what this field should extract..."
+                                                    className="text-sm min-h-[60px]"
+                                                />
+                                            </div>
+                                            
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        if (newField.name && newField.description && onFieldAdd) {
+                                                            onFieldAdd(newField);
+                                                            setNewField({ name: "", description: "", type: "text" });
+                                                            setIsAddingField(false);
+                                                            // Trigger re-extraction after field addition
+                                                            if (onExtractData) {
+                                                                onExtractData();
+                                                            }
+                                                        }
+                                                    }}
+                                                    disabled={!newField.name || !newField.description}
+                                                >
+                                                    <Plus className="h-3 w-3 mr-1" />
+                                                    Add Field
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setIsAddingField(false);
+                                                        setNewField({ name: "", description: "", type: "text" });
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </AccordionItem>
-                                </Accordion>
-                            );
-                        })}
-
-                        {fields.length === 0 && (
-                            <div className="text-center py-8 text-muted-foreground">No fields configured</div>
-                        )}
-                    </div>
+                                    </CardContent>
+                                </Card>
+                            )}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

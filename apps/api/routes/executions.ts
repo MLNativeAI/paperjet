@@ -19,6 +19,20 @@ const router = app
             return c.json({ error: "Failed to get executions" }, 500);
         }
     })
+    .get("/:executionId", async (c) => {
+        try {
+            const user = await getUser(c);
+            const executionId = c.req.param("executionId");
+            const execution = await workflowService.getExecutionDetails(executionId, user.id);
+            return c.json(execution);
+        } catch (error) {
+            console.error("Get execution details error:", error);
+            if (error instanceof Error && error.message === "Execution not found") {
+                return c.json({ error: "Execution not found" }, 404);
+            }
+            return c.json({ error: "Failed to get execution details" }, 500);
+        }
+    })
     .post("/", async (c) => {
         try {
             const user = await getUser(c);

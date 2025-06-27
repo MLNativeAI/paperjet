@@ -21,7 +21,10 @@ export default function WorkflowConfigurePage() {
     const [analysisStatus, setAnalysisStatus] = useState<"pending" | "processing" | "completed">("pending");
 
     const { workflow, isLoading, updateWorkflow, extractData } = useWorkflow(workflowId);
-    const { analysisData } = useWorkflowAnalysis(workflowId);
+    
+    // Only fetch analysis if workflow doesn't have fields configured yet
+    const shouldFetchAnalysis = workflow && (!workflow.configuration?.fields || workflow.configuration.fields.length === 0);
+    const { analysisData } = useWorkflowAnalysis(shouldFetchAnalysis ? workflowId : "");
 
     // Initialize state when workflow data loads
     useEffect(() => {
@@ -31,16 +34,18 @@ export default function WorkflowConfigurePage() {
             setTables(workflow.configuration?.tables || []);
             setFileId(workflow.fileId || "");
 
-            // Set initial analysis status based on workflow data
-            setAnalysisStatus("completed");
+            // Set analysis status based on whether fields are already configured
+            if (workflow.configuration?.fields && workflow.configuration.fields.length > 0) {
+                setAnalysisStatus("completed");
+            } else {
+                setAnalysisStatus("pending");
+            }
         }
     }, [workflow]);
 
-    console.log(workflow);
-
-    // Update state when analysis completes
+    // Update state when analysis completes (only for new workflows without fields)
     useEffect(() => {
-        if (analysisData) {
+        if (analysisData && shouldFetchAnalysis) {
             if (analysisData.analysisComplete && analysisStatus !== "completed") {
                 setAnalysisStatus("completed");
 
@@ -58,9 +63,7 @@ export default function WorkflowConfigurePage() {
                 setAnalysisStatus("processing");
             }
         }
-    }, [analysisData, analysisStatus, fields.length, tables.length]);
-
-    console.log(analysisData);
+    }, [analysisData, analysisStatus, fields.length, tables.length, shouldFetchAnalysis]);
 
     const handleUpdateWorkflow = () => {
         updateWorkflow.mutate({

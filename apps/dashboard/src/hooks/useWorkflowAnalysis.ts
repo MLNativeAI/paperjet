@@ -14,7 +14,7 @@ export function useWorkflowAnalysis(workflowId: string) {
 
             return response.json();
         },
-        enabled: !!workflowId,
+        enabled: !!workflowId && workflowId.length > 0,
         refetchInterval: (data) => {
             return data?.analysisComplete ? false : 2000;
         },

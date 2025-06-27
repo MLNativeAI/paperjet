@@ -734,6 +734,61 @@ Instructions:
         return executionsWithFiles;
     }
 
+    async getExecutionDetails(executionId: string, userId: string) {
+        // Get the execution with workflow details
+        const [executionData] = await db
+            .select({
+                id: workflowExecution.id,
+                workflowId: workflowExecution.workflowId,
+                workflowName: workflow.name,
+                status: workflowExecution.status,
+                startedAt: workflowExecution.startedAt,
+                completedAt: workflowExecution.completedAt,
+                createdAt: workflowExecution.createdAt,
+            })
+            .from(workflowExecution)
+            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
+            .where(eq(workflowExecution.id, executionId));
+
+        if (!executionData || executionData.workflowId === null) {
+            throw new Error("Execution not found");
+        }
+
+        // Verify the workflow belongs to the user
+        const [workflowData] = await db
+            .select({ ownerId: workflow.ownerId })
+            .from(workflow)
+            .where(eq(workflow.id, executionData.workflowId));
+
+        if (!workflowData || workflowData.ownerId !== userId) {
+            throw new Error("Execution not found");
+        }
+
+        // Get file details for the execution
+        const files = await db
+            .select({
+                id: executionFile.id,
+                fileId: executionFile.fileId,
+                extractionResult: executionFile.extractionResult,
+                status: executionFile.status,
+                errorMessage: executionFile.errorMessage,
+                createdAt: executionFile.createdAt,
+                filename: file.filename,
+            })
+            .from(executionFile)
+            .leftJoin(file, eq(executionFile.fileId, file.id))
+            .where(eq(executionFile.executionId, executionId));
+
+        return {
+            ...executionData,
+            files: files.map(f => ({
+                ...f,
+                // Extract just the filename without the path
+                filename: f.filename ? f.filename.split('/').pop() || f.filename : 'Unknown',
+            })),
+        };
+    }
+
     async deleteWorkflow(workflowId: string, userId: string) {
         // Check if workflow exists and user owns it
         const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));

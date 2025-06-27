@@ -12,23 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
-interface ExtractedValue {
-    fieldName: string;
-    value: any;
-    confidence: number;
-}
-
-interface ExtractedTable {
-    tableName: string;
-    rows: Array<{ values: Record<string, any> }>;
-    confidence: number;
-}
-
-interface ExtractionResult {
-    fields: ExtractedValue[];
-    tables: ExtractedTable[];
-}
-
 interface ExecutionFile {
     id: string;
     fileId: string;
@@ -42,16 +25,12 @@ interface ExecutionFile {
 interface ExecutionDetail {
     id: string;
     workflowId: string;
+    workflowName: string;
     status: ExecutionStatus;
     startedAt: string;
     completedAt: string | null;
     createdAt: string;
     files: ExecutionFile[];
-    workflow: {
-        id: string;
-        name: string;
-        configuration: string;
-    };
 }
 
 export default function ExecutionDetailPage() {
@@ -59,88 +38,23 @@ export default function ExecutionDetailPage() {
     const navigate = useNavigate();
     const [selectedFileIndex, setSelectedFileIndex] = useState(0);
 
-    // For now, we'll fetch this data by getting the execution from the workflow executions
-    // In a real implementation, you'd want a dedicated endpoint for execution details
     const { data: execution, isLoading } = useQuery({
         queryKey: ["execution", executionId],
         queryFn: async () => {
-            // This is a workaround - in practice you'd want GET /api/executions/:id
-            // For now we'll need to find the execution through workflow history
-            throw new Error("Execution detail endpoint not implemented yet");
+            const response = await fetch(`/api/executions/${executionId}`, {
+                credentials: "include",
+            });
+            if (!response.ok) {
+                throw new Error("Failed to fetch execution details");
+            }
+            return response.json() as ExecutionDetail;
         },
-        enabled: false, // Disable for now since we don't have the endpoint
     });
 
-    // Mock data for demonstration - replace with real API call
-    const mockExecution: ExecutionDetail = {
-        id: executionId,
-        workflowId: "workflow-1",
-        status: "completed",
-        startedAt: new Date(Date.now() - 300000).toISOString(), // 5 minutes ago
-        completedAt: new Date(Date.now() - 60000).toISOString(), // 1 minute ago
-        createdAt: new Date(Date.now() - 300000).toISOString(),
-        workflow: {
-            id: "workflow-1",
-            name: "Invoice Processing",
-            configuration: JSON.stringify({
-                fields: [
-                    {
-                        name: "invoice_number",
-                        description: "Invoice number",
-                        type: "text",
-                    },
-                    {
-                        name: "total_amount",
-                        description: "Total amount",
-                        type: "currency",
-                    },
-                    { name: "invoice_date", description: "Invoice date", type: "date" },
-                ],
-                tables: [],
-            }),
-        },
-        files: [
-            {
-                id: "file-1",
-                fileId: "uploaded-file-1",
-                status: "completed",
-                errorMessage: null,
-                createdAt: new Date().toISOString(),
-                filename: "invoice-001.pdf",
-                extractionResult: JSON.stringify({
-                    fields: [
-                        {
-                            fieldName: "invoice_number",
-                            value: "INV-2024-001",
-                            confidence: 0.95,
-                        },
-                        { fieldName: "total_amount", value: 1250.0, confidence: 0.92 },
-                        {
-                            fieldName: "invoice_date",
-                            value: "2024-01-15",
-                            confidence: 0.88,
-                        },
-                    ],
-                    tables: [],
-                }),
-            },
-            {
-                id: "file-2",
-                fileId: "uploaded-file-2",
-                status: "failed",
-                errorMessage: "Unable to process file: corrupted PDF",
-                createdAt: new Date().toISOString(),
-                filename: "invoice-002.pdf",
-                extractionResult: null,
-            },
-        ],
-    };
-
-    const selectedFile = mockExecution.files[selectedFileIndex];
-    const config = JSON.parse(mockExecution.workflow.configuration);
-
-    let extractionResult: ExtractionResult | null = null;
-    if (selectedFile.extractionResult) {
+    const selectedFile = execution?.files?.[selectedFileIndex];
+    
+    let extractionResult: any = null;
+    if (selectedFile?.extractionResult) {
         try {
             extractionResult = JSON.parse(selectedFile.extractionResult);
         } catch (e) {
@@ -194,7 +108,9 @@ export default function ExecutionDetailPage() {
     };
 
     const exportResults = () => {
-        const results = mockExecution.files
+        if (!execution) return;
+        
+        const results = execution.files
             .filter((f) => f.status === "completed" && f.extractionResult)
             .map((f) => ({
                 filename: f.filename,
@@ -203,10 +119,10 @@ export default function ExecutionDetailPage() {
 
         const dataStr = JSON.stringify(
             {
-                executionId: mockExecution.id,
-                workflowId: mockExecution.workflowId,
-                workflowName: mockExecution.workflow.name,
-                executedAt: mockExecution.startedAt,
+                executionId: execution.id,
+                workflowId: execution.workflowId,
+                workflowName: execution.workflowName,
+                executedAt: execution.startedAt,
                 results,
             },
             null,
@@ -218,7 +134,7 @@ export default function ExecutionDetailPage() {
 
         const link = document.createElement("a");
         link.href = url;
-        link.download = `execution-${mockExecution.id}.json`;
+        link.download = `execution-${execution.id}.json`;
         link.click();
 
         URL.revokeObjectURL(url);
@@ -256,8 +172,22 @@ export default function ExecutionDetailPage() {
         );
     }
 
-    const successfulFiles = mockExecution.files.filter((f) => f.status === "completed").length;
-    const failedFiles = mockExecution.files.filter((f) => f.status === "failed").length;
+    if (!execution) {
+        return (
+            <div className="w-full px-4 py-8">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold mb-4">Execution not found</h1>
+                    <Button onClick={() => navigate({ to: "/runs" })}>
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Runs
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
+    const successfulFiles = execution.files.filter((f) => f.status === "completed").length;
+    const failedFiles = execution.files.filter((f) => f.status === "failed").length;
 
     return (
         <div className="w-full px-4 py-8 space-y-8">
@@ -266,18 +196,18 @@ export default function ExecutionDetailPage() {
                 <div>
                     <Button
                         variant="ghost"
-                        onClick={() => navigate({ to: `/workflows/${mockExecution.workflowId}/history` })}
+                        onClick={() => navigate({ to: "/runs" })}
                         className="mb-4"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to History
+                        Back to Runs
                     </Button>
                     <h1 className="text-3xl font-bold">Execution Details</h1>
                     <div className="flex items-center gap-4 mt-2">
-                        <span className="text-muted-foreground">{mockExecution.workflow.name}</span>
+                        <span className="text-muted-foreground">{execution.workflowName}</span>
                         <div className="flex items-center gap-2">
-                            {getStatusIcon(mockExecution.status)}
-                            <Badge variant={getStatusColor(mockExecution.status)}>{mockExecution.status}</Badge>
+                            {getStatusIcon(execution.status)}
+                            <Badge variant={getStatusColor(execution.status)}>{execution.status}</Badge>
                         </div>
                     </div>
                 </div>
@@ -296,7 +226,7 @@ export default function ExecutionDetailPage() {
                     <CardContent className="p-6">
                         <div className="flex items-center">
                             <div>
-                                <p className="text-2xl font-bold">{mockExecution.files.length}</p>
+                                <p className="text-2xl font-bold">{execution.files.length}</p>
                                 <p className="text-xs text-muted-foreground">Files Processed</p>
                             </div>
                             <FileText className="h-4 w-4 text-muted-foreground ml-auto" />
@@ -333,7 +263,7 @@ export default function ExecutionDetailPage() {
                         <div className="flex items-center">
                             <div>
                                 <p className="text-2xl font-bold">
-                                    {formatDuration(mockExecution.startedAt, mockExecution.completedAt)}
+                                    {formatDuration(execution.startedAt, execution.completedAt)}
                                 </p>
                                 <p className="text-xs text-muted-foreground">Duration</p>
                             </div>
@@ -354,8 +284,8 @@ export default function ExecutionDetailPage() {
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Execution ID</p>
                                 <div className="flex items-center gap-2">
-                                    <code className="text-sm bg-muted px-2 py-1 rounded">{mockExecution.id}</code>
-                                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(mockExecution.id)}>
+                                    <code className="text-sm bg-muted px-2 py-1 rounded">{execution.id}</code>
+                                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(execution.id)}>
                                         <Copy className="h-3 w-3" />
                                     </Button>
                                 </div>
@@ -364,22 +294,22 @@ export default function ExecutionDetailPage() {
                                 <p className="text-sm font-medium text-muted-foreground">Started At</p>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4" />
-                                    <span>{new Date(mockExecution.startedAt).toLocaleString()}</span>
+                                    <span>{new Date(execution.startedAt).toLocaleString()}</span>
                                 </div>
                             </div>
                         </div>
                         <div className="space-y-4">
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Workflow</p>
-                                <p>{mockExecution.workflow.name}</p>
+                                <p>{execution.workflowName}</p>
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Completed At</p>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4" />
                                     <span>
-                                        {mockExecution.completedAt
-                                            ? new Date(mockExecution.completedAt).toLocaleString()
+                                        {execution.completedAt
+                                            ? new Date(execution.completedAt).toLocaleString()
                                             : "In progress"}
                                     </span>
                                 </div>
@@ -400,7 +330,7 @@ export default function ExecutionDetailPage() {
                         onValueChange={(value) => setSelectedFileIndex(parseInt(value))}
                     >
                         <TabsList className="grid w-full grid-cols-auto">
-                            {mockExecution.files.map((file, index) => (
+                            {execution.files.map((file, index) => (
                                 <TabsTrigger key={file.id} value={index.toString()} className="flex items-center gap-2">
                                     {getStatusIcon(file.status)}
                                     <span className="truncate max-w-32">{file.filename}</span>
@@ -408,7 +338,7 @@ export default function ExecutionDetailPage() {
                             ))}
                         </TabsList>
 
-                        {mockExecution.files.map((file, index) => (
+                        {execution.files.map((file, index) => (
                             <TabsContent key={file.id} value={index.toString()} className="mt-6">
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {/* Document Preview */}
@@ -443,35 +373,21 @@ export default function ExecutionDetailPage() {
                                                         </CardHeader>
                                                         <CardContent>
                                                             <div className="space-y-3">
-                                                                {extractionResult.fields.map((field, fieldIndex) => {
-                                                                    const fieldConfig = config.fields.find(
-                                                                        (f: any) => f.name === field.fieldName,
-                                                                    );
-                                                                    return (
-                                                                        <div
-                                                                            key={fieldIndex}
-                                                                            className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
-                                                                        >
-                                                                            <div className="flex items-center gap-2 mb-1">
-                                                                                <span className="font-medium text-sm">
-                                                                                    {field.fieldName}
-                                                                                </span>
-                                                                                <Badge
-                                                                                    variant="outline"
-                                                                                    className="text-xs"
-                                                                                >
-                                                                                    {fieldConfig?.type || "text"}
-                                                                                </Badge>
-                                                                            </div>
-                                                                            <div className="text-sm font-medium">
-                                                                                {formatValue(
-                                                                                    field.value,
-                                                                                    fieldConfig?.type || "text",
-                                                                                )}
-                                                                            </div>
+                                                                {extractionResult.fields.map((field: any, fieldIndex: number) => (
+                                                                    <div
+                                                                        key={fieldIndex}
+                                                                        className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
+                                                                    >
+                                                                        <div className="flex items-center gap-2 mb-1">
+                                                                            <span className="font-medium text-sm">
+                                                                                {field.fieldName}
+                                                                            </span>
                                                                         </div>
-                                                                    );
-                                                                })}
+                                                                        <div className="text-sm font-medium">
+                                                                            {formatValue(field.value, "text")}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
                                                             </div>
                                                         </CardContent>
                                                     </Card>
@@ -484,75 +400,47 @@ export default function ExecutionDetailPage() {
                                                             <CardTitle className="text-base">Tables</CardTitle>
                                                         </CardHeader>
                                                         <CardContent>
-                                                            {extractionResult.tables.map((table, tableIndex) => {
-                                                                const tableConfig = config.tables.find(
-                                                                    (t: any) => t.name === table.tableName,
-                                                                );
-                                                                return (
-                                                                    <div key={tableIndex} className="space-y-2">
-                                                                        <h4 className="font-medium">
-                                                                            {table.tableName}
-                                                                        </h4>
-                                                                        {table.rows.length > 0 ? (
-                                                                            <div className="overflow-x-auto">
-                                                                                <Table>
-                                                                                    <TableHeader>
-                                                                                        <TableRow>
-                                                                                            {tableConfig?.columns.map(
-                                                                                                (
-                                                                                                    column: any,
-                                                                                                    colIndex: number,
-                                                                                                ) => (
-                                                                                                    <TableHead
-                                                                                                        key={colIndex}
-                                                                                                    >
-                                                                                                        {column.name}
-                                                                                                    </TableHead>
+                                                            {extractionResult.tables.map((table: any, tableIndex: number) => (
+                                                                <div key={tableIndex} className="space-y-2">
+                                                                    <h4 className="font-medium">
+                                                                        {table.tableName}
+                                                                    </h4>
+                                                                    {table.rows.length > 0 ? (
+                                                                        <div className="overflow-x-auto">
+                                                                            <Table>
+                                                                                <TableHeader>
+                                                                                    <TableRow>
+                                                                                        {Object.keys(table.rows[0].values).map(
+                                                                                            (columnName: string, colIndex: number) => (
+                                                                                                <TableHead key={colIndex}>
+                                                                                                    {columnName}
+                                                                                                </TableHead>
+                                                                                            ),
+                                                                                        )}
+                                                                                    </TableRow>
+                                                                                </TableHeader>
+                                                                                <TableBody>
+                                                                                    {table.rows.map((row: any, rowIndex: number) => (
+                                                                                        <TableRow key={rowIndex}>
+                                                                                            {Object.values(row.values).map(
+                                                                                                (value: any, colIndex: number) => (
+                                                                                                    <TableCell key={colIndex}>
+                                                                                                        {formatValue(value, "text")}
+                                                                                                    </TableCell>
                                                                                                 ),
                                                                                             )}
                                                                                         </TableRow>
-                                                                                    </TableHeader>
-                                                                                    <TableBody>
-                                                                                        {table.rows.map(
-                                                                                            (row, rowIndex) => (
-                                                                                                <TableRow
-                                                                                                    key={rowIndex}
-                                                                                                >
-                                                                                                    {tableConfig?.columns.map(
-                                                                                                        (
-                                                                                                            column: any,
-                                                                                                            colIndex: number,
-                                                                                                        ) => (
-                                                                                                            <TableCell
-                                                                                                                key={
-                                                                                                                    colIndex
-                                                                                                                }
-                                                                                                            >
-                                                                                                                {formatValue(
-                                                                                                                    row
-                                                                                                                        .values[
-                                                                                                                        column
-                                                                                                                            .name
-                                                                                                                    ],
-                                                                                                                    column.type,
-                                                                                                                )}
-                                                                                                            </TableCell>
-                                                                                                        ),
-                                                                                                    )}
-                                                                                                </TableRow>
-                                                                                            ),
-                                                                                        )}
-                                                                                    </TableBody>
-                                                                                </Table>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <p className="text-sm text-muted-foreground">
-                                                                                No table data found
-                                                                            </p>
-                                                                        )}
-                                                                    </div>
-                                                                );
-                                                            })}
+                                                                                    ))}
+                                                                                </TableBody>
+                                                                            </Table>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <p className="text-sm text-muted-foreground">
+                                                                            No table data found
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            ))}
                                                         </CardContent>
                                                     </Card>
                                                 )}

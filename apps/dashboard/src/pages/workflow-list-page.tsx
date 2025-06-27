@@ -155,8 +155,9 @@ export default function WorkflowListPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <div className="flex items-center justify-between mb-8">
+        <div className="w-full px-4 py-8 space-y-8">
+            {/* Header */}
+            <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold">My Workflows</h1>
                     <p className="text-muted-foreground mt-2">Manage your document processing workflows</p>
@@ -167,6 +168,8 @@ export default function WorkflowListPage() {
                 </Button>
             </div>
 
+            {/* Workflows */}
+            <div>
                 {isLoading ? (
                     <Card>
                         <div className="p-8">
@@ -264,7 +267,7 @@ export default function WorkflowListPage() {
                                                         <DropdownMenuItem
                                                             onClick={() =>
                                                                 navigate({
-                                                                    to: `/workflows/${workflow.id}/edit`,
+                                                                    to: `/workflows/${workflow.id}/configure`,
                                                                 })
                                                             }
                                                         >
@@ -296,6 +299,7 @@ export default function WorkflowListPage() {
                         </div>
                     </Card>
                 )}
+            </div>
         </div>
     );
 }
