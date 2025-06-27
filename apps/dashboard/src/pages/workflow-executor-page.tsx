@@ -302,7 +302,6 @@ export default function WorkflowExecutorPage() {
                     <h1 className="text-3xl font-bold">Execute Workflow</h1>
                     <div className="flex items-center gap-2 mt-2">
                         <span className="text-muted-foreground">{workflow.name}</span>
-                        <Badge variant="secondary">{workflow.documentType}</Badge>
                     </div>
                 </div>
 
@@ -326,11 +325,7 @@ export default function WorkflowExecutorPage() {
                     <CardTitle>Workflow Configuration</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Document Type</p>
-                            <p className="text-lg">{workflow.documentType}</p>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <p className="text-sm font-medium text-muted-foreground">Fields to Extract</p>
                             <p className="text-lg">{config.fields?.length || 0} fields</p>
@@ -358,9 +353,7 @@ export default function WorkflowExecutorPage() {
                         onDragLeave={handleDragLeave}
                     >
                         <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-lg font-semibold mb-2">
-                            Drop {workflow.documentType.toLowerCase()} files here or click to browse
-                        </h3>
+                        <h3 className="text-lg font-semibold mb-2">Drop files here or click to browse</h3>
                         <p className="text-sm text-muted-foreground mb-4">Supports PDF and image files</p>
                         <input
                             type="file"

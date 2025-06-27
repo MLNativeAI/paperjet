@@ -64,7 +64,6 @@ export function WorkflowAnalysisResult({ analysis, fileId }: WorkflowAnalysisRes
             const response = await api.workflows.$post({
                 json: {
                     name: workflowName,
-                    documentType: analysis.analysis.documentType,
                     configuration: { fields, tables },
                     fileId,
                 },

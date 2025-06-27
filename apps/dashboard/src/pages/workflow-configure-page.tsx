@@ -18,7 +18,6 @@ export default function WorkflowConfigurePage() {
     const [tables, setTables] = useState<ExtractionTable[]>([]);
     const [extractionResult, setExtractionResult] = useState<ExtractionResult | null>(null);
     const [fileId, setFileId] = useState<string>("");
-    const [documentType, setDocumentType] = useState<string>("");
     const [analysisStatus, setAnalysisStatus] = useState<"pending" | "processing" | "completed">("pending");
 
     const { workflow, isLoading, updateWorkflow, extractData } = useWorkflow(workflowId);
@@ -28,17 +27,12 @@ export default function WorkflowConfigurePage() {
     useEffect(() => {
         if (workflow) {
             setWorkflowName(workflow.name);
-            setDocumentType(workflow.documentType);
             setFields(workflow.configuration.fields);
             setTables(workflow.configuration.tables);
             setFileId(workflow.fileId || "");
 
             // Set initial analysis status based on workflow data
-            if (workflow.documentType === "Unknown") {
-                setAnalysisStatus("processing");
-            } else {
-                setAnalysisStatus("completed");
-            }
+            setAnalysisStatus("completed");
         }
     }, [workflow]);
 
@@ -47,9 +41,8 @@ export default function WorkflowConfigurePage() {
         if (analysisData) {
             if (analysisData.analysisComplete && analysisStatus !== "completed") {
                 setAnalysisStatus("completed");
-                setDocumentType(analysisData.documentType);
 
-                // Update workflow name and document type in state
+                // Update workflow name in state
                 setWorkflowName(`${analysisData.documentType} Workflow`);
             } else if (!analysisData.analysisComplete && analysisStatus === "pending") {
                 setAnalysisStatus("processing");
@@ -141,7 +134,6 @@ export default function WorkflowConfigurePage() {
                                     </div>
                                     <div className="flex flex-col justify-end">
                                         <div className="text-sm text-muted-foreground space-y-1">
-                                            <p>Document Type: {documentType}</p>
                                             <p>Fields: {fields.length} configured</p>
                                             <p>Tables: {tables.length} configured</p>
                                         </div>

@@ -307,11 +307,8 @@ export default function WorkflowListPage() {
                                                         </Button>
                                                     </CollapsibleTrigger>
 
-                                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                                                         <div className="font-medium">{workflow.name}</div>
-                                                        <div>
-                                                            <Badge variant="secondary">{workflow.documentType}</Badge>
-                                                        </div>
                                                         <div className="text-muted-foreground text-sm">
                                                             {fieldCount} fields
                                                             {tableCount > 0 && `, ${tableCount} tables`}

@@ -13,6 +13,12 @@ const publicRoutes = ["/api/health", "/api/auth/**"];
 const resend = envVars.RESEND_API_KEY ? new Resend(envVars.RESEND_API_KEY) : null;
 
 export const auth = betterAuth({
+    session: {
+        cookieCache: {
+            enabled: true,
+            maxAge: 5 * 60, // Cache duration in seconds
+        },
+    },
     database: drizzleAdapter(db, {
         provider: "pg",
         schema: schema,

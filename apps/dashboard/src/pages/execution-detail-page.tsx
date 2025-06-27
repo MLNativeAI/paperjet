@@ -50,7 +50,6 @@ interface ExecutionDetail {
     workflow: {
         id: string;
         name: string;
-        documentType: string;
         configuration: string;
     };
 }
@@ -83,7 +82,6 @@ export default function ExecutionDetailPage() {
         workflow: {
             id: "workflow-1",
             name: "Invoice Processing",
-            documentType: "Invoice",
             configuration: JSON.stringify({
                 fields: [
                     {
@@ -277,7 +275,6 @@ export default function ExecutionDetailPage() {
                     <h1 className="text-3xl font-bold">Execution Details</h1>
                     <div className="flex items-center gap-4 mt-2">
                         <span className="text-muted-foreground">{mockExecution.workflow.name}</span>
-                        <Badge variant="secondary">{mockExecution.workflow.documentType}</Badge>
                         <div className="flex items-center gap-2">
                             {getStatusIcon(mockExecution.status)}
                             <Badge variant={getStatusColor(mockExecution.status)}>{mockExecution.status}</Badge>

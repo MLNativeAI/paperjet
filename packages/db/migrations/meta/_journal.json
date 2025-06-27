@@ -22,6 +22,13 @@
             "when": 1750941772964,
             "tag": "0002_known_cassandra_nova",
             "breakpoints": true
+        },
+        {
+            "idx": 3,
+            "version": "7",
+            "when": 1751016496877,
+            "tag": "0003_abnormal_stone_men",
+            "breakpoints": true
         }
     ]
 }

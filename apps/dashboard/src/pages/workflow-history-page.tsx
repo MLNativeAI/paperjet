@@ -139,7 +139,6 @@ export default function WorkflowHistoryPage() {
                     <h1 className="text-3xl font-bold">Execution History</h1>
                     <div className="flex items-center gap-2 mt-2">
                         <span className="text-muted-foreground">{workflow.name}</span>
-                        <Badge variant="secondary">{workflow.documentType}</Badge>
                     </div>
                 </div>
 
