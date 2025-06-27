@@ -1,14 +1,13 @@
 {
-	"linter": {
-			"enabled": true,
-			"rules": {
-					"recommended": true
-			}
-	},
-	"formatter": {
-			"lineWidth": 120,
-			"indentStyle": "space",
-			"indentWidth": 4
-	}
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true
+        }
+    },
+    "formatter": {
+        "lineWidth": 120,
+        "indentStyle": "space",
+        "indentWidth": 4
+    }
 }
-

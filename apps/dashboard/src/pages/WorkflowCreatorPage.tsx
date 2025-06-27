@@ -1,39 +1,16 @@
-import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { FileText, Loader2, Upload } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useWorkflow } from "@/hooks/useWorkflow";
 
 export default function WorkflowCreatorPage() {
     const navigate = useNavigate();
     const [_file, setFile] = useState<File | null>(null);
     const [isDragging, setIsDragging] = useState(false);
-
-    const createWorkflowFromFile = useMutation({
-        mutationFn: async (file: File) => {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            const response = await fetch("/api/workflows/create-from-file", {
-                method: "POST",
-                body: formData,
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to create workflow from file");
-            }
-            return response.json();
-        },
-        onSuccess: (data) => {
-            navigate({ to: `/workflows/${data.workflowId}/configure` });
-        },
-        onError: () => {
-            toast.error("Failed to create workflow from file");
-        },
-    });
+    const { createWorkflowFromFile } = useWorkflow("");
 
     const handleFileSelect = (selectedFile: File) => {
         setFile(selectedFile);
