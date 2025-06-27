@@ -113,6 +113,7 @@ export class WorkflowService {
             suggestedFields: configuration.fields || [],
             suggestedTables: configuration.tables || [],
             hasFields,
+            documentType: configuration.documentType || "Unknown",
         };
     }
 
@@ -236,6 +237,105 @@ Provide a structured analysis with practical, commonly needed information extrac
         };
     }
 
+    async analyzeWorkflowDocument(
+        workflowId: string,
+        userId: string,
+    ): Promise<{
+        analysis: DocumentAnalysis;
+    }> {
+        // Get workflow and associated file
+        const [workflowData] = await db
+            .select({
+                workflowId: workflow.id,
+                workflowName: workflow.name,
+                fileId: workflowFile.fileId,
+                filename: file.filename,
+            })
+            .from(workflow)
+            .leftJoin(workflowFile, eq(workflow.id, workflowFile.workflowId))
+            .leftJoin(file, eq(workflowFile.fileId, file.id))
+            .where(eq(workflow.id, workflowId));
+
+        if (!workflowData || workflowData.workflowId === null) {
+            throw new Error("Workflow not found");
+        }
+
+        if (!workflowData.fileId || !workflowData.filename) {
+            throw new Error("No file associated with this workflow");
+        }
+
+        // Get presigned URL for the existing file
+        const presignedUrl = await this.deps.s3.presign(workflowData.filename);
+
+        // Analyze document with Gemini Flash
+        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        if (!apiKey) {
+            throw new Error("Google API key not configured");
+        }
+
+        const model = google("gemini-2.5-flash");
+
+        const { object } = await generateObject({
+            model,
+            schema: documentAnalysisSchema,
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: `Analyze this document and suggest relevant fields to extract.
+
+For each field, provide:
+- A clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
+- The expected data type (text, number, date, currency, boolean) 
+- A detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
+
+Focus on extracting:
+1. **Identification fields**: Document numbers, IDs, reference codes
+2. **Key entities**: Names, addresses, contact information  
+3. **Important dates**: Creation dates, due dates, effective dates
+4. **Financial information**: Amounts, taxes, totals, currency values
+5. **Status indicators**: Approval status, document state, flags
+6. **Structured data**: Tables, line items, product lists
+
+Examples of good field descriptions:
+- "invoice_number": "The unique identifier for this invoice, often labeled as 'Invoice #', 'Invoice Number', 'Document Number', or similar, typically alphanumeric"
+- "total_amount": "The final total amount due, usually labeled as 'Total', 'Amount Due', 'Grand Total', or 'Total Amount', excluding currency symbols"
+- "invoice_date": "The date when the invoice was created or issued, typically labeled as 'Invoice Date', 'Date', or 'Issued' in MM/DD/YYYY or similar format"
+
+Provide a structured analysis with practical, commonly needed information extraction focused on business processes.`,
+                        },
+                        {
+                            type: "image",
+                            image: new URL(presignedUrl),
+                        },
+                    ],
+                },
+            ],
+        });
+
+        // Update workflow configuration with analysis results
+        const analysisResult = object as DocumentAnalysis;
+        const configuration = {
+            fields: analysisResult.suggestedFields || [],
+            tables: analysisResult.suggestedTables || [],
+            documentType: analysisResult.documentType || "Unknown",
+        };
+
+        await db
+            .update(workflow)
+            .set({
+                configuration: JSON.stringify(configuration),
+                updatedAt: new Date(),
+            })
+            .where(eq(workflow.id, workflowId));
+
+        return {
+            analysis: analysisResult,
+        };
+    }
+
     async createWorkflowFromFile(
         fileParam: File,
         userId: string,
@@ -279,11 +379,6 @@ Provide a structured analysis with practical, commonly needed information extrac
             workflowId,
             fileId,
             createdAt: new Date(),
-        });
-
-        // Start background analysis (don't await)
-        this.analyzeWorkflowDocument(fileId, workflowId, filename).catch((error) => {
-            console.error("Background analysis failed:", error);
         });
 
         return {
@@ -701,84 +796,6 @@ Instructions:
         await db.delete(workflow).where(eq(workflow.id, workflowId));
     }
 
-    private async analyzeWorkflowDocument(fileId: string, workflowId: string, filename: string) {
-        try {
-            // Get presigned URL for the file
-            const presignedUrl = await this.deps.s3.presign(filename);
-
-            // Analyze document with Gemini Flash
-            const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-            if (!apiKey) {
-                throw new Error("Google API key not configured");
-            }
-
-            const model = google("gemini-2.5-flash");
-
-            const { object } = await generateObject({
-                model,
-                schema: documentAnalysisSchema,
-                messages: [
-                    {
-                        role: "user",
-                        content: [
-                            {
-                                type: "text",
-                                text: `You are a document analysis expert. Analyze this document and determine:
-1. The type of document (invoice, receipt, contract, purchase order, bank statement, etc.)
-2. Key fields that should be extracted from this type of document
-3. Any tables or repeated data structures that should be extracted
-
-IMPORTANT: For each field, provide a DETAILED description that explains:
-- What specific information this field contains
-- Where it's typically located on this type of document  
-- Any formatting or characteristics that help identify it
-- Examples of what the extracted value should look like
-
-For each table, describe:
-- What type of data rows it contains
-- The business purpose of the table
-- How to identify the table boundaries
-
-The descriptions will be used by an AI system to locate and extract the actual data, so be precise and comprehensive.
-
-Examples of good field descriptions:
-- "merchant_name": "The business name or company name that issued this invoice, typically found at the top of the document in large text or letterhead"
-- "total_amount": "The final amount due including all taxes and fees, usually labeled as 'Total', 'Amount Due', or 'Balance Due' and displayed prominently"
-- "invoice_date": "The date when the invoice was created or issued, typically labeled as 'Invoice Date', 'Date', or 'Issued' in MM/DD/YYYY or similar format"
-
-Provide a structured analysis with practical, commonly needed information extraction focused on business processes.`,
-                            },
-                            {
-                                type: "image",
-                                image: new URL(presignedUrl),
-                            },
-                        ],
-                    },
-                ],
-            });
-
-            const analysis = object as DocumentAnalysis;
-
-            // Update workflow with analysis results
-            const workflowName = `${analysis.documentType} Workflow`;
-
-            await db
-                .update(workflow)
-                .set({
-                    name: workflowName,
-                    configuration: JSON.stringify({
-                        fields: analysis.suggestedFields,
-                        tables: analysis.suggestedTables,
-                    }),
-                    updatedAt: new Date(),
-                })
-                .where(eq(workflow.id, workflowId));
-
-            console.log(`Analysis completed for workflow ${workflowId}`);
-        } catch (error) {
-            console.error(`Background analysis failed for workflow ${workflowId}:`, error);
-        }
-    }
 
     private async processExecutionFile(filename: string, config: WorkflowConfiguration): Promise<ExtractionResult> {
         const presignedUrl = await this.deps.s3.presign(filename);

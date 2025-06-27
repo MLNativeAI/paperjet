@@ -26,15 +26,17 @@ export default function WorkflowConfigurePage() {
     // Initialize state when workflow data loads
     useEffect(() => {
         if (workflow) {
-            setWorkflowName(workflow.name);
-            setFields(workflow.configuration.fields);
-            setTables(workflow.configuration.tables);
+            setWorkflowName(workflow.name || "");
+            setFields(workflow.configuration?.fields || []);
+            setTables(workflow.configuration?.tables || []);
             setFileId(workflow.fileId || "");
 
             // Set initial analysis status based on workflow data
             setAnalysisStatus("completed");
         }
     }, [workflow]);
+
+    console.log(workflow);
 
     // Update state when analysis completes
     useEffect(() => {
@@ -44,11 +46,21 @@ export default function WorkflowConfigurePage() {
 
                 // Update workflow name in state
                 setWorkflowName(`${analysisData.documentType} Workflow`);
+                
+                // Update fields and tables from analysis if they're not already set
+                if (analysisData.suggestedFields && fields.length === 0) {
+                    setFields(analysisData.suggestedFields);
+                }
+                if (analysisData.suggestedTables && tables.length === 0) {
+                    setTables(analysisData.suggestedTables);
+                }
             } else if (!analysisData.analysisComplete && analysisStatus === "pending") {
                 setAnalysisStatus("processing");
             }
         }
-    }, [analysisData, analysisStatus]);
+    }, [analysisData, analysisStatus, fields.length, tables.length]);
+
+    console.log(analysisData);
 
     const handleUpdateWorkflow = () => {
         updateWorkflow.mutate({
@@ -112,7 +124,16 @@ export default function WorkflowConfigurePage() {
                                 fields={fields}
                                 tables={tables}
                                 isLoading={extractData.isPending}
-                                onExtract={handleExtractData}
+                                onFieldUpdate={(index, updatedField) => {
+                                    const newFields = [...fields];
+                                    newFields[index] = updatedField;
+                                    setFields(newFields);
+                                }}
+                                onTableUpdate={(index, updatedTable) => {
+                                    const newTables = [...tables];
+                                    newTables[index] = updatedTable;
+                                    setTables(newTables);
+                                }}
                             />
                         </div>
                     </div>
@@ -141,9 +162,18 @@ export default function WorkflowConfigurePage() {
                                 </div>
 
                                 <div className="flex justify-between items-center">
-                                    <Button variant="outline" onClick={() => navigate({ to: "/" })}>
-                                        Cancel
-                                    </Button>
+                                    <div className="space-x-2">
+                                        <Button variant="outline" onClick={() => navigate({ to: "/" })}>
+                                            Cancel
+                                        </Button>
+                                        <Button 
+                                            variant="secondary" 
+                                            onClick={handleExtractData}
+                                            disabled={extractData.isPending || !fileId}
+                                        >
+                                            {extractData.isPending ? "Extracting..." : "Test Extraction"}
+                                        </Button>
+                                    </div>
 
                                     <Button
                                         onClick={handleUpdateWorkflow}

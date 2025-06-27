@@ -102,21 +102,23 @@ const router = app
         try {
             const user = await getUser(c);
             const workflowId = c.req.param("id");
-            const body = await c.req.formData();
-            const fileParam = body.get("file") as File;
 
-            if (!fileParam) {
-                return c.json({ error: "File is required" }, 400);
-            }
+            // Start analysis in background (don't await)
+            workflowService.analyzeWorkflowDocument(workflowId, user.id).catch((error) => {
+                console.error("Background analysis failed:", error);
+            });
 
-            const result = await workflowService.analyzeDocument(fileParam, user.id, workflowId);
-            return c.json(result);
+            // Return immediately
+            return c.json({ message: "Analysis started", workflowId });
         } catch (error) {
             console.error("Document analysis error:", error);
             if (error instanceof Error && error.message === "Workflow not found") {
                 return c.json({ error: "Workflow not found" }, 404);
             }
-            return c.json({ error: "Failed to analyze document" }, 500);
+            if (error instanceof Error && error.message === "No file associated with this workflow") {
+                return c.json({ error: "No file associated with this workflow" }, 400);
+            }
+            return c.json({ error: "Failed to start analysis" }, 500);
         }
     })
     .post("/:id/extract", async (c) => {
@@ -126,7 +128,7 @@ const router = app
             const body = await c.req.json();
             const { fileId, ...extractionConfig } = body;
 
-            const result = await workflowService.extractDataFromDocument(fileId, user.id, extractionConfig, workflowId);
+            const result = await workflowService.extractDataFromDocument(fileId, user.id, extractionConfig);
             return c.json(result);
         } catch (error) {
             console.error("Data extraction error:", error);

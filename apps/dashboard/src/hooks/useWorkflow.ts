@@ -108,11 +108,44 @@ export function useWorkflow(workflowId: string) {
             }
             return response.json();
         },
-        onSuccess: (data) => {
-            navigate({ to: `/workflows/${data.workflowId}/configure` });
-        },
         onError: () => {
             toast.error("Failed to create workflow from file");
+        },
+    });
+
+    const analyzeWorkflow = useMutation({
+        mutationFn: async (workflowId: string) => {
+            const response = await fetch(`/api/workflows/${workflowId}/analyze`, {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to analyze workflow");
+            }
+            return response.json();
+        },
+        onError: () => {
+            toast.error("Failed to analyze document");
+        },
+    });
+
+    const getAnalysisStatus = useQuery({
+        queryKey: ["workflow-analysis", workflowId],
+        queryFn: async () => {
+            const response = await fetch(`/api/workflows/${workflowId}/analysis-status`, {
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch analysis status");
+            }
+
+            return response.json();
+        },
+        enabled: !!workflowId,
+        refetchInterval: (data) => {
+            return data?.analysisComplete ? false : 2000;
         },
     });
 
@@ -122,5 +155,9 @@ export function useWorkflow(workflowId: string) {
         updateWorkflow,
         extractData,
         createWorkflowFromFile,
+        analyzeWorkflow,
+        analysisStatus: getAnalysisStatus.data,
+        isAnalysisComplete: getAnalysisStatus.data?.analysisComplete ?? false,
+        isAnalysisLoading: getAnalysisStatus.isLoading,
     };
 }
