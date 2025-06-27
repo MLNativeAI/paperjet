@@ -1,15 +1,21 @@
 import { z } from "zod";
-import type { file, workflow, workflowFile, workflowExecution, executionFile } from "./schema";
+import type {
+	executionFile,
+	file,
+	workflow,
+	workflowExecution,
+	workflowFile,
+} from "./schema";
 
 export const uploadFileSchema = z.object({
-  file: z.instanceof(File),
-  name: z.string(),
+	file: z.instanceof(File),
+	name: z.string(),
 });
 
 export type FileData = typeof file.$inferSelect;
 
 export type FileDataWithPresignedUrl = FileData & {
-  presignedUrl: string;
+	presignedUrl: string;
 };
 
 // Workflow types
@@ -17,24 +23,30 @@ export type WorkflowData = typeof workflow.$inferSelect;
 export type WorkflowFileData = typeof workflowFile.$inferSelect;
 
 // Field extraction configuration
-export const fieldTypeSchema = z.enum(["text", "number", "date", "currency", "boolean"]);
+export const fieldTypeSchema = z.enum([
+	"text",
+	"number",
+	"date",
+	"currency",
+	"boolean",
+]);
 
 export const extractionFieldSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  type: fieldTypeSchema,
-  required: z.boolean().default(false),
+	name: z.string(),
+	description: z.string(),
+	type: fieldTypeSchema,
+	required: z.boolean().default(false),
 });
 
 export const extractionTableSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  columns: z.array(extractionFieldSchema),
+	name: z.string(),
+	description: z.string(),
+	columns: z.array(extractionFieldSchema),
 });
 
 export const workflowConfigurationSchema = z.object({
-  fields: z.array(extractionFieldSchema),
-  tables: z.array(extractionTableSchema),
+	fields: z.array(extractionFieldSchema),
+	tables: z.array(extractionTableSchema),
 });
 
 export type ExtractionField = z.infer<typeof extractionFieldSchema>;
@@ -43,34 +55,37 @@ export type WorkflowConfiguration = z.infer<typeof workflowConfigurationSchema>;
 
 // Document analysis result
 export const documentAnalysisSchema = z.object({
-  documentType: z.string(),
-  confidence: z.number().min(0).max(1),
-  suggestedFields: z.array(extractionFieldSchema),
-  suggestedTables: z.array(extractionTableSchema),
+	documentType: z.string(),
+	confidence: z.number().min(0).max(1),
+	suggestedFields: z.array(extractionFieldSchema),
+	suggestedTables: z.array(extractionTableSchema),
 });
 
 export type DocumentAnalysis = z.infer<typeof documentAnalysisSchema>;
 
 // Data extraction schemas
 export const extractedValueSchema = z.object({
-  fieldName: z.string(),
-  value: z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
-  confidence: z.number().min(0).max(1),
+	fieldName: z.string(),
+	value: z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
+	confidence: z.number().min(0).max(1),
 });
 
 export const extractedTableRowSchema = z.object({
-  values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable()),
+	values: z.record(
+		z.string(),
+		z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
+	),
 });
 
 export const extractedTableSchema = z.object({
-  tableName: z.string(),
-  rows: z.array(extractedTableRowSchema),
-  confidence: z.number().min(0).max(1),
+	tableName: z.string(),
+	rows: z.array(extractedTableRowSchema),
+	confidence: z.number().min(0).max(1),
 });
 
 export const extractionResultSchema = z.object({
-  fields: z.array(extractedValueSchema),
-  tables: z.array(extractedTableSchema),
+	fields: z.array(extractedValueSchema),
+	tables: z.array(extractedTableSchema),
 });
 
 export type ExtractedValue = z.infer<typeof extractedValueSchema>;
@@ -81,26 +96,35 @@ export type ExtractionResult = z.infer<typeof extractionResultSchema>;
 export type WorkflowExecutionData = typeof workflowExecution.$inferSelect;
 export type ExecutionFileData = typeof executionFile.$inferSelect;
 
-export const executionStatusSchema = z.enum(["pending", "processing", "completed", "failed"]);
+export const executionStatusSchema = z.enum([
+	"pending",
+	"processing",
+	"completed",
+	"failed",
+]);
 export type ExecutionStatus = z.infer<typeof executionStatusSchema>;
 
 export const workflowExecutionWithFilesSchema = z.object({
-  id: z.string(),
-  workflowId: z.string(),
-  status: executionStatusSchema,
-  startedAt: z.date(),
-  completedAt: z.date().nullable(),
-  createdAt: z.date(),
-  ownerId: z.string(),
-  files: z.array(z.object({
-    id: z.string(),
-    fileId: z.string(),
-    extractionResult: z.string().nullable(),
-    status: executionStatusSchema,
-    errorMessage: z.string().nullable(),
-    createdAt: z.date(),
-    filename: z.string(),
-  })),
+	id: z.string(),
+	workflowId: z.string(),
+	status: executionStatusSchema,
+	startedAt: z.date(),
+	completedAt: z.date().nullable(),
+	createdAt: z.date(),
+	ownerId: z.string(),
+	files: z.array(
+		z.object({
+			id: z.string(),
+			fileId: z.string(),
+			extractionResult: z.string().nullable(),
+			status: executionStatusSchema,
+			errorMessage: z.string().nullable(),
+			createdAt: z.date(),
+			filename: z.string(),
+		}),
+	),
 });
 
-export type WorkflowExecutionWithFiles = z.infer<typeof workflowExecutionWithFilesSchema>;
+export type WorkflowExecutionWithFiles = z.infer<
+	typeof workflowExecutionWithFilesSchema
+>;

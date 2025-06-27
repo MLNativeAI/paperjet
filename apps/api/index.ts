@@ -14,10 +14,10 @@ import files from "./routes/files";
 import workflows from "./routes/workflows";
 
 const app = new Hono<{
-  Variables: {
-    user: typeof auth.$Infer.Session.user | null;
-    session: typeof auth.$Infer.Session.session | null;
-  };
+    Variables: {
+        user: typeof auth.$Infer.Session.user | null;
+        session: typeof auth.$Infer.Session.session | null;
+    };
 }>();
 
 app.use("*", otel());
@@ -32,40 +32,34 @@ app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
 // Health check
 app.get("/api/health", async (c) => {
-  logger.info("health check", { endpoint: "/api/health", method: "GET" });
-  return c.json({
-    status: "ok",
-  });
+    logger.info("health check", { endpoint: "/api/health", method: "GET" });
+    return c.json({
+        status: "ok",
+    });
 });
 
-export const apiRoutes = app
-  .basePath("/api")
-  .route("/files", files)
-  .route("/workflows", workflows);
+export const apiRoutes = app.basePath("/api").route("/files", files).route("/workflows", workflows);
 
 if (process.env.NODE_ENV === "production") {
-  // Serve static files
-  app.get("*", serveStatic({ root: "./public" }));
-  app.get("*", serveStatic({ path: "./public/index.html" }));
+    // Serve static files
+    app.get("*", serveStatic({ root: "./public" }));
+    app.get("*", serveStatic({ path: "./public/index.html" }));
 } else {
-  app.get("*", (c) => {
-    return c.redirect(envVars.BASE_URL);
-  });
+    app.get("*", (c) => {
+        return c.redirect(envVars.BASE_URL);
+    });
 }
 
 const server = Bun.serve({
-  port: envVars.PORT,
-  hostname: "0.0.0.0",
-  fetch: app.fetch,
+    port: envVars.PORT,
+    hostname: "0.0.0.0",
+    fetch: app.fetch,
 });
 
-logger.info(
-  `🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`,
-  {
+logger.info(`🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`, {
     port: server.port,
     environment: envVars.ENVIRONMENT,
     hostname: "0.0.0.0",
-  },
-);
+});
 
 export type ApiRoutes = typeof apiRoutes;

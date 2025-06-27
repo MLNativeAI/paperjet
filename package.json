@@ -1,35 +1,35 @@
 {
-  "name": "paperjet",
-  "private": true,
-  "packageManager": "bun@1.2.0",
-  "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev --parallel",
-    "lint": "biome check --write",
-    "commit": "cz",
-    "prepare": "husky"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.0.3",
-    "@commitlint/cli": "^19.6.1",
-    "@commitlint/config-conventional": "^19.6.1",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "commitizen": "^4.3.1",
-    "cz-conventional-changelog": "^3.3.0",
-    "husky": "^9.1.7",
-    "prettier": "^3.2.5",
-    "semantic-release": "^24.2.0",
-    "turbo": "^2.0.0"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "version": "1.0.0"
+	"name": "paperjet",
+	"private": true,
+	"packageManager": "bun@1.2.0",
+	"scripts": {
+		"build": "turbo build",
+		"dev": "turbo dev --parallel",
+		"lint": "biome check --write",
+		"commit": "cz",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.0.6",
+		"@commitlint/cli": "^19.6.1",
+		"@commitlint/config-conventional": "^19.6.1",
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/git": "^10.0.1",
+		"commitizen": "^4.3.1",
+		"cz-conventional-changelog": "^3.3.0",
+		"husky": "^9.1.7",
+		"prettier": "^3.2.5",
+		"semantic-release": "^24.2.0",
+		"turbo": "^2.0.0"
+	},
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		}
+	},
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"version": "1.0.0"
 }

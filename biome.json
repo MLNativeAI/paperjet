@@ -1,25 +1,14 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "a11y": {
-        "noSvgWithoutTitle": "off",
-        "useKeyWithClickEvents": "off"
-      },
-      "style": {
-        "noNonNullAssertion": "off"
-      },
-      "correctness": {
-        "useExhaustiveDependencies": "off"
-      },
-      "suspicious": {
-        "noExplicitAny": "off"
-      }
-    }
-  },
-  "formatter": {
-    "indentStyle": "space"
-  }
+	"linter": {
+			"enabled": true,
+			"rules": {
+					"recommended": true
+			}
+	},
+	"formatter": {
+			"lineWidth": 120,
+			"indentStyle": "space",
+			"indentWidth": 4
+	}
 }
+

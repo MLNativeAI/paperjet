@@ -1,12 +1,10 @@
 {
-  "name": "shared",
-  "version": "0.0.1",
-  "private": true,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "devDependencies": {
-    "eslint": "^9.22.0",
-    "tsup": "^8.0.2",
-    "typescript": "~5.7.2"
-  }
+	"name": "shared",
+	"version": "0.0.1",
+	"private": true,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"devDependencies": {
+		"typescript": "~5.7.2"
+	}
 }
