@@ -1,19 +1,76 @@
 import { useNavigate } from "@tanstack/react-router";
-import { CheckCircle, FileText, Loader2, Upload } from "lucide-react";
+import { 
+    CheckCircle, 
+    FileText, 
+    Loader2, 
+    Upload,
+    DollarSign,
+    FileSpreadsheet,
+    Package,
+    Receipt,
+    ScrollText,
+    ArrowLeft
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExtractedValues } from "@/components/extracted-values";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWorkflow } from "@/hooks/useWorkflow";
+
+const workflowTemplates = [
+    {
+        id: "invoice",
+        name: "Invoice Processing",
+        description: "Extract vendor, amounts, line items, and payment details from invoices",
+        icon: FileText,
+        color: "text-blue-600",
+    },
+    {
+        id: "receipt",
+        name: "Receipt Scanning",
+        description: "Capture merchant, date, total, and itemized purchases from receipts",
+        icon: Receipt,
+        color: "text-green-600",
+    },
+    {
+        id: "purchase-order",
+        name: "Purchase Orders",
+        description: "Extract PO numbers, items, quantities, and delivery information",
+        icon: Package,
+        color: "text-purple-600",
+    },
+    {
+        id: "bank-statement",
+        name: "Bank Statements",
+        description: "Process transactions, balances, and account details from statements",
+        icon: DollarSign,
+        color: "text-orange-600",
+    },
+    {
+        id: "contract",
+        name: "Contracts & Agreements",
+        description: "Extract parties, terms, dates, and key clauses from legal documents",
+        icon: ScrollText,
+        color: "text-red-600",
+    },
+    {
+        id: "tax-form",
+        name: "Tax Forms",
+        description: "Process W-2s, 1099s, and other tax documents for key data points",
+        icon: FileSpreadsheet,
+        color: "text-indigo-600",
+    },
+];
 
 export default function WorkflowCreatorPage() {
     const navigate = useNavigate();
     const [_file, setFile] = useState<File | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [workflowId, setWorkflowId] = useState<string>("");
-    const [phase, setPhase] = useState<"upload" | "analyzing" | "extracting" | "complete">("upload");
+    const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+    const [phase, setPhase] = useState<"template" | "upload" | "analyzing" | "extracting" | "complete">("template");
 
     const { createWorkflowFromFile, analyzeWorkflow, extractData, workflow, isAnalysisComplete, analysisStatus } =
         useWorkflow(workflowId);
@@ -84,14 +141,119 @@ export default function WorkflowCreatorPage() {
         }
     };
 
-    const renderUploadPhase = () => (
+    const handleTemplateSelect = (templateId: string) => {
+        setSelectedTemplate(templateId);
+        setPhase("upload");
+    };
+
+    const handleCustomWorkflow = () => {
+        setSelectedTemplate(null);
+        setPhase("upload");
+    };
+
+    const renderTemplateSelectionPhase = () => (
         <div className="w-full px-4 py-8">
             <div className="mb-8 text-center">
                 <h1 className="text-3xl font-bold mb-4">Create New Workflow</h1>
                 <p className="text-muted-foreground">
-                    Upload a document to get started. We'll analyze it and suggest fields to extract.
+                    Choose a template to get started or create a custom workflow from scratch
                 </p>
             </div>
+
+            <div className="space-y-8">
+                {/* Custom Workflow Option */}
+                <div>
+                    <h2 className="text-xl font-semibold mb-4">Create a custom workflow</h2>
+                    <p className="text-muted-foreground mb-6">
+                        Upload any document and we'll analyze it to suggest extraction fields
+                    </p>
+                    
+                    <Card 
+                        className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50 border-dashed"
+                        onClick={handleCustomWorkflow}
+                    >
+                        <CardContent className="p-8 text-center">
+                            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                            <h3 className="text-lg font-semibold mb-2">Custom Workflow</h3>
+                            <p className="text-muted-foreground">
+                                Start from scratch with your own document
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Template Selection */}
+                <div className="border-t pt-8">
+                    <h2 className="text-xl font-semibold mb-4">Or choose from a template</h2>
+                    <p className="text-muted-foreground mb-6">
+                        Start with a pre-built workflow for common document types
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {workflowTemplates.map((template) => {
+                            const Icon = template.icon;
+                            return (
+                                <Card
+                                    key={template.id}
+                                    className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50"
+                                    onClick={() => handleTemplateSelect(template.id)}
+                                >
+                                    <CardHeader>
+                                        <div className="flex items-start gap-3">
+                                            <div className={`p-2 rounded-lg bg-gray-50 ${template.color}`}>
+                                                <Icon className="h-6 w-6" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <CardTitle className="text-lg">{template.name}</CardTitle>
+                                                <CardDescription className="mt-1">{template.description}</CardDescription>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-8 text-center">
+                <Button variant="ghost" onClick={() => navigate({ to: "/" })}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Workflows
+                </Button>
+            </div>
+        </div>
+    );
+
+    const renderUploadPhase = () => {
+        const selectedTemplateData = selectedTemplate 
+            ? workflowTemplates.find(t => t.id === selectedTemplate)
+            : null;
+
+        return (
+            <div className="w-full px-4 py-8">
+                <div className="mb-8">
+                    <Button 
+                        variant="ghost" 
+                        onClick={() => setPhase("template")}
+                        className="mb-4"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Templates
+                    </Button>
+                    
+                    <div className="text-center">
+                        <h1 className="text-3xl font-bold mb-4">
+                            {selectedTemplateData ? `Create ${selectedTemplateData.name} Workflow` : "Create Custom Workflow"}
+                        </h1>
+                        <p className="text-muted-foreground">
+                            {selectedTemplateData 
+                                ? `Upload a ${selectedTemplateData.name.toLowerCase()} document to get started.`
+                                : "Upload a document to get started. We'll analyze it and suggest fields to extract."
+                            }
+                        </p>
+                    </div>
+                </div>
 
             <div className="flex justify-center">
                 <Card className="w-full max-w-2xl">
@@ -128,13 +290,9 @@ export default function WorkflowCreatorPage() {
                 </Card>
             </div>
 
-            <div className="mt-8 text-center">
-                <Button variant="ghost" onClick={() => navigate({ to: "/" })}>
-                    Back to Workflows
-                </Button>
             </div>
-        </div>
-    );
+        );
+    };
 
     const renderLoadingPhase = () => {
         const isAnalyzing = phase === "analyzing";
@@ -308,6 +466,7 @@ export default function WorkflowCreatorPage() {
 
     return (
         <>
+            {phase === "template" && renderTemplateSelectionPhase()}
             {phase === "upload" && renderUploadPhase()}
             {(phase === "analyzing" || phase === "extracting") && renderLoadingPhase()}
             {phase === "complete" && renderResultsPhase()}
