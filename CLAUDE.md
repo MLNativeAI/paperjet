@@ -104,6 +104,51 @@ ENVIRONMENT=dev
 - **Imports**: Organized by Biome rules
 - **Error Handling**: Try-catch with specific error responses, toast notifications for user feedback
 
+### Frontend Development Rules
+
+#### 1. Data Logic Separation (MANDATORY)
+- **ALWAYS extract data modifications and state handlers into dedicated custom hooks**
+- **Pages/components should focus ONLY on UI rendering and user interactions**
+- **Create hooks like `useWorkflows`, `useWorkflow`, `useExecutions`, etc.**
+- **Centralize all API calls, mutations, state management, and business logic in hooks**
+- **Ensure hooks are reusable across multiple components**
+
+**Benefits:**
+- 🔄 Better code reusability - hooks can be shared across components
+- 🧪 Improved testability - data logic can be unit tested independently
+- 🛠️ Easier maintenance - centralized business logic
+- 📦 Clear separation of concerns - UI vs data responsibilities
+- ⚡ Better performance - optimized query/mutation strategies
+
+#### 2. File Naming Convention (MANDATORY)
+- **Use `kebab-case.tsx` for ALL React component and page files**
+- **Examples: `workflow-list.tsx`, `execution-detail.tsx`, `user-profile.tsx`**
+- **This applies to both component files and hook files**
+- **Hook files: `use-workflows.ts`, `use-workflow.ts`, `use-executions.ts`**
+
+**Benefits:**
+- 🎯 Consistency with modern frontend conventions
+- 🔍 Better searchability and organization
+- 📁 Cleaner file structure in IDEs and file explorers
+- 🌐 Web-friendly naming convention
+
+#### 3. Implementation Guidelines
+- **Before creating a new page/component, ALWAYS plan the hook structure first**
+- **Extract ANY data fetching, mutations, or complex state logic into hooks**
+- **Keep components focused on JSX, event handlers, and UI state only**
+- **Make hooks composable and testable**
+- **Use TypeScript interfaces to define hook return types**
+- **Follow the existing pattern established in `/hooks/` directory**
+
+#### 4. Code Review Checklist
+When reviewing frontend code, ensure:
+- [ ] No direct API calls in components (should be in hooks)
+- [ ] No complex business logic in components
+- [ ] File names use kebab-case
+- [ ] Hooks are properly typed and documented
+- [ ] Components focus only on UI concerns
+- [ ] Data logic is centralized and reusable
+
 ## Product Vision & Roadmap
 
 ### Product Overview

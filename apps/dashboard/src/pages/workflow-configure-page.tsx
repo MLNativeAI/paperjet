@@ -1,8 +1,8 @@
 import type { ExtractionField, ExtractionResult, ExtractionTable } from "@paperjet/db/types";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DocumentPreview } from "@/components/DocumentPreview";
-import { ExtractedValues } from "@/components/ExtractedValues";
+import { DocumentPreview } from "@/components/document-preview";
+import { ExtractedValues } from "@/components/extracted-values";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

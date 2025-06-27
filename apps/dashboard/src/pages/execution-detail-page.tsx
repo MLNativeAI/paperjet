@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, Copy, Download, FileText, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { DocumentPreview } from "@/components/DocumentPreview";
+import { DocumentPreview } from "@/components/document-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
