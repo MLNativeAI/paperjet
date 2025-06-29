@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useWorkflow } from "@/hooks/useWorkflow";
@@ -158,7 +157,7 @@ export default function WorkflowExecutorPage() {
         });
     }, []);
 
-    const renderExtractionResults = useCallback((result: any, fileId: string) => {
+    const renderExtractionResults = useCallback((result: any, _fileId: string) => {
         if (!result) return null;
 
         try {

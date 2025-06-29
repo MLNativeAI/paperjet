@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -19,7 +18,7 @@ interface ExtractionResultsProps {
 
 export function ExtractionResults({ fileId, analysis, onCreateWorkflow, isCreatingWorkflow }: ExtractionResultsProps) {
     const [fields, setFields] = useState<ExtractionField[]>(analysis.suggestedFields);
-    const [tables, setTables] = useState<ExtractionTable[]>(analysis.suggestedTables);
+    const [tables, _setTables] = useState<ExtractionTable[]>(analysis.suggestedTables);
     const [extractionResult, setExtractionResult] = useState<ExtractionResult | null>(null);
     const [editingField, setEditingField] = useState<number | null>(null);
 
@@ -57,19 +56,19 @@ export function ExtractionResults({ fileId, analysis, onCreateWorkflow, isCreati
         if (!extractionResult) {
             extractData.mutate();
         }
-    }, []);
+    }, [extractData.mutate, extractionResult]);
 
     const updateField = (index: number, updates: Partial<ExtractionField>) => {
         setFields(fields.map((field, i) => (i === index ? { ...field, ...updates } : field)));
     };
 
-    const saveFieldEdit = (index: number) => {
+    const saveFieldEdit = (_index: number) => {
         setEditingField(null);
         // Re-extract data with updated field
         extractData.mutate();
     };
 
-    const formatValue = (value: any, type: string) => {
+    const formatValue = (value: unknown, type: string) => {
         if (value === null || value === undefined) {
             return <span className="text-muted-foreground italic">No data found</span>;
         }
@@ -111,7 +110,7 @@ export function ExtractionResults({ fileId, analysis, onCreateWorkflow, isCreati
                 <CardContent>
                     <div className="space-y-4">
                         {fields.map((field, index) => (
-                            <div key={index} className="border rounded-lg p-4">
+                            <div key={field.name} className="border rounded-lg p-4">
                                 <div className="flex items-start justify-between mb-2">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
@@ -191,10 +190,10 @@ export function ExtractionResults({ fileId, analysis, onCreateWorkflow, isCreati
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-6">
-                            {tables.map((table, tableIndex) => {
+                            {tables.map((table) => {
                                 const extractedTable = extractionResult.tables.find((t) => t.tableName === table.name);
                                 return (
-                                    <div key={tableIndex} className="border rounded-lg p-4">
+                                    <div key={table.name} className="border rounded-lg p-4">
                                         <div className="flex items-center justify-between mb-3">
                                             <div>
                                                 <h4 className="font-medium">{table.name}</h4>
@@ -207,9 +206,9 @@ export function ExtractionResults({ fileId, analysis, onCreateWorkflow, isCreati
                                                 <table className="w-full text-sm border-collapse border border-gray-200">
                                                     <thead>
                                                         <tr className="bg-muted">
-                                                            {table.columns.map((column, colIndex) => (
+                                                            {table.columns.map((column) => (
                                                                 <th
-                                                                    key={colIndex}
+                                                                    key={column.name}
                                                                     className="border border-gray-200 px-3 py-2 text-left font-medium"
                                                                 >
                                                                     {column.name}
@@ -219,10 +218,13 @@ export function ExtractionResults({ fileId, analysis, onCreateWorkflow, isCreati
                                                     </thead>
                                                     <tbody>
                                                         {extractedTable.rows.map((row, rowIndex) => (
-                                                            <tr key={rowIndex} className="hover:bg-muted/50">
+                                                            <tr
+                                                                key={`row-${rowIndex}-${table.name}`}
+                                                                className="hover:bg-muted/50"
+                                                            >
                                                                 {table.columns.map((column, colIndex) => (
                                                                     <td
-                                                                        key={colIndex}
+                                                                        key={`${table.name}-${column.name}-${rowIndex}-${colIndex}`}
                                                                         className="border border-gray-200 px-3 py-2"
                                                                     >
                                                                         {formatValue(

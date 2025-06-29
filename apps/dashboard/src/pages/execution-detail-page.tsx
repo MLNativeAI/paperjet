@@ -52,7 +52,7 @@ export default function ExecutionDetailPage() {
     });
 
     const selectedFile = execution?.files?.[selectedFileIndex];
-    
+
     let extractionResult: any = null;
     if (selectedFile?.extractionResult) {
         try {
@@ -109,7 +109,7 @@ export default function ExecutionDetailPage() {
 
     const exportResults = () => {
         if (!execution) return;
-        
+
         const results = execution.files
             .filter((f) => f.status === "completed" && f.extractionResult)
             .map((f) => ({
@@ -194,11 +194,7 @@ export default function ExecutionDetailPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate({ to: "/runs" })}
-                        className="mb-4"
-                    >
+                    <Button variant="ghost" onClick={() => navigate({ to: "/runs" })} className="mb-4">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Runs
                     </Button>
@@ -373,21 +369,23 @@ export default function ExecutionDetailPage() {
                                                         </CardHeader>
                                                         <CardContent>
                                                             <div className="space-y-3">
-                                                                {extractionResult.fields.map((field: any, fieldIndex: number) => (
-                                                                    <div
-                                                                        key={fieldIndex}
-                                                                        className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
-                                                                    >
-                                                                        <div className="flex items-center gap-2 mb-1">
-                                                                            <span className="font-medium text-sm">
-                                                                                {field.fieldName}
-                                                                            </span>
+                                                                {extractionResult.fields.map(
+                                                                    (field: any, fieldIndex: number) => (
+                                                                        <div
+                                                                            key={fieldIndex}
+                                                                            className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
+                                                                        >
+                                                                            <div className="flex items-center gap-2 mb-1">
+                                                                                <span className="font-medium text-sm">
+                                                                                    {field.fieldName}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="text-sm font-medium">
+                                                                                {formatValue(field.value, "text")}
+                                                                            </div>
                                                                         </div>
-                                                                        <div className="text-sm font-medium">
-                                                                            {formatValue(field.value, "text")}
-                                                                        </div>
-                                                                    </div>
-                                                                ))}
+                                                                    ),
+                                                                )}
                                                             </div>
                                                         </CardContent>
                                                     </Card>
@@ -400,47 +398,75 @@ export default function ExecutionDetailPage() {
                                                             <CardTitle className="text-base">Tables</CardTitle>
                                                         </CardHeader>
                                                         <CardContent>
-                                                            {extractionResult.tables.map((table: any, tableIndex: number) => (
-                                                                <div key={tableIndex} className="space-y-2">
-                                                                    <h4 className="font-medium">
-                                                                        {table.tableName}
-                                                                    </h4>
-                                                                    {table.rows.length > 0 ? (
-                                                                        <div className="overflow-x-auto">
-                                                                            <Table>
-                                                                                <TableHeader>
-                                                                                    <TableRow>
-                                                                                        {Object.keys(table.rows[0].values).map(
-                                                                                            (columnName: string, colIndex: number) => (
-                                                                                                <TableHead key={colIndex}>
-                                                                                                    {columnName}
-                                                                                                </TableHead>
-                                                                                            ),
-                                                                                        )}
-                                                                                    </TableRow>
-                                                                                </TableHeader>
-                                                                                <TableBody>
-                                                                                    {table.rows.map((row: any, rowIndex: number) => (
-                                                                                        <TableRow key={rowIndex}>
-                                                                                            {Object.values(row.values).map(
-                                                                                                (value: any, colIndex: number) => (
-                                                                                                    <TableCell key={colIndex}>
-                                                                                                        {formatValue(value, "text")}
-                                                                                                    </TableCell>
+                                                            {extractionResult.tables.map(
+                                                                (table: any, tableIndex: number) => (
+                                                                    <div key={tableIndex} className="space-y-2">
+                                                                        <h4 className="font-medium">
+                                                                            {table.tableName}
+                                                                        </h4>
+                                                                        {table.rows.length > 0 ? (
+                                                                            <div className="overflow-x-auto">
+                                                                                <Table>
+                                                                                    <TableHeader>
+                                                                                        <TableRow>
+                                                                                            {Object.keys(
+                                                                                                table.rows[0].values,
+                                                                                            ).map(
+                                                                                                (
+                                                                                                    columnName: string,
+                                                                                                    colIndex: number,
+                                                                                                ) => (
+                                                                                                    <TableHead
+                                                                                                        key={colIndex}
+                                                                                                    >
+                                                                                                        {columnName}
+                                                                                                    </TableHead>
                                                                                                 ),
                                                                                             )}
                                                                                         </TableRow>
-                                                                                    ))}
-                                                                                </TableBody>
-                                                                            </Table>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <p className="text-sm text-muted-foreground">
-                                                                            No table data found
-                                                                        </p>
-                                                                    )}
-                                                                </div>
-                                                            ))}
+                                                                                    </TableHeader>
+                                                                                    <TableBody>
+                                                                                        {table.rows.map(
+                                                                                            (
+                                                                                                row: any,
+                                                                                                rowIndex: number,
+                                                                                            ) => (
+                                                                                                <TableRow
+                                                                                                    key={rowIndex}
+                                                                                                >
+                                                                                                    {Object.values(
+                                                                                                        row.values,
+                                                                                                    ).map(
+                                                                                                        (
+                                                                                                            value: any,
+                                                                                                            colIndex: number,
+                                                                                                        ) => (
+                                                                                                            <TableCell
+                                                                                                                key={
+                                                                                                                    colIndex
+                                                                                                                }
+                                                                                                            >
+                                                                                                                {formatValue(
+                                                                                                                    value,
+                                                                                                                    "text",
+                                                                                                                )}
+                                                                                                            </TableCell>
+                                                                                                        ),
+                                                                                                    )}
+                                                                                                </TableRow>
+                                                                                            ),
+                                                                                        )}
+                                                                                    </TableBody>
+                                                                                </Table>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <p className="text-sm text-muted-foreground">
+                                                                                No table data found
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                ),
+                                                            )}
                                                         </CardContent>
                                                     </Card>
                                                 )}

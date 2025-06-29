@@ -12,7 +12,9 @@ import { useWorkflowAnalysis } from "@/hooks/useWorkflowAnalysis";
 
 export default function WorkflowConfigurePage() {
     const navigate = useNavigate();
-    const { workflowId } = useParams({ from: "/_app/workflows/$workflowId/configure" });
+    const { workflowId } = useParams({
+        from: "/_app/workflows/$workflowId/configure",
+    });
     const [workflowName, setWorkflowName] = useState("");
     const [fields, setFields] = useState<ExtractionField[]>([]);
     const [tables, setTables] = useState<ExtractionTable[]>([]);
@@ -21,9 +23,10 @@ export default function WorkflowConfigurePage() {
     const [analysisStatus, setAnalysisStatus] = useState<"pending" | "processing" | "completed">("pending");
 
     const { workflow, isLoading, updateWorkflow, extractData } = useWorkflow(workflowId);
-    
+
     // Only fetch analysis if workflow doesn't have fields configured yet
-    const shouldFetchAnalysis = workflow && (!workflow.configuration?.fields || workflow.configuration.fields.length === 0);
+    const shouldFetchAnalysis =
+        workflow && (!workflow.configuration?.fields || workflow.configuration.fields.length === 0);
     const { analysisData } = useWorkflowAnalysis(shouldFetchAnalysis ? workflowId : "");
 
     // Initialize state when workflow data loads

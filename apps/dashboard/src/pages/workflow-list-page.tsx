@@ -1,3 +1,4 @@
+import type { WorkflowExecutionWithFiles } from "@paperjet/db/types";
 import { useNavigate } from "@tanstack/react-router";
 import {
     Calendar,
@@ -106,7 +107,7 @@ export default function WorkflowListPage() {
             <div className="w-full p-4 bg-muted/20">
                 <h4 className="font-medium mb-3 text-sm">Recent Executions</h4>
                 <div className="w-full space-y-2">
-                    {executions.slice(0, 5).map((execution: any) => (
+                    {executions.slice(0, 5).map((execution: WorkflowExecutionWithFiles) => (
                         <div
                             key={execution.id}
                             className="w-full flex items-center justify-between p-2 bg-background rounded border"
@@ -118,7 +119,15 @@ export default function WorkflowListPage() {
                                         <span className="text-sm font-medium">
                                             {new Date(execution.startedAt).toLocaleDateString()}
                                         </span>
-                                        <Badge variant={getStatusColor(execution.status) as any} className="text-xs">
+                                        <Badge
+                                            variant={
+                                                getStatusColor(execution.status) as
+                                                    | "secondary"
+                                                    | "default"
+                                                    | "destructive"
+                                            }
+                                            className="text-xs"
+                                        >
                                             {execution.status}
                                         </Badge>
                                     </div>

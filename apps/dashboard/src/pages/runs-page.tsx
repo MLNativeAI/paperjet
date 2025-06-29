@@ -221,7 +221,7 @@ export default function RunsPage() {
                             {filteredRuns.map((run) => {
                                 const isExpanded = expandedRuns.has(run.id);
                                 const successfulFiles = run.files.filter((f) => f.status === "completed").length;
-                                const failedFiles = run.files.filter((f) => f.status === "failed").length;
+                                const _failedFiles = run.files.filter((f) => f.status === "failed").length;
 
                                 return (
                                     <Collapsible

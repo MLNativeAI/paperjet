@@ -47,7 +47,7 @@ export function useRuns() {
             .filter((f) => f.status === "completed" && f.extractionResult)
             .map((f) => ({
                 filename: f.filename,
-                extractionResult: JSON.parse(f.extractionResult!),
+                extractionResult: JSON.parse(f.extractionResult ?? "{}"),
             }));
 
         const dataStr = JSON.stringify(

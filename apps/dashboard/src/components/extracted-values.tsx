@@ -31,7 +31,7 @@ export function ExtractedValues({
     onFieldUpdate,
     onFieldAdd,
     onFieldRemove,
-    onTableUpdate,
+    _onTableUpdate,
     onExtractData,
 }: ExtractedValuesProps) {
     const [expandedFields, setExpandedFields] = useState<Set<number>>(new Set());
@@ -55,7 +55,7 @@ export function ExtractedValues({
             return newSet;
         });
     };
-    const formatValue = (value: any, type: string) => {
+    const formatValue = (value: unknown, type: string) => {
         if (value === null || value === undefined) {
             return <span className="text-muted-foreground italic">No data found</span>;
         }
@@ -117,11 +117,7 @@ export function ExtractedValues({
                         <CardTitle className="flex items-center gap-2">
                             <span>Extracted Values</span>
                         </CardTitle>
-                        <Button
-                            size="sm"
-                            onClick={() => setIsAddingField(true)}
-                            className="h-8"
-                        >
+                        <Button size="sm" onClick={() => setIsAddingField(true)} className="h-8">
                             <Plus className="h-3 w-3 mr-1" />
                             Add Field
                         </Button>
@@ -263,7 +259,7 @@ export function ExtractedValues({
                                                                                             setTempField((prev) => ({
                                                                                                 ...field,
                                                                                                 ...prev,
-                                                                                                type: value as any,
+                                                                                                type: value as ExtractionField["type"],
                                                                                             }))
                                                                                         }
                                                                                     >
@@ -394,7 +390,7 @@ export function ExtractedValues({
                                     </Collapsible>
                                 );
                             })}
-                            
+
                             {/* Add New Field Form */}
                             {isAddingField && (
                                 <Card className="border-dashed border-2 border-primary/30">
@@ -407,36 +403,42 @@ export function ExtractedValues({
                                                     variant="ghost"
                                                     onClick={() => {
                                                         setIsAddingField(false);
-                                                        setNewField({ name: "", description: "", type: "text" });
+                                                        setNewField({
+                                                            name: "",
+                                                            description: "",
+                                                            type: "text",
+                                                        });
                                                     }}
                                                     className="h-6 w-6 p-0"
                                                 >
                                                     ×
                                                 </Button>
                                             </div>
-                                            
+
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <Label className="text-xs font-medium mb-1 block">
-                                                        Field Name
-                                                    </Label>
+                                                    <Label className="text-xs font-medium mb-1 block">Field Name</Label>
                                                     <Input
                                                         value={newField.name}
                                                         onChange={(e) =>
-                                                            setNewField(prev => ({ ...prev, name: e.target.value }))
+                                                            setNewField((prev) => ({
+                                                                ...prev,
+                                                                name: e.target.value,
+                                                            }))
                                                         }
                                                         placeholder="e.g. invoice_number"
                                                         className="h-8 text-sm"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label className="text-xs font-medium mb-1 block">
-                                                        Type
-                                                    </Label>
+                                                    <Label className="text-xs font-medium mb-1 block">Type</Label>
                                                     <Select
                                                         value={newField.type}
                                                         onValueChange={(value) =>
-                                                            setNewField(prev => ({ ...prev, type: value as any }))
+                                                            setNewField((prev) => ({
+                                                                ...prev,
+                                                                type: value as ExtractionField["type"],
+                                                            }))
                                                         }
                                                     >
                                                         <SelectTrigger className="h-8 text-sm">
@@ -452,28 +454,33 @@ export function ExtractedValues({
                                                     </Select>
                                                 </div>
                                             </div>
-                                            
+
                                             <div>
-                                                <Label className="text-xs font-medium mb-1 block">
-                                                    Description
-                                                </Label>
+                                                <Label className="text-xs font-medium mb-1 block">Description</Label>
                                                 <Textarea
                                                     value={newField.description}
                                                     onChange={(e) =>
-                                                        setNewField(prev => ({ ...prev, description: e.target.value }))
+                                                        setNewField((prev) => ({
+                                                            ...prev,
+                                                            description: e.target.value,
+                                                        }))
                                                     }
                                                     placeholder="Describe what this field should extract..."
                                                     className="text-sm min-h-[60px]"
                                                 />
                                             </div>
-                                            
+
                                             <div className="flex gap-2">
                                                 <Button
                                                     size="sm"
                                                     onClick={() => {
                                                         if (newField.name && newField.description && onFieldAdd) {
                                                             onFieldAdd(newField);
-                                                            setNewField({ name: "", description: "", type: "text" });
+                                                            setNewField({
+                                                                name: "",
+                                                                description: "",
+                                                                type: "text",
+                                                            });
                                                             setIsAddingField(false);
                                                             // Trigger re-extraction after field addition
                                                             if (onExtractData) {
@@ -491,7 +498,11 @@ export function ExtractedValues({
                                                     variant="outline"
                                                     onClick={() => {
                                                         setIsAddingField(false);
-                                                        setNewField({ name: "", description: "", type: "text" });
+                                                        setNewField({
+                                                            name: "",
+                                                            description: "",
+                                                            type: "text",
+                                                        });
                                                     }}
                                                 >
                                                     Cancel

@@ -1,4 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import type { ExtractionResult } from "@paperjet/db/types";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
@@ -7,7 +8,7 @@ interface UploadedFile {
     file: File;
     id: string;
     status: ExecutionStatus;
-    result?: any;
+    result?: ExtractionResult;
     error?: string;
 }
 

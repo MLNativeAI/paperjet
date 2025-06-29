@@ -27,7 +27,7 @@ function VerifyMagicLinkPage() {
 
         const verifyToken = async () => {
             try {
-                const { data, error } = await authClient.magicLink.verify({
+                const { error } = await authClient.magicLink.verify({
                     query: { token },
                 });
 
@@ -44,7 +44,7 @@ function VerifyMagicLinkPage() {
                 setTimeout(() => {
                     navigate({ to: "/" });
                 }, 1000);
-            } catch (err) {
+            } catch (_err) {
                 setStatus("error");
                 setError("An unexpected error occurred");
             }

@@ -1,4 +1,4 @@
-import type { ExtractionField, ExtractionResult, ExtractionTable } from "@paperjet/db/types";
+import type { ExtractionField, ExtractionTable } from "@paperjet/db/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";

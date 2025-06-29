@@ -781,10 +781,10 @@ Instructions:
 
         return {
             ...executionData,
-            files: files.map(f => ({
+            files: files.map((f) => ({
                 ...f,
                 // Extract just the filename without the path
-                filename: f.filename ? f.filename.split('/').pop() || f.filename : 'Unknown',
+                filename: f.filename ? f.filename.split("/").pop() || f.filename : "Unknown",
             })),
         };
     }

@@ -1,15 +1,15 @@
 import { useNavigate } from "@tanstack/react-router";
-import { 
-    CheckCircle, 
-    FileText, 
-    Loader2, 
-    Upload,
+import {
+    ArrowLeft,
+    CheckCircle,
     DollarSign,
     FileSpreadsheet,
+    FileText,
+    Loader2,
     Package,
     Receipt,
     ScrollText,
-    ArrowLeft
+    Upload,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -167,17 +167,15 @@ export default function WorkflowCreatorPage() {
                     <p className="text-muted-foreground mb-6">
                         Upload any document and we'll analyze it to suggest extraction fields
                     </p>
-                    
-                    <Card 
+
+                    <Card
                         className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50 border-dashed"
                         onClick={handleCustomWorkflow}
                     >
                         <CardContent className="p-8 text-center">
                             <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                             <h3 className="text-lg font-semibold mb-2">Custom Workflow</h3>
-                            <p className="text-muted-foreground">
-                                Start from scratch with your own document
-                            </p>
+                            <p className="text-muted-foreground">Start from scratch with your own document</p>
                         </CardContent>
                     </Card>
                 </div>
@@ -188,7 +186,7 @@ export default function WorkflowCreatorPage() {
                     <p className="text-muted-foreground mb-6">
                         Start with a pre-built workflow for common document types
                     </p>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {workflowTemplates.map((template) => {
                             const Icon = template.icon;
@@ -205,7 +203,9 @@ export default function WorkflowCreatorPage() {
                                             </div>
                                             <div className="flex-1">
                                                 <CardTitle className="text-lg">{template.name}</CardTitle>
-                                                <CardDescription className="mt-1">{template.description}</CardDescription>
+                                                <CardDescription className="mt-1">
+                                                    {template.description}
+                                                </CardDescription>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -226,70 +226,66 @@ export default function WorkflowCreatorPage() {
     );
 
     const renderUploadPhase = () => {
-        const selectedTemplateData = selectedTemplate 
-            ? workflowTemplates.find(t => t.id === selectedTemplate)
-            : null;
+        const selectedTemplateData = selectedTemplate ? workflowTemplates.find((t) => t.id === selectedTemplate) : null;
 
         return (
             <div className="w-full px-4 py-8">
                 <div className="mb-8">
-                    <Button 
-                        variant="ghost" 
-                        onClick={() => setPhase("template")}
-                        className="mb-4"
-                    >
+                    <Button variant="ghost" onClick={() => setPhase("template")} className="mb-4">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Templates
                     </Button>
-                    
+
                     <div className="text-center">
                         <h1 className="text-3xl font-bold mb-4">
-                            {selectedTemplateData ? `Create ${selectedTemplateData.name} Workflow` : "Create Custom Workflow"}
+                            {selectedTemplateData
+                                ? `Create ${selectedTemplateData.name} Workflow`
+                                : "Create Custom Workflow"}
                         </h1>
                         <p className="text-muted-foreground">
-                            {selectedTemplateData 
+                            {selectedTemplateData
                                 ? `Upload a ${selectedTemplateData.name.toLowerCase()} document to get started.`
-                                : "Upload a document to get started. We'll analyze it and suggest fields to extract."
-                            }
+                                : "Upload a document to get started. We'll analyze it and suggest fields to extract."}
                         </p>
                     </div>
                 </div>
 
-            <div className="flex justify-center">
-                <Card className="w-full max-w-2xl">
-                    <CardContent className="p-0">
-                        {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
-                        <div
-                            className={`rounded-lg py-12 text-center transition-colors ${
-                                isDragging ? "border-primary bg-primary/5" : "border-gray-300"
-                            }`}
-                            onDrop={handleDrop}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                        >
-                            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                            <h3 className="text-lg font-semibold mb-2">Drop your document here or click to browse</h3>
-                            <p className="text-sm text-muted-foreground mb-4">
-                                Supports PDF and image files (PNG, JPG, etc.)
-                            </p>
-                            <input
-                                type="file"
-                                accept=".pdf,image/*"
-                                onChange={handleFileInput}
-                                className="hidden"
-                                id="file-input"
-                            />
-                            <Button asChild>
-                                <label htmlFor="file-input" className="cursor-pointer">
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    Select File
-                                </label>
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
+                <div className="flex justify-center">
+                    <Card className="w-full max-w-2xl">
+                        <CardContent className="p-0">
+                            {/** biome-ignore lint/a11y/noStaticElementInteractions: drag and drop functionality requires these interactions */}
+                            <div
+                                className={`rounded-lg py-12 text-center transition-colors ${
+                                    isDragging ? "border-primary bg-primary/5" : "border-gray-300"
+                                }`}
+                                onDrop={handleDrop}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                            >
+                                <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                                <h3 className="text-lg font-semibold mb-2">
+                                    Drop your document here or click to browse
+                                </h3>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    Supports PDF and image files (PNG, JPG, etc.)
+                                </p>
+                                <input
+                                    type="file"
+                                    accept=".pdf,image/*"
+                                    onChange={handleFileInput}
+                                    className="hidden"
+                                    id="file-input"
+                                />
+                                <Button asChild>
+                                    <label htmlFor="file-input" className="cursor-pointer">
+                                        <FileText className="mr-2 h-4 w-4" />
+                                        Select File
+                                    </label>
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         );
     };

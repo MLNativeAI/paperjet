@@ -10,7 +10,7 @@ import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const GoogleIcon = () => (
-    <svg className="h-4 w-4" viewBox="0 0 24 24">
+    <svg className="h-4 w-4" viewBox="0 0 24 24" role="img" aria-label="Google logo">
         <path
             fill="currentColor"
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -31,7 +31,7 @@ const GoogleIcon = () => (
 );
 
 const MicrosoftIcon = () => (
-    <svg className="h-4 w-4" viewBox="0 0 24 24">
+    <svg className="h-4 w-4" viewBox="0 0 24 24" role="img" aria-label="Microsoft logo">
         <path fill="#f25022" d="M1 1h10v10H1z" />
         <path fill="#00a4ef" d="M13 1h10v10H13z" />
         <path fill="#7fba00" d="M1 13h10v10H1z" />
@@ -44,7 +44,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     const [isLoading, setIsLoading] = useState(false);
     const [authMethod, setAuthMethod] = useState<"social" | "magiclink">("social");
     const [magicLinkSent, setMagicLinkSent] = useState(false);
-    const navigate = useNavigate();
+    const _navigate = useNavigate();
 
     const handleSocialSignUp = async (provider: "google" | "microsoft") => {
         setError("");
@@ -56,7 +56,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
             });
             // Don't set loading to false here - let the redirect complete
             // The loading state will be reset when the component unmounts or page reloads
-        } catch (err) {
+        } catch (_err) {
             setError("An error occurred during sign up");
             setIsLoading(false);
         }
@@ -83,7 +83,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
 
             setMagicLinkSent(true);
             toast.success("Magic link sent! Check your email to complete registration.");
-        } catch (err) {
+        } catch (_err) {
             setError("An unexpected error occurred");
         } finally {
             setIsLoading(false);
