@@ -8,22 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getExecutionDetails } from "@/lib/api";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
-
-interface ExecutionDetail {
-    id: string;
-    workflowId: string;
-    workflowName: string;
-    fileId: string;
-    status: ExecutionStatus;
-    extractionResult: string | null;
-    errorMessage: string | null;
-    startedAt: string;
-    completedAt: string | null;
-    createdAt: string;
-    filename: string;
-}
 
 export default function ExecutionDetailPage() {
     const { executionId } = useParams({ from: "/_app/executions/$executionId" });
@@ -31,21 +18,10 @@ export default function ExecutionDetailPage() {
 
     const { data: execution, isLoading } = useQuery({
         queryKey: ["execution", executionId],
-        queryFn: async () => {
-            const response = await fetch(`/api/executions/${executionId}`, {
-                credentials: "include",
-            });
-            if (!response.ok) {
-                throw new Error("Failed to fetch execution details");
-            }
-            return response.json() as ExecutionDetail;
-        },
+        queryFn: () => getExecutionDetails(executionId),
     });
 
-    let extractionResult: ExtractionResult | null = null;
-    if (execution?.extractionResult) {
-        extractionResult = execution.extractionResult as ExtractionResult;
-    }
+    const extractionResult = execution?.extractionResult as ExtractionResult | null;
 
     const getStatusIcon = (status: ExecutionStatus) => {
         switch (status) {
@@ -306,7 +282,7 @@ export default function ExecutionDetailPage() {
                         {execution.status === "completed" && extractionResult ? (
                             <div className="space-y-4">
                                 {/* Fields */}
-                                {extractionResult.fields.length > 0 && (
+                                {extractionResult.fields && extractionResult.fields.length > 0 && (
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="text-base">Fields</CardTitle>
@@ -336,7 +312,7 @@ export default function ExecutionDetailPage() {
                                 )}
 
                                 {/* Tables */}
-                                {extractionResult.tables.length > 0 && (
+                                {extractionResult.tables && extractionResult.tables.length > 0 && (
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="text-base">Tables</CardTitle>
@@ -349,7 +325,7 @@ export default function ExecutionDetailPage() {
                                                         className="space-y-2"
                                                     >
                                                         <h4 className="font-medium">{table.tableName}</h4>
-                                                        {table.rows.length > 0 ? (
+                                                        {table.rows && table.rows.length > 0 ? (
                                                             <div className="overflow-x-auto">
                                                                 <Table>
                                                                     <TableHeader>
