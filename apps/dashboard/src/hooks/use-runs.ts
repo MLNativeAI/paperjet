@@ -4,16 +4,6 @@ import { getAllExecutions } from "@/lib/api";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
-interface ExecutionFile {
-    id: string;
-    fileId: string;
-    extractionResult: string | null;
-    status: ExecutionStatus;
-    errorMessage: string | null;
-    createdAt: string;
-    filename: string;
-}
-
 interface WorkflowRun {
     id: string;
     workflowId: string;
@@ -51,7 +41,7 @@ export function useRuns() {
                 workflowName: run.workflowName,
                 executedAt: run.startedAt,
                 filename: run.filename,
-                extractionResult: JSON.parse(run.extractionResult),
+                extractionResult: run.extractionResult,
             },
             null,
             2,

@@ -49,7 +49,7 @@ export function useExecutions(workflowId: string) {
                 workflowId: execution.workflowId,
                 executedAt: execution.startedAt,
                 filename: execution.filename,
-                extractionResult: JSON.parse(execution.extractionResult),
+                extractionResult: execution.extractionResult,
             },
             null,
             2,

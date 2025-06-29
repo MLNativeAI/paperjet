@@ -71,7 +71,7 @@ export default function WorkflowConfigurePage() {
     const handleUpdateWorkflow = () => {
         updateWorkflow.mutate({
             name: workflowName,
-            configuration: { fields, tables },
+            fields,
         });
     };
 

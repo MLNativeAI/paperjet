@@ -1,26 +1,15 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: Too lazy */
-import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
+import type { ExtractionResult } from "@paperjet/db/types";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import {
-    ArrowLeft,
-    CheckCircle,
-    ChevronDown,
-    ChevronRight,
-    Clock,
-    Download,
-    Eye,
-    FileText,
-    Play,
-    Upload,
-    XCircle,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { FileList } from "@/components/file-list";
+import { FileUpload } from "@/components/file-upload";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { WorkflowExtractionResults } from "@/components/workflow-extraction-results";
+import { WorkflowHeader } from "@/components/workflow-header";
+import { WorkflowInfo } from "@/components/workflow-info";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { useWorkflowExecution } from "@/hooks/useWorkflowExecution";
 
@@ -36,7 +25,6 @@ export default function WorkflowExecutorPage() {
     const { workflowId } = useParams({ from: "/_app/workflows/$workflowId/run" });
     const navigate = useNavigate();
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-    const [isDragging, setIsDragging] = useState(false);
     const [executionId, setExecutionId] = useState<string | null>(null);
     const [expandedResults, setExpandedResults] = useState<Set<string>>(new Set());
 
@@ -52,37 +40,6 @@ export default function WorkflowExecutorPage() {
 
         setUploadedFiles((prev) => [...prev, ...newFiles]);
     }, []);
-
-    const handleDrop = useCallback(
-        (e: React.DragEvent) => {
-            e.preventDefault();
-            setIsDragging(false);
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFileUpload(files);
-            }
-        },
-        [handleFileUpload],
-    );
-
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    }, []);
-
-    const handleDragLeave = useCallback(() => {
-        setIsDragging(false);
-    }, []);
-
-    const handleFileInput = useCallback(
-        (e: React.ChangeEvent<HTMLInputElement>) => {
-            if (e.target.files) {
-                handleFileUpload(e.target.files);
-            }
-        },
-        [handleFileUpload],
-    );
 
     const removeFile = useCallback((fileId: string) => {
         setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
@@ -114,9 +71,7 @@ export default function WorkflowExecutorPage() {
                                 return {
                                     ...f,
                                     status: execution.status as "completed" | "failed",
-                                    result: execution.extractionResult
-                                        ? JSON.parse(execution.extractionResult)
-                                        : undefined,
+                                    result: execution.extractionResult,
                                     error: execution.error,
                                 };
                             }
@@ -137,34 +92,6 @@ export default function WorkflowExecutorPage() {
         );
     }, [uploadedFiles, executeWorkflow]);
 
-    const getStatusIcon = (status: UploadedFile["status"]) => {
-        switch (status) {
-            case "pending":
-                return <Clock className="h-4 w-4 text-muted-foreground" />;
-            case "processing":
-                return (
-                    <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                );
-            case "completed":
-                return <CheckCircle className="h-4 w-4 text-green-600" />;
-            case "failed":
-                return <XCircle className="h-4 w-4 text-red-600" />;
-        }
-    };
-
-    const getStatusColor = (status: UploadedFile["status"]) => {
-        switch (status) {
-            case "pending":
-                return "secondary";
-            case "processing":
-                return "default";
-            case "completed":
-                return "default";
-            case "failed":
-                return "destructive";
-        }
-    };
-
     const toggleResultExpansion = useCallback((fileId: string) => {
         setExpandedResults((prev) => {
             const newSet = new Set(prev);
@@ -178,116 +105,7 @@ export default function WorkflowExecutorPage() {
     }, []);
 
     const renderExtractionResults = useCallback((result: ExtractionResult, _fileId: string) => {
-        if (!result) return null;
-
-        try {
-            const parsedResult = typeof result === "string" ? JSON.parse(result) : result;
-            const { fields = [], tables = [] } = parsedResult;
-
-            return (
-                <div className="space-y-4">
-                    {/* Fields */}
-                    {fields.length > 0 && (
-                        <div>
-                            <h4 className="font-medium mb-2">Extracted Fields</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {fields.map((field: ExtractedValue, index: number) => (
-                                    <div key={`field-${field.fieldName}-${index}`} className="p-3 border rounded-lg">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="text-sm font-medium text-muted-foreground">
-                                                {field.fieldName}
-                                            </span>
-                                        </div>
-                                        <div className="text-sm">
-                                            {field.value !== null && field.value !== undefined ? (
-                                                <span className="font-medium">{String(field.value)}</span>
-                                            ) : (
-                                                <span className="text-muted-foreground italic">Not found</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Tables */}
-                    {tables.length > 0 && (
-                        <div>
-                            <h4 className="font-medium mb-2">Extracted Tables</h4>
-                            <div className="space-y-4">
-                                {tables.map((table: ExtractedTable, tableIndex: number) => (
-                                    <div
-                                        key={`table-${table.tableName || `table-${tableIndex}`}`}
-                                        className="border rounded-lg"
-                                    >
-                                        <div className="p-3 border-b bg-muted/50">
-                                            <h5 className="font-medium">{table.tableName}</h5>
-                                            <p className="text-sm text-muted-foreground">
-                                                {table.rows?.length || 0} rows
-                                            </p>
-                                        </div>
-                                        {table.rows && table.rows.length > 0 && (
-                                            <div className="overflow-x-auto">
-                                                <Table>
-                                                    <TableHeader>
-                                                        <TableRow>
-                                                            {Object.keys(table.rows[0].values || table.rows[0]).map(
-                                                                (key: string) => (
-                                                                    <TableHead key={key} className="text-xs">
-                                                                        {key
-                                                                            .replace(/_/g, " ")
-                                                                            .replace(/\b\w/g, (l) => l.toUpperCase())}
-                                                                    </TableHead>
-                                                                ),
-                                                            )}
-                                                        </TableRow>
-                                                    </TableHeader>
-                                                    <TableBody>
-                                                        {table.rows.map(
-                                                            (
-                                                                row: {
-                                                                    values?: Record<
-                                                                        string,
-                                                                        string | number | boolean | Date | null
-                                                                    >;
-                                                                },
-                                                                rowIndex: number,
-                                                            ) => (
-                                                                <TableRow key={`row-${tableIndex}-${rowIndex}`}>
-                                                                    {Object.entries(row.values || row).map(
-                                                                        ([key, value]: [
-                                                                            string,
-                                                                            string | number | boolean | Date | null,
-                                                                        ]) => (
-                                                                            <TableCell key={key} className="text-xs">
-                                                                                {value !== null && value !== undefined
-                                                                                    ? String(value)
-                                                                                    : "-"}
-                                                                            </TableCell>
-                                                                        ),
-                                                                    )}
-                                                                </TableRow>
-                                                            ),
-                                                        )}
-                                                    </TableBody>
-                                                </Table>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        } catch (error) {
-            return (
-                <div className="p-3 text-sm text-red-600 bg-red-50 rounded">
-                    Error parsing results: {error instanceof Error ? error.message : "Unknown error"}
-                </div>
-            );
-        }
+        return <WorkflowExtractionResults result={result} />;
     }, []);
 
     const handleExportResults = useCallback(() => {
@@ -327,221 +145,31 @@ export default function WorkflowExecutorPage() {
 
     return (
         <div className="w-full px-4 py-8 space-y-8">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <Button variant="ghost" onClick={() => navigate({ to: "/" })} className="mb-4">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Workflows
-                    </Button>
-                    <h1 className="text-3xl font-bold">Execute Workflow</h1>
-                    <div className="flex items-center gap-2 mt-2">
-                        <span className="text-muted-foreground">{workflow.name}</span>
-                    </div>
-                </div>
+            <WorkflowHeader
+                workflowName={workflow.name}
+                showActions={allCompleted && completedFiles > 0}
+                onBack={() => navigate({ to: "/" })}
+                onExportResults={handleExportResults}
+                onViewHistory={() => navigate({ to: `/workflows/${workflowId}/history` })}
+            />
 
-                {allCompleted && completedFiles > 0 && (
-                    <div className="flex gap-2">
-                        <Button variant="outline" onClick={handleExportResults}>
-                            <Download className="h-4 w-4 mr-2" />
-                            Export Results
-                        </Button>
-                        <Button variant="outline" onClick={() => navigate({ to: `/workflows/${workflowId}/history` })}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View History
-                        </Button>
-                    </div>
-                )}
-            </div>
+            <WorkflowInfo configuration={config} />
 
-            {/* Workflow Info */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Workflow Configuration</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Fields to Extract</p>
-                            <p className="text-lg">{config.fields?.length || 0} fields</p>
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Tables to Extract</p>
-                            <p className="text-lg">{config.tables?.length || 0} tables</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            <FileUpload onFileUpload={handleFileUpload} />
 
-            {/* File Upload */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Upload Documents</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Upload documents to process with this workflow. Supports PDF and image files.
-                    </p>
-                </CardHeader>
-                <CardContent className="p-0">
-                    {/** biome-ignore lint/a11y/noStaticElementInteractions: drag and drop functionality requires these interactions */}
-                    <div
-                        className={`rounded-lg py-12 text-center transition-colors ${
-                            isDragging ? "border-primary bg-primary/5" : "border-gray-300"
-                        }`}
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                    >
-                        <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-lg font-semibold mb-2">Drop your documents here or click to browse</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Supports PDF and image files (PNG, JPG, etc.)
-                        </p>
-                        <input
-                            type="file"
-                            accept=".pdf,image/*"
-                            onChange={handleFileInput}
-                            className="hidden"
-                            id="file-input"
-                            multiple
-                        />
-                        <Button asChild>
-                            <label htmlFor="file-input" className="cursor-pointer">
-                                <FileText className="mr-2 h-4 w-4" />
-                                Select Files
-                            </label>
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Uploaded Files */}
-            {uploadedFiles.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                            <span>Uploaded Files ({uploadedFiles.length})</span>
-                            {processingFiles === 0 && (
-                                <Button
-                                    onClick={startExecution}
-                                    disabled={executeWorkflow.isPending || uploadedFiles.length === 0}
-                                >
-                                    <Play className="h-4 w-4 mr-2" />
-                                    Execute Workflow
-                                </Button>
-                            )}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-3">
-                            {uploadedFiles.map((uploadedFile) => (
-                                <div key={uploadedFile.id} className="border rounded-lg">
-                                    <div className="flex items-center justify-between p-3">
-                                        <div className="flex items-center gap-3">
-                                            {getStatusIcon(uploadedFile.status)}
-                                            <div>
-                                                <p className="font-medium">{uploadedFile.file.name}</p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Badge variant={getStatusColor(uploadedFile.status)}>
-                                                {uploadedFile.status}
-                                            </Badge>
-
-                                            {uploadedFile.status === "completed" && uploadedFile.result && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => toggleResultExpansion(uploadedFile.id)}
-                                                >
-                                                    {expandedResults.has(uploadedFile.id) ? (
-                                                        <>
-                                                            <ChevronDown className="h-4 w-4 mr-1" />
-                                                            Hide Results
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <ChevronRight className="h-4 w-4 mr-1" />
-                                                            View Results
-                                                        </>
-                                                    )}
-                                                </Button>
-                                            )}
-
-                                            {uploadedFile.status === "pending" && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => removeFile(uploadedFile.id)}
-                                                >
-                                                    Remove
-                                                </Button>
-                                            )}
-
-                                            {uploadedFile.status === "failed" && uploadedFile.error && (
-                                                <div className="text-sm text-red-600 max-w-xs truncate">
-                                                    {uploadedFile.error}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Results Section */}
-                                    {uploadedFile.status === "completed" &&
-                                        uploadedFile.result &&
-                                        expandedResults.has(uploadedFile.id) && (
-                                            <div className="border-t p-4 bg-muted/20">
-                                                {renderExtractionResults(uploadedFile.result, uploadedFile.id)}
-                                            </div>
-                                        )}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Progress Summary */}
-                        {processingFiles > 0 && (
-                            <div className="mt-4 p-4 bg-muted rounded-lg">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium">Processing Progress</span>
-                                    <span className="text-sm text-muted-foreground">
-                                        {completedFiles + failedFiles} of {uploadedFiles.length} completed
-                                    </span>
-                                </div>
-                                <Progress
-                                    value={((completedFiles + failedFiles) / uploadedFiles.length) * 100}
-                                    className="w-full"
-                                />
-                            </div>
-                        )}
-
-                        {/* Results Summary */}
-                        {allCompleted && (
-                            <div className="mt-4 p-4 bg-muted rounded-lg">
-                                <h4 className="font-medium mb-2">Execution Summary</h4>
-                                <div className="grid grid-cols-3 gap-4 text-sm">
-                                    <div>
-                                        <span className="text-green-600 font-medium">{completedFiles}</span>
-                                        <span className="text-muted-foreground"> successful</span>
-                                    </div>
-                                    <div>
-                                        <span className="text-red-600 font-medium">{failedFiles}</span>
-                                        <span className="text-muted-foreground"> failed</span>
-                                    </div>
-                                    <div>
-                                        <span className="text-muted-foreground font-medium">
-                                            {uploadedFiles.length}
-                                        </span>
-                                        <span className="text-muted-foreground"> total</span>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            )}
+            <FileList
+                files={uploadedFiles}
+                expandedResults={expandedResults}
+                processingFiles={processingFiles}
+                completedFiles={completedFiles}
+                failedFiles={failedFiles}
+                allCompleted={allCompleted}
+                isExecuting={executeWorkflow.isPending}
+                onRemoveFile={removeFile}
+                onStartExecution={startExecution}
+                onToggleResultExpansion={toggleResultExpansion}
+                renderExtractionResults={renderExtractionResults}
+            />
         </div>
     );
 }

@@ -44,11 +44,7 @@ export default function ExecutionDetailPage() {
 
     let extractionResult: ExtractionResult | null = null;
     if (execution?.extractionResult) {
-        try {
-            extractionResult = JSON.parse(execution.extractionResult);
-        } catch (e) {
-            console.error("Failed to parse extraction result:", e);
-        }
+        extractionResult = execution.extractionResult as ExtractionResult;
     }
 
     const getStatusIcon = (status: ExecutionStatus) => {
