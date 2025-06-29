@@ -101,21 +101,37 @@ export default function WorkflowExecutorPage() {
             uploadedFiles.map((f) => f.file),
             {
                 onSuccess: (data) => {
-                    setExecutionId(data.executionId);
-                    // Update uploaded files with results
+                    // Handle multiple executions response
+                    const executions = data.executions || [];
+
+                    // Update uploaded files with results from individual executions
                     setUploadedFiles((prev) =>
                         prev.map((f) => {
-                            const result = data.files.find(
-                                (df: { filename: string; extractionResult?: string }) => df.filename === f.file.name,
+                            const execution = executions.find(
+                                (ex: { filename: string }) => ex.filename === f.file.name,
                             );
+                            if (execution) {
+                                return {
+                                    ...f,
+                                    status: execution.status as "completed" | "failed",
+                                    result: execution.extractionResult
+                                        ? JSON.parse(execution.extractionResult)
+                                        : undefined,
+                                    error: execution.error,
+                                };
+                            }
                             return {
                                 ...f,
-                                status: result?.status || "failed",
-                                result: result?.extractionResult,
-                                error: result?.error,
+                                status: "failed" as const,
+                                error: "No execution found for this file",
                             };
                         }),
                     );
+
+                    // Store first execution ID for reference
+                    if (executions.length > 0) {
+                        setExecutionId(executions[0].executionId);
+                    }
                 },
             },
         );
@@ -376,9 +392,7 @@ export default function WorkflowExecutorPage() {
                         onDragLeave={handleDragLeave}
                     >
                         <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-lg font-semibold mb-2">
-                            Drop your documents here or click to browse
-                        </h3>
+                        <h3 className="text-lg font-semibold mb-2">Drop your documents here or click to browse</h3>
                         <p className="text-sm text-muted-foreground mb-4">
                             Supports PDF and image files (PNG, JPG, etc.)
                         </p>

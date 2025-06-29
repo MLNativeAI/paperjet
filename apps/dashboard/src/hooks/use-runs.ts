@@ -17,11 +17,14 @@ interface WorkflowRun {
     id: string;
     workflowId: string;
     workflowName: string;
+    fileId: string;
     status: ExecutionStatus;
+    extractionResult: string | null;
+    errorMessage: string | null;
     startedAt: string;
     completedAt: string | null;
     createdAt: string;
-    files: ExecutionFile[];
+    filename: string;
 }
 
 export function useRuns() {
@@ -43,12 +46,10 @@ export function useRuns() {
     });
 
     const exportRun = (run: WorkflowRun) => {
-        const results = run.files
-            .filter((f) => f.status === "completed" && f.extractionResult)
-            .map((f) => ({
-                filename: f.filename,
-                extractionResult: JSON.parse(f.extractionResult ?? "{}"),
-            }));
+        if (run.status !== "completed" || !run.extractionResult) {
+            toast.error("No results to export");
+            return;
+        }
 
         const dataStr = JSON.stringify(
             {
@@ -56,7 +57,8 @@ export function useRuns() {
                 workflowId: run.workflowId,
                 workflowName: run.workflowName,
                 executedAt: run.startedAt,
-                results,
+                filename: run.filename,
+                extractionResult: JSON.parse(run.extractionResult),
             },
             null,
             2,

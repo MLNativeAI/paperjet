@@ -2,8 +2,6 @@ import { useNavigate } from "@tanstack/react-router";
 import {
     Calendar,
     CheckCircle,
-    ChevronDown,
-    ChevronRight,
     Clock,
     Download,
     Eye,
@@ -18,7 +16,6 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -26,7 +23,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRuns } from "@/hooks/use-runs";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
@@ -35,27 +31,16 @@ export default function RunsPage() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState<ExecutionStatus | "all">("all");
-    const [expandedRuns, setExpandedRuns] = useState<Set<string>>(new Set());
 
     const { runs, isLoading, exportRun, formatDuration } = useRuns();
 
     const filteredRuns = runs.filter((run) => {
         const matchesSearch =
             run.workflowName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            run.files.some((file) => file.filename?.toLowerCase().includes(searchQuery.toLowerCase()));
+            run.filename?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === "all" || run.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
-
-    const toggleRunExpansion = (runId: string) => {
-        const newExpanded = new Set(expandedRuns);
-        if (newExpanded.has(runId)) {
-            newExpanded.delete(runId);
-        } else {
-            newExpanded.add(runId);
-        }
-        setExpandedRuns(newExpanded);
-    };
 
     const getStatusIcon = (status: ExecutionStatus) => {
         switch (status) {
@@ -99,7 +84,7 @@ export default function RunsPage() {
     const totalRuns = runs.length;
     const completedRuns = runs.filter((r) => r.status === "completed").length;
     const failedRuns = runs.filter((r) => r.status === "failed").length;
-    const totalFilesProcessed = runs.reduce((sum, r) => sum + r.files.length, 0);
+    const totalFilesProcessed = runs.length; // Each run is now one file
 
     return (
         <div className="w-full px-4 py-8 space-y-8">
@@ -219,152 +204,77 @@ export default function RunsPage() {
                     ) : (
                         <div className="space-y-2">
                             {filteredRuns.map((run) => {
-                                const isExpanded = expandedRuns.has(run.id);
-                                const successfulFiles = run.files.filter((f) => f.status === "completed").length;
-                                const _failedFiles = run.files.filter((f) => f.status === "failed").length;
-
                                 return (
-                                    <Collapsible
-                                        key={run.id}
-                                        open={isExpanded}
-                                        onOpenChange={() => toggleRunExpansion(run.id)}
-                                    >
-                                        <Card className="border">
-                                            <CollapsibleTrigger asChild>
-                                                <CardContent className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="flex items-center gap-2">
-                                                                {isExpanded ? (
-                                                                    <ChevronDown className="h-4 w-4" />
-                                                                ) : (
-                                                                    <ChevronRight className="h-4 w-4" />
-                                                                )}
-                                                                {getStatusIcon(run.status)}
-                                                            </div>
+                                    <Card key={run.id} className="border">
+                                        <CardContent className="p-4">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex items-center gap-2">
+                                                        {getStatusIcon(run.status)}
+                                                    </div>
 
-                                                            <div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <h3 className="font-medium">{run.workflowName}</h3>
-                                                                    <Badge variant={getStatusColor(run.status)}>
-                                                                        {run.status}
-                                                                    </Badge>
-                                                                </div>
-                                                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                                                    <span className="flex items-center gap-1">
-                                                                        <Calendar className="h-3 w-3" />
-                                                                        {new Date(run.startedAt).toLocaleString()}
-                                                                    </span>
-                                                                    <span>{run.files.length} files</span>
-                                                                    <span>
-                                                                        {formatDuration(run.startedAt, run.completedAt)}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <h3 className="font-medium">{run.workflowName}</h3>
+                                                            <Badge variant={getStatusColor(run.status)}>
+                                                                {run.status}
+                                                            </Badge>
                                                         </div>
-
-                                                        <button
-                                                            type="button"
-                                                            className="flex items-center gap-2"
-                                                            onClick={(e) => e.stopPropagation()}
-                                                        >
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        className="h-8 w-8 p-0"
-                                                                    >
-                                                                        <MoreVertical className="h-4 w-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end">
-                                                                    <DropdownMenuItem
-                                                                        onClick={() =>
-                                                                            navigate({ to: `/executions/${run.id}` })
-                                                                        }
-                                                                    >
-                                                                        <Eye className="h-4 w-4 mr-2" />
-                                                                        View Details
-                                                                    </DropdownMenuItem>
-                                                                    {successfulFiles > 0 && (
-                                                                        <DropdownMenuItem
-                                                                            onClick={() => exportRun(run)}
-                                                                        >
-                                                                            <Download className="h-4 w-4 mr-2" />
-                                                                            Export Results
-                                                                        </DropdownMenuItem>
-                                                                    )}
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </button>
+                                                        <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                                            <span className="flex items-center gap-1">
+                                                                <Calendar className="h-3 w-3" />
+                                                                {new Date(run.startedAt).toLocaleString()}
+                                                            </span>
+                                                            <span className="flex items-center gap-1">
+                                                                <FileText className="h-3 w-3" />
+                                                                {run.filename}
+                                                            </span>
+                                                            <span>
+                                                                {formatDuration(run.startedAt, run.completedAt)}
+                                                            </span>
+                                                        </div>
+                                                        {run.errorMessage && (
+                                                            <div className="text-sm text-red-600 mt-1">
+                                                                Error: {run.errorMessage}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </CardContent>
-                                            </CollapsibleTrigger>
+                                                </div>
 
-                                            <CollapsibleContent>
-                                                <CardContent className="pt-0 px-4 pb-4">
-                                                    <div className="border-t pt-4">
-                                                        <h4 className="font-medium mb-3">Files ({run.files.length})</h4>
-                                                        <Table>
-                                                            <TableHeader>
-                                                                <TableRow>
-                                                                    <TableHead>Filename</TableHead>
-                                                                    <TableHead>Status</TableHead>
-                                                                    <TableHead>Result</TableHead>
-                                                                    <TableHead>Error</TableHead>
-                                                                </TableRow>
-                                                            </TableHeader>
-                                                            <TableBody>
-                                                                {run.files.map((file) => (
-                                                                    <TableRow key={file.id}>
-                                                                        <TableCell className="font-medium">
-                                                                            {file.filename}
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            <div className="flex items-center gap-2">
-                                                                                {getStatusIcon(file.status)}
-                                                                                <Badge
-                                                                                    variant={getStatusColor(
-                                                                                        file.status,
-                                                                                    )}
-                                                                                    className="text-xs"
-                                                                                >
-                                                                                    {file.status}
-                                                                                </Badge>
-                                                                            </div>
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            {file.extractionResult ? (
-                                                                                <span className="text-green-600 text-sm">
-                                                                                    ✓ Extracted
-                                                                                </span>
-                                                                            ) : (
-                                                                                <span className="text-muted-foreground text-sm">
-                                                                                    No result
-                                                                                </span>
-                                                                            )}
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            {file.errorMessage ? (
-                                                                                <span className="text-red-600 text-sm truncate max-w-48 block">
-                                                                                    {file.errorMessage}
-                                                                                </span>
-                                                                            ) : (
-                                                                                <span className="text-muted-foreground text-sm">
-                                                                                    -
-                                                                                </span>
-                                                                            )}
-                                                                        </TableCell>
-                                                                    </TableRow>
-                                                                ))}
-                                                            </TableBody>
-                                                        </Table>
-                                                    </div>
-                                                </CardContent>
-                                            </CollapsibleContent>
-                                        </Card>
-                                    </Collapsible>
+                                                <div className="flex items-center gap-2">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-8 w-8 p-0"
+                                                            >
+                                                                <MoreVertical className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem
+                                                                onClick={() =>
+                                                                    navigate({ to: `/executions/${run.id}` })
+                                                                }
+                                                            >
+                                                                <Eye className="h-4 w-4 mr-2" />
+                                                                View Details
+                                                            </DropdownMenuItem>
+                                                            {run.status === "completed" && run.extractionResult && (
+                                                                <DropdownMenuItem
+                                                                    onClick={() => exportRun(run)}
+                                                                >
+                                                                    <Download className="h-4 w-4 mr-2" />
+                                                                    Export Results
+                                                                </DropdownMenuItem>
+                                                            )}
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 );
                             })}
                         </div>

@@ -2,42 +2,32 @@ import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, Copy, Download, FileText, XCircle } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 import { DocumentPreview } from "@/components/document-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
-
-interface ExecutionFile {
-    id: string;
-    fileId: string;
-    extractionResult: string | null;
-    status: ExecutionStatus;
-    errorMessage: string | null;
-    createdAt: string;
-    filename: string;
-}
 
 interface ExecutionDetail {
     id: string;
     workflowId: string;
     workflowName: string;
+    fileId: string;
     status: ExecutionStatus;
+    extractionResult: string | null;
+    errorMessage: string | null;
     startedAt: string;
     completedAt: string | null;
     createdAt: string;
-    files: ExecutionFile[];
+    filename: string;
 }
 
 export default function ExecutionDetailPage() {
     const { executionId } = useParams({ from: "/_app/executions/$executionId" });
     const navigate = useNavigate();
-    const [selectedFileIndex, setSelectedFileIndex] = useState(0);
 
     const { data: execution, isLoading } = useQuery({
         queryKey: ["execution", executionId],
@@ -52,12 +42,10 @@ export default function ExecutionDetailPage() {
         },
     });
 
-    const selectedFile = execution?.files?.[selectedFileIndex];
-
     let extractionResult: ExtractionResult | null = null;
-    if (selectedFile?.extractionResult) {
+    if (execution?.extractionResult) {
         try {
-            extractionResult = JSON.parse(selectedFile.extractionResult);
+            extractionResult = JSON.parse(execution.extractionResult);
         } catch (e) {
             console.error("Failed to parse extraction result:", e);
         }
@@ -109,14 +97,10 @@ export default function ExecutionDetailPage() {
     };
 
     const exportResults = () => {
-        if (!execution) return;
-
-        const results = execution.files
-            .filter((f) => f.status === "completed" && f.extractionResult)
-            .map((f) => ({
-                filename: f.filename,
-                extractionResult: f.extractionResult ? JSON.parse(f.extractionResult) : null,
-            }));
+        if (!execution || execution.status !== "completed" || !execution.extractionResult) {
+            toast.error("No results to export");
+            return;
+        }
 
         const dataStr = JSON.stringify(
             {
@@ -124,7 +108,8 @@ export default function ExecutionDetailPage() {
                 workflowId: execution.workflowId,
                 workflowName: execution.workflowName,
                 executedAt: execution.startedAt,
-                results,
+                filename: execution.filename,
+                extractionResult: extractionResult,
             },
             null,
             2,
@@ -187,9 +172,6 @@ export default function ExecutionDetailPage() {
         );
     }
 
-    const successfulFiles = execution.files.filter((f) => f.status === "completed").length;
-    const failedFiles = execution.files.filter((f) => f.status === "failed").length;
-
     return (
         <div className="w-full px-4 py-8 space-y-8">
             {/* Header */}
@@ -209,7 +191,7 @@ export default function ExecutionDetailPage() {
                     </div>
                 </div>
 
-                {successfulFiles > 0 && (
+                {execution.status === "completed" && execution.extractionResult && (
                     <Button onClick={exportResults}>
                         <Download className="h-4 w-4 mr-2" />
                         Export Results
@@ -217,58 +199,37 @@ export default function ExecutionDetailPage() {
                 )}
             </div>
 
-            {/* Execution Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center">
-                            <div>
-                                <p className="text-2xl font-bold">{execution.files.length}</p>
-                                <p className="text-xs text-muted-foreground">Files Processed</p>
-                            </div>
-                            <FileText className="h-4 w-4 text-muted-foreground ml-auto" />
+            {/* File Information */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>File Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Filename</p>
+                            <p className="text-lg font-medium">{execution.filename}</p>
                         </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center">
-                            <div>
-                                <p className="text-2xl font-bold text-green-600">{successfulFiles}</p>
-                                <p className="text-xs text-muted-foreground">Successful</p>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Status</p>
+                            <div className="flex items-center gap-2">
+                                {getStatusIcon(execution.status)}
+                                <Badge variant={getStatusColor(execution.status)}>{execution.status}</Badge>
                             </div>
-                            <CheckCircle className="h-4 w-4 text-green-600 ml-auto" />
                         </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center">
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Duration</p>
+                            <p className="text-lg">{formatDuration(execution.startedAt, execution.completedAt)}</p>
+                        </div>
+                        {execution.errorMessage && (
                             <div>
-                                <p className="text-2xl font-bold text-red-600">{failedFiles}</p>
-                                <p className="text-xs text-muted-foreground">Failed</p>
+                                <p className="text-sm font-medium text-muted-foreground">Error Message</p>
+                                <p className="text-sm text-red-600">{execution.errorMessage}</p>
                             </div>
-                            <XCircle className="h-4 w-4 text-red-600 ml-auto" />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center">
-                            <div>
-                                <p className="text-2xl font-bold">
-                                    {formatDuration(execution.startedAt, execution.completedAt)}
-                                </p>
-                                <p className="text-xs text-muted-foreground">Duration</p>
-                            </div>
-                            <Clock className="h-4 w-4 text-muted-foreground ml-auto" />
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Execution Info */}
             <Card>
@@ -316,196 +277,170 @@ export default function ExecutionDetailPage() {
                 </CardContent>
             </Card>
 
-            {/* File Results */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Processing Results</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Tabs
-                        value={selectedFileIndex.toString()}
-                        onValueChange={(value) => setSelectedFileIndex(parseInt(value))}
-                    >
-                        <TabsList className="grid w-full grid-cols-auto">
-                            {execution.files.map((file, index) => (
-                                <TabsTrigger key={file.id} value={index.toString()} className="flex items-center gap-2">
-                                    {getStatusIcon(file.status)}
-                                    <span className="truncate max-w-32">{file.filename}</span>
-                                </TabsTrigger>
-                            ))}
-                        </TabsList>
+            {/* Processing Results */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Document Preview */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Document Preview</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {execution.status === "failed" ? (
+                            <div className="h-96 flex items-center justify-center">
+                                <div className="text-center">
+                                    <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
+                                    <h4 className="font-semibold mb-2">Processing Failed</h4>
+                                    <p className="text-sm text-muted-foreground max-w-sm">
+                                        {execution.errorMessage || "An error occurred while processing this file"}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <DocumentPreview fileId={execution.fileId} />
+                        )}
+                    </CardContent>
+                </Card>
 
-                        {execution.files.map((file, index) => (
-                            <TabsContent key={file.id} value={index.toString()} className="mt-6">
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {/* Document Preview */}
-                                    <div>
-                                        <h3 className="text-lg font-semibold mb-4">Document Preview</h3>
-                                        {file.status === "failed" ? (
-                                            <Card className="h-96 flex items-center justify-center">
-                                                <div className="text-center">
-                                                    <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
-                                                    <h4 className="font-semibold mb-2">Processing Failed</h4>
-                                                    <p className="text-sm text-muted-foreground max-w-sm">
-                                                        {file.errorMessage ||
-                                                            "An error occurred while processing this file"}
-                                                    </p>
-                                                </div>
-                                            </Card>
-                                        ) : (
-                                            <DocumentPreview fileId={file.fileId} />
-                                        )}
-                                    </div>
-
-                                    {/* Extraction Results */}
-                                    <div>
-                                        <h3 className="text-lg font-semibold mb-4">Extracted Data</h3>
-                                        {file.status === "completed" && extractionResult ? (
-                                            <div className="space-y-4">
-                                                {/* Fields */}
-                                                {extractionResult.fields.length > 0 && (
-                                                    <Card>
-                                                        <CardHeader>
-                                                            <CardTitle className="text-base">Fields</CardTitle>
-                                                        </CardHeader>
-                                                        <CardContent>
-                                                            <div className="space-y-3">
-                                                                {extractionResult.fields.map(
-                                                                    (field: ExtractedValue, fieldIndex: number) => (
-                                                                        <div
-                                                                            key={`field-${field.fieldName}-${fieldIndex}`}
-                                                                            className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
-                                                                        >
-                                                                            <div className="flex items-center gap-2 mb-1">
-                                                                                <span className="font-medium text-sm">
-                                                                                    {field.fieldName}
-                                                                                </span>
-                                                                            </div>
-                                                                            <div className="text-sm font-medium">
-                                                                                {formatValue(field.value, "text")}
-                                                                            </div>
-                                                                        </div>
-                                                                    ),
-                                                                )}
+                {/* Extraction Results */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Extracted Data</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {execution.status === "completed" && extractionResult ? (
+                            <div className="space-y-4">
+                                {/* Fields */}
+                                {extractionResult.fields.length > 0 && (
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="text-base">Fields</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="space-y-3">
+                                                {extractionResult.fields.map(
+                                                    (field: ExtractedValue, fieldIndex: number) => (
+                                                        <div
+                                                            key={`field-${field.fieldName}-${fieldIndex}`}
+                                                            className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
+                                                        >
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="font-medium text-sm">
+                                                                    {field.fieldName}
+                                                                </span>
                                                             </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                )}
-
-                                                {/* Tables */}
-                                                {extractionResult.tables.length > 0 && (
-                                                    <Card>
-                                                        <CardHeader>
-                                                            <CardTitle className="text-base">Tables</CardTitle>
-                                                        </CardHeader>
-                                                        <CardContent>
-                                                            {extractionResult.tables.map(
-                                                                (table: ExtractedTable, tableIndex: number) => (
-                                                                    <div
-                                                                        key={`table-${table.tableName}-${tableIndex}`}
-                                                                        className="space-y-2"
-                                                                    >
-                                                                        <h4 className="font-medium">
-                                                                            {table.tableName}
-                                                                        </h4>
-                                                                        {table.rows.length > 0 ? (
-                                                                            <div className="overflow-x-auto">
-                                                                                <Table>
-                                                                                    <TableHeader>
-                                                                                        <TableRow>
-                                                                                            {Object.keys(
-                                                                                                table.rows[0].values,
-                                                                                            ).map(
-                                                                                                (
-                                                                                                    columnName: string,
-                                                                                                    colIndex: number,
-                                                                                                ) => (
-                                                                                                    <TableHead
-                                                                                                        key={colIndex}
-                                                                                                    >
-                                                                                                        {columnName}
-                                                                                                    </TableHead>
-                                                                                                ),
-                                                                                            )}
-                                                                                        </TableRow>
-                                                                                    </TableHeader>
-                                                                                    <TableBody>
-                                                                                        {table.rows.map(
-                                                                                            (
-                                                                                                row: {
-                                                                                                    values: Record<
-                                                                                                        string,
-                                                                                                        | string
-                                                                                                        | number
-                                                                                                        | boolean
-                                                                                                        | Date
-                                                                                                        | null
-                                                                                                    >;
-                                                                                                },
-                                                                                                rowIndex: number,
-                                                                                            ) => (
-                                                                                                <TableRow
-                                                                                                    key={`row-${tableIndex}-${rowIndex}`}
-                                                                                                >
-                                                                                                    {Object.values(
-                                                                                                        row.values,
-                                                                                                    ).map(
-                                                                                                        (
-                                                                                                            value:
-                                                                                                                | string
-                                                                                                                | number
-                                                                                                                | boolean
-                                                                                                                | Date
-                                                                                                                | null,
-                                                                                                            colIndex: number,
-                                                                                                        ) => (
-                                                                                                            <TableCell
-                                                                                                                key={`col-${tableIndex}-${rowIndex}-${colIndex}`}
-                                                                                                            >
-                                                                                                                {formatValue(
-                                                                                                                    value,
-                                                                                                                    "text",
-                                                                                                                )}
-                                                                                                            </TableCell>
-                                                                                                        ),
-                                                                                                    )}
-                                                                                                </TableRow>
-                                                                                            ),
-                                                                                        )}
-                                                                                    </TableBody>
-                                                                                </Table>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <p className="text-sm text-muted-foreground">
-                                                                                No table data found
-                                                                            </p>
-                                                                        )}
-                                                                    </div>
-                                                                ),
-                                                            )}
-                                                        </CardContent>
-                                                    </Card>
+                                                            <div className="text-sm font-medium">
+                                                                {formatValue(field.value, "text")}
+                                                            </div>
+                                                        </div>
+                                                    ),
                                                 )}
                                             </div>
-                                        ) : (
-                                            <Card className="h-48 flex items-center justify-center">
-                                                <div className="text-center">
-                                                    <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {file.status === "failed"
-                                                            ? "No data extracted due to processing error"
-                                                            : "No extraction results available"}
-                                                    </p>
-                                                </div>
-                                            </Card>
-                                        )}
-                                    </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
+
+                                {/* Tables */}
+                                {extractionResult.tables.length > 0 && (
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="text-base">Tables</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {extractionResult.tables.map(
+                                                (table: ExtractedTable, tableIndex: number) => (
+                                                    <div
+                                                        key={`table-${table.tableName}-${tableIndex}`}
+                                                        className="space-y-2"
+                                                    >
+                                                        <h4 className="font-medium">{table.tableName}</h4>
+                                                        {table.rows.length > 0 ? (
+                                                            <div className="overflow-x-auto">
+                                                                <Table>
+                                                                    <TableHeader>
+                                                                        <TableRow>
+                                                                            {Object.keys(table.rows[0].values).map(
+                                                                                (
+                                                                                    columnName: string,
+                                                                                    colIndex: number,
+                                                                                ) => (
+                                                                                    <TableHead key={colIndex}>
+                                                                                        {columnName}
+                                                                                    </TableHead>
+                                                                                ),
+                                                                            )}
+                                                                        </TableRow>
+                                                                    </TableHeader>
+                                                                    <TableBody>
+                                                                        {table.rows.map(
+                                                                            (
+                                                                                row: {
+                                                                                    values: Record<
+                                                                                        string,
+                                                                                        | string
+                                                                                        | number
+                                                                                        | boolean
+                                                                                        | Date
+                                                                                        | null
+                                                                                    >;
+                                                                                },
+                                                                                rowIndex: number,
+                                                                            ) => (
+                                                                                <TableRow
+                                                                                    key={`row-${tableIndex}-${rowIndex}`}
+                                                                                >
+                                                                                    {Object.values(row.values).map(
+                                                                                        (
+                                                                                            value:
+                                                                                                | string
+                                                                                                | number
+                                                                                                | boolean
+                                                                                                | Date
+                                                                                                | null,
+                                                                                            colIndex: number,
+                                                                                        ) => (
+                                                                                            <TableCell
+                                                                                                key={`col-${tableIndex}-${rowIndex}-${colIndex}`}
+                                                                                            >
+                                                                                                {formatValue(
+                                                                                                    value,
+                                                                                                    "text",
+                                                                                                )}
+                                                                                            </TableCell>
+                                                                                        ),
+                                                                                    )}
+                                                                                </TableRow>
+                                                                            ),
+                                                                        )}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-sm text-muted-foreground">
+                                                                No table data found
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                ),
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="h-48 flex items-center justify-center">
+                                <div className="text-center">
+                                    <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                    <p className="text-sm text-muted-foreground">
+                                        {execution.status === "failed"
+                                            ? "No data extracted due to processing error"
+                                            : "No extraction results available"}
+                                    </p>
                                 </div>
-                            </TabsContent>
-                        ))}
-                    </Tabs>
-                </CardContent>
-            </Card>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }

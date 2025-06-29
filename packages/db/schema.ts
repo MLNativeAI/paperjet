@@ -86,25 +86,16 @@ export const workflowExecution = pgTable("workflow_execution", {
     workflowId: text("workflow_id")
         .notNull()
         .references(() => workflow.id, { onDelete: "cascade" }),
+    fileId: text("file_id")
+        .notNull()
+        .references(() => file.id, { onDelete: "cascade" }),
     status: text("status").notNull(), // 'pending', 'processing', 'completed', 'failed'
+    extractionResult: text("extraction_result"), // JSON result for the file
+    errorMessage: text("error_message"),
     startedAt: timestamp("started_at").notNull(),
     completedAt: timestamp("completed_at"),
     createdAt: timestamp("created_at").notNull(),
     ownerId: text("owner_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-});
-
-export const executionFile = pgTable("execution_file", {
-    id: text("id").primaryKey(),
-    executionId: text("execution_id")
-        .notNull()
-        .references(() => workflowExecution.id, { onDelete: "cascade" }),
-    fileId: text("file_id")
-        .notNull()
-        .references(() => file.id, { onDelete: "cascade" }),
-    extractionResult: text("extraction_result"), // JSON result per file
-    status: text("status").notNull(), // 'pending', 'processing', 'completed', 'failed'
-    errorMessage: text("error_message"),
-    createdAt: timestamp("created_at").notNull(),
 });

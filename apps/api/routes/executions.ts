@@ -38,21 +38,51 @@ const router = app
             const user = await getUser(c);
             const body = await c.req.formData();
             const workflowId = body.get("workflowId") as string;
-            const uploadedFiles = body.getAll("files") as File[];
+            const uploadedFile = body.get("file") as File;
 
             if (!workflowId) {
                 return c.json({ error: "Workflow ID is required" }, 400);
             }
 
-            const result = await workflowService.executeWorkflow(workflowId, user.id, uploadedFiles);
+            if (!uploadedFile) {
+                return c.json({ error: "File is required" }, 400);
+            }
+
+            const result = await workflowService.executeWorkflow(workflowId, user.id, uploadedFile);
             return c.json(result);
         } catch (error) {
             console.error("Execution error:", error);
             if (error instanceof Error && error.message === "Workflow not found") {
                 return c.json({ error: "Workflow not found" }, 404);
             }
-            if (error instanceof Error && error.message === "No files provided") {
-                return c.json({ error: "No files provided" }, 400);
+            return c.json({ error: "Failed to execute workflow" }, 500);
+        }
+    })
+    .post("/bulk", async (c) => {
+        try {
+            const user = await getUser(c);
+            const body = await c.req.formData();
+            const workflowId = body.get("workflowId") as string;
+            const uploadedFiles = body.getAll("files") as File[];
+
+            if (!workflowId) {
+                return c.json({ error: "Workflow ID is required" }, 400);
+            }
+
+            if (!uploadedFiles || uploadedFiles.length === 0) {
+                return c.json({ error: "At least one file is required" }, 400);
+            }
+
+            // Create individual executions for each file
+            const results = await Promise.all(
+                uploadedFiles.map((file) => workflowService.executeWorkflow(workflowId, user.id, file)),
+            );
+
+            return c.json({ executions: results });
+        } catch (error) {
+            console.error("Bulk execution error:", error);
+            if (error instanceof Error && error.message === "Workflow not found") {
+                return c.json({ error: "Workflow not found" }, 404);
             }
             return c.json({ error: "Failed to execute workflow" }, 500);
         }

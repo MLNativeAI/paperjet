@@ -42,9 +42,7 @@ export default function WorkflowHistoryPage() {
     const { executions, isLoading: executionsLoading, exportExecution, formatDuration } = useExecutions(workflowId);
 
     const filteredExecutions = executions.filter((execution) => {
-        const matchesSearch = execution.files.some((file) =>
-            file.filename?.toLowerCase().includes(searchQuery.toLowerCase()),
-        );
+        const matchesSearch = execution.filename?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === "all" || execution.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
@@ -105,7 +103,7 @@ export default function WorkflowHistoryPage() {
     const totalExecutions = executions.length;
     const completedExecutions = executions.filter((e) => e.status === "completed").length;
     const failedExecutions = executions.filter((e) => e.status === "failed").length;
-    const totalFilesProcessed = executions.reduce((sum, e) => sum + e.files.length, 0);
+    const totalFilesProcessed = executions.length; // Each execution is now one file
 
     return (
         <div className="w-full px-4 py-8 space-y-8">
@@ -238,20 +236,14 @@ export default function WorkflowHistoryPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Files</TableHead>
+                                    <TableHead>File</TableHead>
                                     <TableHead>Started</TableHead>
                                     <TableHead>Duration</TableHead>
-                                    <TableHead>Results</TableHead>
                                     <TableHead className="w-12"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredExecutions.map((execution) => {
-                                    const successfulFiles = execution.files.filter(
-                                        (f) => f.status === "completed",
-                                    ).length;
-                                    const failedFiles = execution.files.filter((f) => f.status === "failed").length;
-
                                     return (
                                         <TableRow key={execution.id}>
                                             <TableCell>
@@ -265,12 +257,14 @@ export default function WorkflowHistoryPage() {
 
                                             <TableCell>
                                                 <div className="text-sm">
-                                                    <p className="font-medium">{execution.files.length} files</p>
-                                                    {successfulFiles > 0 && (
-                                                        <p className="text-green-600">{successfulFiles} successful</p>
+                                                    <p className="font-medium">{execution.filename}</p>
+                                                    {execution.status === "completed" && execution.extractionResult && (
+                                                        <p className="text-green-600">Extracted</p>
                                                     )}
-                                                    {failedFiles > 0 && (
-                                                        <p className="text-red-600">{failedFiles} failed</p>
+                                                    {execution.status === "failed" && execution.errorMessage && (
+                                                        <p className="text-red-600 truncate max-w-xs">
+                                                            {execution.errorMessage}
+                                                        </p>
                                                     )}
                                                 </div>
                                             </TableCell>
@@ -284,18 +278,6 @@ export default function WorkflowHistoryPage() {
 
                                             <TableCell className="text-sm">
                                                 {formatDuration(execution.startedAt, execution.completedAt)}
-                                            </TableCell>
-
-                                            <TableCell>
-                                                <div className="text-sm">
-                                                    {successfulFiles > 0 ? (
-                                                        <span className="text-green-600">
-                                                            {successfulFiles} extracted
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-muted-foreground">No results</span>
-                                                    )}
-                                                </div>
                                             </TableCell>
 
                                             <TableCell>
@@ -314,7 +296,7 @@ export default function WorkflowHistoryPage() {
                                                             <Eye className="h-4 w-4 mr-2" />
                                                             View Details
                                                         </DropdownMenuItem>
-                                                        {successfulFiles > 0 && (
+                                                        {execution.status === "completed" && execution.extractionResult && (
                                                             <DropdownMenuItem
                                                                 onClick={() => exportExecution(execution)}
                                                             >

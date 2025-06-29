@@ -19,7 +19,7 @@ export function useWorkflowExecution(workflowId: string) {
             formData.append("workflowId", workflowId);
             files.forEach((file) => formData.append("files", file));
 
-            const response = await fetch("/api/executions", {
+            const response = await fetch("/api/executions/bulk", {
                 method: "POST",
                 body: formData,
                 credentials: "include",

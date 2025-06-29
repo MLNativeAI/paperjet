@@ -1,6 +1,6 @@
 import { google } from "@ai-sdk/google";
 import { db } from "@paperjet/db";
-import { executionFile, file, workflow, workflowExecution, workflowFile } from "@paperjet/db/schema";
+import { file, workflow, workflowExecution, workflowFile } from "@paperjet/db/schema";
 import {
     type DocumentAnalysis,
     documentAnalysisSchema,
@@ -521,7 +521,7 @@ Instructions:
         };
     }
 
-    async executeWorkflow(workflowId: string, userId: string, uploadedFiles: File[]) {
+    async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
         // Get workflow and verify ownership
         const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
@@ -532,109 +532,75 @@ Instructions:
         // Parse workflow configuration
         const config = JSON.parse(workflowData.configuration) as WorkflowConfiguration;
 
-        if (uploadedFiles.length === 0) {
-            throw new Error("No files provided");
-        }
-
-        // Create execution record
+        // Create execution record for single file
         const executionId = crypto.randomUUID();
-        await db.insert(workflowExecution).values({
-            id: executionId,
-            workflowId,
-            status: "processing",
-            startedAt: new Date(),
-            createdAt: new Date(),
-            ownerId: userId,
-        });
+        const fileId = crypto.randomUUID();
+        const filename = `executions/${executionId}/${uploadedFile.name}`;
 
-        // Process each file
-        const executionFiles = [];
-        for (const uploadedFile of uploadedFiles) {
-            try {
-                // Save file to storage
-                const fileId = crypto.randomUUID();
-                const filename = `executions/${executionId}/${fileId}-${uploadedFile.name}`;
+        try {
+            // Save file to storage
+            await db.insert(file).values({
+                id: fileId,
+                filename,
+                createdAt: new Date(),
+                ownerId: userId,
+            });
 
-                await db.insert(file).values({
-                    id: fileId,
-                    filename,
-                    createdAt: new Date(),
-                    ownerId: userId,
-                });
+            const fileBuffer = await uploadedFile.arrayBuffer();
+            await this.deps.s3.file(filename).write(fileBuffer);
 
-                const fileBuffer = await uploadedFile.arrayBuffer();
-                await this.deps.s3.file(filename).write(fileBuffer);
+            // Create execution record with file reference
+            await db.insert(workflowExecution).values({
+                id: executionId,
+                workflowId,
+                fileId,
+                status: "processing",
+                startedAt: new Date(),
+                createdAt: new Date(),
+                ownerId: userId,
+            });
 
-                // Create execution file record
-                const executionFileId = crypto.randomUUID();
-                await db.insert(executionFile).values({
-                    id: executionFileId,
-                    executionId,
-                    fileId,
-                    status: "processing",
-                    createdAt: new Date(),
-                });
+            // Extract data using existing extraction logic
+            const extractionResult = await this.processExecutionFile(filename, config);
 
-                // Extract data using existing extraction logic
-                const extractionResult = await this.processExecutionFile(filename, config);
-
-                // Update execution file with results
-                await db
-                    .update(executionFile)
-                    .set({
-                        extractionResult: JSON.stringify(extractionResult),
-                        status: "completed",
-                    })
-                    .where(eq(executionFile.id, executionFileId));
-
-                executionFiles.push({
-                    executionFileId,
-                    fileId,
-                    filename: uploadedFile.name,
+            // Update execution with results
+            await db
+                .update(workflowExecution)
+                .set({
+                    extractionResult: JSON.stringify(extractionResult),
                     status: "completed",
-                    extractionResult,
-                });
-            } catch (error) {
-                console.error("File processing error:", error);
+                    completedAt: new Date(),
+                })
+                .where(eq(workflowExecution.id, executionId));
 
-                // Update execution file with error
-                const executionFileId = crypto.randomUUID();
-                await db.insert(executionFile).values({
-                    id: executionFileId,
-                    executionId,
-                    fileId: "error", // Placeholder for failed upload
+            return {
+                executionId,
+                status: "completed",
+                fileId,
+                filename: uploadedFile.name,
+                extractionResult,
+            };
+        } catch (error) {
+            console.error("File processing error:", error);
+
+            // Update execution with error
+            await db
+                .update(workflowExecution)
+                .set({
                     status: "failed",
                     errorMessage: error instanceof Error ? error.message : "Unknown error",
-                    createdAt: new Date(),
-                });
+                    completedAt: new Date(),
+                })
+                .where(eq(workflowExecution.id, executionId));
 
-                executionFiles.push({
-                    executionFileId,
-                    fileId: "error",
-                    filename: uploadedFile.name,
-                    status: "failed",
-                    error: error instanceof Error ? error.message : "Unknown error",
-                });
-            }
+            return {
+                executionId,
+                status: "failed",
+                fileId,
+                filename: uploadedFile.name,
+                error: error instanceof Error ? error.message : "Unknown error",
+            };
         }
-
-        // Update execution status
-        const hasFailures = executionFiles.some((f) => f.status === "failed");
-        const finalStatus = hasFailures ? "completed" : "completed"; // Even with some failures, mark as completed
-
-        await db
-            .update(workflowExecution)
-            .set({
-                status: finalStatus,
-                completedAt: new Date(),
-            })
-            .where(eq(workflowExecution.id, executionId));
-
-        return {
-            executionId,
-            status: finalStatus,
-            files: executionFiles,
-        };
     }
 
     async getWorkflowExecutions(workflowId: string, userId: string) {
@@ -650,104 +616,74 @@ Instructions:
             .select({
                 id: workflowExecution.id,
                 workflowId: workflowExecution.workflowId,
+                fileId: workflowExecution.fileId,
                 status: workflowExecution.status,
+                extractionResult: workflowExecution.extractionResult,
+                errorMessage: workflowExecution.errorMessage,
                 startedAt: workflowExecution.startedAt,
                 completedAt: workflowExecution.completedAt,
                 createdAt: workflowExecution.createdAt,
+                filename: file.filename,
             })
             .from(workflowExecution)
+            .leftJoin(file, eq(workflowExecution.fileId, file.id))
             .where(eq(workflowExecution.workflowId, workflowId))
             .orderBy(desc(workflowExecution.createdAt));
 
-        // Get file details for each execution
-        const executionsWithFiles = await Promise.all(
-            executions.map(async (execution) => {
-                const files = await db
-                    .select({
-                        id: executionFile.id,
-                        fileId: executionFile.fileId,
-                        extractionResult: executionFile.extractionResult,
-                        status: executionFile.status,
-                        errorMessage: executionFile.errorMessage,
-                        createdAt: executionFile.createdAt,
-                        filename: file.filename,
-                    })
-                    .from(executionFile)
-                    .leftJoin(file, eq(executionFile.fileId, file.id))
-                    .where(eq(executionFile.executionId, execution.id));
-
-                return {
-                    ...execution,
-                    files,
-                };
-            }),
-        );
-
-        return executionsWithFiles;
+        return executions.map((execution) => ({
+            ...execution,
+            filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
+        }));
     }
 
     async getAllExecutions(userId: string) {
-        // Get all executions for user with workflow names
+        // Get all executions for user with workflow names and file details
         const executions = await db
             .select({
                 id: workflowExecution.id,
                 workflowId: workflowExecution.workflowId,
                 workflowName: workflow.name,
+                fileId: workflowExecution.fileId,
                 status: workflowExecution.status,
+                extractionResult: workflowExecution.extractionResult,
+                errorMessage: workflowExecution.errorMessage,
                 startedAt: workflowExecution.startedAt,
                 completedAt: workflowExecution.completedAt,
                 createdAt: workflowExecution.createdAt,
+                filename: file.filename,
             })
             .from(workflowExecution)
             .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
+            .leftJoin(file, eq(workflowExecution.fileId, file.id))
             .where(eq(workflow.ownerId, userId))
             .orderBy(desc(workflowExecution.createdAt));
 
-        // Get file details for each execution
-        const executionsWithFiles = await Promise.all(
-            executions.map(async (execution) => {
-                const files = await db
-                    .select({
-                        id: executionFile.id,
-                        fileId: executionFile.fileId,
-                        extractionResult: executionFile.extractionResult,
-                        status: executionFile.status,
-                        errorMessage: executionFile.errorMessage,
-                        createdAt: executionFile.createdAt,
-                        filename: file.filename,
-                    })
-                    .from(executionFile)
-                    .leftJoin(file, eq(executionFile.fileId, file.id))
-                    .where(eq(executionFile.executionId, execution.id));
-
-                return {
-                    ...execution,
-                    files: files.map((f) => ({
-                        ...f,
-                        // Extract just the filename without the path
-                        filename: f.filename ? f.filename.split("/").pop() || f.filename : "Unknown",
-                    })),
-                };
-            }),
-        );
-
-        return executionsWithFiles;
+        return executions.map((execution) => ({
+            ...execution,
+            // Extract just the filename without the path
+            filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
+        }));
     }
 
     async getExecutionDetails(executionId: string, userId: string) {
-        // Get the execution with workflow details
+        // Get the execution with workflow and file details
         const [executionData] = await db
             .select({
                 id: workflowExecution.id,
                 workflowId: workflowExecution.workflowId,
                 workflowName: workflow.name,
+                fileId: workflowExecution.fileId,
                 status: workflowExecution.status,
+                extractionResult: workflowExecution.extractionResult,
+                errorMessage: workflowExecution.errorMessage,
                 startedAt: workflowExecution.startedAt,
                 completedAt: workflowExecution.completedAt,
                 createdAt: workflowExecution.createdAt,
+                filename: file.filename,
             })
             .from(workflowExecution)
             .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
+            .leftJoin(file, eq(workflowExecution.fileId, file.id))
             .where(eq(workflowExecution.id, executionId));
 
         if (!executionData || executionData.workflowId === null) {
@@ -764,28 +700,10 @@ Instructions:
             throw new Error("Execution not found");
         }
 
-        // Get file details for the execution
-        const files = await db
-            .select({
-                id: executionFile.id,
-                fileId: executionFile.fileId,
-                extractionResult: executionFile.extractionResult,
-                status: executionFile.status,
-                errorMessage: executionFile.errorMessage,
-                createdAt: executionFile.createdAt,
-                filename: file.filename,
-            })
-            .from(executionFile)
-            .leftJoin(file, eq(executionFile.fileId, file.id))
-            .where(eq(executionFile.executionId, executionId));
-
         return {
             ...executionData,
-            files: files.map((f) => ({
-                ...f,
-                // Extract just the filename without the path
-                filename: f.filename ? f.filename.split("/").pop() || f.filename : "Unknown",
-            })),
+            // Extract just the filename without the path
+            filename: executionData.filename ? executionData.filename.split("/").pop() || "Unknown" : "Unknown",
         };
     }
 
@@ -797,18 +715,7 @@ Instructions:
             throw new Error("Workflow not found");
         }
 
-        // Get all executions for this workflow to cascade delete
-        const executions = await db
-            .select({ id: workflowExecution.id })
-            .from(workflowExecution)
-            .where(eq(workflowExecution.workflowId, workflowId));
-
-        // Delete execution files for each execution
-        for (const execution of executions) {
-            await db.delete(executionFile).where(eq(executionFile.executionId, execution.id));
-        }
-
-        // Delete workflow executions
+        // Delete workflow executions (cascade will handle file references)
         await db.delete(workflowExecution).where(eq(workflowExecution.workflowId, workflowId));
 
         // Delete workflow files

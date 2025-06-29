@@ -16,11 +16,14 @@ interface ExecutionFile {
 interface WorkflowExecution {
     id: string;
     workflowId: string;
+    fileId: string;
     status: ExecutionStatus;
+    extractionResult: string | null;
+    errorMessage: string | null;
     startedAt: string;
     completedAt: string | null;
     createdAt: string;
-    files: ExecutionFile[];
+    filename: string;
 }
 
 export function useExecutions(workflowId: string) {
@@ -42,19 +45,18 @@ export function useExecutions(workflowId: string) {
     });
 
     const exportExecution = (execution: WorkflowExecution) => {
-        const results = execution.files
-            .filter((f) => f.status === "completed" && f.extractionResult)
-            .map((f) => ({
-                filename: f.filename,
-                extractionResult: JSON.parse(f.extractionResult ?? "{}"),
-            }));
+        if (execution.status !== "completed" || !execution.extractionResult) {
+            toast.error("No results to export");
+            return;
+        }
 
         const dataStr = JSON.stringify(
             {
                 executionId: execution.id,
                 workflowId: execution.workflowId,
                 executedAt: execution.startedAt,
-                results,
+                filename: execution.filename,
+                extractionResult: JSON.parse(execution.extractionResult),
             },
             null,
             2,
