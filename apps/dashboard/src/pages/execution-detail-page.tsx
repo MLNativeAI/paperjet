@@ -1,3 +1,4 @@
+import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, Copy, Download, FileText, XCircle } from "lucide-react";
@@ -53,7 +54,7 @@ export default function ExecutionDetailPage() {
 
     const selectedFile = execution?.files?.[selectedFileIndex];
 
-    let extractionResult: any = null;
+    let extractionResult: ExtractionResult | null = null;
     if (selectedFile?.extractionResult) {
         try {
             extractionResult = JSON.parse(selectedFile.extractionResult);
@@ -90,7 +91,7 @@ export default function ExecutionDetailPage() {
         }
     };
 
-    const formatValue = (value: any, type: string) => {
+    const formatValue = (value: string | number | boolean | Date | null, type: string) => {
         if (value === null || value === undefined) {
             return <span className="text-muted-foreground italic">No data found</span>;
         }
@@ -114,7 +115,7 @@ export default function ExecutionDetailPage() {
             .filter((f) => f.status === "completed" && f.extractionResult)
             .map((f) => ({
                 filename: f.filename,
-                extractionResult: JSON.parse(f.extractionResult!),
+                extractionResult: f.extractionResult ? JSON.parse(f.extractionResult) : null,
             }));
 
         const dataStr = JSON.stringify(
@@ -370,9 +371,9 @@ export default function ExecutionDetailPage() {
                                                         <CardContent>
                                                             <div className="space-y-3">
                                                                 {extractionResult.fields.map(
-                                                                    (field: any, fieldIndex: number) => (
+                                                                    (field: ExtractedValue, fieldIndex: number) => (
                                                                         <div
-                                                                            key={fieldIndex}
+                                                                            key={`field-${field.fieldName}-${fieldIndex}`}
                                                                             className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
                                                                         >
                                                                             <div className="flex items-center gap-2 mb-1">
@@ -399,8 +400,11 @@ export default function ExecutionDetailPage() {
                                                         </CardHeader>
                                                         <CardContent>
                                                             {extractionResult.tables.map(
-                                                                (table: any, tableIndex: number) => (
-                                                                    <div key={tableIndex} className="space-y-2">
+                                                                (table: ExtractedTable, tableIndex: number) => (
+                                                                    <div
+                                                                        key={`table-${table.tableName}-${tableIndex}`}
+                                                                        className="space-y-2"
+                                                                    >
                                                                         <h4 className="font-medium">
                                                                             {table.tableName}
                                                                         </h4>
@@ -428,23 +432,35 @@ export default function ExecutionDetailPage() {
                                                                                     <TableBody>
                                                                                         {table.rows.map(
                                                                                             (
-                                                                                                row: any,
+                                                                                                row: {
+                                                                                                    values: Record<
+                                                                                                        string,
+                                                                                                        | string
+                                                                                                        | number
+                                                                                                        | boolean
+                                                                                                        | Date
+                                                                                                        | null
+                                                                                                    >;
+                                                                                                },
                                                                                                 rowIndex: number,
                                                                                             ) => (
                                                                                                 <TableRow
-                                                                                                    key={rowIndex}
+                                                                                                    key={`row-${tableIndex}-${rowIndex}`}
                                                                                                 >
                                                                                                     {Object.values(
                                                                                                         row.values,
                                                                                                     ).map(
                                                                                                         (
-                                                                                                            value: any,
+                                                                                                            value:
+                                                                                                                | string
+                                                                                                                | number
+                                                                                                                | boolean
+                                                                                                                | Date
+                                                                                                                | null,
                                                                                                             colIndex: number,
                                                                                                         ) => (
                                                                                                             <TableCell
-                                                                                                                key={
-                                                                                                                    colIndex
-                                                                                                                }
+                                                                                                                key={`col-${tableIndex}-${rowIndex}-${colIndex}`}
                                                                                                             >
                                                                                                                 {formatValue(
                                                                                                                     value,

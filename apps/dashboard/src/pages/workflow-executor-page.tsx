@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: Too lazy */
+import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
     ArrowLeft,
@@ -26,7 +28,7 @@ interface UploadedFile {
     file: File;
     id: string;
     status: "pending" | "processing" | "completed" | "failed";
-    result?: any;
+    result?: ExtractionResult;
     error?: string;
 }
 
@@ -103,7 +105,9 @@ export default function WorkflowExecutorPage() {
                     // Update uploaded files with results
                     setUploadedFiles((prev) =>
                         prev.map((f) => {
-                            const result = data.files.find((df: any) => df.filename === f.file.name);
+                            const result = data.files.find(
+                                (df: { filename: string; extractionResult?: string }) => df.filename === f.file.name,
+                            );
                             return {
                                 ...f,
                                 status: result?.status || "failed",
@@ -157,7 +161,7 @@ export default function WorkflowExecutorPage() {
         });
     }, []);
 
-    const renderExtractionResults = useCallback((result: any, _fileId: string) => {
+    const renderExtractionResults = useCallback((result: ExtractionResult, _fileId: string) => {
         if (!result) return null;
 
         try {
@@ -171,11 +175,11 @@ export default function WorkflowExecutorPage() {
                         <div>
                             <h4 className="font-medium mb-2">Extracted Fields</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {fields.map((field: any, index: number) => (
-                                    <div key={index} className="p-3 border rounded-lg">
+                                {fields.map((field: ExtractedValue, index: number) => (
+                                    <div key={`field-${field.fieldName}-${index}`} className="p-3 border rounded-lg">
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-sm font-medium text-muted-foreground">
-                                                {field.name || field.fieldName}
+                                                {field.fieldName}
                                             </span>
                                         </div>
                                         <div className="text-sm">
@@ -196,10 +200,13 @@ export default function WorkflowExecutorPage() {
                         <div>
                             <h4 className="font-medium mb-2">Extracted Tables</h4>
                             <div className="space-y-4">
-                                {tables.map((table: any, tableIndex: number) => (
-                                    <div key={tableIndex} className="border rounded-lg">
+                                {tables.map((table: ExtractedTable, tableIndex: number) => (
+                                    <div
+                                        key={`table-${table.tableName || `table-${tableIndex}`}`}
+                                        className="border rounded-lg"
+                                    >
                                         <div className="p-3 border-b bg-muted/50">
-                                            <h5 className="font-medium">{table.name || table.tableName}</h5>
+                                            <h5 className="font-medium">{table.tableName}</h5>
                                             <p className="text-sm text-muted-foreground">
                                                 {table.rows?.length || 0} rows
                                             </p>
@@ -221,19 +228,32 @@ export default function WorkflowExecutorPage() {
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {table.rows.map((row: any, rowIndex: number) => (
-                                                            <TableRow key={rowIndex}>
-                                                                {Object.entries(row.values || row).map(
-                                                                    ([key, value]: [string, any]) => (
-                                                                        <TableCell key={key} className="text-xs">
-                                                                            {value !== null && value !== undefined
-                                                                                ? String(value)
-                                                                                : "-"}
-                                                                        </TableCell>
-                                                                    ),
-                                                                )}
-                                                            </TableRow>
-                                                        ))}
+                                                        {table.rows.map(
+                                                            (
+                                                                row: {
+                                                                    values?: Record<
+                                                                        string,
+                                                                        string | number | boolean | Date | null
+                                                                    >;
+                                                                },
+                                                                rowIndex: number,
+                                                            ) => (
+                                                                <TableRow key={`row-${tableIndex}-${rowIndex}`}>
+                                                                    {Object.entries(row.values || row).map(
+                                                                        ([key, value]: [
+                                                                            string,
+                                                                            string | number | boolean | Date | null,
+                                                                        ]) => (
+                                                                            <TableCell key={key} className="text-xs">
+                                                                                {value !== null && value !== undefined
+                                                                                    ? String(value)
+                                                                                    : "-"}
+                                                                            </TableCell>
+                                                                        ),
+                                                                    )}
+                                                                </TableRow>
+                                                            ),
+                                                        )}
                                                     </TableBody>
                                                 </Table>
                                             </div>
@@ -341,19 +361,27 @@ export default function WorkflowExecutorPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Upload Documents</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Upload documents to process with this workflow. Supports PDF and image files.
+                    </p>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
+                    {/** biome-ignore lint/a11y/noStaticElementInteractions: drag and drop functionality requires these interactions */}
                     <div
-                        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                            isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25"
+                        className={`rounded-lg py-12 text-center transition-colors ${
+                            isDragging ? "border-primary bg-primary/5" : "border-gray-300"
                         }`}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                     >
                         <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-lg font-semibold mb-2">Drop files here or click to browse</h3>
-                        <p className="text-sm text-muted-foreground mb-4">Supports PDF and image files</p>
+                        <h3 className="text-lg font-semibold mb-2">
+                            Drop your documents here or click to browse
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Supports PDF and image files (PNG, JPG, etc.)
+                        </p>
                         <input
                             type="file"
                             accept=".pdf,image/*"

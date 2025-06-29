@@ -30,26 +30,6 @@ import { useWorkflow } from "@/hooks/useWorkflow";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
-interface ExecutionFile {
-    id: string;
-    fileId: string;
-    extractionResult: string | null;
-    status: ExecutionStatus;
-    errorMessage: string | null;
-    createdAt: string;
-    filename: string;
-}
-
-interface WorkflowExecution {
-    id: string;
-    workflowId: string;
-    status: ExecutionStatus;
-    startedAt: string;
-    completedAt: string | null;
-    createdAt: string;
-    files: ExecutionFile[];
-}
-
 export default function WorkflowHistoryPage() {
     const { workflowId } = useParams({
         from: "/_app/workflows/$workflowId/history",

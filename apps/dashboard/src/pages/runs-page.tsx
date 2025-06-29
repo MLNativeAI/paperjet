@@ -263,7 +263,8 @@ export default function RunsPage() {
                                                             </div>
                                                         </div>
 
-                                                        <div
+                                                        <button
+                                                            type="button"
                                                             className="flex items-center gap-2"
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
@@ -296,7 +297,7 @@ export default function RunsPage() {
                                                                     )}
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
-                                                        </div>
+                                                        </button>
                                                     </div>
                                                 </CardContent>
                                             </CollapsibleTrigger>
