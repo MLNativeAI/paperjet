@@ -31,7 +31,6 @@ export function ExtractedValues({
     onFieldUpdate,
     onFieldAdd,
     onFieldRemove,
-    _onTableUpdate,
     onExtractData,
 }: ExtractedValuesProps) {
     const [expandedFields, setExpandedFields] = useState<Set<number>>(new Set());
@@ -42,6 +41,7 @@ export function ExtractedValues({
         name: "",
         description: "",
         type: "text",
+        required: false,
     });
 
     const toggleFieldExpansion = (fieldIndex: number) => {
@@ -410,6 +410,7 @@ export function ExtractedValues({
                                                             name: "",
                                                             description: "",
                                                             type: "text",
+                                                            required: false,
                                                         });
                                                     }}
                                                     className="h-6 w-6 p-0"
@@ -483,6 +484,7 @@ export function ExtractedValues({
                                                                 name: "",
                                                                 description: "",
                                                                 type: "text",
+                                                                required: false,
                                                             });
                                                             setIsAddingField(false);
                                                             // Trigger re-extraction after field addition
@@ -505,6 +507,7 @@ export function ExtractedValues({
                                                             name: "",
                                                             description: "",
                                                             type: "text",
+                                                            required: false,
                                                         });
                                                     }}
                                                 >

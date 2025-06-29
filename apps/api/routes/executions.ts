@@ -1,5 +1,7 @@
+import { zValidator } from "@hono/zod-validator";
 import { WorkflowService } from "@paperjet/engine";
 import { Hono } from "hono";
+import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { s3 } from "@/lib/s3";
 
@@ -7,6 +9,15 @@ const app = new Hono();
 
 // Initialize workflow service with dependencies
 const workflowService = new WorkflowService({ s3 });
+
+// Validation schemas
+const executionIdParamSchema = z.object({
+    executionId: z.string().uuid(),
+});
+
+const workflowIdParamSchema = z.object({
+    workflowId: z.string().uuid(),
+});
 
 const router = app
     .get("/", async (c) => {
@@ -19,10 +30,10 @@ const router = app
             return c.json({ error: "Failed to get executions" }, 500);
         }
     })
-    .get("/:executionId", async (c) => {
+    .get("/:executionId", zValidator("param", executionIdParamSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const executionId = c.req.param("executionId");
+            const { executionId } = c.req.valid("param");
             const execution = await workflowService.getExecutionDetails(executionId, user.id);
             return c.json(execution);
         } catch (error) {
@@ -87,10 +98,10 @@ const router = app
             return c.json({ error: "Failed to execute workflow" }, 500);
         }
     })
-    .get("/workflow/:workflowId", async (c) => {
+    .get("/workflow/:workflowId", zValidator("param", workflowIdParamSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const workflowId = c.req.param("workflowId");
+            const { workflowId } = c.req.valid("param");
             const executions = await workflowService.getWorkflowExecutions(workflowId, user.id);
             return c.json(executions);
         } catch (error) {

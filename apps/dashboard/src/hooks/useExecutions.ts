@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { getWorkflowExecutions } from "@/lib/api";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
@@ -33,15 +34,7 @@ export function useExecutions(workflowId: string) {
         refetch,
     } = useQuery({
         queryKey: ["executions", workflowId],
-        queryFn: async () => {
-            const response = await fetch(`/api/executions/workflow/${workflowId}`, {
-                credentials: "include",
-            });
-            if (!response.ok) {
-                throw new Error("Failed to fetch executions");
-            }
-            return response.json() as WorkflowExecution[];
-        },
+        queryFn: () => getWorkflowExecutions(workflowId),
     });
 
     const exportExecution = (execution: WorkflowExecution) => {

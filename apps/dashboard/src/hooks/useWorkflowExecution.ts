@@ -1,6 +1,7 @@
 import type { ExtractionResult } from "@paperjet/db/types";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { executeWorkflowBulk } from "@/lib/api";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
@@ -14,23 +15,7 @@ interface UploadedFile {
 
 export function useWorkflowExecution(workflowId: string) {
     const executeWorkflow = useMutation({
-        mutationFn: async (files: File[]) => {
-            const formData = new FormData();
-            formData.append("workflowId", workflowId);
-            files.forEach((file) => formData.append("files", file));
-
-            const response = await fetch("/api/executions/bulk", {
-                method: "POST",
-                body: formData,
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to execute workflow");
-            }
-
-            return response.json();
-        },
+        mutationFn: (files: File[]) => executeWorkflowBulk(workflowId, files),
         onSuccess: () => {
             toast.success("Workflow execution completed!");
         },

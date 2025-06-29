@@ -2,53 +2,27 @@ import type { ExtractionField, ExtractionTable } from "@paperjet/db/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import {
+    analyzeWorkflow as analyzeWorkflowApi,
+    createWorkflowFromFile as createWorkflowFromFileApi,
+    extractData as extractDataApi,
+    getAnalysisStatus as getAnalysisStatusApi,
+    getWorkflow,
+    updateWorkflow as updateWorkflowApi,
+} from "@/lib/api";
 
 export function useWorkflow(workflowId: string) {
     const navigate = useNavigate();
 
     const { data: workflow, isLoading } = useQuery({
         queryKey: ["workflow", workflowId],
-        queryFn: async () => {
-            const response = await api.workflows[":id"].$get({
-                param: { id: workflowId },
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch workflow");
-            }
-
-            return response.json();
-        },
+        queryFn: () => getWorkflow(workflowId),
         enabled: !!workflowId,
     });
 
     const updateWorkflow = useMutation({
-        mutationFn: async ({
-            name,
-            configuration,
-        }: {
-            name: string;
-            configuration: { fields: ExtractionField[]; tables: ExtractionTable[] };
-        }) => {
-            const response = await fetch(`/api/workflows/${workflowId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    name,
-                    configuration,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to update workflow");
-            }
-
-            return response.json();
-        },
+        mutationFn: (data: { name: string; fields: ExtractionField[]; description?: string; isPublic?: boolean }) =>
+            updateWorkflowApi(workflowId, data),
         onSuccess: () => {
             toast.success("Workflow updated successfully!");
             navigate({ to: "/" });
@@ -59,72 +33,22 @@ export function useWorkflow(workflowId: string) {
     });
 
     const extractData = useMutation({
-        mutationFn: async ({
-            fileId,
-            fields,
-            tables,
-        }: {
-            fileId: string;
-            fields: ExtractionField[];
-            tables: ExtractionTable[];
-        }) => {
-            const response = await fetch(`/api/workflows/${workflowId}/extract`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    fileId,
-                    fields,
-                    tables,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to extract data");
-            }
-
-            return response.json();
-        },
+        mutationFn: (data: { fileId: string; fields?: ExtractionField[]; tables?: ExtractionTable[] }) =>
+            extractDataApi(workflowId, data),
         onError: () => {
             toast.error("Failed to extract data from document");
         },
     });
 
     const createWorkflowFromFile = useMutation({
-        mutationFn: async (file: File) => {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            const response = await fetch("/api/workflows", {
-                method: "POST",
-                body: formData,
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to create workflow from file");
-            }
-            return response.json();
-        },
+        mutationFn: createWorkflowFromFileApi,
         onError: () => {
             toast.error("Failed to create workflow from file");
         },
     });
 
     const analyzeWorkflow = useMutation({
-        mutationFn: async (workflowId: string) => {
-            const response = await fetch(`/api/workflows/${workflowId}/analyze`, {
-                method: "POST",
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to analyze workflow");
-            }
-            return response.json();
-        },
+        mutationFn: analyzeWorkflowApi,
         onError: () => {
             toast.error("Failed to analyze document");
         },
@@ -132,20 +56,10 @@ export function useWorkflow(workflowId: string) {
 
     const getAnalysisStatus = useQuery({
         queryKey: ["workflow-analysis", workflowId],
-        queryFn: async () => {
-            const response = await fetch(`/api/workflows/${workflowId}/analysis-status`, {
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch analysis status");
-            }
-
-            return response.json();
-        },
+        queryFn: () => getAnalysisStatusApi(workflowId),
         enabled: !!workflowId,
-        refetchInterval: (data) => {
-            return data?.analysisComplete ? false : 2000;
+        refetchInterval: (query) => {
+            return query.state.data?.analysisComplete ? false : 2000;
         },
     });
 

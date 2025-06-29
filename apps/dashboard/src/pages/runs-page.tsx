@@ -244,11 +244,7 @@ export default function RunsPage() {
                                                 <div className="flex items-center gap-2">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-8 w-8 p-0"
-                                                            >
+                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                                                                 <MoreVertical className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
@@ -262,9 +258,7 @@ export default function RunsPage() {
                                                                 View Details
                                                             </DropdownMenuItem>
                                                             {run.status === "completed" && run.extractionResult && (
-                                                                <DropdownMenuItem
-                                                                    onClick={() => exportRun(run)}
-                                                                >
+                                                                <DropdownMenuItem onClick={() => exportRun(run)}>
                                                                     <Download className="h-4 w-4 mr-2" />
                                                                     Export Results
                                                                 </DropdownMenuItem>

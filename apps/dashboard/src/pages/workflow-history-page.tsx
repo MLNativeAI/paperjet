@@ -296,14 +296,15 @@ export default function WorkflowHistoryPage() {
                                                             <Eye className="h-4 w-4 mr-2" />
                                                             View Details
                                                         </DropdownMenuItem>
-                                                        {execution.status === "completed" && execution.extractionResult && (
-                                                            <DropdownMenuItem
-                                                                onClick={() => exportExecution(execution)}
-                                                            >
-                                                                <Download className="h-4 w-4 mr-2" />
-                                                                Export Results
-                                                            </DropdownMenuItem>
-                                                        )}
+                                                        {execution.status === "completed" &&
+                                                            execution.extractionResult && (
+                                                                <DropdownMenuItem
+                                                                    onClick={() => exportExecution(execution)}
+                                                                >
+                                                                    <Download className="h-4 w-4 mr-2" />
+                                                                    Export Results
+                                                                </DropdownMenuItem>
+                                                            )}
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>

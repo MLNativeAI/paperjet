@@ -11,7 +11,6 @@ import { type auth, authHandler, requireAuth } from "./lib/auth";
 import { corsMiddleware } from "./lib/cors";
 import { envVars } from "./lib/env";
 import executions from "./routes/executions";
-import files from "./routes/files";
 import workflows from "./routes/workflows";
 
 const app = new Hono<{
@@ -41,7 +40,6 @@ app.get("/api/health", async (c) => {
 
 export const apiRoutes = app
     .basePath("/api")
-    .route("/files", files)
     .route("/workflows", workflows)
     .route("/executions", executions);
 

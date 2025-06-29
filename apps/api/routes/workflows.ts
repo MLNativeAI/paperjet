@@ -1,6 +1,7 @@
 import { WorkflowService } from "@paperjet/engine";
 import { Hono } from "hono";
 import { z } from "zod";
+import { zValidator } from "@hono/zod-validator";
 import { getUser } from "@/lib/auth";
 import { s3 } from "@/lib/s3";
 
@@ -8,6 +9,38 @@ const app = new Hono();
 
 // Initialize workflow service with dependencies
 const workflowService = new WorkflowService({ s3 });
+
+// Validation schemas
+const updateWorkflowSchema = z.object({
+    name: z.string().min(1).optional(),
+    description: z.string().optional(),
+    fields: z.array(z.any()).optional(),
+    isPublic: z.boolean().optional(),
+});
+
+const createWorkflowFormSchema = z.object({
+    file: z.instanceof(File).refine(
+        (file) => file.size > 0,
+        "File cannot be empty"
+    ).refine(
+        (file) => file.type === "application/pdf" || file.type.startsWith("image/"),
+        "File must be a PDF or image"
+    ),
+});
+
+const extractionSchema = z.object({
+    fileId: z.string().uuid(),
+    fields: z.array(z.any()).optional(),
+    tables: z.array(z.any()).optional(),
+});
+
+const paramIdSchema = z.object({
+    id: z.string().uuid(),
+});
+
+const fileIdParamSchema = z.object({
+    fileId: z.string().uuid(),
+});
 
 const router = app
     .get("/", async (c) => {
@@ -20,10 +53,10 @@ const router = app
             return c.json({ error: "Failed to get workflows" }, 500);
         }
     })
-    .get("/:id", async (c) => {
+    .get("/:id", zValidator("param", paramIdSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const workflowId = c.req.param("id");
+            const { id: workflowId } = c.req.valid("param");
             const workflowData = await workflowService.getWorkflow(workflowId, user.id);
             return c.json(workflowData);
         } catch (error) {
@@ -34,11 +67,11 @@ const router = app
             return c.json({ error: "Failed to get workflow" }, 500);
         }
     })
-    .put("/:id", async (c) => {
+    .put("/:id", zValidator("param", paramIdSchema), zValidator("json", updateWorkflowSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const workflowId = c.req.param("id");
-            const body = await c.req.json();
+            const { id: workflowId } = c.req.valid("param");
+            const body = c.req.valid("json");
 
             await workflowService.updateWorkflow(workflowId, user.id, body);
             return c.json({ message: "Workflow updated successfully" });
@@ -53,10 +86,10 @@ const router = app
             return c.json({ error: "Internal server error" }, 500);
         }
     })
-    .get("/:id/analysis-status", async (c) => {
+    .get("/:id/analysis-status", zValidator("param", paramIdSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const workflowId = c.req.param("id");
+            const { id: workflowId } = c.req.valid("param");
             const analysisStatus = await workflowService.getAnalysisStatus(workflowId, user.id);
             return c.json(analysisStatus);
         } catch (error) {
@@ -67,41 +100,25 @@ const router = app
             return c.json({ error: "Failed to get analysis status" }, 500);
         }
     })
-    .post("/", async (c) => {
+    .post("/", zValidator("form", createWorkflowFormSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const contentType = c.req.header("content-type");
+            const { file } = c.req.valid("form");
 
-            let result;
-            if (contentType?.includes("multipart/form-data")) {
-                // Handle file upload for workflow creation
-                const body = await c.req.formData();
-                const fileParam = body.get("file") as File;
-
-                if (!fileParam) {
-                    return c.json({ error: "File is required" }, 400);
-                }
-
-                result = await workflowService.createWorkflowFromFile(fileParam, user.id);
-            } else {
-                // Handle JSON workflow creation
-                const body = await c.req.json();
-                result = await workflowService.createWorkflow(user.id, body);
-            }
-
+            const result = await workflowService.createWorkflowFromFile(file, user.id);
             return c.json({ ...result, message: "Workflow created successfully" }, 201);
         } catch (error) {
             console.error("Create workflow error:", error);
             if (error instanceof z.ZodError) {
-                return c.json({ error: "Invalid workflow data" }, 400);
+                return c.json({ error: "Invalid file data", details: error.errors }, 400);
             }
             return c.json({ error: "Internal server error" }, 500);
         }
     })
-    .post("/:id/analyze", async (c) => {
+    .post("/:id/analyze", zValidator("param", paramIdSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const workflowId = c.req.param("id");
+            const { id: workflowId } = c.req.valid("param");
 
             // Start analysis in background (don't await)
             workflowService.analyzeWorkflowDocument(workflowId, user.id).catch((error) => {
@@ -121,11 +138,11 @@ const router = app
             return c.json({ error: "Failed to start analysis" }, 500);
         }
     })
-    .post("/:id/extract", async (c) => {
+    .post("/:id/extract", zValidator("param", paramIdSchema), zValidator("json", extractionSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const workflowId = c.req.param("id");
-            const body = await c.req.json();
+            const { id: workflowId } = c.req.valid("param");
+            const body = c.req.valid("json");
             const { fileId, ...extractionConfig } = body;
 
             const result = await workflowService.extractDataFromDocument(fileId, user.id, extractionConfig);
@@ -144,10 +161,10 @@ const router = app
             return c.json({ error: "Failed to extract data from document" }, 500);
         }
     })
-    .get("/:fileId/document", async (c) => {
+    .get("/:fileId/document", zValidator("param", fileIdParamSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const fileId = c.req.param("fileId");
+            const { fileId } = c.req.valid("param");
             const document = await workflowService.getDocumentForFile(fileId, user.id);
             return c.json(document);
         } catch (error) {
@@ -158,10 +175,10 @@ const router = app
             return c.json({ error: "Failed to get document" }, 500);
         }
     })
-    .delete("/:id", async (c) => {
+    .delete("/:id", zValidator("param", paramIdSchema), async (c) => {
         try {
             const user = await getUser(c);
-            const workflowId = c.req.param("id");
+            const { id: workflowId } = c.req.valid("param");
             await workflowService.deleteWorkflow(workflowId, user.id);
             return c.json({ message: "Workflow deleted successfully" });
         } catch (error) {

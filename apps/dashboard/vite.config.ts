@@ -12,7 +12,7 @@ export default defineConfig({
             //https://github.com/tabler/tabler-icons/issues/1233#issuecomment-2428245119
             "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
             "@": path.resolve(__dirname, "./src"),
-            "@backend/*": path.resolve(__dirname, "../backend/*"),
+            "@api/*": path.resolve(__dirname, "../api/*"),
         },
     },
     server: {

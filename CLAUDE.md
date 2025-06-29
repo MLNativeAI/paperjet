@@ -47,7 +47,7 @@ bun lint
 - **Type Export**: `ApiRoutes` type exported for frontend consumption
 - **Architecture**: Thin HTTP layer that delegates business logic to Engine package
 
-### Engine (`/apps/engine`)
+### Engine (`/packages/engine`)
 - **Purpose**: Centralized business logic and AI processing
 - **Services**: Domain-specific service classes (`WorkflowService`, `FileService`)
 - **Dependencies**: AI SDK, database, S3 storage
@@ -128,7 +128,7 @@ ENVIRONMENT=dev
 ### Engine Package Structure
 
 ```
-apps/engine/
+packages/engine/
 ├── index.ts                    # Main exports
 ├── src/
 │   ├── services/              # Business logic services
