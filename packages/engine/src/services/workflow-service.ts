@@ -704,6 +704,10 @@ Instructions:
             ...executionData,
             // Extract just the filename without the path
             filename: executionData.filename ? executionData.filename.split("/").pop() || "Unknown" : "Unknown",
+            // Parse extractionResult from JSON string to object
+            extractionResult: executionData.extractionResult 
+                ? JSON.parse(executionData.extractionResult)
+                : null,
         };
     }
 
