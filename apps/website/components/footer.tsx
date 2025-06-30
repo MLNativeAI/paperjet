@@ -21,7 +21,9 @@ export const Footer = () => (
           </p>
           <div className="flex gap-4">
             <Link
-              href="https://www.linkedin.com/company/mlnative"
+              href="https://www.linkedin.com/company/getpaperjet"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <svg
@@ -160,7 +162,9 @@ export const Footer = () => (
             </li>
             <li>
               <Link
-                href="#"
+                href="/privacy-policy.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Privacy Policy
@@ -181,26 +185,6 @@ export const Footer = () => (
         <p className="text-xs text-center sm:text-left text-muted-foreground">
           &copy; {new Date().getFullYear()} mlnative. All rights reserved.
         </p>
-        {/* <div className="flex flex-wrap justify-center sm:justify-end gap-4">
-          <Link
-            href="#"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Privacy Policy
-          </Link>
-          <Link
-            href="#"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Terms of Service
-          </Link>
-          <Link
-            href="#"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Cookie Policy
-          </Link>
-        </div> */}
       </div>
     </div>
   </footer>
