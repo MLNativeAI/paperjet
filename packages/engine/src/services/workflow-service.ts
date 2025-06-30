@@ -9,7 +9,7 @@ import {
     workflowConfigurationSchema,
 } from "@paperjet/db/types";
 import { generateObject } from "ai";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 export interface WorkflowServiceDeps {
@@ -367,7 +367,7 @@ Provide a structured analysis with practical, commonly needed information extrac
         // Create dynamic schema based on provided fields and tables
         const fieldSchemas = validatedData.fields
             .map((field) => {
-                let zodType;
+                let zodType: string;
                 switch (field.type) {
                     case "number":
                         zodType = "z.number().nullable()";
@@ -392,7 +392,7 @@ Provide a structured analysis with practical, commonly needed information extrac
             .map((table) => {
                 const columnSchemas = table.columns
                     .map((col) => {
-                        let zodType;
+                        let zodType: string;
                         switch (col.type) {
                             case "number":
                                 zodType = "z.number().nullable()";
@@ -760,7 +760,7 @@ Instructions:
         // Build extraction schema
         const fieldSchemas = config.fields
             .map((field) => {
-                let zodType;
+                let zodType: string;
                 switch (field.type) {
                     case "number":
                         zodType = "z.number().nullable()";
@@ -785,7 +785,7 @@ Instructions:
             .map((table) => {
                 const columnSchemas = table.columns
                     .map((col) => {
-                        let zodType;
+                        let zodType: string;
                         switch (col.type) {
                             case "number":
                                 zodType = "z.number().nullable()";
