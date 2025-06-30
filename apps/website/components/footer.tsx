@@ -164,7 +164,7 @@ export const Footer = () => (
                         </li>
                         <li>
                             <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                                Terms of Service
+                                Terms of Service (coming soon)
                             </Link>
                         </li>
                     </ul>
