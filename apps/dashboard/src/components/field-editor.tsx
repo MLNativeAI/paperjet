@@ -14,13 +14,7 @@ interface FieldEditorProps {
     onCancel: () => void;
 }
 
-export function FieldEditor({
-    field,
-    fieldIndex,
-    onFieldUpdate,
-    onExtractData,
-    onCancel,
-}: FieldEditorProps) {
+export function FieldEditor({ field, fieldIndex, onFieldUpdate, onExtractData, onCancel }: FieldEditorProps) {
     const [tempField, setTempField] = useState<ExtractionField>(field);
 
     const handleSave = () => {
@@ -36,9 +30,7 @@ export function FieldEditor({
     return (
         <div className="space-y-3">
             <div>
-                <Label className="text-xs font-medium mb-1 block">
-                    Field Name
-                </Label>
+                <Label className="text-xs font-medium mb-1 block">Field Name</Label>
                 <Input
                     value={tempField.name}
                     onChange={(e) =>
@@ -51,9 +43,7 @@ export function FieldEditor({
                 />
             </div>
             <div>
-                <Label className="text-xs font-medium mb-1 block">
-                    Type
-                </Label>
+                <Label className="text-xs font-medium mb-1 block">Type</Label>
                 <Select
                     value={tempField.type}
                     onValueChange={(value) =>
@@ -76,9 +66,7 @@ export function FieldEditor({
                 </Select>
             </div>
             <div>
-                <Label className="text-xs font-medium mb-1 block">
-                    Description
-                </Label>
+                <Label className="text-xs font-medium mb-1 block">Description</Label>
                 <Textarea
                     value={tempField.description}
                     onChange={(e) =>

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getAllWorkflows, deleteWorkflow as deleteWorkflowApi } from "@/lib/api";
+import { deleteWorkflow as deleteWorkflowApi, getAllWorkflows } from "@/lib/api";
 
 export function useWorkflows() {
     const queryClient = useQueryClient();

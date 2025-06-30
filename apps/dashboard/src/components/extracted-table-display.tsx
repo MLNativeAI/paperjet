@@ -72,10 +72,7 @@ export function ExtractedTableDisplay({ tables, extractionResult }: ExtractedTab
                                                                 key={`${table.name}-${column.name}-${rowIndex}-${colIndex}`}
                                                                 className="border border-gray-200 px-3 py-2"
                                                             >
-                                                                {formatValue(
-                                                                    row.values[column.name],
-                                                                    column.type,
-                                                                )}
+                                                                {formatValue(row.values[column.name], column.type)}
                                                             </td>
                                                         ))}
                                                     </tr>

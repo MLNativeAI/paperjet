@@ -705,9 +705,7 @@ Instructions:
             // Extract just the filename without the path
             filename: executionData.filename ? executionData.filename.split("/").pop() || "Unknown" : "Unknown",
             // Parse extractionResult from JSON string to object
-            extractionResult: executionData.extractionResult 
-                ? JSON.parse(executionData.extractionResult)
-                : null,
+            extractionResult: executionData.extractionResult ? JSON.parse(executionData.extractionResult) : null,
         };
     }
 
@@ -727,6 +725,26 @@ Instructions:
 
         // Delete the workflow itself
         await db.delete(workflow).where(eq(workflow.id, workflowId));
+    }
+
+    async deleteExecution(executionId: string, userId: string) {
+        // Get execution and verify user owns the associated workflow
+        const [executionData] = await db
+            .select({
+                id: workflowExecution.id,
+                workflowId: workflowExecution.workflowId,
+                fileId: workflowExecution.fileId,
+            })
+            .from(workflowExecution)
+            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
+            .where(and(eq(workflowExecution.id, executionId), eq(workflow.ownerId, userId)));
+
+        if (!executionData) {
+            throw new Error("Execution not found");
+        }
+
+        // Delete the execution
+        await db.delete(workflowExecution).where(eq(workflowExecution.id, executionId));
     }
 
     private async processExecutionFile(filename: string, config: WorkflowConfiguration): Promise<ExtractionResult> {

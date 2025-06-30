@@ -32,9 +32,7 @@ const getStatusIcon = (status: UploadedFile["status"]) => {
         case "pending":
             return <Clock className="h-4 w-4 text-muted-foreground" />;
         case "processing":
-            return (
-                <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            );
+            return <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
         case "completed":
             return <CheckCircle className="h-4 w-4 text-green-600" />;
         case "failed":
@@ -76,10 +74,7 @@ export function FileList({
                 <CardTitle className="flex items-center justify-between">
                     <span>Uploaded Files ({files.length})</span>
                     {processingFiles === 0 && (
-                        <Button
-                            onClick={onStartExecution}
-                            disabled={isExecuting || files.length === 0}
-                        >
+                        <Button onClick={onStartExecution} disabled={isExecuting || files.length === 0}>
                             <Play className="h-4 w-4 mr-2" />
                             Execute Workflow
                         </Button>
@@ -102,9 +97,7 @@ export function FileList({
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    <Badge variant={getStatusColor(uploadedFile.status)}>
-                                        {uploadedFile.status}
-                                    </Badge>
+                                    <Badge variant={getStatusColor(uploadedFile.status)}>{uploadedFile.status}</Badge>
 
                                     {uploadedFile.status === "completed" && uploadedFile.result && (
                                         <Button
@@ -127,11 +120,7 @@ export function FileList({
                                     )}
 
                                     {uploadedFile.status === "pending" && (
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => onRemoveFile(uploadedFile.id)}
-                                        >
+                                        <Button variant="ghost" size="sm" onClick={() => onRemoveFile(uploadedFile.id)}>
                                             Remove
                                         </Button>
                                     )}
@@ -163,10 +152,7 @@ export function FileList({
                                 {completedFiles + failedFiles} of {files.length} completed
                             </span>
                         </div>
-                        <Progress
-                            value={((completedFiles + failedFiles) / files.length) * 100}
-                            className="w-full"
-                        />
+                        <Progress value={((completedFiles + failedFiles) / files.length) * 100} className="w-full" />
                     </div>
                 )}
 
@@ -183,9 +169,7 @@ export function FileList({
                                 <span className="text-muted-foreground"> failed</span>
                             </div>
                             <div>
-                                <span className="text-muted-foreground font-medium">
-                                    {files.length}
-                                </span>
+                                <span className="text-muted-foreground font-medium">{files.length}</span>
                                 <span className="text-muted-foreground"> total</span>
                             </div>
                         </div>

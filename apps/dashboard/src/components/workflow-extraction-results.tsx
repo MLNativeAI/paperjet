@@ -50,9 +50,7 @@ export function WorkflowExtractionResults({ result }: WorkflowExtractionResultsP
                                 >
                                     <div className="p-3 border-b bg-muted/50">
                                         <h5 className="font-medium">{table.tableName}</h5>
-                                        <p className="text-sm text-muted-foreground">
-                                            {table.rows?.length || 0} rows
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">{table.rows?.length || 0} rows</p>
                                     </div>
                                     {table.rows && table.rows.length > 0 && (
                                         <div className="overflow-x-auto">

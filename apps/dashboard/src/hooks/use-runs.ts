@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getAllExecutions } from "@/lib/api";
+import { deleteExecution, getAllExecutions } from "@/lib/api";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
@@ -19,6 +19,8 @@ interface WorkflowRun {
 }
 
 export function useRuns() {
+    const queryClient = useQueryClient();
+
     const {
         data: runs = [],
         isLoading,
@@ -26,6 +28,17 @@ export function useRuns() {
     } = useQuery({
         queryKey: ["runs"],
         queryFn: getAllExecutions,
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteExecution,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["runs"] });
+            toast.success("Run deleted successfully");
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to delete run");
+        },
     });
 
     const exportRun = (run: WorkflowRun) => {
@@ -74,11 +87,19 @@ export function useRuns() {
         return `${diffHours}h`;
     };
 
+    const deleteRun = (run: WorkflowRun) => {
+        if (confirm(`Are you sure you want to delete this run for "${run.workflowName}"?`)) {
+            deleteMutation.mutate(run.id);
+        }
+    };
+
     return {
         runs,
         isLoading,
         refetch,
         exportRun,
         formatDuration,
+        deleteRun,
+        isDeleting: deleteMutation.isPending,
     };
 }

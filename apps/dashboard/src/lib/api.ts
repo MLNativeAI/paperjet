@@ -143,6 +143,16 @@ export const getExecutionDetails = async (executionId: string) => {
     return response.json();
 };
 
+export const deleteExecution = async (executionId: string) => {
+    const response = await api.executions[":executionId"].$delete({
+        param: { executionId },
+    });
+    if (!response.ok) {
+        throw new Error("Failed to delete execution");
+    }
+    return response.json();
+};
+
 // FormData functions that can't use Hono RPC
 export const createWorkflowFromFile = async (file: File) => {
     const formData = new FormData();

@@ -1,7 +1,7 @@
+import { zValidator } from "@hono/zod-validator";
 import { WorkflowService } from "@paperjet/engine";
 import { Hono } from "hono";
 import { z } from "zod";
-import { zValidator } from "@hono/zod-validator";
 import { getUser } from "@/lib/auth";
 import { s3 } from "@/lib/s3";
 
@@ -19,13 +19,13 @@ const updateWorkflowSchema = z.object({
 });
 
 const createWorkflowFormSchema = z.object({
-    file: z.instanceof(File).refine(
-        (file) => file.size > 0,
-        "File cannot be empty"
-    ).refine(
-        (file) => file.type === "application/pdf" || file.type.startsWith("image/"),
-        "File must be a PDF or image"
-    ),
+    file: z
+        .instanceof(File)
+        .refine((file) => file.size > 0, "File cannot be empty")
+        .refine(
+            (file) => file.type === "application/pdf" || file.type.startsWith("image/"),
+            "File must be a PDF or image",
+        ),
 });
 
 const extractionSchema = z.object({

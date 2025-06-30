@@ -111,6 +111,20 @@ const router = app
             }
             return c.json({ error: "Failed to get executions" }, 500);
         }
+    })
+    .delete("/:executionId", zValidator("param", executionIdParamSchema), async (c) => {
+        try {
+            const user = await getUser(c);
+            const { executionId } = c.req.valid("param");
+            await workflowService.deleteExecution(executionId, user.id);
+            return c.json({ success: true });
+        } catch (error) {
+            console.error("Delete execution error:", error);
+            if (error instanceof Error && error.message === "Execution not found") {
+                return c.json({ error: "Execution not found" }, 404);
+            }
+            return c.json({ error: "Failed to delete execution" }, 500);
+        }
     });
 
 export default router;

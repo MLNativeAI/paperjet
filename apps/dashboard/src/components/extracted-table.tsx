@@ -25,9 +25,7 @@ const formatValue = (value: unknown, type: string) => {
 };
 
 export function ExtractedTable({ table, tableIndex, extractionResult }: ExtractedTableProps) {
-    const extractedTable = extractionResult?.tables?.find(
-        (t) => t.tableName === table.name,
-    );
+    const extractedTable = extractionResult?.tables?.find((t) => t.tableName === table.name);
 
     return (
         <div key={`table-${table.name}-${tableIndex}`} className="border rounded-lg p-4">
@@ -58,14 +56,8 @@ export function ExtractedTable({ table, tableIndex, extractionResult }: Extracte
                             {extractedTable.rows.map((row, rowIndex) => (
                                 <tr key={rowIndex} className="hover:bg-muted/50">
                                     {table.columns.map((column, colIndex) => (
-                                        <td
-                                            key={colIndex}
-                                            className="border border-gray-200 px-3 py-2"
-                                        >
-                                            {formatValue(
-                                                row.values[column.name],
-                                                column.type,
-                                            )}
+                                        <td key={colIndex} className="border border-gray-200 px-3 py-2">
+                                            {formatValue(row.values[column.name], column.type)}
                                         </td>
                                     ))}
                                 </tr>

@@ -54,12 +54,7 @@ export function AddFieldForm({ onFieldAdd, onExtractData, onCancel }: AddFieldFo
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="font-medium text-sm">Add New Field</h3>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleCancel}
-                            className="h-6 w-6 p-0"
-                        >
+                        <Button size="sm" variant="ghost" onClick={handleCancel} className="h-6 w-6 p-0">
                             ×
                         </Button>
                     </div>
@@ -120,11 +115,7 @@ export function AddFieldForm({ onFieldAdd, onExtractData, onCancel }: AddFieldFo
                     </div>
 
                     <div className="flex gap-2">
-                        <Button
-                            size="sm"
-                            onClick={handleAdd}
-                            disabled={!newField.name || !newField.description}
-                        >
+                        <Button size="sm" onClick={handleAdd} disabled={!newField.name || !newField.description}>
                             <Plus className="h-3 w-3 mr-1" />
                             Add Field
                         </Button>

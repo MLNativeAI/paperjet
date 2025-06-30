@@ -51,9 +51,7 @@ export function FieldValue({
     onExtractData,
     onCancelEdit,
 }: FieldValueProps) {
-    const extractedValue = extractionResult?.fields?.find(
-        (f) => f.fieldName === field.name,
-    );
+    const extractedValue = extractionResult?.fields?.find((f) => f.fieldName === field.name);
 
     return (
         <Collapsible
@@ -79,15 +77,11 @@ export function FieldValue({
                                         {extractionResult ? (
                                             formatValue(extractedValue?.value, field.type)
                                         ) : (
-                                            <span className="text-muted-foreground italic">
-                                                No extraction run yet
-                                            </span>
+                                            <span className="text-muted-foreground italic">No extraction run yet</span>
                                         )}
                                     </div>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-sm text-muted-foreground">
-                                            {field.name}
-                                        </span>
+                                        <span className="text-sm text-muted-foreground">{field.name}</span>
                                         <Badge variant="outline" className="text-xs">
                                             {field.type}
                                         </Badge>
@@ -104,9 +98,7 @@ export function FieldValue({
                             <Table>
                                 <TableBody>
                                     <TableRow>
-                                        <TableCell className="font-medium w-32">
-                                            Field Name
-                                        </TableCell>
+                                        <TableCell className="font-medium w-32">Field Name</TableCell>
                                         <TableCell>{field.name}</TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -116,23 +108,16 @@ export function FieldValue({
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell className="font-medium">
-                                            Description
-                                        </TableCell>
+                                        <TableCell className="font-medium">Description</TableCell>
                                         <TableCell className="text-sm text-muted-foreground">
                                             {field.description}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell className="font-medium">
-                                            Extracted Value
-                                        </TableCell>
+                                        <TableCell className="font-medium">Extracted Value</TableCell>
                                         <TableCell>
                                             {extractionResult ? (
-                                                formatValue(
-                                                    extractedValue?.value,
-                                                    field.type,
-                                                )
+                                                formatValue(extractedValue?.value, field.type)
                                             ) : (
                                                 <span className="text-muted-foreground italic">
                                                     No extraction run yet
@@ -142,9 +127,7 @@ export function FieldValue({
                                     </TableRow>
                                     {isEditing ? (
                                         <TableRow>
-                                            <TableCell className="font-medium">
-                                                Edit
-                                            </TableCell>
+                                            <TableCell className="font-medium">Edit</TableCell>
                                             <TableCell>
                                                 <FieldEditor
                                                     field={field}
@@ -157,9 +140,7 @@ export function FieldValue({
                                         </TableRow>
                                     ) : (
                                         <TableRow>
-                                            <TableCell className="font-medium">
-                                                Actions
-                                            </TableCell>
+                                            <TableCell className="font-medium">Actions</TableCell>
                                             <TableCell>
                                                 <div className="flex gap-2">
                                                     <Button
