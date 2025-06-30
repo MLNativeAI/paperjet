@@ -14,6 +14,8 @@ const envSchema = z.object({
     // auth
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
+    MICROSOFT_CLIENT_ID: z.string().optional(),
+    MICROSOFT_CLIENT_SECRET: z.string().optional(),
     BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
     RESEND_API_KEY: z.string().min(1, "RESEND_API_KEY is required"),
     FROM_EMAIL: z.string().email("FROM_EMAIL must be a valid email address").default("noreply@getpaperjet.com"),

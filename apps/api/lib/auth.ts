@@ -52,14 +52,14 @@ export const auth = betterAuth({
         google: {
             prompt: "select_account",
             enabled: envVars.GOOGLE_CLIENT_ID !== undefined && envVars.GOOGLE_CLIENT_SECRET !== undefined,
-            clientId: envVars.GOOGLE_CLIENT_ID,
-            clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+            clientId: envVars.GOOGLE_CLIENT_ID || "",
+            clientSecret: envVars.GOOGLE_CLIENT_SECRET || "",
             redirectUri: envVars.BASE_URL,
         },
         microsoft: {
             enabled: envVars.MICROSOFT_CLIENT_ID !== undefined && envVars.MICROSOFT_CLIENT_SECRET !== undefined,
-            clientId: envVars.MICROSOFT_CLIENT_ID,
-            clientSecret: envVars.MICROSOFT_CLIENT_SECRET,
+            clientId: envVars.MICROSOFT_CLIENT_ID || "",
+            clientSecret: envVars.MICROSOFT_CLIENT_SECRET || "",
             redirectURI: envVars.BASE_URL,
         },
     },

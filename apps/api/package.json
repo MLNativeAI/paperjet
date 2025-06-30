@@ -7,6 +7,7 @@
         "dev": "bun --watch index.ts",
         "start": "bun index.ts",
         "lint": "biome check --write",
+        "typecheck": "tsc --noEmit",
         "build": "bun build --target=bun index.ts --outdir=dist"
     },
     "devDependencies": {

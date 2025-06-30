@@ -30,8 +30,20 @@ const createWorkflowFormSchema = z.object({
 
 const extractionSchema = z.object({
     fileId: z.string().uuid(),
-    fields: z.array(z.any()).optional(),
-    tables: z.array(z.any()).optional(),
+    fields: z.array(z.object({
+        name: z.string(),
+        description: z.string(),
+        type: z.enum(["text", "number", "date", "currency", "boolean"]),
+    })).default([]),
+    tables: z.array(z.object({
+        name: z.string(),
+        description: z.string(),
+        columns: z.array(z.object({
+            name: z.string(),
+            description: z.string(),
+            type: z.enum(["text", "number", "date", "currency", "boolean"]),
+        })),
+    })).default([]),
 });
 
 const paramIdSchema = z.object({

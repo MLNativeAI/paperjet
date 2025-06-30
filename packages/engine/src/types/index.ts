@@ -1,10 +1,13 @@
 // Re-export types from @paperjet/db/types for convenience
 export type {
     DocumentAnalysis,
-    ExtractionResult,
     FileDataWithPresignedUrl,
-    WorkflowConfiguration,
 } from "@paperjet/db/types";
+
+// Import and re-export types that may have import issues
+import type { ExtractionResult as DbExtractionResult, WorkflowConfiguration as DbWorkflowConfiguration } from "@paperjet/db/types";
+export type ExtractionResult = DbExtractionResult;
+export type WorkflowConfiguration = DbWorkflowConfiguration;
 
 // Engine-specific types
 export interface EngineServiceDeps {
