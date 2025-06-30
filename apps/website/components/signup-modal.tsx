@@ -165,11 +165,9 @@ export function SignupModal({
                 </form>
 
                 <div className="text-xs text-muted-foreground text-center">
-                    <p>
-                        We respect your privacy. No spam, just launch notifications.
-                        <br />
-                        You can unsubscribe at any time.
-                    </p>
+                    <span className="block mt-2">
+                        By signing up, you consent to receive product updates and launch notifications from us.
+                    </span>
                 </div>
             </DialogContent>
         </Dialog>
