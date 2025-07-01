@@ -36,6 +36,13 @@
             "when": 1751222982350,
             "tag": "0004_cool_cargill",
             "breakpoints": true
+        },
+        {
+            "idx": 5,
+            "version": "7",
+            "when": 1751223000000,
+            "tag": "0005_convert_uuids_to_prefixed_ids",
+            "breakpoints": true
         }
     ]
 }

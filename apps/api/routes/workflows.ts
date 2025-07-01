@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { s3 } from "@/lib/s3";
+import { fileIdSchema, workflowIdSchema } from "@/lib/validation";
 
 const app = new Hono();
 
@@ -29,7 +30,7 @@ const createWorkflowFormSchema = z.object({
 });
 
 const extractionSchema = z.object({
-    fileId: z.string().uuid(),
+    fileId: fileIdSchema,
     fields: z
         .array(
             z.object({
@@ -57,11 +58,11 @@ const extractionSchema = z.object({
 });
 
 const paramIdSchema = z.object({
-    id: z.string().uuid(),
+    id: workflowIdSchema,
 });
 
 const fileIdParamSchema = z.object({
-    fileId: z.string().uuid(),
+    fileId: fileIdSchema,
 });
 
 const router = app

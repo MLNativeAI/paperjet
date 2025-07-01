@@ -2,6 +2,7 @@ import { db } from "@paperjet/db";
 import { file } from "@paperjet/db/schema";
 import { type FileDataWithPresignedUrl, uploadFileSchema } from "@paperjet/db/types";
 import { eq, inArray } from "drizzle-orm";
+import { generateId, ID_PREFIXES } from "../utils/id";
 
 export interface FileServiceDeps {
     s3: {
@@ -41,7 +42,7 @@ export class FileService {
             name: name,
         });
 
-        const id = crypto.randomUUID();
+        const id = generateId(ID_PREFIXES.file);
 
         await db.insert(file).values({
             id,

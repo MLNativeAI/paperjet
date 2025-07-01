@@ -1,6 +1,7 @@
 import { db } from "@paperjet/db";
 import * as schema from "@paperjet/db/schema";
 import { MagicLinkEmail, render } from "@paperjet/email";
+import { generateId, ID_PREFIXES } from "@paperjet/engine";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
@@ -24,6 +25,56 @@ export const auth = betterAuth({
         provider: "pg",
         schema: schema,
     }),
+    databaseHooks: {
+        user: {
+            create: {
+                before: async (user) => {
+                    return {
+                        data: {
+                            ...user,
+                            id: generateId(ID_PREFIXES.user),
+                        },
+                    };
+                },
+            },
+        },
+        session: {
+            create: {
+                before: async (session) => {
+                    return {
+                        data: {
+                            ...session,
+                            id: generateId(ID_PREFIXES.session),
+                        },
+                    };
+                },
+            },
+        },
+        account: {
+            create: {
+                before: async (account) => {
+                    return {
+                        data: {
+                            ...account,
+                            id: generateId(ID_PREFIXES.account),
+                        },
+                    };
+                },
+            },
+        },
+        verification: {
+            create: {
+                before: async (verification) => {
+                    return {
+                        data: {
+                            ...verification,
+                            id: generateId(ID_PREFIXES.verification),
+                        },
+                    };
+                },
+            },
+        },
+    },
     plugins: [
         magicLink({
             sendMagicLink: async ({ email, token, url }, _request) => {

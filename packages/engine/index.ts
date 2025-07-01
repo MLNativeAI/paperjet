@@ -14,3 +14,4 @@ export type {
     WorkflowExecutionResult,
     WorkflowUpdateData,
 } from "./src/types";
+export { generateId, ID_PREFIXES } from "./src/utils/id";

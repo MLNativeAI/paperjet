@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { s3 } from "@/lib/s3";
+import { executionIdSchema, workflowIdSchema } from "@/lib/validation";
 
 const app = new Hono();
 
@@ -12,11 +13,11 @@ const workflowService = new WorkflowService({ s3 });
 
 // Validation schemas
 const executionIdParamSchema = z.object({
-    executionId: z.string().uuid(),
+    executionId: executionIdSchema,
 });
 
 const workflowIdParamSchema = z.object({
-    workflowId: z.string().uuid(),
+    workflowId: workflowIdSchema,
 });
 
 const router = app

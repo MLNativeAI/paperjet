@@ -11,6 +11,7 @@ import {
 import { generateObject } from "ai";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
+import { generateId, ID_PREFIXES } from "../utils/id";
 
 export interface WorkflowServiceDeps {
     s3: {
@@ -166,7 +167,7 @@ export class WorkflowService {
         });
 
         const validatedData = createWorkflowSchema.parse(data);
-        const id = crypto.randomUUID();
+        const id = generateId(ID_PREFIXES.workflow);
 
         await db.insert(workflow).values({
             id,
@@ -180,7 +181,7 @@ export class WorkflowService {
         // Link file to workflow if provided
         if (validatedData.fileId) {
             await db.insert(workflowFile).values({
-                id: crypto.randomUUID(),
+                id: generateId(ID_PREFIXES.workflowFile),
                 workflowId: id,
                 fileId: validatedData.fileId,
                 createdAt: new Date(),
@@ -297,7 +298,7 @@ Provide a structured analysis with practical, commonly needed information extrac
         fileId: string;
     }> {
         // Save file first
-        const fileId = crypto.randomUUID();
+        const fileId = generateId(ID_PREFIXES.file);
         const filename = `workflow-samples/${fileId}-${fileParam.name}`;
 
         await db.insert(file).values({
@@ -311,7 +312,7 @@ Provide a structured analysis with practical, commonly needed information extrac
         await this.deps.s3.file(filename).write(fileBuffer);
 
         // Create workflow with empty configuration initially
-        const workflowId = crypto.randomUUID();
+        const workflowId = generateId(ID_PREFIXES.workflow);
         const workflowName = "New Workflow"; // Will be updated after analysis
 
         await db.insert(workflow).values({
@@ -328,7 +329,7 @@ Provide a structured analysis with practical, commonly needed information extrac
 
         // Link file to workflow
         await db.insert(workflowFile).values({
-            id: crypto.randomUUID(),
+            id: generateId(ID_PREFIXES.workflowFile),
             workflowId,
             fileId,
             createdAt: new Date(),
@@ -556,7 +557,7 @@ Instructions:
         };
     }
 
-    async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
+async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
         // Get workflow and verify ownership
         const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
@@ -572,8 +573,8 @@ Instructions:
         const config = parsedConfig.data;
 
         // Create execution record for single file
-        const executionId = crypto.randomUUID();
-        const fileId = crypto.randomUUID();
+        const executionId = generateId(ID_PREFIXES.workflowExecution);
+        const fileId = generateId(ID_PREFIXES.file);
         const filename = `executions/${executionId}/${uploadedFile.name}`;
 
         try {
