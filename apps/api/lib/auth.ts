@@ -4,6 +4,7 @@ import { MagicLinkEmail, render } from "@paperjet/email";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
+import type { Context, Next } from "hono";
 import { Resend } from "resend";
 import { envVars } from "./env";
 import { logger } from "./logger";
@@ -33,7 +34,7 @@ export const auth = betterAuth({
 
                 try {
                     logger.info(`Sending magic link to ${email}: ${url}`);
-                    const emailHtml = await render(MagicLinkEmail({ email, url }));
+                    const emailHtml = await render(MagicLinkEmail({ email, url, token }));
 
                     await resend.emails.send({
                         from: envVars.FROM_EMAIL,
@@ -76,7 +77,7 @@ const matchesPattern = (path: string, pattern: string): boolean => {
 };
 
 // Authentication middleware
-export const requireAuth = async (c: any, next: any) => {
+export const requireAuth = async (c: Context, next: Next) => {
     // Skip auth check for public routes
     if (publicRoutes.some((pattern) => matchesPattern(c.req.path, pattern))) {
         return next();
@@ -92,11 +93,11 @@ export const requireAuth = async (c: any, next: any) => {
     return next();
 };
 
-export const authHandler = async (c: any) => {
+export const authHandler = async (c: Context) => {
     return auth.handler(c.req.raw);
 };
 
-export const getUser = async (c: any): Promise<User> => {
+export const getUser = async (c: Context): Promise<User> => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
     if (!session) {
         throw new Error("Unauthorized");

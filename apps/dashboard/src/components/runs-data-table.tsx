@@ -1,5 +1,4 @@
 import {
-    IconChevronDown,
     IconChevronLeft,
     IconChevronRight,
     IconChevronsLeft,

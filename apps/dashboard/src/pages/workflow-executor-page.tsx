@@ -3,7 +3,6 @@ import type { ExtractionResult } from "@paperjet/db/types";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
 import { FileList } from "@/components/file-list";
 import { FileUpload } from "@/components/file-upload";
 import { Button } from "@/components/ui/button";
@@ -31,32 +30,19 @@ export default function WorkflowExecutorPage() {
     const { workflow, isLoading: workflowLoading } = useWorkflow(workflowId);
     const { executeWorkflow, exportResults } = useWorkflowExecution(workflowId);
 
-    const handleFileUpload = useCallback((files: FileList) => {
-        const newFiles: UploadedFile[] = Array.from(files).map((file) => ({
-            file,
-            id: crypto.randomUUID(),
-            status: "pending",
-        }));
+    const handleFileUpload = useCallback(
+        (files: FileList) => {
+            const newFiles: UploadedFile[] = Array.from(files).map((file) => ({
+                file,
+                id: crypto.randomUUID(),
+                status: "processing",
+            }));
 
-        setUploadedFiles((prev) => [...prev, ...newFiles]);
-    }, []);
+            setUploadedFiles((prev) => [...prev, ...newFiles]);
 
-    const removeFile = useCallback((fileId: string) => {
-        setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
-    }, []);
-
-    const startExecution = useCallback(() => {
-        if (uploadedFiles.length === 0) {
-            toast.error("Please upload at least one file");
-            return;
-        }
-
-        // Update all files to processing status
-        setUploadedFiles((prev) => prev.map((f) => ({ ...f, status: "processing" as const })));
-
-        executeWorkflow.mutate(
-            uploadedFiles.map((f) => f.file),
-            {
+            // Start processing immediately
+            const filesToProcess = Array.from(files);
+            executeWorkflow.mutate(filesToProcess, {
                 onSuccess: (data) => {
                     // Handle multiple executions response
                     const executions = data.executions || [];
@@ -88,9 +74,31 @@ export default function WorkflowExecutorPage() {
                         setExecutionId(executions[0].executionId);
                     }
                 },
-            },
-        );
-    }, [uploadedFiles, executeWorkflow]);
+                onError: () => {
+                    // Mark all new files as failed if the execution fails
+                    setUploadedFiles((prev) =>
+                        prev.map((f) => {
+                            if (filesToProcess.some((file) => file.name === f.file.name)) {
+                                return {
+                                    ...f,
+                                    status: "failed" as const,
+                                    error: "Processing failed",
+                                };
+                            }
+                            return f;
+                        }),
+                    );
+                },
+            });
+        },
+        [executeWorkflow],
+    );
+
+    const removeFile = useCallback((fileId: string) => {
+        setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
+    }, []);
+
+    // Removed startExecution - processing now happens automatically on upload
 
     const toggleResultExpansion = useCallback((fileId: string) => {
         setExpandedResults((prev) => {
@@ -166,7 +174,7 @@ export default function WorkflowExecutorPage() {
                 allCompleted={allCompleted}
                 isExecuting={executeWorkflow.isPending}
                 onRemoveFile={removeFile}
-                onStartExecution={startExecution}
+                onStartExecution={undefined}
                 onToggleResultExpansion={toggleResultExpansion}
                 renderExtractionResults={renderExtractionResults}
             />

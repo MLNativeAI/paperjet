@@ -22,7 +22,7 @@ interface FileListProps {
     allCompleted: boolean;
     isExecuting: boolean;
     onRemoveFile: (fileId: string) => void;
-    onStartExecution: () => void;
+    onStartExecution?: () => void;
     onToggleResultExpansion: (fileId: string) => void;
     renderExtractionResults: (result: ExtractionResult, fileId: string) => React.ReactNode;
 }
@@ -73,7 +73,7 @@ export function FileList({
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <span>Uploaded Files ({files.length})</span>
-                    {processingFiles === 0 && (
+                    {processingFiles === 0 && onStartExecution && (
                         <Button onClick={onStartExecution} disabled={isExecuting || files.length === 0}>
                             <Play className="h-4 w-4 mr-2" />
                             Execute Workflow
@@ -119,7 +119,7 @@ export function FileList({
                                         </Button>
                                     )}
 
-                                    {uploadedFile.status === "pending" && (
+                                    {(uploadedFile.status === "completed" || uploadedFile.status === "failed") && (
                                         <Button variant="ghost" size="sm" onClick={() => onRemoveFile(uploadedFile.id)}>
                                             Remove
                                         </Button>

@@ -3,9 +3,10 @@ import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } 
 export interface MagicLinkEmailProps {
     email: string;
     url: string;
+    token?: string;
 }
 
-export const MagicLinkEmail = ({ email, url }: MagicLinkEmailProps) => {
+export const MagicLinkEmail = ({ email, url, token }: MagicLinkEmailProps) => {
     return (
         <Html>
             <Head />
@@ -27,6 +28,12 @@ export const MagicLinkEmail = ({ email, url }: MagicLinkEmailProps) => {
                         <br />
                         {url}
                     </Text>
+                    {token && (
+                        <Text style={footer}>
+                            <br />
+                            Alternatively, you can use this one-time code: <strong>{token}</strong>
+                        </Text>
+                    )}
                 </Container>
             </Body>
         </Html>

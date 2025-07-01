@@ -27,10 +27,21 @@ export class WorkflowService {
     async getWorkflows(userId: string) {
         const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
 
-        return workflows.map((w) => ({
-            ...w,
-            configuration: JSON.parse(w.configuration),
-        }));
+        return workflows.map((w) => {
+            const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(w.configuration));
+            if (!parsedConfig.success) {
+                console.warn(`Invalid workflow configuration for workflow ${w.id}:`, parsedConfig.error);
+                // Return a default configuration if parsing fails
+                return {
+                    ...w,
+                    configuration: { fields: [], tables: [] },
+                };
+            }
+            return {
+                ...w,
+                configuration: parsedConfig.data,
+            };
+        });
     }
 
     async getWorkflow(workflowId: string, userId: string) {
@@ -52,9 +63,19 @@ export class WorkflowService {
             throw new Error("Workflow not found");
         }
 
+        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
+        if (!parsedConfig.success) {
+            console.warn(`Invalid workflow configuration for workflow ${workflowId}:`, parsedConfig.error);
+            // Return a default configuration if parsing fails
+            return {
+                ...workflowData,
+                configuration: { fields: [], tables: [] },
+            };
+        }
+
         return {
             ...workflowData,
-            configuration: JSON.parse(workflowData.configuration),
+            configuration: parsedConfig.data,
         };
     }
 
@@ -104,7 +125,20 @@ export class WorkflowService {
         }
 
         // Check if analysis is complete by looking at configuration
-        const configuration = JSON.parse(workflowData.configuration);
+        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
+        if (!parsedConfig.success) {
+            console.warn(`Invalid workflow configuration for workflow ${workflowId}:`, parsedConfig.error);
+            // Return default values if parsing fails
+            return {
+                analysisComplete: false,
+                suggestedFields: [],
+                suggestedTables: [],
+                hasFields: false,
+                documentType: "Unknown",
+            };
+        }
+
+        const configuration = parsedConfig.data;
         const hasFields = configuration.fields && configuration.fields.length > 0;
         const isAnalysisComplete = hasFields;
 
@@ -307,6 +341,7 @@ Provide a structured analysis with practical, commonly needed information extrac
     }
 
     async extractDataFromDocument(
+        workflowId: string,
         fileId: string,
         userId: string,
         extractionConfig: {
@@ -530,7 +565,11 @@ Instructions:
         }
 
         // Parse workflow configuration
-        const config = JSON.parse(workflowData.configuration) as WorkflowConfiguration;
+        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
+        if (!parsedConfig.success) {
+            throw new Error(`Invalid workflow configuration: ${parsedConfig.error.message}`);
+        }
+        const config = parsedConfig.data;
 
         // Create execution record for single file
         const executionId = crypto.randomUUID();

@@ -1,7 +1,4 @@
-import type { WorkflowExecutionWithFiles } from "@paperjet/db/types";
 import {
-    IconAccessPoint,
-    IconChevronDown,
     IconChevronLeft,
     IconChevronRight,
     IconChevronsLeft,
@@ -28,7 +25,7 @@ import {
     useReactTable,
     type VisibilityState,
 } from "@tanstack/react-table";
-import { Calendar, CheckCircle, ChevronDown, ChevronRight, Clock, Eye, XCircle, PlayIcon } from "lucide-react";
+import { Calendar, CheckCircle, ChevronDown, ChevronRight, Clock, Eye, PlayIcon, XCircle } from "lucide-react";
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -132,9 +129,7 @@ function WorkflowExecutionRow({ workflowId }: { workflowId: string }) {
                                         {execution.status}
                                     </Badge>
                                 </div>
-                                <p className="text-xs text-muted-foreground">
-                                    {execution.filename || "No filename"}
-                                </p>
+                                <p className="text-xs text-muted-foreground">{execution.filename || "No filename"}</p>
                             </div>
                         </div>
                         <Button

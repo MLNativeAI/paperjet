@@ -35,6 +35,7 @@ export const extractionTableSchema = z.object({
 export const workflowConfigurationSchema = z.object({
     fields: z.array(extractionFieldSchema),
     tables: z.array(extractionTableSchema),
+    documentType: z.string().optional(),
 });
 
 export type ExtractionField = z.infer<typeof extractionFieldSchema>;
@@ -44,7 +45,6 @@ export type WorkflowConfiguration = z.infer<typeof workflowConfigurationSchema>;
 // Document analysis result
 export const documentAnalysisSchema = z.object({
     documentType: z.string(),
-    confidence: z.number().min(0).max(1),
     suggestedFields: z.array(extractionFieldSchema),
     suggestedTables: z.array(extractionTableSchema),
 });

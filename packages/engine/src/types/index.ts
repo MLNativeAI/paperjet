@@ -5,7 +5,10 @@ export type {
 } from "@paperjet/db/types";
 
 // Import and re-export types that may have import issues
-import type { ExtractionResult as DbExtractionResult, WorkflowConfiguration as DbWorkflowConfiguration } from "@paperjet/db/types";
+import type {
+    ExtractionResult as DbExtractionResult,
+    WorkflowConfiguration as DbWorkflowConfiguration,
+} from "@paperjet/db/types";
 export type ExtractionResult = DbExtractionResult;
 export type WorkflowConfiguration = DbWorkflowConfiguration;
 

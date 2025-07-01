@@ -1,8 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { FileText, Plus } from "lucide-react";
-import { WorkflowsDataTable } from "@/components/workflows-data-table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { WorkflowsDataTable } from "@/components/workflows-data-table";
 import { useWorkflows } from "@/hooks/useWorkflows";
 
 export default function WorkflowListPage() {
@@ -21,10 +20,6 @@ export default function WorkflowListPage() {
         );
     }
 
-    const totalWorkflows = workflows.length;
-    const totalFields = workflows.reduce((sum, w) => sum + (w.configuration.fields?.length || 0), 0);
-    const totalTables = workflows.reduce((sum, w) => sum + (w.configuration.tables?.length || 0), 0);
-
     return (
         <div className="w-full px-4 py-8 space-y-8">
             {/* Header */}
@@ -37,45 +32,6 @@ export default function WorkflowListPage() {
                     <Plus className="h-5 w-5" />
                     Create New Workflow
                 </Button>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center">
-                            <div>
-                                <p className="text-2xl font-bold">{totalWorkflows}</p>
-                                <p className="text-xs text-muted-foreground">Total Workflows</p>
-                            </div>
-                            <FileText className="h-4 w-4 text-muted-foreground ml-auto" />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center">
-                            <div>
-                                <p className="text-2xl font-bold">{totalFields}</p>
-                                <p className="text-xs text-muted-foreground">Total Fields</p>
-                            </div>
-                            <FileText className="h-4 w-4 text-muted-foreground ml-auto" />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center">
-                            <div>
-                                <p className="text-2xl font-bold">{totalTables}</p>
-                                <p className="text-xs text-muted-foreground">Total Tables</p>
-                            </div>
-                            <FileText className="h-4 w-4 text-muted-foreground ml-auto" />
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
 
             {/* Workflows Data Table */}
