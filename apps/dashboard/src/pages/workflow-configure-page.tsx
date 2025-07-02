@@ -1,6 +1,6 @@
 import type { ExtractionField, ExtractionResult, ExtractionTable } from "@paperjet/db/types";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExtractedValues } from "@/components/extracted-values";
 import { FieldCategoryGrid } from "@/components/field-category-grid";
@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ViewToggle } from "@/components/view-toggle";
 import { useWorkflow } from "@/hooks/useWorkflow";
-import { useWorkflowAnalysis } from "@/hooks/useWorkflowAnalysis";
 
 type ViewMode = "grid" | "split";
 
@@ -23,58 +22,12 @@ export default function WorkflowConfigurePage() {
     const [fields, setFields] = useState<ExtractionField[]>([]);
     const [tables, setTables] = useState<ExtractionTable[]>([]);
     const [extractionResult, setExtractionResult] = useState<ExtractionResult | null>(null);
-    const [fileId, setFileId] = useState<string>("");
-    const [analysisStatus, setAnalysisStatus] = useState<"pending" | "processing" | "completed">("pending");
     const [viewMode, setViewMode] = useState<ViewMode>(() => {
         const saved = localStorage.getItem("workflow-configure-view-mode");
         return (saved as ViewMode) || "grid";
     });
 
     const { workflow, isLoading, updateWorkflow, extractData } = useWorkflow(workflowId);
-
-    // Only fetch analysis if workflow doesn't have fields configured yet
-    const shouldFetchAnalysis =
-        workflow && (!workflow.configuration?.fields || workflow.configuration.fields.length === 0);
-    const { analysisData } = useWorkflowAnalysis(shouldFetchAnalysis ? workflowId : "");
-
-    // Initialize state when workflow data loads
-    useEffect(() => {
-        if (workflow) {
-            setWorkflowName(workflow.name || "");
-            setFields(workflow.configuration?.fields || []);
-            setTables(workflow.configuration?.tables || []);
-            setFileId(workflow.fileId || "");
-
-            // Set analysis status based on whether fields are already configured
-            if (workflow.configuration?.fields && workflow.configuration.fields.length > 0) {
-                setAnalysisStatus("completed");
-            } else {
-                setAnalysisStatus("pending");
-            }
-        }
-    }, [workflow]);
-
-    // Update state when analysis completes (only for new workflows without fields)
-    useEffect(() => {
-        if (analysisData && shouldFetchAnalysis) {
-            if (analysisData.analysisComplete && analysisStatus !== "completed") {
-                setAnalysisStatus("completed");
-
-                // Update workflow name in state
-                setWorkflowName(`${analysisData.documentType} Workflow`);
-
-                // Update fields and tables from analysis if they're not already set
-                if (analysisData.suggestedFields && fields.length === 0) {
-                    setFields(analysisData.suggestedFields);
-                }
-                if (analysisData.suggestedTables && tables.length === 0) {
-                    setTables(analysisData.suggestedTables);
-                }
-            } else if (!analysisData.analysisComplete && analysisStatus === "pending") {
-                setAnalysisStatus("processing");
-            }
-        }
-    }, [analysisData, analysisStatus, fields.length, tables.length, shouldFetchAnalysis]);
 
     const handleUpdateWorkflow = () => {
         updateWorkflow.mutate({
@@ -167,18 +120,6 @@ export default function WorkflowConfigurePage() {
                                         newTables[index] = updatedTable;
                                         setTables(newTables);
                                     }}
-                                    onExtractData={() => {
-                                        if (fileId) {
-                                            extractData.mutate(
-                                                { fileId, fields, tables },
-                                                {
-                                                    onSuccess: (data) => {
-                                                        setExtractionResult(data.extractionResult);
-                                                    },
-                                                },
-                                            );
-                                        }
-                                    }}
                                 />
                             </div>
                         </div>
@@ -195,18 +136,7 @@ export default function WorkflowConfigurePage() {
                                 }}
                                 onFieldAdd={handleFieldAdd}
                                 onFieldRemove={handleFieldRemove}
-                                onExtractData={() => {
-                                    if (fileId) {
-                                        extractData.mutate(
-                                            { fileId, fields, tables },
-                                            {
-                                                onSuccess: (data) => {
-                                                    setExtractionResult(data.extractionResult);
-                                                },
-                                            },
-                                        );
-                                    }
-                                }}
+                                onExtractData={() => {}}
                             />
                         </div>
                     )}

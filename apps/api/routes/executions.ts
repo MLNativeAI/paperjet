@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
-import { WorkflowService } from "@paperjet/engine";
+import { DocumentAnalysisService, DocumentExtractionService, WorkflowExecutionService, WorkflowService } from "@paperjet/engine";
 import { Hono } from "hono";
+import { Langfuse } from "langfuse";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { s3 } from "@/lib/s3";
@@ -8,8 +9,28 @@ import { executionIdSchema, workflowIdSchema } from "@/lib/validation";
 
 const app = new Hono();
 
-// Initialize workflow service with dependencies
-const workflowService = new WorkflowService({ s3 });
+// Initialize Langfuse client
+const langfuse = new Langfuse({
+    secretKey: process.env.LANGFUSE_SECRET_KEY,
+    publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+    baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
+});
+
+// Initialize services with dependencies
+const documentAnalysisService = new DocumentAnalysisService({ langfuse });
+const documentExtractionService = new DocumentExtractionService({ langfuse });
+const workflowExecutionService = new WorkflowExecutionService({
+    langfuse,
+    extractionService: documentExtractionService,
+    s3,
+});
+
+const workflowService = new WorkflowService({
+    documentAnalysisService,
+    documentExtractionService,
+    workflowExecutionService,
+    s3,
+});
 
 // Validation schemas
 const executionIdParamSchema = z.object({
@@ -86,9 +107,7 @@ const router = app
             }
 
             // Create individual executions for each file
-            const results = await Promise.all(
-                uploadedFiles.map((file) => workflowService.executeWorkflow(workflowId, user.id, file)),
-            );
+            const results = await Promise.all(uploadedFiles.map((file) => workflowService.executeWorkflow(workflowId, user.id, file)));
 
             return c.json({ executions: results });
         } catch (error) {

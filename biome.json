@@ -6,7 +6,7 @@
         }
     },
     "formatter": {
-        "lineWidth": 120,
+        "lineWidth": 160,
         "indentStyle": "space",
         "indentWidth": 4
     }

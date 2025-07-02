@@ -1,25 +1,17 @@
-import { google } from "@ai-sdk/google";
 import { db } from "@paperjet/db";
-import { file, workflow, workflowExecution, workflowFile } from "@paperjet/db/schema";
-import {
-    type CategoryAnalysis,
-    categoryAnalysisSchema,
-    type DocumentAnalysis,
-    type DocumentTypeAnalysis,
-    documentAnalysisSchema,
-    documentTypeAnalysisSchema,
-    type ExtractionResult,
-    type FieldCategoryAnalysis,
-    fieldCategoryAnalysisSchema,
-    type WorkflowConfiguration,
-    workflowConfigurationSchema,
-} from "@paperjet/db/types";
-import { generateObject } from "ai";
-import { and, desc, eq } from "drizzle-orm";
+import { file, workflow, workflowFile } from "@paperjet/db/schema";
+import { type DocumentAnalysis, type WorkflowConfiguration, workflowConfigurationSchema } from "@paperjet/db/types";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { generateId, ID_PREFIXES } from "../utils/id";
+import type { DocumentAnalysisService } from "./document-analysis-service";
+import type { DocumentExtractionService } from "./document-extraction-service";
+import type { WorkflowExecutionService } from "./workflow-execution-service";
 
 export interface WorkflowServiceDeps {
+    documentAnalysisService: DocumentAnalysisService;
+    documentExtractionService: DocumentExtractionService;
+    workflowExecutionService: WorkflowExecutionService;
     s3: {
         presign: (filename: string) => Promise<string>;
         file: (filename: string) => {
@@ -34,7 +26,7 @@ export class WorkflowService {
     async getWorkflows(userId: string) {
         const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
 
-        return workflows.map((w) => {
+        const result = workflows.map((w) => {
             const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(w.configuration));
             if (!parsedConfig.success) {
                 console.warn(`Invalid workflow configuration for workflow ${w.id}:`, parsedConfig.error);
@@ -49,6 +41,8 @@ export class WorkflowService {
                 configuration: parsedConfig.data,
             };
         });
+
+        return result;
     }
 
     async getWorkflow(workflowId: string, userId: string) {
@@ -80,10 +74,12 @@ export class WorkflowService {
             };
         }
 
-        return {
+        const result = {
             ...workflowData,
             configuration: parsedConfig.data,
         };
+
+        return result;
     }
 
     async updateWorkflow(
@@ -149,13 +145,15 @@ export class WorkflowService {
         const hasFields = configuration.fields && configuration.fields.length > 0;
         const isAnalysisComplete = hasFields;
 
-        return {
+        const result = {
             analysisComplete: isAnalysisComplete,
             suggestedFields: configuration.fields || [],
             suggestedTables: configuration.tables || [],
             hasFields,
             documentType: configuration.documentType || "Unknown",
         };
+
+        return result;
     }
 
     async createWorkflow(
@@ -227,36 +225,8 @@ export class WorkflowService {
         // Get presigned URL for the existing file
         const presignedUrl = await this.deps.s3.presign(workflowData.filename);
 
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
-
-        // Step 1: Document Type Analysis
-        const documentTypeAnalysis = await this.analyzeDocumentType(model, presignedUrl);
-
-        // Step 2: Category Identification
-        const categoryAnalysis = await this.identifyCategories(model, presignedUrl, documentTypeAnalysis);
-
-        // Step 3: Field Extraction with Categories
-        const fieldAnalysis = await this.extractFieldsWithCategories(
-            model,
-            presignedUrl,
-            documentTypeAnalysis,
-            categoryAnalysis,
-        );
-
-        // Step 4: Table Identification
-        const tableAnalysis = await this.identifyTables(model, presignedUrl, documentTypeAnalysis);
-
-        // Combine results into final analysis
-        const analysisResult: DocumentAnalysis = {
-            documentType: documentTypeAnalysis.documentType,
-            suggestedFields: fieldAnalysis.suggestedFields,
-            suggestedTables: tableAnalysis,
-        };
+        // Use the document analysis service to perform complete analysis
+        const analysisResult = await this.deps.documentAnalysisService.performCompleteAnalysis(presignedUrl);
 
         // Update workflow configuration with analysis results
         const configuration = {
@@ -276,190 +246,6 @@ export class WorkflowService {
         return {
             analysis: analysisResult,
         };
-    }
-
-    private async analyzeDocumentType(model: any, presignedUrl: string): Promise<DocumentTypeAnalysis> {
-        const { object } = await generateObject({
-            model,
-            schema: documentTypeAnalysisSchema,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: `Analyze this document and provide:
-1. Document type (invoice, contract, form, purchase order, receipt, bank statement, etc.)
-2. Brief description of the document's purpose and content
-3. Main sections or areas you can identify in the document
-
-Be specific about the document type and provide a clear description that will help with further analysis.`,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
-
-        return object as DocumentTypeAnalysis;
-    }
-
-    private async identifyCategories(
-        model: any,
-        presignedUrl: string,
-        documentType: DocumentTypeAnalysis,
-    ): Promise<CategoryAnalysis> {
-        const { object } = await generateObject({
-            model,
-            schema: categoryAnalysisSchema,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: `Based on this ${documentType.documentType} document, identify logical categories to group information.
-
-Create 3-8 meaningful category names that represent different types of information in this document type.
-For each category, provide a brief description of what information it should contain.
-
-Categories should be:
-- Logically distinct
-- Comprehensive (covering all important information)
-- Business-relevant
-- Easy to understand
-
-Examples for different document types:
-- Invoice: "Invoice Details", "Vendor Information", "Billing Information", "Line Items", "Payment Terms"
-- Contract: "Party Information", "Agreement Terms", "Dates and Duration", "Financial Terms", "Signatures"
-- Purchase Order: "Order Information", "Supplier Details", "Product Items", "Delivery Information", "Terms and Conditions"
-
-Focus on creating categories that make sense for this specific document type.`,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
-
-        return object as CategoryAnalysis;
-    }
-
-    private async extractFieldsWithCategories(
-        model: any,
-        presignedUrl: string,
-        documentType: DocumentTypeAnalysis,
-        categories: CategoryAnalysis,
-    ): Promise<FieldCategoryAnalysis> {
-        const categoryList = categories.categories.map((c) => `- ${c.name}: ${c.description}`).join("\n");
-
-        const { object } = await generateObject({
-            model,
-            schema: fieldCategoryAnalysisSchema,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: `Extract fields from this ${documentType.documentType} document and assign each to one of these categories:
-
-${categoryList}
-
-For each field, provide:
-- A clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
-- The expected data type (text, number, date, currency, boolean)
-- A detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
-- The assigned category from the list above
-
-Focus on extracting:
-1. **Identification fields**: Document numbers, IDs, reference codes
-2. **Key entities**: Names, addresses, contact information
-3. **Important dates**: Creation dates, due dates, effective dates
-4. **Financial information**: Amounts, taxes, totals, currency values
-5. **Status indicators**: Approval status, document state, flags
-
-Examples of good field descriptions:
-- "invoice_number": "The unique identifier for this invoice, often labeled as 'Invoice #', 'Invoice Number', 'Document Number', or similar, typically alphanumeric"
-- "total_amount": "The final total amount due, usually labeled as 'Total', 'Amount Due', 'Grand Total', or 'Total Amount', excluding currency symbols"
-- "invoice_date": "The date when the invoice was created or issued, typically labeled as 'Invoice Date', 'Date', or 'Issued' in MM/DD/YYYY or similar format"
-
-Provide practical, commonly needed information extraction focused on business processes.`,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
-
-        return object as FieldCategoryAnalysis;
-    }
-
-    private async identifyTables(model: any, presignedUrl: string, documentType: DocumentTypeAnalysis): Promise<any[]> {
-        try {
-            const { object } = await generateObject({
-                model,
-                schema: z.object({
-                    suggestedTables: z.array(
-                        z.object({
-                            name: z.string(),
-                            description: z.string(),
-                            columns: z.array(
-                                z.object({
-                                    name: z.string(),
-                                    description: z.string(),
-                                    type: z.enum(["text", "number", "date", "currency", "boolean"]),
-                                    required: z.boolean().default(false),
-                                    category: z.string().default("Table Data"),
-                                }),
-                            ),
-                        }),
-                    ),
-                }),
-                messages: [
-                    {
-                        role: "user",
-                        content: [
-                            {
-                                type: "text",
-                                text: `Identify any table structures in this ${documentType.documentType} document.
-
-Look for:
-- Line items, product lists
-- Transaction details
-- Itemized lists
-- Data grids or structured information
-
-For each table found, provide:
-- Table name and description
-- Column definitions with names, types, and descriptions
-- Focus on business-relevant structured data
-
-If no clear table structures are found, return an empty array.`,
-                            },
-                            {
-                                type: "image",
-                                image: new URL(presignedUrl),
-                            },
-                        ],
-                    },
-                ],
-            });
-
-            return (object as any).suggestedTables || [];
-        } catch (error) {
-            console.warn("Table identification failed:", error);
-            return [];
-        }
     }
 
     async createWorkflowFromFile(
@@ -533,35 +319,7 @@ If no clear table structures are found, return an empty array.`,
                 }>;
             }>;
         },
-    ): Promise<{
-        fileId: string;
-        extractionResult: ExtractionResult;
-    }> {
-        const extractSchema = z.object({
-            fields: z.array(
-                z.object({
-                    name: z.string(),
-                    description: z.string(),
-                    type: z.enum(["text", "number", "date", "currency", "boolean"]),
-                }),
-            ),
-            tables: z.array(
-                z.object({
-                    name: z.string(),
-                    description: z.string(),
-                    columns: z.array(
-                        z.object({
-                            name: z.string(),
-                            description: z.string(),
-                            type: z.enum(["text", "number", "date", "currency", "boolean"]),
-                        }),
-                    ),
-                }),
-            ),
-        });
-
-        const validatedData = extractSchema.parse(extractionConfig);
-
+    ) {
         // Get file from database
         const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
 
@@ -572,136 +330,16 @@ If no clear table structures are found, return an empty array.`,
         // Get presigned URL for the file
         const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
 
-        // Create dynamic schema based on provided fields and tables
-        const fieldSchemas = validatedData.fields
-            .map((field) => {
-                let zodType: string;
-                switch (field.type) {
-                    case "number":
-                        zodType = "z.number().nullable()";
-                        break;
-                    case "date":
-                        zodType = "z.string().nullable()"; // Date as ISO string
-                        break;
-                    case "currency":
-                        zodType = "z.number().nullable()"; // Currency as number
-                        break;
-                    case "boolean":
-                        zodType = "z.boolean().nullable()";
-                        break;
-                    default:
-                        zodType = "z.string().nullable()";
-                }
-                return `${field.name}: ${zodType}`;
-            })
-            .join(",\n  ");
-
-        const tableSchemas = validatedData.tables
-            .map((table) => {
-                const columnSchemas = table.columns
-                    .map((col) => {
-                        let zodType: string;
-                        switch (col.type) {
-                            case "number":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "date":
-                                zodType = "z.string().nullable()";
-                                break;
-                            case "currency":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "boolean":
-                                zodType = "z.boolean().nullable()";
-                                break;
-                            default:
-                                zodType = "z.string().nullable()";
-                        }
-                        return `${col.name}: ${zodType}`;
-                    })
-                    .join(",\n    ");
-
-                return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
-            })
-            .join(",\n  ");
-
-        const fullSchema = `z.object({
-  ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
-})`;
-
-        // Build extraction prompt with field descriptions
-        const fieldDescriptions = validatedData.fields
-            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
-            .join("\n");
-
-        const tableDescriptions = validatedData.tables
-            .map((table) => {
-                const columnDescs = table.columns
-                    .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
-                    .join("\n");
-                return `- ${table.name}: ${table.description}\n${columnDescs}`;
-            })
-            .join("\n");
-
-        const prompt = `Extract the following information from this document:
-
-FIELDS TO EXTRACT:
-${fieldDescriptions}
-
-${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ""}
-
-Instructions:
-- Extract exact values as they appear in the document
-- For currency fields, extract as numbers (remove currency symbols)
-- For date fields, use ISO format (YYYY-MM-DD)
-- For boolean fields, return true/false based on presence or checkmarks
-- If a field is not found or unclear, return null
-- For tables, extract all rows found
-- Maintain data accuracy and completeness`;
-
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
-
-        // Build dynamic schema object for generateObject
-        const schemaObj = eval(`(${fullSchema})`);
-
-        const { object } = await generateObject({
-            model,
-            schema: schemaObj,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: prompt,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
-
-        // Transform the result to match our extraction result schema
-        const extractionResult: ExtractionResult = {
-            fields: validatedData.fields.map((field) => ({
-                fieldName: field.name,
-                value: (object as any)[field.name],
-            })),
-            tables: validatedData.tables.map((table) => ({
-                tableName: table.name,
-                rows: ((object as any)[table.name] || []).map((row: any) => ({
-                    values: row,
-                })),
-            })),
-        };
+        // Use the document extraction service
+        const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(
+            presignedUrl,
+            extractionConfig,
+            {
+                workflowId,
+                fileId,
+                userId,
+            },
+        );
 
         return {
             fileId,
@@ -720,11 +358,13 @@ Instructions:
         // Get presigned URL for the file
         const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
 
-        return {
+        const result = {
             fileId,
             filename: fileRecord.filename,
             presignedUrl,
         };
+
+        return result;
     }
 
     async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
@@ -742,181 +382,28 @@ Instructions:
         }
         const config = parsedConfig.data;
 
-        // Create execution record for single file
-        const executionId = generateId(ID_PREFIXES.workflowExecution);
-        const fileId = generateId(ID_PREFIXES.file);
-        const filename = `executions/${executionId}/${uploadedFile.name}`;
+        // Use the workflow execution service
+        const result = await this.deps.workflowExecutionService.executeWorkflow(
+            workflowId,
+            workflowData.name,
+            config,
+            userId,
+            uploadedFile,
+        );
 
-        try {
-            // Save file to storage
-            await db.insert(file).values({
-                id: fileId,
-                filename,
-                createdAt: new Date(),
-                ownerId: userId,
-            });
-
-            const fileBuffer = await uploadedFile.arrayBuffer();
-            await this.deps.s3.file(filename).write(fileBuffer);
-
-            // Create execution record with file reference
-            await db.insert(workflowExecution).values({
-                id: executionId,
-                workflowId,
-                fileId,
-                status: "processing",
-                startedAt: new Date(),
-                createdAt: new Date(),
-                ownerId: userId,
-            });
-
-            // Extract data using existing extraction logic
-            const extractionResult = await this.processExecutionFile(filename, config);
-
-            // Update execution with results
-            await db
-                .update(workflowExecution)
-                .set({
-                    extractionResult: JSON.stringify(extractionResult),
-                    status: "completed",
-                    completedAt: new Date(),
-                })
-                .where(eq(workflowExecution.id, executionId));
-
-            return {
-                executionId,
-                status: "completed",
-                fileId,
-                filename: uploadedFile.name,
-                extractionResult,
-            };
-        } catch (error) {
-            console.error("File processing error:", error);
-
-            // Update execution with error
-            await db
-                .update(workflowExecution)
-                .set({
-                    status: "failed",
-                    errorMessage: error instanceof Error ? error.message : "Unknown error",
-                    completedAt: new Date(),
-                })
-                .where(eq(workflowExecution.id, executionId));
-
-            return {
-                executionId,
-                status: "failed",
-                fileId,
-                filename: uploadedFile.name,
-                error: error instanceof Error ? error.message : "Unknown error",
-            };
-        }
+        return result;
     }
 
     async getWorkflowExecutions(workflowId: string, userId: string) {
-        // Verify workflow ownership
-        const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-        if (!workflowData || workflowData.ownerId !== userId) {
-            throw new Error("Workflow not found");
-        }
-
-        // Get executions with file details
-        const executions = await db
-            .select({
-                id: workflowExecution.id,
-                workflowId: workflowExecution.workflowId,
-                fileId: workflowExecution.fileId,
-                status: workflowExecution.status,
-                extractionResult: workflowExecution.extractionResult,
-                errorMessage: workflowExecution.errorMessage,
-                startedAt: workflowExecution.startedAt,
-                completedAt: workflowExecution.completedAt,
-                createdAt: workflowExecution.createdAt,
-                filename: file.filename,
-            })
-            .from(workflowExecution)
-            .leftJoin(file, eq(workflowExecution.fileId, file.id))
-            .where(eq(workflowExecution.workflowId, workflowId))
-            .orderBy(desc(workflowExecution.createdAt));
-
-        return executions.map((execution) => ({
-            ...execution,
-            filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
-        }));
+        return await this.deps.workflowExecutionService.getWorkflowExecutions(workflowId, userId);
     }
 
     async getAllExecutions(userId: string) {
-        // Get all executions for user with workflow names and file details
-        const executions = await db
-            .select({
-                id: workflowExecution.id,
-                workflowId: workflowExecution.workflowId,
-                workflowName: workflow.name,
-                fileId: workflowExecution.fileId,
-                status: workflowExecution.status,
-                extractionResult: workflowExecution.extractionResult,
-                errorMessage: workflowExecution.errorMessage,
-                startedAt: workflowExecution.startedAt,
-                completedAt: workflowExecution.completedAt,
-                createdAt: workflowExecution.createdAt,
-                filename: file.filename,
-            })
-            .from(workflowExecution)
-            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
-            .leftJoin(file, eq(workflowExecution.fileId, file.id))
-            .where(eq(workflow.ownerId, userId))
-            .orderBy(desc(workflowExecution.createdAt));
-
-        return executions.map((execution) => ({
-            ...execution,
-            // Extract just the filename without the path
-            filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
-        }));
+        return await this.deps.workflowExecutionService.getAllExecutions(userId);
     }
 
     async getExecutionDetails(executionId: string, userId: string) {
-        // Get the execution with workflow and file details
-        const [executionData] = await db
-            .select({
-                id: workflowExecution.id,
-                workflowId: workflowExecution.workflowId,
-                workflowName: workflow.name,
-                fileId: workflowExecution.fileId,
-                status: workflowExecution.status,
-                extractionResult: workflowExecution.extractionResult,
-                errorMessage: workflowExecution.errorMessage,
-                startedAt: workflowExecution.startedAt,
-                completedAt: workflowExecution.completedAt,
-                createdAt: workflowExecution.createdAt,
-                filename: file.filename,
-            })
-            .from(workflowExecution)
-            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
-            .leftJoin(file, eq(workflowExecution.fileId, file.id))
-            .where(eq(workflowExecution.id, executionId));
-
-        if (!executionData || executionData.workflowId === null) {
-            throw new Error("Execution not found");
-        }
-
-        // Verify the workflow belongs to the user
-        const [workflowData] = await db
-            .select({ ownerId: workflow.ownerId })
-            .from(workflow)
-            .where(eq(workflow.id, executionData.workflowId));
-
-        if (!workflowData || workflowData.ownerId !== userId) {
-            throw new Error("Execution not found");
-        }
-
-        return {
-            ...executionData,
-            // Extract just the filename without the path
-            filename: executionData.filename ? executionData.filename.split("/").pop() || "Unknown" : "Unknown",
-            // Parse extractionResult from JSON string to object
-            extractionResult: executionData.extractionResult ? JSON.parse(executionData.extractionResult) : null,
-        };
+        return await this.deps.workflowExecutionService.getExecutionDetails(executionId, userId);
     }
 
     async deleteWorkflow(workflowId: string, userId: string) {
@@ -927,9 +414,6 @@ Instructions:
             throw new Error("Workflow not found");
         }
 
-        // Delete workflow executions (cascade will handle file references)
-        await db.delete(workflowExecution).where(eq(workflowExecution.workflowId, workflowId));
-
         // Delete workflow files
         await db.delete(workflowFile).where(eq(workflowFile.workflowId, workflowId));
 
@@ -938,155 +422,6 @@ Instructions:
     }
 
     async deleteExecution(executionId: string, userId: string) {
-        // Get execution and verify user owns the associated workflow
-        const [executionData] = await db
-            .select({
-                id: workflowExecution.id,
-                workflowId: workflowExecution.workflowId,
-                fileId: workflowExecution.fileId,
-            })
-            .from(workflowExecution)
-            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
-            .where(and(eq(workflowExecution.id, executionId), eq(workflow.ownerId, userId)));
-
-        if (!executionData) {
-            throw new Error("Execution not found");
-        }
-
-        // Delete the execution
-        await db.delete(workflowExecution).where(eq(workflowExecution.id, executionId));
-    }
-
-    private async processExecutionFile(filename: string, config: WorkflowConfiguration): Promise<ExtractionResult> {
-        const presignedUrl = await this.deps.s3.presign(filename);
-
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
-
-        // Build extraction schema
-        const fieldSchemas = config.fields
-            .map((field) => {
-                let zodType: string;
-                switch (field.type) {
-                    case "number":
-                        zodType = "z.number().nullable()";
-                        break;
-                    case "date":
-                        zodType = "z.string().nullable()";
-                        break;
-                    case "currency":
-                        zodType = "z.number().nullable()";
-                        break;
-                    case "boolean":
-                        zodType = "z.boolean().nullable()";
-                        break;
-                    default:
-                        zodType = "z.string().nullable()";
-                }
-                return `${field.name}: ${zodType}`;
-            })
-            .join(",\n  ");
-
-        const tableSchemas = config.tables
-            .map((table) => {
-                const columnSchemas = table.columns
-                    .map((col) => {
-                        let zodType: string;
-                        switch (col.type) {
-                            case "number":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "date":
-                                zodType = "z.string().nullable()";
-                                break;
-                            case "currency":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "boolean":
-                                zodType = "z.boolean().nullable()";
-                                break;
-                            default:
-                                zodType = "z.string().nullable()";
-                        }
-                        return `${col.name}: ${zodType}`;
-                    })
-                    .join(",\n    ");
-
-                return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
-            })
-            .join(",\n  ");
-
-        const fullSchema = `z.object({
-  ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
-})`;
-
-        const fieldDescriptions = config.fields
-            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
-            .join("\n");
-
-        const tableDescriptions = config.tables
-            .map((table) => {
-                const columnDescs = table.columns
-                    .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
-                    .join("\n");
-                return `- ${table.name}: ${table.description}\n${columnDescs}`;
-            })
-            .join("\n");
-
-        const prompt = `Extract the following information from this document:
-
-FIELDS TO EXTRACT:
-${fieldDescriptions}
-
-${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ""}
-
-Instructions:
-- Extract exact values as they appear in the document
-- For currency fields, extract as numbers (remove currency symbols)
-- For date fields, use ISO format (YYYY-MM-DD)
-- For boolean fields, return true/false based on presence or checkmarks
-- If a field is not found or unclear, return null
-- For tables, extract all rows found
-- Maintain data accuracy and completeness`;
-
-        const schemaObj = eval(`(${fullSchema})`);
-
-        const { object } = await generateObject({
-            model,
-            schema: schemaObj,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: prompt,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
-
-        // Transform result to match our extraction result schema
-        return {
-            fields: config.fields.map((field) => ({
-                fieldName: field.name,
-                value: (object as any)[field.name],
-            })),
-            tables: config.tables.map((table) => ({
-                tableName: table.name,
-                rows: ((object as any)[table.name] || []).map((row: any) => ({
-                    values: row,
-                })),
-            })),
-        };
+        return await this.deps.workflowExecutionService.deleteExecution(executionId, userId);
     }
 }
