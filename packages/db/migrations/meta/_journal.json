@@ -43,6 +43,13 @@
             "when": 1751223000000,
             "tag": "0005_convert_uuids_to_prefixed_ids",
             "breakpoints": true
+        },
+        {
+            "idx": 6,
+            "version": "7",
+            "when": 1751457106633,
+            "tag": "0006_short_mac_gargan",
+            "breakpoints": true
         }
     ]
 }

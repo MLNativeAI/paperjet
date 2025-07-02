@@ -47,6 +47,11 @@ function PathlessLayoutComponent() {
                 parent: "Workflows",
                 current: "New Workflow",
             };
+        } else if (pathname.match(/^\/workflows\/[^/]+\/finalize$/)) {
+            return {
+                parent: "Workflows",
+                current: "Finalize Workflow",
+            };
         }
 
         // Default fallback

@@ -18,6 +18,14 @@ export function useWorkflow(workflowId: string) {
         queryKey: ["workflow", workflowId],
         queryFn: () => getWorkflow(workflowId),
         enabled: !!workflowId,
+        // Refetch more frequently when workflow is in transitional states
+        refetchInterval: (query) => {
+            const status = query.state.data?.status;
+            if (status === "analyzing" || status === "extracting") {
+                return 2000; // Poll every 2 seconds during processing
+            }
+            return false; // Don't poll for other states
+        },
     });
 
     const updateWorkflow = useMutation({

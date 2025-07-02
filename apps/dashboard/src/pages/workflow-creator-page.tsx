@@ -1,13 +1,11 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, DollarSign, FileSpreadsheet, FileText, Loader2, Package, Receipt, ScrollText, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DocumentPreview } from "@/components/document-preview";
-import { ExtractedValues } from "@/components/extracted-values";
 import { FileUploadArea } from "@/components/file-upload-area";
 import { LoadingIndicator } from "@/components/loading-indicator";
 import { ProgressSteps } from "@/components/progress-steps";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { WorkflowTemplateCard } from "@/components/workflow-template-card";
 import { useWorkflow } from "@/hooks/useWorkflow";
 
@@ -58,16 +56,14 @@ const workflowTemplates = [
 
 export default function WorkflowCreatorPage() {
     const navigate = useNavigate();
-    const [_file, setFile] = useState<File | null>(null);
     const [workflowId, setWorkflowId] = useState<string>("");
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-    const [phase, setPhase] = useState<"template" | "upload" | "analyzing" | "extracting" | "complete">("template");
+    const [phase, setPhase] = useState<"template" | "upload" | "loading">("template");
 
-    const { createWorkflowFromFile, analyzeWorkflow, extractData, workflow, isAnalysisComplete, analysisStatus } = useWorkflow(workflowId);
+    const { createWorkflowFromFile, analyzeWorkflow, workflow } = useWorkflow(workflowId);
 
     const handleFileSelect = (selectedFile: File) => {
-        setFile(selectedFile);
-        setPhase("analyzing");
+        setPhase("loading");
         createWorkflowFromFile.mutate(selectedFile, {
             onSuccess: (data) => {
                 setWorkflowId(data.workflowId);
@@ -80,28 +76,17 @@ export default function WorkflowCreatorPage() {
         });
     };
 
-    // Watch for analysis completion and trigger extraction
+    // Watch for workflow status changes and navigate accordingly
     useEffect(() => {
-        if (isAnalysisComplete && phase === "analyzing" && workflow) {
-            setPhase("extracting");
-            // Trigger extraction with the analyzed fields
-            const firstFileId = workflow.fileId;
-            if (firstFileId && analysisStatus?.suggestedFields) {
-                extractData.mutate(
-                    {
-                        fileId: firstFileId,
-                        fields: analysisStatus.suggestedFields,
-                        tables: analysisStatus.suggestedTables || [],
-                    },
-                    {
-                        onSuccess: () => {
-                            setPhase("complete");
-                        },
-                    },
-                );
+        if (workflow && workflowId) {
+            const status = workflow.status;
+            
+            // Navigate to finalize page when status changes to extracting or configuring
+            if (status === "extracting" || status === "configuring") {
+                navigate({ to: `/workflows/${workflowId}/finalize` });
             }
         }
-    }, [isAnalysisComplete, phase, workflow, analysisStatus, extractData]);
+    }, [workflow, workflowId, navigate]);
 
     const handleTemplateSelect = (templateId: string) => {
         setSelectedTemplate(templateId);
@@ -191,24 +176,25 @@ export default function WorkflowCreatorPage() {
     };
 
     const renderLoadingPhase = () => {
-        const isAnalyzing = phase === "analyzing";
-        const isExtracting = phase === "extracting";
-
         return (
             <div className="w-full px-4 py-8">
                 <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold mb-4">{isAnalyzing ? "Analyzing Document" : "Extracting Data"}</h1>
-                    <p className="text-muted-foreground">
-                        {isAnalyzing ? "We're analyzing your document to suggest fields for extraction..." : "Extracting data based on the analysis..."}
-                    </p>
+                    <h1 className="text-3xl font-bold mb-4">Creating Workflow</h1>
+                    <p className="text-muted-foreground">Setting up your workflow...</p>
                 </div>
 
                 <div className="flex justify-center">
                     <Card className="w-full max-w-2xl">
                         <CardContent className="p-8">
-                            <div className="space-y-6">
-                                <ProgressSteps currentStep={phase} />
-                                <LoadingIndicator phase={phase} />
+                            <div className="flex flex-col items-center space-y-6">
+                                <div className="relative">
+                                    <Loader2 className="h-16 w-16 animate-spin text-primary" />
+                                    <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-pulse" />
+                                </div>
+                                <div className="text-center space-y-2">
+                                    <p className="text-lg font-medium">Preparing your workflow</p>
+                                    <p className="text-sm text-muted-foreground">Please wait a moment...</p>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
@@ -217,78 +203,13 @@ export default function WorkflowCreatorPage() {
         );
     };
 
-    const renderResultsPhase = () => {
-        const firstFileId = workflow?.fileId;
-
-        return (
-            <div className="w-full px-4 py-8">
-                <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold mb-4">Workflow Results</h1>
-                    <p className="text-muted-foreground">Review the extracted data and configure field settings as needed.</p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Panel - Document Viewer */}
-                    <div className="order-2 lg:order-1">
-                        {firstFileId ? (
-                            <DocumentPreview fileId={firstFileId} />
-                        ) : (
-                            <Card className="h-full">
-                                <CardHeader>
-                                    <CardTitle>Document Preview</CardTitle>
-                                </CardHeader>
-                                <CardContent className="flex items-center justify-center h-96">
-                                    <div className="text-center">
-                                        <div className="relative mb-4">
-                                            <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500" />
-                                            <div className="absolute inset-0 rounded-full border-2 border-blue-200 animate-pulse" />
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">Loading document...</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </div>
-
-                    {/* Right Panel - Extracted Values (Primary) */}
-                    <div className="order-1 lg:order-2">
-                        <ExtractedValues
-                            extractionResult={extractData.data?.extractionResult}
-                            fields={analysisStatus?.suggestedFields || []}
-                            tables={analysisStatus?.suggestedTables || []}
-                            isLoading={extractData.isPending}
-                            onExtractData={() => {
-                                const firstFileId = workflow?.fileId;
-                                if (firstFileId && analysisStatus?.suggestedFields) {
-                                    extractData.mutate({
-                                        fileId: firstFileId,
-                                        fields: analysisStatus.suggestedFields,
-                                        tables: analysisStatus.suggestedTables || [],
-                                    });
-                                }
-                            }}
-                        />
-
-                        <div className="mt-6 space-y-4">
-                            <Button onClick={() => navigate({ to: `/workflows/${workflowId}/configure` })} className="w-full">
-                                Configure Fields & Save Workflow
-                            </Button>
-                            <Button variant="outline" onClick={() => navigate({ to: "/" })} className="w-full">
-                                Back to Workflows
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
+    // Results phase has been moved to the finalize page
 
     return (
         <>
             {phase === "template" && renderTemplateSelectionPhase()}
             {phase === "upload" && renderUploadPhase()}
-            {(phase === "analyzing" || phase === "extracting") && renderLoadingPhase()}
-            {phase === "complete" && renderResultsPhase()}
+            {phase === "loading" && renderLoadingPhase()}
         </>
     );
 }

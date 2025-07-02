@@ -13,6 +13,9 @@ export type FileDataWithPresignedUrl = FileData & {
 };
 
 // Workflow types
+export const workflowStatusSchema = z.enum(["draft", "analyzing", "extracting", "configuring", "active"]);
+export type WorkflowStatus = z.infer<typeof workflowStatusSchema>;
+
 export type WorkflowData = typeof workflow.$inferSelect;
 export type WorkflowFileData = typeof workflowFile.$inferSelect;
 

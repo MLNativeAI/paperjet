@@ -1,6 +1,6 @@
 import { db } from "@paperjet/db";
 import { file, workflow, workflowFile } from "@paperjet/db/schema";
-import { type DocumentAnalysis, type WorkflowConfiguration, workflowConfigurationSchema } from "@paperjet/db/types";
+import { type DocumentAnalysis, type WorkflowConfiguration, type WorkflowStatus, workflowConfigurationSchema } from "@paperjet/db/types";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { generateId, ID_PREFIXES } from "../utils/id";
@@ -35,11 +35,13 @@ export class WorkflowService {
                 return {
                     ...w,
                     configuration: { fields: [], tables: [] },
+                    status: (w.status || 'active') as WorkflowStatus,
                 };
             }
             return {
                 ...w,
                 configuration: parsedConfig.data,
+                status: (w.status || 'active') as WorkflowStatus,
             };
         });
 
@@ -52,6 +54,7 @@ export class WorkflowService {
                 id: workflow.id,
                 name: workflow.name,
                 configuration: workflow.configuration,
+                status: workflow.status,
                 ownerId: workflow.ownerId,
                 createdAt: workflow.createdAt,
                 updatedAt: workflow.updatedAt,
@@ -72,12 +75,14 @@ export class WorkflowService {
             return {
                 ...workflowData,
                 configuration: { fields: [], tables: [] },
+                status: (workflowData.status || 'active') as WorkflowStatus,
             };
         }
 
         const result = {
             ...workflowData,
             configuration: parsedConfig.data,
+            status: (workflowData.status || 'active') as WorkflowStatus,
         };
 
         return result;
@@ -112,6 +117,8 @@ export class WorkflowService {
 
         if (validatedData.name) {
             updateData.name = validatedData.name;
+            // When a name is provided, update status to active
+            updateData.status = 'active';
         }
 
         if (validatedData.configuration) {
@@ -178,6 +185,7 @@ export class WorkflowService {
             id,
             name: validatedData.name,
             configuration: JSON.stringify(validatedData.configuration),
+            status: 'active', // Creating directly with name, so it's active
             ownerId: userId,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -231,7 +239,7 @@ export class WorkflowService {
         // Use the document analysis service to perform complete analysis
         const analysisResult = await this.deps.documentAnalysisService.performCompleteAnalysis(presignedUrl);
 
-        // Update workflow configuration with analysis results
+        // Update workflow configuration with analysis results and set status to extracting
         const configuration = {
             fields: analysisResult.suggestedFields || [],
             tables: analysisResult.suggestedTables || [],
@@ -242,6 +250,7 @@ export class WorkflowService {
             .update(workflow)
             .set({
                 configuration: JSON.stringify(configuration),
+                status: 'extracting',
                 updatedAt: new Date(),
             })
             .where(eq(workflow.id, workflowId));
@@ -297,6 +306,7 @@ export class WorkflowService {
                 fields: [],
                 tables: [],
             }),
+            status: 'analyzing', // Set initial status to analyzing
             ownerId: userId,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -374,6 +384,15 @@ export class WorkflowService {
             extractedFieldsCount: extractionResult.fields.length,
             extractedTablesCount: extractionResult.tables.length
         }, "Data extraction from document completed");
+
+        // Update workflow status to configuring after extraction
+        await db
+            .update(workflow)
+            .set({
+                status: 'configuring',
+                updatedAt: new Date(),
+            })
+            .where(eq(workflow.id, workflowId));
 
         return {
             fileId,

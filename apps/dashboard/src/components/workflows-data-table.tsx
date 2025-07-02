@@ -1,3 +1,4 @@
+import type { WorkflowStatus } from "@paperjet/db/types";
 import {
     IconChevronLeft,
     IconChevronRight,
@@ -25,7 +26,7 @@ import {
     useReactTable,
     type VisibilityState,
 } from "@tanstack/react-table";
-import { Calendar, CheckCircle, ChevronDown, ChevronRight, Clock, Eye, PlayIcon, XCircle } from "lucide-react";
+import { Calendar, CheckCircle, ChevronDown, ChevronRight, Clock, Eye, FileSearch, Loader2, PlayIcon, Settings, XCircle } from "lucide-react";
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ import { useWorkflowExecutions } from "@/hooks/useWorkflowExecutions";
 interface WorkflowData {
     id: string;
     name: string;
+    status: WorkflowStatus;
     description?: string | null;
     configuration: {
         fields?: any[];
@@ -77,6 +79,39 @@ const getStatusColor = (status: string): "secondary" | "default" | "destructive"
             return "default";
         case "failed":
             return "destructive";
+        default:
+            return "secondary";
+    }
+};
+
+const getWorkflowStatusIcon = (status: WorkflowStatus) => {
+    switch (status) {
+        case "draft":
+            return <FileSearch className="h-4 w-4 text-muted-foreground" />;
+        case "analyzing":
+            return <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />;
+        case "extracting":
+            return <Loader2 className="h-4 w-4 text-purple-600 animate-spin" />;
+        case "configuring":
+            return <Settings className="h-4 w-4 text-orange-600" />;
+        case "active":
+            return <CheckCircle className="h-4 w-4 text-green-600" />;
+        default:
+            return <Clock className="h-4 w-4 text-muted-foreground" />;
+    }
+};
+
+const getWorkflowStatusColor = (status: WorkflowStatus): "secondary" | "default" | "destructive" | "outline" => {
+    switch (status) {
+        case "draft":
+            return "secondary";
+        case "analyzing":
+        case "extracting":
+            return "default";
+        case "configuring":
+            return "outline";
+        case "active":
+            return "default";
         default:
             return "secondary";
     }
@@ -169,6 +204,21 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
             cell: ({ row }) => <div className="text-sm text-muted-foreground max-w-xs truncate">{row.original.description || "No description"}</div>,
         },
         {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => {
+                const status = row.original.status;
+                return (
+                    <div className="flex items-center gap-2">
+                        {getWorkflowStatusIcon(status)}
+                        <Badge variant={getWorkflowStatusColor(status)} className="capitalize">
+                            {status}
+                        </Badge>
+                    </div>
+                );
+            },
+        },
+        {
             accessorKey: "configuration",
             header: "Fields",
             cell: ({ row }) => {
@@ -196,37 +246,59 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
         {
             id: "actions",
             header: "Actions",
-            cell: ({ row }) => (
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => navigate({ to: `/workflows/${row.original.id}/run` })}>
-                        <PlayIcon className="h-4 w-4 mr-2" />
-                        Run
-                    </Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="data-[state=open]:bg-muted text-muted-foreground flex size-8" size="icon">
-                                <IconDotsVertical className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
+            cell: ({ row }) => {
+                const status = row.original.status;
+                const isActive = status === "active";
+                const isProcessing = status === "analyzing" || status === "extracting";
+                
+                return (
+                    <div className="flex items-center gap-2">
+                        {isActive ? (
+                            <Button variant="outline" size="sm" onClick={() => navigate({ to: `/workflows/${row.original.id}/run` })}>
+                                <PlayIcon className="h-4 w-4 mr-2" />
+                                Run
                             </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32">
-                            <DropdownMenuItem onClick={() => navigate({ to: `/workflows/${row.original.id}/history` })}>
-                                <IconHistory className="h-4 w-4 mr-2" />
-                                View History
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate({ to: `/workflows/${row.original.id}/configure` })}>
-                                <IconEdit className="h-4 w-4 mr-2" />
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem variant="destructive" onClick={() => onDeleteWorkflow(row.original.id, row.original.name)}>
-                                <IconTrash className="h-4 w-4 mr-2" />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            ),
+                        ) : isProcessing ? (
+                            <Button variant="outline" size="sm" onClick={() => navigate({ to: `/workflows/${row.original.id}/finalize` })}>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Processing
+                            </Button>
+                        ) : (
+                            <Button variant="outline" size="sm" onClick={() => navigate({ to: `/workflows/${row.original.id}/finalize` })}>
+                                <Settings className="h-4 w-4 mr-2" />
+                                Configure
+                            </Button>
+                        )}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="data-[state=open]:bg-muted text-muted-foreground flex size-8" size="icon">
+                                    <IconDotsVertical className="h-4 w-4" />
+                                    <span className="sr-only">Open menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-32">
+                                {isActive && (
+                                    <>
+                                        <DropdownMenuItem onClick={() => navigate({ to: `/workflows/${row.original.id}/history` })}>
+                                            <IconHistory className="h-4 w-4 mr-2" />
+                                            View History
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => navigate({ to: `/workflows/${row.original.id}/configure` })}>
+                                            <IconEdit className="h-4 w-4 mr-2" />
+                                            Edit
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
+                                <DropdownMenuItem variant="destructive" onClick={() => onDeleteWorkflow(row.original.id, row.original.name)}>
+                                    <IconTrash className="h-4 w-4 mr-2" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                );
+            },
         },
     ];
 
