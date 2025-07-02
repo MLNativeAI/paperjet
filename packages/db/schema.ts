@@ -63,7 +63,7 @@ export const workflow = pgTable("workflow", {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     configuration: text("configuration").notNull(), // JSON string
-    status: text("status").notNull().default("draft"), // 'draft' | 'analyzing' | 'extracting' | 'configuring' | 'active'
+    status: text("status").notNull().default("draft"), // 'draft' | 'analyzing' | 'extracting' | 'configuring' | 'active' | 'error'
     ownerId: text("owner_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),

@@ -53,31 +53,22 @@ export const documentAnalysisSchema = z.object({
     suggestedTables: z.array(extractionTableSchema),
 });
 
-export type DocumentAnalysis = z.infer<typeof documentAnalysisSchema>;
 
 // Multi-step analysis schemas
-export const documentTypeAnalysisSchema = z.object({
+export const documentTypeAndCategoriesSchema = z.object({
     documentType: z.string(),
     description: z.string(),
-    mainSections: z.array(z.string()),
+    categories: z.array(z.string()),
 });
 
-export const categoryAnalysisSchema = z.object({
-    categories: z.array(
-        z.object({
-            name: z.string(),
-            description: z.string(),
-        }),
-    ),
-});
+export type DocumentTypeAndCategories = z.infer<typeof documentTypeAndCategoriesSchema>;
 
 export const fieldCategoryAnalysisSchema = z.object({
     suggestedFields: z.array(extractionFieldSchema),
     suggestedTables: z.array(extractionTableSchema),
 });
 
-export type DocumentTypeAnalysis = z.infer<typeof documentTypeAnalysisSchema>;
-export type CategoryAnalysis = z.infer<typeof categoryAnalysisSchema>;
+
 export type FieldCategoryAnalysis = z.infer<typeof fieldCategoryAnalysisSchema>;
 
 // Data extraction schemas

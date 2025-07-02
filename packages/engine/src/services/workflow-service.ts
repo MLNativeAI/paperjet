@@ -1,10 +1,10 @@
 import { db } from "@paperjet/db";
 import { file, workflow, workflowFile } from "@paperjet/db/schema";
 import { type DocumentAnalysis, type WorkflowConfiguration, type WorkflowStatus, workflowConfigurationSchema } from "@paperjet/db/types";
+import { logger } from "@paperjet/shared";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { generateId, ID_PREFIXES } from "../utils/id";
-import { logger } from "@paperjet/shared";
 import type { DocumentAnalysisService } from "./document-analysis-service";
 import type { DocumentExtractionService } from "./document-extraction-service";
 import type { WorkflowExecutionService } from "./workflow-execution-service";
@@ -24,185 +24,87 @@ export interface WorkflowServiceDeps {
 export class WorkflowService {
     constructor(private deps: WorkflowServiceDeps) {}
 
-    async getWorkflows(userId: string) {
-        const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
-
-        const result = workflows.map((w) => {
-            const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(w.configuration));
-            if (!parsedConfig.success) {
-                logger.warn(parsedConfig.error, `Invalid workflow configuration for workflow ${w.id}:`);
-                // Return a default configuration if parsing fails
-                return {
-                    ...w,
-                    configuration: { fields: [], tables: [] },
-                    status: (w.status || 'active') as WorkflowStatus,
-                };
-            }
-            return {
-                ...w,
-                configuration: parsedConfig.data,
-                status: (w.status || 'active') as WorkflowStatus,
-            };
-        });
-
-        return result;
-    }
-
-    async getWorkflow(workflowId: string, userId: string) {
-        const [workflowData] = await db
-            .select({
-                id: workflow.id,
-                name: workflow.name,
-                configuration: workflow.configuration,
-                status: workflow.status,
-                ownerId: workflow.ownerId,
-                createdAt: workflow.createdAt,
-                updatedAt: workflow.updatedAt,
-                fileId: workflowFile.fileId,
-            })
-            .from(workflow)
-            .leftJoin(workflowFile, eq(workflow.id, workflowFile.workflowId))
-            .where(eq(workflow.id, workflowId));
-
-        if (!workflowData || workflowData.ownerId !== userId) {
-            throw new Error("Workflow not found");
-        }
-
-        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
+    async #parseWorkflowConfiguration(configuration: string): Promise<WorkflowConfiguration> {
+        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(configuration));
         if (!parsedConfig.success) {
-            logger.warn(parsedConfig.error, `Invalid workflow configuration for workflow ${workflowId}:`);
-            // Return a default configuration if parsing fails
-            return {
-                ...workflowData,
-                configuration: { fields: [], tables: [] },
-                status: (workflowData.status || 'active') as WorkflowStatus,
-            };
+            logger.warn(parsedConfig.error, `Invalid workflow configuration: ${configuration}`);
         }
-
-        const result = {
-            ...workflowData,
-            configuration: parsedConfig.data,
-            status: (workflowData.status || 'active') as WorkflowStatus,
-        };
-
-        return result;
+        return parsedConfig.data ?? { fields: [], tables: [] };
     }
 
-    async updateWorkflow(
-        workflowId: string,
-        userId: string,
-        updates: {
-            name?: string;
-            configuration?: WorkflowConfiguration;
-        },
-    ) {
-        const updateWorkflowSchema = z.object({
-            name: z.string().optional(),
-            configuration: workflowConfigurationSchema.optional(),
-        });
-
-        const validatedData = updateWorkflowSchema.parse(updates);
-
-        // Check if workflow exists and user owns it
-        const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-        if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
-            throw new Error("Workflow not found");
-        }
-
-        // Update workflow
-        const updateData: any = {
-            updatedAt: new Date(),
-        };
-
-        if (validatedData.name) {
-            updateData.name = validatedData.name;
-            // When a name is provided, update status to active
-            updateData.status = 'active';
-        }
-
-        if (validatedData.configuration) {
-            updateData.configuration = JSON.stringify(validatedData.configuration);
-        }
-
-        await db.update(workflow).set(updateData).where(eq(workflow.id, workflowId));
-    }
-
-    async getAnalysisStatus(workflowId: string, userId: string) {
-        const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-        if (!workflowData || workflowData.ownerId !== userId) {
-            throw new Error("Workflow not found");
-        }
-
-        // Check if analysis is complete by looking at configuration
-        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
-        if (!parsedConfig.success) {
-            logger.warn(parsedConfig.error, `Invalid workflow configuration for workflow ${workflowId}:`);
-            // Return default values if parsing fails
-            return {
-                analysisComplete: false,
-                suggestedFields: [],
-                suggestedTables: [],
-                hasFields: false,
-                documentType: "Unknown",
-            };
-        }
-
-        const configuration = parsedConfig.data;
-        const hasFields = configuration.fields && configuration.fields.length > 0;
-        const isAnalysisComplete = hasFields;
-
-        const result = {
-            analysisComplete: isAnalysisComplete,
-            suggestedFields: configuration.fields || [],
-            suggestedTables: configuration.tables || [],
-            hasFields,
-            documentType: configuration.documentType || "Unknown",
-        };
-
-        return result;
-    }
 
     async createWorkflow(
+        fileParam: File,
         userId: string,
-        data: {
-            name: string;
-            configuration: WorkflowConfiguration;
-            fileId?: string;
-        },
-    ) {
-        const createWorkflowSchema = z.object({
-            name: z.string(),
-            configuration: workflowConfigurationSchema,
-            fileId: z.string().optional(),
+    ): Promise<{
+        workflowId: string;
+        fileId: string;
+    }> {
+        logger.info(
+            {
+                userId,
+                fileName: fileParam.name,
+                fileSize: fileParam.size,
+                fileType: fileParam.type,
+            },
+            "Creating new workflow from file",
+        );
+
+        // Save file first
+        const fileId = generateId(ID_PREFIXES.file);
+        const filename = `workflow-samples/${fileId}-${fileParam.name}`;
+
+        await db.insert(file).values({
+            id: fileId,
+            filename,
+            createdAt: new Date(),
+            ownerId: userId,
         });
 
-        const validatedData = createWorkflowSchema.parse(data);
-        const id = generateId(ID_PREFIXES.workflow);
+        const fileBuffer = await fileParam.arrayBuffer();
+        await this.deps.s3.file(filename).write(fileBuffer);
+
+        // Create workflow with empty configuration initially
+        const workflowId = generateId(ID_PREFIXES.workflow);
+        const workflowName = "New Workflow"; // Will be updated after analysis
 
         await db.insert(workflow).values({
-            id,
-            name: validatedData.name,
-            configuration: JSON.stringify(validatedData.configuration),
-            status: 'active', // Creating directly with name, so it's active
+            id: workflowId,
+            name: workflowName,
+            configuration: JSON.stringify({
+                fields: [],
+                tables: [],
+            }),
+            status: 'analyzing',
             ownerId: userId,
             createdAt: new Date(),
             updatedAt: new Date(),
         });
 
-        // Link file to workflow if provided
-        if (validatedData.fileId) {
-            await db.insert(workflowFile).values({
-                id: generateId(ID_PREFIXES.workflowFile),
-                workflowId: id,
-                fileId: validatedData.fileId,
-                createdAt: new Date(),
-            });
-        }
+        // Link file to workflow
+        await db.insert(workflowFile).values({
+            id: generateId(ID_PREFIXES.workflowFile),
+            workflowId,
+            fileId,
+            createdAt: new Date(),
+        });
 
-        return { id };
+        logger.info(
+            {
+                workflowId,
+                fileId,
+                userId,
+                workflowName,
+            },
+            "Workflow created successfully from file",
+        );
+
+        return {
+            workflowId,
+            fileId,
+        };
     }
+
 
     async analyzeWorkflowDocument(
         workflowId: string,
@@ -211,7 +113,7 @@ export class WorkflowService {
         analysis: DocumentAnalysis;
     }> {
         logger.info({ workflowId, userId }, "Starting workflow document analysis");
-        
+
         // Get workflow and associated file
         const [workflowData] = await db
             .select({
@@ -244,94 +146,35 @@ export class WorkflowService {
             fields: analysisResult.suggestedFields || [],
             tables: analysisResult.suggestedTables || [],
             documentType: analysisResult.documentType || "Unknown",
+            description: analysisResult.description || "Unknown",
         };
 
         await db
             .update(workflow)
             .set({
                 configuration: JSON.stringify(configuration),
-                status: 'extracting',
+                status: "extracting",
                 updatedAt: new Date(),
             })
             .where(eq(workflow.id, workflowId));
 
-        logger.info({
-            workflowId,
-            documentType: analysisResult.documentType,
-            fieldsCount: analysisResult.suggestedFields?.length || 0,
-            tablesCount: analysisResult.suggestedTables?.length || 0
-        }, "Workflow document analysis completed");
+        logger.info(
+            {
+                workflowId,
+                documentType: analysisResult.documentType,
+                fieldsCount: analysisResult.suggestedFields?.length || 0,
+                tablesCount: analysisResult.suggestedTables?.length || 0,
+            },
+            "Workflow document analysis completed, triggering data extraction",
+        );
+
+        this.extractDataFromDocument(workflowId, workflowData.fileId, userId, configuration);
 
         return {
             analysis: analysisResult,
         };
     }
 
-    async createWorkflowFromFile(
-        fileParam: File,
-        userId: string,
-    ): Promise<{
-        workflowId: string;
-        fileId: string;
-    }> {
-        logger.info({
-            userId,
-            fileName: fileParam.name,
-            fileSize: fileParam.size,
-            fileType: fileParam.type
-        }, "Creating new workflow from file");
-        
-        // Save file first
-        const fileId = generateId(ID_PREFIXES.file);
-        const filename = `workflow-samples/${fileId}-${fileParam.name}`;
-
-        await db.insert(file).values({
-            id: fileId,
-            filename,
-            createdAt: new Date(),
-            ownerId: userId,
-        });
-
-        const fileBuffer = await fileParam.arrayBuffer();
-        await this.deps.s3.file(filename).write(fileBuffer);
-
-        // Create workflow with empty configuration initially
-        const workflowId = generateId(ID_PREFIXES.workflow);
-        const workflowName = "New Workflow"; // Will be updated after analysis
-
-        await db.insert(workflow).values({
-            id: workflowId,
-            name: workflowName,
-            configuration: JSON.stringify({
-                fields: [],
-                tables: [],
-            }),
-            status: 'analyzing', // Set initial status to analyzing
-            ownerId: userId,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        });
-
-        // Link file to workflow
-        await db.insert(workflowFile).values({
-            id: generateId(ID_PREFIXES.workflowFile),
-            workflowId,
-            fileId,
-            createdAt: new Date(),
-        });
-
-        logger.info({
-            workflowId,
-            fileId,
-            userId,
-            workflowName
-        }, "Workflow created successfully from file");
-
-        return {
-            workflowId,
-            fileId,
-        };
-    }
 
     async extractDataFromDocument(
         workflowId: string,
@@ -354,13 +197,16 @@ export class WorkflowService {
             }>;
         },
     ) {
-        logger.info({
-            workflowId,
-            fileId,
-            userId,
-            fieldsCount: extractionConfig.fields.length,
-            tablesCount: extractionConfig.tables.length
-        }, "Starting data extraction from document");
+        logger.info(
+            {
+                workflowId,
+                fileId,
+                userId,
+                fieldsCount: extractionConfig.fields.length,
+                tablesCount: extractionConfig.tables.length,
+            },
+            "Starting data extraction from document",
+        );
         // Get file from database
         const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
 
@@ -378,18 +224,21 @@ export class WorkflowService {
             userId,
         });
 
-        logger.info({
-            workflowId,
-            fileId,
-            extractedFieldsCount: extractionResult.fields.length,
-            extractedTablesCount: extractionResult.tables.length
-        }, "Data extraction from document completed");
+        logger.info(
+            {
+                workflowId,
+                fileId,
+                extractedFieldsCount: extractionResult.fields.length,
+                extractedTablesCount: extractionResult.tables.length,
+            },
+            "Data extraction from document completed",
+        );
 
         // Update workflow status to configuring after extraction
         await db
             .update(workflow)
             .set({
-                status: 'configuring',
+                status: "configuring",
                 updatedAt: new Date(),
             })
             .where(eq(workflow.id, workflowId));
@@ -397,6 +246,112 @@ export class WorkflowService {
         return {
             fileId,
             extractionResult,
+        };
+    }
+
+    async getWorkflows(userId: string) {
+        const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
+
+        const result = await Promise.all(workflows.map(async (w) => {
+            const parsedConfig = await this.#parseWorkflowConfiguration(w.configuration);
+            return {
+                ...w,
+                configuration: parsedConfig,
+            };
+        }));
+
+        return result;
+    }
+
+    async getWorkflow(workflowId: string, userId: string) {
+        const [workflowData] = await db
+            .select({
+                id: workflow.id,
+                name: workflow.name,
+                configuration: workflow.configuration,
+                status: workflow.status,
+                ownerId: workflow.ownerId,
+                createdAt: workflow.createdAt,
+                updatedAt: workflow.updatedAt,
+                fileId: workflowFile.fileId,
+            })
+            .from(workflow)
+            .leftJoin(workflowFile, eq(workflow.id, workflowFile.workflowId))
+            .where(eq(workflow.id, workflowId));
+
+        if (!workflowData || workflowData.ownerId !== userId) {
+            throw new Error("Workflow not found");
+        }
+
+        const parsedConfig = await this.#parseWorkflowConfiguration(workflowData.configuration);
+
+
+        return {
+            ...workflowData,
+            configuration: parsedConfig,
+        };
+    }
+
+    async updateWorkflow(
+        workflowId: string,
+        userId: string,
+        updates: {
+            name?: string;
+            configuration?: WorkflowConfiguration;
+        },
+    ) {
+        const updateWorkflowSchema = z.object({
+            name: z.string().optional(),
+            configuration: workflowConfigurationSchema.optional(),
+        });
+
+        const validatedData = updateWorkflowSchema.parse(updates);
+
+        // Check if workflow exists and user owns it
+        const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
+
+        if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
+            throw new Error("Workflow not found");
+        }
+
+        // Update workflow
+        const updateData: any = {
+            updatedAt: new Date(),
+        };
+
+        if (validatedData.name) {
+            updateData.name = validatedData.name;
+            // When a name is provided, update status to active
+            updateData.status = "active";
+        }
+
+        if (validatedData.configuration) {
+            updateData.configuration = JSON.stringify(validatedData.configuration);
+        }
+
+        await db.update(workflow).set(updateData).where(eq(workflow.id, workflowId));
+    }
+
+    async getAnalysisStatus(workflowId: string, userId: string) {
+        const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
+
+        if (!workflowData || workflowData.ownerId !== userId) {
+            throw new Error("Workflow not found");
+        }
+
+        // Check if analysis is complete by looking at configuration
+        const parsedConfig = await this.#parseWorkflowConfiguration(workflowData.configuration);
+
+        const configuration = parsedConfig;
+        const hasFields = configuration.fields && configuration.fields.length > 0;
+        const isAnalysisComplete = hasFields;
+
+        return {
+            analysisComplete: isAnalysisComplete,
+            suggestedFields: configuration.fields || [],
+            suggestedTables: configuration.tables || [],
+            hasFields,
+            documentType: configuration.documentType || "Unknown",
         };
     }
 
@@ -421,14 +376,17 @@ export class WorkflowService {
     }
 
     async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
-        logger.info({
-            workflowId,
-            userId,
-            fileName: uploadedFile.name,
-            fileSize: uploadedFile.size,
-            fileType: uploadedFile.type
-        }, "Starting workflow execution");
-        
+        logger.info(
+            {
+                workflowId,
+                userId,
+                fileName: uploadedFile.name,
+                fileSize: uploadedFile.size,
+                fileType: uploadedFile.type,
+            },
+            "Starting workflow execution",
+        );
+
         // Get workflow and verify ownership
         const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
@@ -437,20 +395,19 @@ export class WorkflowService {
         }
 
         // Parse workflow configuration
-        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
-        if (!parsedConfig.success) {
-            throw new Error(`Invalid workflow configuration: ${parsedConfig.error.message}`);
-        }
-        const config = parsedConfig.data;
+        const config = await this.#parseWorkflowConfiguration(workflowData.configuration);
 
         // Use the workflow execution service
         const result = await this.deps.workflowExecutionService.executeWorkflow(workflowId, workflowData.name, config, userId, uploadedFile);
 
-        logger.info({
-            workflowId,
-            executionId: result.executionId,
-            status: result.status
-        }, "Workflow execution completed via service");
+        logger.info(
+            {
+                workflowId,
+                executionId: result.executionId,
+                status: result.status,
+            },
+            "Workflow execution completed via service",
+        );
 
         return result;
     }

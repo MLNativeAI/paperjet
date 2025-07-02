@@ -1,16 +1,14 @@
 import { google } from "@ai-sdk/google";
 import {
-    type CategoryAnalysis,
-    categoryAnalysisSchema,
-    type DocumentTypeAnalysis,
-    documentTypeAnalysisSchema,
+    type DocumentTypeAndCategories,
+    documentTypeAndCategoriesSchema,
     type FieldCategoryAnalysis,
     fieldCategoryAnalysisSchema,
 } from "@paperjet/db/types";
+import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
-import { logger } from "@paperjet/shared";
 
 export interface DocumentAnalysisServiceDeps {
     langfuse: Langfuse;
@@ -19,9 +17,9 @@ export interface DocumentAnalysisServiceDeps {
 export class DocumentAnalysisService {
     constructor(private deps: DocumentAnalysisServiceDeps) {}
 
-    async analyzeDocumentType(presignedUrl: string): Promise<DocumentTypeAnalysis> {
+    async analyzeDocumentType(presignedUrl: string): Promise<DocumentTypeAndCategories> {
         logger.info({ presignedUrl }, "Starting document type analysis");
-        
+
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -29,12 +27,14 @@ export class DocumentAnalysisService {
 
         const model = google("gemini-2.5-flash");
 
-        const prompt = `Analyze this document and provide:
-1. Document type (invoice, contract, form, purchase order, receipt, bank statement, etc.)
-2. Brief description of the document's purpose and content
-3. Main sections or areas you can identify in the document
+        const prompt = `You're a document analysis expert. Analyze this document and provide:
 
-Be specific about the document type and provide a clear description that will help with further analysis.`;
+        1. Document type (invoice, contract, form, purchase order, receipt, bank statement, etc.)
+        2. Identify the data categories/group in the document, ex. invoice details, vendor information, billing information, line items, payment terms
+        3. Based on the document type and categories, create a 1-2 sentence description for a process that would be used to extract the data from the document.
+        Example: "Extracts invoice details, vendor information, billing information, line items and payment terms"
+        `;
+
 
         // Create a trace for this analysis step
         const trace = this.deps.langfuse.trace({
@@ -57,7 +57,7 @@ Be specific about the document type and provide a clear description that will he
         try {
             const { object } = await generateObject({
                 model,
-                schema: documentTypeAnalysisSchema,
+                schema: documentTypeAndCategoriesSchema,
                 messages: [
                     {
                         role: "user",
@@ -89,116 +89,14 @@ Be specific about the document type and provide a clear description that will he
                 output: object,
             });
 
-            logger.info({ 
-                documentType: object.documentType,
-                description: object.description?.substring(0, 100) + "..."
-            }, "Document type analysis completed");
-
-            return object as DocumentTypeAnalysis;
-        } catch (error) {
-            generation.end({
-                output: error,
-            });
-
-            trace.update({
-                output: error,
-            });
-
-            throw error;
-        }
-    }
-
-    async identifyCategories(presignedUrl: string, documentType: DocumentTypeAnalysis): Promise<CategoryAnalysis> {
-        logger.info({ 
-            documentType: documentType.documentType 
-        }, "Starting category identification");
-        
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
-
-        const prompt = `Based on this ${documentType.documentType} document, identify logical categories to group information.
-
-Create 3-8 meaningful category names that represent different types of information in this document type.
-For each category, provide a brief description of what information it should contain.
-
-Categories should be:
-- Logically distinct
-- Comprehensive (covering all important information)
-- Business-relevant
-- Easy to understand
-
-Examples for different document types:
-- Invoice: "Invoice Details", "Vendor Information", "Billing Information", "Line Items", "Payment Terms"
-- Contract: "Party Information", "Agreement Terms", "Dates and Duration", "Financial Terms", "Signatures"
-- Purchase Order: "Order Information", "Supplier Details", "Product Items", "Delivery Information", "Terms and Conditions"
-
-Focus on creating categories that make sense for this specific document type.`;
-
-        // Create a trace for this analysis step
-        const trace = this.deps.langfuse.trace({
-            name: "category-identification",
-            metadata: {
-                step: "category_identification",
-                model: "gemini-2.5-flash",
-                documentType: documentType.documentType,
-            },
-        });
-
-        const generation = trace.generation({
-            name: "identify-categories",
-            model: "gemini-2.5-flash",
-            input: {
-                prompt,
-                image_url: presignedUrl,
-                documentType: documentType.documentType,
-            },
-        });
-
-        try {
-            const { object } = await generateObject({
-                model,
-                schema: categoryAnalysisSchema,
-                messages: [
-                    {
-                        role: "user",
-                        content: [
-                            {
-                                type: "text",
-                                text: prompt,
-                            },
-                            {
-                                type: "image",
-                                image: new URL(presignedUrl),
-                            },
-                        ],
-                    },
-                ],
-                experimental_telemetry: {
-                    isEnabled: true,
-                    metadata: {
-                        langfuseTraceId: trace.id,
-                    },
+            logger.info(
+                {
+                    documentType: object.documentType,
                 },
-            });
+                "Document type analysis completed",
+            );
 
-            generation.end({
-                output: object,
-            });
-
-            trace.update({
-                output: object,
-            });
-
-            logger.info({ 
-                categoriesFound: object.categories.length,
-                categories: object.categories.map(c => c.name)
-            }, "Category identification completed");
-
-            return object as CategoryAnalysis;
+            return object as DocumentTypeAndCategories;
         } catch (error) {
             generation.end({
                 output: error,
@@ -212,21 +110,23 @@ Focus on creating categories that make sense for this specific document type.`;
         }
     }
 
-    async extractFieldsWithCategories(presignedUrl: string, documentType: DocumentTypeAnalysis, categories: CategoryAnalysis): Promise<FieldCategoryAnalysis> {
-        logger.info({ 
-            documentType: documentType.documentType,
-            categoriesCount: categories.categories.length
-        }, "Starting field extraction with categories");
-        
+    async extractFieldsWithCategories(presignedUrl: string, documentType: DocumentTypeAndCategories): Promise<FieldCategoryAnalysis> {
+        logger.info(
+            {
+                documentType: documentType,
+            },
+            "Starting field extraction with categories",
+        );
+
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
         }
 
         const model = google("gemini-2.5-flash");
-        const categoryList = categories.categories.map((c) => `- ${c.name}: ${c.description}`).join("\n");
+        const categoryList = documentType.categories.map((c) => `- ${c}`).join("\n");
 
-        const prompt = `Extract fields from this ${documentType.documentType} document and assign each to one of these categories:
+        const prompt = `Extract singular fields (NOT tables or lists) from this ${documentType.documentType} document and assign each to one of these categories:
 
 ${categoryList}
 
@@ -257,7 +157,7 @@ Provide practical, commonly needed information extraction focused on business pr
                 step: "field_extraction",
                 model: "gemini-2.5-flash",
                 documentType: documentType.documentType,
-                categoriesCount: categories.categories.length,
+                categoriesCount: documentType.categories.length,
             },
         });
 
@@ -268,7 +168,7 @@ Provide practical, commonly needed information extraction focused on business pr
                 prompt,
                 image_url: presignedUrl,
                 documentType: documentType.documentType,
-                categories: categories.categories,
+                categories: documentType.categories,
             },
         });
 
@@ -307,10 +207,13 @@ Provide practical, commonly needed information extraction focused on business pr
                 output: object,
             });
 
-            logger.info({ 
-                fieldsFound: object.suggestedFields.length,
-                fields: object.suggestedFields.map(f => f.name)
-            }, "Field extraction with categories completed");
+            logger.info(
+                {
+                    fieldsFound: object.suggestedFields.length,
+                    fields: object.suggestedFields.map((f) => f.name),
+                },
+                "Field extraction with categories completed",
+            );
 
             return object as FieldCategoryAnalysis;
         } catch (error) {
@@ -326,7 +229,7 @@ Provide practical, commonly needed information extraction focused on business pr
         }
     }
 
-    async identifyTables(presignedUrl: string, documentType: DocumentTypeAnalysis): Promise<any[]> {
+    async identifyTables(presignedUrl: string, documentType: DocumentTypeAndCategories): Promise<any[]> {
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -440,7 +343,7 @@ If no clear table structures are found, return an empty array.`;
 
     async performCompleteAnalysis(presignedUrl: string) {
         logger.info({ presignedUrl }, "Starting complete document analysis");
-        
+
         const parentTrace = this.deps.langfuse.trace({
             name: "complete-document-analysis",
             metadata: {
@@ -452,33 +355,27 @@ If no clear table structures are found, return an empty array.`;
         try {
             // Step 1: Document Type Analysis
             const documentTypeAnalysis = await this.analyzeDocumentType(presignedUrl);
+            const [fieldAnalysis, tableAnalysis] = await Promise.all([
+                this.extractFieldsWithCategories(presignedUrl, documentTypeAnalysis),
+                this.identifyTables(presignedUrl, documentTypeAnalysis),
+            ]);
 
-            // Step 2: Category Identification
-            const categoryAnalysis = await this.identifyCategories(presignedUrl, documentTypeAnalysis);
+            logger.info(
+                {
+                    documentType: documentTypeAnalysis.documentType,
+                    description: documentTypeAnalysis.description,
+                    fieldsCount: fieldAnalysis.suggestedFields.length,
+                    tablesCount: tableAnalysis.length,
+                },
+                "Complete document analysis finished",
+            );
 
-            // Step 3: Field Extraction with Categories
-            const fieldAnalysis = await this.extractFieldsWithCategories(presignedUrl, documentTypeAnalysis, categoryAnalysis);
-
-            // Step 4: Table Identification
-            const tableAnalysis = await this.identifyTables(presignedUrl, documentTypeAnalysis);
-
-            const result = {
+            return {
                 documentType: documentTypeAnalysis.documentType,
+                description: documentTypeAnalysis.description,
                 suggestedFields: fieldAnalysis.suggestedFields,
                 suggestedTables: tableAnalysis,
             };
-
-            parentTrace.update({
-                output: result,
-            });
-
-            logger.info({
-                documentType: result.documentType,
-                fieldsCount: result.suggestedFields.length,
-                tablesCount: result.suggestedTables.length
-            }, "Complete document analysis finished");
-
-            return result;
         } catch (error) {
             parentTrace.update({
                 output: error,

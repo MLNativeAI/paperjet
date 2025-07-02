@@ -122,7 +122,7 @@ const router = app
             const user = await getUser(c);
             const { file } = c.req.valid("form");
 
-            const result = await workflowService.createWorkflowFromFile(file, user.id);
+            const result = await workflowService.createWorkflow(file, user.id);
             return c.json({ ...result, message: "Workflow created successfully" }, 201);
         } catch (error) {
             logger.error(error, "Create workflow error:");
@@ -138,9 +138,7 @@ const router = app
             const { id: workflowId } = c.req.valid("param");
 
             // Start analysis in background (don't await)
-            workflowService.analyzeWorkflowDocument(workflowId, user.id).catch((error) => {
-                logger.error(error, "Background analysis failed:");
-            });
+            workflowService.analyzeWorkflowDocument(workflowId, user.id)
 
             // Return immediately
             return c.json({ message: "Analysis started", workflowId });
