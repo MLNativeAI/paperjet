@@ -1,3 +1,17 @@
+# [1.1.0](https://github.com/MLNativeAI/PaperJet/compare/v1.0.0...v1.1.0) (2025-07-02)
+
+
+### Bug Fixes
+
+* biome config update ([13066da](https://github.com/MLNativeAI/PaperJet/commit/13066dac6c94a68c5d041bc938870b7b79fc8ac5))
+* workflow imports ([df1aea8](https://github.com/MLNativeAI/PaperJet/commit/df1aea8a432c207c0bf04dba99d97e4f7e443c9a))
+
+
+### Features
+
+* runs as separate page ([cfe39d5](https://github.com/MLNativeAI/PaperJet/commit/cfe39d580505fb169fe234ebbbd965cfee6e552d))
+* runs data table ([5f86000](https://github.com/MLNativeAI/PaperJet/commit/5f86000560d3a064c28487c61b930151116e64d3))
+
 # 1.0.0 (2025-06-26)
 
 
