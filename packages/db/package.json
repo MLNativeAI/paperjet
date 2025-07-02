@@ -1,22 +1,22 @@
 {
-  "name": "@paperjet/db",
-  "exports": {
-    ".": "./index.ts",
-    "./schema": "./schema.ts",
-    "./types": "./types.ts"
-  },
-  "scripts": {
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
-    "db:generate": "drizzle-kit generate"
-  },
-  "devDependencies": {
-    "typescript": "~5.7.2"
-  },
-  "dependencies": {
-    "drizzle-orm": "^0.43.1",
-    "pg": "^8.15.6",
-    "postgres": "^3.4.5",
-    "zod": "^3.25.49"
-  }
+    "name": "@paperjet/db",
+    "exports": {
+        ".": "./index.ts",
+        "./schema": "./schema.ts",
+        "./types": "./types.ts"
+    },
+    "scripts": {
+        "db:migrate": "drizzle-kit migrate",
+        "db:studio": "drizzle-kit studio",
+        "db:generate": "drizzle-kit generate"
+    },
+    "devDependencies": {
+        "typescript": "~5.7.2"
+    },
+    "dependencies": {
+        "drizzle-orm": "^0.43.1",
+        "pg": "^8.15.6",
+        "postgres": "^3.4.5",
+        "zod": "^3.25.49"
+    }
 }

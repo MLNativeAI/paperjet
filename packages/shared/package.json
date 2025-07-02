@@ -1,12 +1,14 @@
 {
-  "name": "shared",
-  "version": "0.0.1",
-  "private": true,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "devDependencies": {
-    "eslint": "^9.22.0",
-    "tsup": "^8.0.2",
-    "typescript": "~5.7.2"
-  }
+    "name": "@paperjet/shared",
+    "version": "0.0.1",
+    "private": true,
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "dependencies": {
+        "pino": "^8.15.0",
+        "@axiomhq/pino": "^0.1.0"
+    },
+    "devDependencies": {
+        "typescript": "~5.7.2"
+    }
 }

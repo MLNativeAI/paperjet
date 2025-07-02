@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 RUN --mount=type=cache,target=/root/.bun/install/cache \
     bun install -g turbo@^2
 
-# Pruner stage - create minimal workspace for both API and dashboard apps
+# Pruner stage - create minimal workspace for API, dashboard, and engine
 FROM base AS pruner
 COPY . .
 RUN turbo prune api dashboard --docker
@@ -40,12 +40,12 @@ FROM base AS release
 WORKDIR /usr/src/app
 
 # Copy necessary files for production
-COPY --from=builder --chown=bun:bun /usr/src/app/apps/api ./apps/backend
+COPY --from=builder --chown=bun:bun /usr/src/app/apps/api ./apps/api
 COPY --from=builder --chown=bun:bun /usr/src/app/packages ./packages
 COPY --from=builder --chown=bun:bun /usr/src/app/node_modules ./node_modules
 
 # Copy the dashboard build output to the API's public directory
-COPY --from=builder --chown=bun:bun /usr/src/app/apps/dashboard/dist ./apps/backend/public
+COPY --from=builder --chown=bun:bun /usr/src/app/apps/dashboard/dist ./apps/api/public
 
 # Copy and make the startup script executable
 COPY --chown=bun:bun apps/api/start.sh .

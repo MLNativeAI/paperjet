@@ -4,15 +4,15 @@ import { NodeSDK } from "@opentelemetry/sdk-node";
 import { envVars } from "./lib/env";
 
 const traceExporter = new OTLPTraceExporter({
-  url: "https://api.axiom.co/v1/traces",
-  headers: {
-    Authorization: `Bearer ${envVars.AXIOM_TOKEN}`,
-    "X-Axiom-Dataset": "paperjet",
-  },
+    url: "https://api.axiom.co/v1/traces",
+    headers: {
+        Authorization: `Bearer ${envVars.AXIOM_TOKEN}`,
+        "X-Axiom-Dataset": "paperjet",
+    },
 });
 const sdk = new NodeSDK({
-  traceExporter: traceExporter,
-  instrumentations: [getNodeAutoInstrumentations()],
+    traceExporter: traceExporter,
+    instrumentations: [getNodeAutoInstrumentations()],
 });
 
 sdk.start();

@@ -1,44 +1,41 @@
 {
-  "name": "api",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "bun --watch index.ts",
-    "start": "bun index.ts",
-    "build": "bun build --target=bun index.ts --outdir=dist"
-  },
-  "devDependencies": {
-    "@types/bun": "^1.2.11",
-    "@types/pg": "^8.11.14",
-    "drizzle-kit": "^0.31.0",
-    "tsx": "^4.19.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@ai-sdk/google": "^1.2.19",
-    "@axiomhq/pino": "^1.3.1",
-    "@hono/otel": "^0.2.2",
-    "@hono/zod-validator": "^0.5.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.60.1",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.202.0",
-    "@opentelemetry/sdk-node": "^0.202.0",
-    "@paperjet/db": "workspace:*",
-    "@paperjet/email": "workspace:*",
-    "@tanstack/react-router-devtools": "^1.117.1",
-    "ai": "^4.3.16",
-    "better-auth": "^1.2.7",
-    "dotenv": "^16.5.0",
-    "drizzle-orm": "^0.43.1",
-    "hono": "^4.7.8",
-    "pg": "^8.15.6",
-    "pino": "^9.7.0",
-    "pino-axiom": "^1.0.408",
-    "postgres": "^3.4.5",
-    "resend": "^4.6.0",
-    "shared": "workspace:*",
-    "zod": "^3.24.3"
-  }
+    "name": "api",
+    "module": "index.ts",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "dev": "bun --watch index.ts",
+        "start": "bun index.ts",
+        "lint": "biome check --write",
+        "typecheck": "tsc --noEmit",
+        "build": "bun build --target=bun index.ts --outdir=dist"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.2.11",
+        "@types/pg": "^8.11.14",
+        "drizzle-kit": "^0.31.0",
+        "tsx": "^4.19.3"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "dependencies": {
+        "@hono/otel": "^0.2.2",
+        "@hono/zod-validator": "^0.5.0",
+        "@opentelemetry/auto-instrumentations-node": "^0.60.1",
+        "@opentelemetry/exporter-trace-otlp-http": "^0.202.0",
+        "@opentelemetry/sdk-node": "^0.202.0",
+        "@paperjet/shared": "workspace:*",
+        "@paperjet/db": "workspace:*",
+        "@paperjet/email": "workspace:*",
+        "@paperjet/engine": "workspace:*",
+        "@tanstack/react-router-devtools": "^1.117.1",
+        "better-auth": "^1.2.7",
+        "dotenv": "^16.5.0",
+        "hono": "^4.7.8",
+        "pg": "^8.15.6",
+        "postgres": "^3.4.5",
+        "resend": "^4.6.0",
+        "zod": "^3.24.3"
+    }
 }
