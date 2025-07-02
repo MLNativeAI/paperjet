@@ -24,6 +24,7 @@ export const extractionFieldSchema = z.object({
     description: z.string(),
     type: fieldTypeSchema,
     required: z.boolean().default(false),
+    category: z.string().default("General Information"),
 });
 
 export const extractionTableSchema = z.object({
@@ -51,11 +52,35 @@ export const documentAnalysisSchema = z.object({
 
 export type DocumentAnalysis = z.infer<typeof documentAnalysisSchema>;
 
+// Multi-step analysis schemas
+export const documentTypeAnalysisSchema = z.object({
+    documentType: z.string(),
+    description: z.string(),
+    mainSections: z.array(z.string()),
+});
+
+export const categoryAnalysisSchema = z.object({
+    categories: z.array(
+        z.object({
+            name: z.string(),
+            description: z.string(),
+        }),
+    ),
+});
+
+export const fieldCategoryAnalysisSchema = z.object({
+    suggestedFields: z.array(extractionFieldSchema),
+    suggestedTables: z.array(extractionTableSchema),
+});
+
+export type DocumentTypeAnalysis = z.infer<typeof documentTypeAnalysisSchema>;
+export type CategoryAnalysis = z.infer<typeof categoryAnalysisSchema>;
+export type FieldCategoryAnalysis = z.infer<typeof fieldCategoryAnalysisSchema>;
+
 // Data extraction schemas
 export const extractedValueSchema = z.object({
     fieldName: z.string(),
     value: z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
-    confidence: z.number().min(0).max(1),
 });
 
 export const extractedTableRowSchema = z.object({
@@ -65,7 +90,6 @@ export const extractedTableRowSchema = z.object({
 export const extractedTableSchema = z.object({
     tableName: z.string(),
     rows: z.array(extractedTableRowSchema),
-    confidence: z.number().min(0).max(1),
 });
 
 export const extractionResultSchema = z.object({

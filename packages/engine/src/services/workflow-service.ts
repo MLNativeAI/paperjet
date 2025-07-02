@@ -2,9 +2,15 @@ import { google } from "@ai-sdk/google";
 import { db } from "@paperjet/db";
 import { file, workflow, workflowExecution, workflowFile } from "@paperjet/db/schema";
 import {
+    type CategoryAnalysis,
+    categoryAnalysisSchema,
     type DocumentAnalysis,
+    type DocumentTypeAnalysis,
     documentAnalysisSchema,
+    documentTypeAnalysisSchema,
     type ExtractionResult,
+    type FieldCategoryAnalysis,
+    fieldCategoryAnalysisSchema,
     type WorkflowConfiguration,
     workflowConfigurationSchema,
 } from "@paperjet/db/types";
@@ -221,7 +227,6 @@ export class WorkflowService {
         // Get presigned URL for the existing file
         const presignedUrl = await this.deps.s3.presign(workflowData.filename);
 
-        // Analyze document with Gemini Flash
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -229,48 +234,31 @@ export class WorkflowService {
 
         const model = google("gemini-2.5-flash");
 
-        const { object } = await generateObject({
+        // Step 1: Document Type Analysis
+        const documentTypeAnalysis = await this.analyzeDocumentType(model, presignedUrl);
+
+        // Step 2: Category Identification
+        const categoryAnalysis = await this.identifyCategories(model, presignedUrl, documentTypeAnalysis);
+
+        // Step 3: Field Extraction with Categories
+        const fieldAnalysis = await this.extractFieldsWithCategories(
             model,
-            schema: documentAnalysisSchema,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: `Analyze this document and suggest relevant fields to extract.
+            presignedUrl,
+            documentTypeAnalysis,
+            categoryAnalysis,
+        );
 
-For each field, provide:
-- A clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
-- The expected data type (text, number, date, currency, boolean)
-- A detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
+        // Step 4: Table Identification
+        const tableAnalysis = await this.identifyTables(model, presignedUrl, documentTypeAnalysis);
 
-Focus on extracting:
-1. **Identification fields**: Document numbers, IDs, reference codes
-2. **Key entities**: Names, addresses, contact information
-3. **Important dates**: Creation dates, due dates, effective dates
-4. **Financial information**: Amounts, taxes, totals, currency values
-5. **Status indicators**: Approval status, document state, flags
-6. **Structured data**: Tables, line items, product lists
-
-Examples of good field descriptions:
-- "invoice_number": "The unique identifier for this invoice, often labeled as 'Invoice #', 'Invoice Number', 'Document Number', or similar, typically alphanumeric"
-- "total_amount": "The final total amount due, usually labeled as 'Total', 'Amount Due', 'Grand Total', or 'Total Amount', excluding currency symbols"
-- "invoice_date": "The date when the invoice was created or issued, typically labeled as 'Invoice Date', 'Date', or 'Issued' in MM/DD/YYYY or similar format"
-
-Provide a structured analysis with practical, commonly needed information extraction focused on business processes.`,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
+        // Combine results into final analysis
+        const analysisResult: DocumentAnalysis = {
+            documentType: documentTypeAnalysis.documentType,
+            suggestedFields: fieldAnalysis.suggestedFields,
+            suggestedTables: tableAnalysis,
+        };
 
         // Update workflow configuration with analysis results
-        const analysisResult = object as DocumentAnalysis;
         const configuration = {
             fields: analysisResult.suggestedFields || [],
             tables: analysisResult.suggestedTables || [],
@@ -288,6 +276,190 @@ Provide a structured analysis with practical, commonly needed information extrac
         return {
             analysis: analysisResult,
         };
+    }
+
+    private async analyzeDocumentType(model: any, presignedUrl: string): Promise<DocumentTypeAnalysis> {
+        const { object } = await generateObject({
+            model,
+            schema: documentTypeAnalysisSchema,
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: `Analyze this document and provide:
+1. Document type (invoice, contract, form, purchase order, receipt, bank statement, etc.)
+2. Brief description of the document's purpose and content
+3. Main sections or areas you can identify in the document
+
+Be specific about the document type and provide a clear description that will help with further analysis.`,
+                        },
+                        {
+                            type: "image",
+                            image: new URL(presignedUrl),
+                        },
+                    ],
+                },
+            ],
+        });
+
+        return object as DocumentTypeAnalysis;
+    }
+
+    private async identifyCategories(
+        model: any,
+        presignedUrl: string,
+        documentType: DocumentTypeAnalysis,
+    ): Promise<CategoryAnalysis> {
+        const { object } = await generateObject({
+            model,
+            schema: categoryAnalysisSchema,
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: `Based on this ${documentType.documentType} document, identify logical categories to group information.
+
+Create 3-8 meaningful category names that represent different types of information in this document type.
+For each category, provide a brief description of what information it should contain.
+
+Categories should be:
+- Logically distinct
+- Comprehensive (covering all important information)
+- Business-relevant
+- Easy to understand
+
+Examples for different document types:
+- Invoice: "Invoice Details", "Vendor Information", "Billing Information", "Line Items", "Payment Terms"
+- Contract: "Party Information", "Agreement Terms", "Dates and Duration", "Financial Terms", "Signatures"
+- Purchase Order: "Order Information", "Supplier Details", "Product Items", "Delivery Information", "Terms and Conditions"
+
+Focus on creating categories that make sense for this specific document type.`,
+                        },
+                        {
+                            type: "image",
+                            image: new URL(presignedUrl),
+                        },
+                    ],
+                },
+            ],
+        });
+
+        return object as CategoryAnalysis;
+    }
+
+    private async extractFieldsWithCategories(
+        model: any,
+        presignedUrl: string,
+        documentType: DocumentTypeAnalysis,
+        categories: CategoryAnalysis,
+    ): Promise<FieldCategoryAnalysis> {
+        const categoryList = categories.categories.map((c) => `- ${c.name}: ${c.description}`).join("\n");
+
+        const { object } = await generateObject({
+            model,
+            schema: fieldCategoryAnalysisSchema,
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: `Extract fields from this ${documentType.documentType} document and assign each to one of these categories:
+
+${categoryList}
+
+For each field, provide:
+- A clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
+- The expected data type (text, number, date, currency, boolean)
+- A detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
+- The assigned category from the list above
+
+Focus on extracting:
+1. **Identification fields**: Document numbers, IDs, reference codes
+2. **Key entities**: Names, addresses, contact information
+3. **Important dates**: Creation dates, due dates, effective dates
+4. **Financial information**: Amounts, taxes, totals, currency values
+5. **Status indicators**: Approval status, document state, flags
+
+Examples of good field descriptions:
+- "invoice_number": "The unique identifier for this invoice, often labeled as 'Invoice #', 'Invoice Number', 'Document Number', or similar, typically alphanumeric"
+- "total_amount": "The final total amount due, usually labeled as 'Total', 'Amount Due', 'Grand Total', or 'Total Amount', excluding currency symbols"
+- "invoice_date": "The date when the invoice was created or issued, typically labeled as 'Invoice Date', 'Date', or 'Issued' in MM/DD/YYYY or similar format"
+
+Provide practical, commonly needed information extraction focused on business processes.`,
+                        },
+                        {
+                            type: "image",
+                            image: new URL(presignedUrl),
+                        },
+                    ],
+                },
+            ],
+        });
+
+        return object as FieldCategoryAnalysis;
+    }
+
+    private async identifyTables(model: any, presignedUrl: string, documentType: DocumentTypeAnalysis): Promise<any[]> {
+        try {
+            const { object } = await generateObject({
+                model,
+                schema: z.object({
+                    suggestedTables: z.array(
+                        z.object({
+                            name: z.string(),
+                            description: z.string(),
+                            columns: z.array(
+                                z.object({
+                                    name: z.string(),
+                                    description: z.string(),
+                                    type: z.enum(["text", "number", "date", "currency", "boolean"]),
+                                    required: z.boolean().default(false),
+                                    category: z.string().default("Table Data"),
+                                }),
+                            ),
+                        }),
+                    ),
+                }),
+                messages: [
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                type: "text",
+                                text: `Identify any table structures in this ${documentType.documentType} document.
+
+Look for:
+- Line items, product lists
+- Transaction details
+- Itemized lists
+- Data grids or structured information
+
+For each table found, provide:
+- Table name and description
+- Column definitions with names, types, and descriptions
+- Focus on business-relevant structured data
+
+If no clear table structures are found, return an empty array.`,
+                            },
+                            {
+                                type: "image",
+                                image: new URL(presignedUrl),
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            return (object as any).suggestedTables || [];
+        } catch (error) {
+            console.warn("Table identification failed:", error);
+            return [];
+        }
     }
 
     async createWorkflowFromFile(
@@ -522,14 +694,12 @@ Instructions:
             fields: validatedData.fields.map((field) => ({
                 fieldName: field.name,
                 value: (object as any)[field.name],
-                confidence: 0.9, // Default confidence, could be enhanced
             })),
             tables: validatedData.tables.map((table) => ({
                 tableName: table.name,
                 rows: ((object as any)[table.name] || []).map((row: any) => ({
                     values: row,
                 })),
-                confidence: 0.9,
             })),
         };
 
@@ -557,7 +727,7 @@ Instructions:
         };
     }
 
-async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
+    async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
         // Get workflow and verify ownership
         const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
@@ -910,14 +1080,12 @@ Instructions:
             fields: config.fields.map((field) => ({
                 fieldName: field.name,
                 value: (object as any)[field.name],
-                confidence: 0.9,
             })),
             tables: config.tables.map((table) => ({
                 tableName: table.name,
                 rows: ((object as any)[table.name] || []).map((row: any) => ({
                     values: row,
                 })),
-                confidence: 0.9,
             })),
         };
     }

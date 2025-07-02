@@ -20,6 +20,7 @@ export function AddFieldForm({ onFieldAdd, onExtractData, onCancel }: AddFieldFo
         description: "",
         type: "text",
         required: false,
+        category: "General Information",
     });
 
     const handleAdd = () => {
@@ -30,6 +31,7 @@ export function AddFieldForm({ onFieldAdd, onExtractData, onCancel }: AddFieldFo
                 description: "",
                 type: "text",
                 required: false,
+                category: "General Information",
             });
             if (onExtractData) {
                 onExtractData();
@@ -44,6 +46,7 @@ export function AddFieldForm({ onFieldAdd, onExtractData, onCancel }: AddFieldFo
             description: "",
             type: "text",
             required: false,
+            category: "General Information",
         });
         onCancel();
     };
@@ -59,7 +62,7 @@ export function AddFieldForm({ onFieldAdd, onExtractData, onCancel }: AddFieldFo
                         </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <Label className="text-xs font-medium mb-1 block">Field Name</Label>
                             <Input
@@ -96,6 +99,20 @@ export function AddFieldForm({ onFieldAdd, onExtractData, onCancel }: AddFieldFo
                                     <SelectItem value="boolean">Boolean</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                        <div>
+                            <Label className="text-xs font-medium mb-1 block">Category</Label>
+                            <Input
+                                value={newField.category}
+                                onChange={(e) =>
+                                    setNewField((prev) => ({
+                                        ...prev,
+                                        category: e.target.value,
+                                    }))
+                                }
+                                placeholder="e.g. Invoice Details"
+                                className="h-8 text-sm"
+                            />
                         </div>
                     </div>
 

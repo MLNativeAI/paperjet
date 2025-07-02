@@ -16,9 +16,9 @@ import { ExtractedValues } from "@/components/extracted-values";
 import { FileUploadArea } from "@/components/file-upload-area";
 import { LoadingIndicator } from "@/components/loading-indicator";
 import { ProgressSteps } from "@/components/progress-steps";
-import { WorkflowTemplateCard } from "@/components/workflow-template-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WorkflowTemplateCard } from "@/components/workflow-template-card";
 import { useWorkflow } from "@/hooks/useWorkflow";
 
 const workflowTemplates = [
@@ -113,7 +113,6 @@ export default function WorkflowCreatorPage() {
             }
         }
     }, [isAnalysisComplete, phase, workflow, analysisStatus, extractData]);
-
 
     const handleTemplateSelect = (templateId: string) => {
         setSelectedTemplate(templateId);

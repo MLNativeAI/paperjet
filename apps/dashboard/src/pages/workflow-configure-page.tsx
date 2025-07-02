@@ -3,12 +3,16 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExtractedValues } from "@/components/extracted-values";
+import { FieldCategoryGrid } from "@/components/field-category-grid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ViewToggle } from "@/components/view-toggle";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { useWorkflowAnalysis } from "@/hooks/useWorkflowAnalysis";
+
+type ViewMode = "grid" | "split";
 
 export default function WorkflowConfigurePage() {
     const navigate = useNavigate();
@@ -21,6 +25,10 @@ export default function WorkflowConfigurePage() {
     const [extractionResult, setExtractionResult] = useState<ExtractionResult | null>(null);
     const [fileId, setFileId] = useState<string>("");
     const [analysisStatus, setAnalysisStatus] = useState<"pending" | "processing" | "completed">("pending");
+    const [viewMode, setViewMode] = useState<ViewMode>(() => {
+        const saved = localStorage.getItem("workflow-configure-view-mode");
+        return (saved as ViewMode) || "grid";
+    });
 
     const { workflow, isLoading, updateWorkflow, extractData } = useWorkflow(workflowId);
 
@@ -86,6 +94,19 @@ export default function WorkflowConfigurePage() {
         );
     };
 
+    const handleViewModeChange = (mode: ViewMode) => {
+        setViewMode(mode);
+        localStorage.setItem("workflow-configure-view-mode", mode);
+    };
+
+    const handleFieldAdd = (newField: ExtractionField) => {
+        setFields((prev) => [...prev, newField]);
+    };
+
+    const handleFieldRemove = (fieldIndex: number) => {
+        setFields((prev) => prev.filter((_, index) => index !== fieldIndex));
+    };
+
     if (isLoading) {
         return (
             <div className="w-full px-4 py-8">
@@ -109,37 +130,71 @@ export default function WorkflowConfigurePage() {
     return (
         <div className="w-full px-4 py-8 space-y-8">
             {/* Header */}
-            <div className="">
-                <h1 className="text-3xl font-bold mb-2">Configure Workflow</h1>
-                <p className="text-muted-foreground">Review and save your workflow configuration.</p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold mb-2">Configure Workflow</h1>
+                    <p className="text-muted-foreground">Review and save your workflow configuration.</p>
+                </div>
+                {fields.length > 0 && <ViewToggle viewMode={viewMode} onViewModeChange={handleViewModeChange} />}
             </div>
 
             {/* Document Preview and Extracted Values */}
             {fields.length > 0 && (
                 <>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Left Panel - Document Preview */}
-                        <div className="lg:sticky lg:top-4 lg:h-fit">
-                            <DocumentPreview fileId={fileId} />
-                        </div>
+                    {viewMode === "split" ? (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Left Panel - Document Preview */}
+                            <div className="lg:sticky lg:top-4 lg:h-fit">
+                                <DocumentPreview fileId={fileId} />
+                            </div>
 
-                        {/* Right Panel - Extracted Values */}
-                        <div>
-                            <ExtractedValues
-                                extractionResult={extractionResult}
+                            {/* Right Panel - Extracted Values */}
+                            <div>
+                                <ExtractedValues
+                                    extractionResult={extractionResult}
+                                    fields={fields}
+                                    tables={tables}
+                                    isLoading={extractData.isPending}
+                                    onFieldUpdate={(index, updatedField) => {
+                                        const newFields = [...fields];
+                                        newFields[index] = updatedField;
+                                        setFields(newFields);
+                                    }}
+                                    onFieldAdd={handleFieldAdd}
+                                    onFieldRemove={handleFieldRemove}
+                                    onTableUpdate={(index, updatedTable) => {
+                                        const newTables = [...tables];
+                                        newTables[index] = updatedTable;
+                                        setTables(newTables);
+                                    }}
+                                    onExtractData={() => {
+                                        if (fileId) {
+                                            extractData.mutate(
+                                                { fileId, fields, tables },
+                                                {
+                                                    onSuccess: (data) => {
+                                                        setExtractionResult(data.extractionResult);
+                                                    },
+                                                },
+                                            );
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {/* Grid View - Categorized Fields */}
+                            <FieldCategoryGrid
                                 fields={fields}
-                                tables={tables}
-                                isLoading={extractData.isPending}
+                                extractionResult={extractionResult}
                                 onFieldUpdate={(index, updatedField) => {
                                     const newFields = [...fields];
                                     newFields[index] = updatedField;
                                     setFields(newFields);
                                 }}
-                                onTableUpdate={(index, updatedTable) => {
-                                    const newTables = [...tables];
-                                    newTables[index] = updatedTable;
-                                    setTables(newTables);
-                                }}
+                                onFieldAdd={handleFieldAdd}
+                                onFieldRemove={handleFieldRemove}
                                 onExtractData={() => {
                                     if (fileId) {
                                         extractData.mutate(
@@ -154,7 +209,7 @@ export default function WorkflowConfigurePage() {
                                 }}
                             />
                         </div>
-                    </div>
+                    )}
                     <Card>
                         <CardHeader>
                             <CardTitle>Save Workflow</CardTitle>
