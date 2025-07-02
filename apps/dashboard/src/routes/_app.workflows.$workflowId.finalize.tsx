@@ -23,7 +23,7 @@ function WorkflowFinalizePage() {
     useEffect(() => {
         if (!isLoading && workflow) {
             const status = workflow.status as WorkflowStatus;
-            
+
             // If workflow is already active, redirect to main page
             if (status === "active") {
                 navigate({ to: "/" });
@@ -149,11 +149,7 @@ function WorkflowFinalizePage() {
                                 <div className="space-y-4">
                                     <div>
                                         <Label htmlFor="workflow-name">Workflow Name</Label>
-                                        <Input
-                                            id="workflow-name"
-                                            defaultValue={workflow.name}
-                                            placeholder="Enter a name for your workflow"
-                                        />
+                                        <Input id="workflow-name" defaultValue={workflow.name} placeholder="Enter a name for your workflow" />
                                     </div>
 
                                     <div className="text-sm text-muted-foreground space-y-1">
@@ -162,10 +158,7 @@ function WorkflowFinalizePage() {
                                     </div>
 
                                     <div className="flex gap-2">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => navigate({ to: `/workflows/${workflowId}/configure` })}
-                                        >
+                                        <Button variant="outline" onClick={() => navigate({ to: `/workflows/${workflowId}/configure` })}>
                                             Advanced Configuration
                                         </Button>
                                         <Button

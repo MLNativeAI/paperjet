@@ -3,8 +3,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
-    analyzeWorkflow as analyzeWorkflowApi,
-    createWorkflowFromFile as createWorkflowFromFileApi,
     extractData as extractDataApi,
     getAnalysisStatus as getAnalysisStatusApi,
     getWorkflow,
@@ -46,20 +44,6 @@ export function useWorkflow(workflowId: string) {
         },
     });
 
-    const createWorkflowFromFile = useMutation({
-        mutationFn: createWorkflowFromFileApi,
-        onError: () => {
-            toast.error("Failed to create workflow from file");
-        },
-    });
-
-    const analyzeWorkflow = useMutation({
-        mutationFn: analyzeWorkflowApi,
-        onError: () => {
-            toast.error("Failed to analyze document");
-        },
-    });
-
     const getAnalysisStatus = useQuery({
         queryKey: ["workflow-analysis", workflowId],
         queryFn: () => getAnalysisStatusApi(workflowId),
@@ -74,8 +58,6 @@ export function useWorkflow(workflowId: string) {
         isLoading,
         updateWorkflow,
         extractData,
-        createWorkflowFromFile,
-        analyzeWorkflow,
         analysisStatus: getAnalysisStatus.data,
         isAnalysisComplete: getAnalysisStatus.data?.analysisComplete ?? false,
         isAnalysisLoading: getAnalysisStatus.isLoading,

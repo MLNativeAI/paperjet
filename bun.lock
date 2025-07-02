@@ -200,6 +200,7 @@
       "dependencies": {
         "@axiomhq/pino": "^0.1.0",
         "pino": "^8.15.0",
+        "zod": "^3.22.4",
       },
       "devDependencies": {
         "typescript": "~5.7.2",

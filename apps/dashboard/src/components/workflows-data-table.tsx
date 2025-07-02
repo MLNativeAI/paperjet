@@ -250,7 +250,7 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
                 const status = row.original.status;
                 const isActive = status === "active";
                 const isProcessing = status === "analyzing" || status === "extracting";
-                
+
                 return (
                     <div className="flex items-center gap-2">
                         {isActive ? (

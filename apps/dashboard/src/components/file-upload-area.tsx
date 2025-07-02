@@ -40,7 +40,7 @@ export function FileUploadArea({ onFileSelect }: FileUploadAreaProps) {
     };
 
     return (
-        <Card className="w-full max-w-2xl">
+        <Card className="w-full">
             <CardContent className="p-0">
                 {/** biome-ignore lint/a11y/noStaticElementInteractions: drag and drop functionality requires these interactions */}
                 <div
