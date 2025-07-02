@@ -110,6 +110,7 @@ ENVIRONMENT=dev
 - **Styling**: Tailwind CSS v4 across all apps
 - **Imports**: Organized by Biome rules
 - **Error Handling**: Try-catch with specific error responses, toast notifications for user feedback
+- **Logging**: Always put the object before the message in logger calls (e.g., `logger.info(object, message)` not `logger.info(message, object)`)
 
 ## Backend Development Guidelines
 

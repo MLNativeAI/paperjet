@@ -36,10 +36,7 @@ export const Footer = () => (
                             </svg>
                             <span className="sr-only">LinkedIn</span>
                         </Link>
-                        <Link
-                            href="https://github.com/mlnativeai/paperjet"
-                            className="text-muted-foreground hover:text-foreground transition-colors"
-                        >
+                        <Link href="https://github.com/mlnativeai/paperjet" className="text-muted-foreground hover:text-foreground transition-colors">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
@@ -63,10 +60,7 @@ export const Footer = () => (
                     <h4 className="text-sm font-bold">Platform</h4>
                     <ul className="space-y-2 text-sm">
                         <li>
-                            <Link
-                                href="#features"
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                            >
+                            <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
                                 Features
                             </Link>
                         </li>
@@ -100,26 +94,17 @@ export const Footer = () => (
                     <h4 className="text-sm font-bold">Resources</h4>
                     <ul className="space-y-2 text-sm">
                         <li>
-                            <Link
-                                href="/blog"
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                            >
+                            <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
                                 Blog
                             </Link>
                         </li>
                         <li>
-                            <Link
-                                href="https://docs.paperjet.com"
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                            >
+                            <Link href="https://docs.paperjet.com" className="text-muted-foreground hover:text-foreground transition-colors">
                                 Documentation
                             </Link>
                         </li>
                         <li>
-                            <Link
-                                href="https://github.com/mlnativeai/paperjet"
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                            >
+                            <Link href="https://github.com/mlnativeai/paperjet" className="text-muted-foreground hover:text-foreground transition-colors">
                                 GitHub
                             </Link>
                         </li>
@@ -145,10 +130,7 @@ export const Footer = () => (
                     <h4 className="text-sm font-bold">Company</h4>
                     <ul className="space-y-2 text-sm">
                         <li>
-                            <Link
-                                href="https://mlnative.com"
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                            >
+                            <Link href="https://mlnative.com" className="text-muted-foreground hover:text-foreground transition-colors">
                                 About
                             </Link>
                         </li>
@@ -171,9 +153,7 @@ export const Footer = () => (
                 </div>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row justify-between items-center border-t border-border/40 mt-4 pt-4">
-                <p className="text-xs text-center sm:text-left text-muted-foreground">
-                    &copy; {new Date().getFullYear()} mlnative. All rights reserved.
-                </p>
+                <p className="text-xs text-center sm:text-left text-muted-foreground">&copy; {new Date().getFullYear()} mlnative. All rights reserved.</p>
             </div>
         </div>
     </footer>

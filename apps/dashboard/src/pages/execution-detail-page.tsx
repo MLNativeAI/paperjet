@@ -41,9 +41,7 @@ export default function ExecutionDetailPage() {
             case "pending":
                 return <Clock className="h-4 w-4 text-muted-foreground" />;
             case "processing":
-                return (
-                    <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                );
+                return <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
             case "completed":
                 return <CheckCircle className="h-4 w-4 text-green-600" />;
             case "failed":
@@ -255,11 +253,7 @@ export default function ExecutionDetailPage() {
                                 <p className="text-sm font-medium text-muted-foreground">Completed At</p>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4" />
-                                    <span>
-                                        {execution.completedAt
-                                            ? new Date(execution.completedAt).toLocaleString()
-                                            : "In progress"}
-                                    </span>
+                                    <span>{execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "In progress"}</span>
                                 </div>
                             </div>
                         </div>
@@ -283,8 +277,7 @@ export default function ExecutionDetailPage() {
                                             <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
                                             <h4 className="font-semibold mb-2">Processing Failed</h4>
                                             <p className="text-sm text-muted-foreground max-w-sm">
-                                                {execution.errorMessage ||
-                                                    "An error occurred while processing this file"}
+                                                {execution.errorMessage || "An error occurred while processing this file"}
                                             </p>
                                         </div>
                                     </div>
@@ -309,23 +302,17 @@ export default function ExecutionDetailPage() {
                                             </CardHeader>
                                             <CardContent>
                                                 <div className="space-y-3">
-                                                    {extractionResult.fields.map(
-                                                        (field: ExtractedValue, fieldIndex: number) => (
-                                                            <div
-                                                                key={`field-${field.fieldName}-${fieldIndex}`}
-                                                                className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
-                                                            >
-                                                                <div className="flex items-center gap-2 mb-1">
-                                                                    <span className="font-medium text-sm">
-                                                                        {field.fieldName}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="text-sm font-medium">
-                                                                    {formatValue(field.value, "text")}
-                                                                </div>
+                                                    {extractionResult.fields.map((field: ExtractedValue, fieldIndex: number) => (
+                                                        <div
+                                                            key={`field-${field.fieldName}-${fieldIndex}`}
+                                                            className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
+                                                        >
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="font-medium text-sm">{field.fieldName}</span>
                                                             </div>
-                                                        ),
-                                                    )}
+                                                            <div className="text-sm font-medium">{formatValue(field.value, "text")}</div>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -338,82 +325,46 @@ export default function ExecutionDetailPage() {
                                                 <CardTitle className="text-base">Tables</CardTitle>
                                             </CardHeader>
                                             <CardContent>
-                                                {extractionResult.tables.map(
-                                                    (table: ExtractedTable, tableIndex: number) => (
-                                                        <div
-                                                            key={`table-${table.tableName}-${tableIndex}`}
-                                                            className="space-y-2"
-                                                        >
-                                                            <h4 className="font-medium">{table.tableName}</h4>
-                                                            {table.rows && table.rows.length > 0 ? (
-                                                                <div className="overflow-x-auto">
-                                                                    <Table>
-                                                                        <TableHeader>
-                                                                            <TableRow>
-                                                                                {Object.keys(table.rows[0].values).map(
-                                                                                    (
-                                                                                        columnName: string,
-                                                                                        colIndex: number,
-                                                                                    ) => (
-                                                                                        <TableHead key={colIndex}>
-                                                                                            {columnName}
-                                                                                        </TableHead>
-                                                                                    ),
-                                                                                )}
-                                                                            </TableRow>
-                                                                        </TableHeader>
-                                                                        <TableBody>
-                                                                            {table.rows.map(
-                                                                                (
-                                                                                    row: {
-                                                                                        values: Record<
-                                                                                            string,
-                                                                                            | string
-                                                                                            | number
-                                                                                            | boolean
-                                                                                            | Date
-                                                                                            | null
-                                                                                        >;
-                                                                                    },
-                                                                                    rowIndex: number,
-                                                                                ) => (
-                                                                                    <TableRow
-                                                                                        key={`row-${tableIndex}-${rowIndex}`}
-                                                                                    >
-                                                                                        {Object.values(row.values).map(
-                                                                                            (
-                                                                                                value:
-                                                                                                    | string
-                                                                                                    | number
-                                                                                                    | boolean
-                                                                                                    | Date
-                                                                                                    | null,
-                                                                                                colIndex: number,
-                                                                                            ) => (
-                                                                                                <TableCell
-                                                                                                    key={`col-${tableIndex}-${rowIndex}-${colIndex}`}
-                                                                                                >
-                                                                                                    {formatValue(
-                                                                                                        value,
-                                                                                                        "text",
-                                                                                                    )}
-                                                                                                </TableCell>
-                                                                                            ),
-                                                                                        )}
-                                                                                    </TableRow>
-                                                                                ),
-                                                                            )}
-                                                                        </TableBody>
-                                                                    </Table>
-                                                                </div>
-                                                            ) : (
-                                                                <p className="text-sm text-muted-foreground">
-                                                                    No table data found
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    ),
-                                                )}
+                                                {extractionResult.tables.map((table: ExtractedTable, tableIndex: number) => (
+                                                    <div key={`table-${table.tableName}-${tableIndex}`} className="space-y-2">
+                                                        <h4 className="font-medium">{table.tableName}</h4>
+                                                        {table.rows && table.rows.length > 0 ? (
+                                                            <div className="overflow-x-auto">
+                                                                <Table>
+                                                                    <TableHeader>
+                                                                        <TableRow>
+                                                                            {Object.keys(table.rows[0].values).map((columnName: string, colIndex: number) => (
+                                                                                <TableHead key={colIndex}>{columnName}</TableHead>
+                                                                            ))}
+                                                                        </TableRow>
+                                                                    </TableHeader>
+                                                                    <TableBody>
+                                                                        {table.rows.map(
+                                                                            (
+                                                                                row: {
+                                                                                    values: Record<string, string | number | boolean | Date | null>;
+                                                                                },
+                                                                                rowIndex: number,
+                                                                            ) => (
+                                                                                <TableRow key={`row-${tableIndex}-${rowIndex}`}>
+                                                                                    {Object.values(row.values).map(
+                                                                                        (value: string | number | boolean | Date | null, colIndex: number) => (
+                                                                                            <TableCell key={`col-${tableIndex}-${rowIndex}-${colIndex}`}>
+                                                                                                {formatValue(value, "text")}
+                                                                                            </TableCell>
+                                                                                        ),
+                                                                                    )}
+                                                                                </TableRow>
+                                                                            ),
+                                                                        )}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-sm text-muted-foreground">No table data found</p>
+                                                        )}
+                                                    </div>
+                                                ))}
                                             </CardContent>
                                         </Card>
                                     )}
@@ -438,9 +389,7 @@ export default function ExecutionDetailPage() {
                     <div className="text-center">
                         <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">
-                            {execution.status === "failed"
-                                ? "No data extracted due to processing error"
-                                : "No extraction results available"}
+                            {execution.status === "failed" ? "No data extracted due to processing error" : "No extraction results available"}
                         </p>
                     </div>
                 </div>

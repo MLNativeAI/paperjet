@@ -3,6 +3,7 @@ import type { ExtractionResult, WorkflowConfiguration } from "@paperjet/db/types
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
+import { logger } from "@paperjet/shared";
 
 export interface DocumentExtractionServiceDeps {
     langfuse: Langfuse;
@@ -31,6 +32,12 @@ export class DocumentExtractionService {
         },
         metadata?: Record<string, unknown>,
     ): Promise<ExtractionResult> {
+        logger.info({
+            fieldsCount: extractionConfig.fields.length,
+            tablesCount: extractionConfig.tables.length,
+            fields: extractionConfig.fields.map(f => f.name),
+            tables: extractionConfig.tables.map(t => t.name)
+        }, "Starting data extraction from document");
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -38,62 +45,52 @@ export class DocumentExtractionService {
 
         const model = google("gemini-2.5-flash");
 
-        // Create dynamic schema based on provided fields and tables
-        const fieldSchemas = extractionConfig.fields
-            .map((field) => {
-                let zodType: string;
-                switch (field.type) {
+        // Build dynamic schema object based on provided fields and tables
+        const fieldSchemas: Record<string, any> = {};
+        extractionConfig.fields.forEach((field) => {
+            switch (field.type) {
+                case "number":
+                    fieldSchemas[field.name] = z.number().nullable();
+                    break;
+                case "date":
+                    fieldSchemas[field.name] = z.string().nullable(); // Date as ISO string
+                    break;
+                case "currency":
+                    fieldSchemas[field.name] = z.number().nullable(); // Currency as number
+                    break;
+                case "boolean":
+                    fieldSchemas[field.name] = z.boolean().nullable();
+                    break;
+                default:
+                    fieldSchemas[field.name] = z.string().nullable();
+            }
+        });
+
+        const tableSchemas: Record<string, any> = {};
+        extractionConfig.tables.forEach((table) => {
+            const columnSchemas: Record<string, any> = {};
+            table.columns.forEach((col) => {
+                switch (col.type) {
                     case "number":
-                        zodType = "z.number().nullable()";
+                        columnSchemas[col.name] = z.number().nullable();
                         break;
                     case "date":
-                        zodType = "z.string().nullable()"; // Date as ISO string
+                        columnSchemas[col.name] = z.string().nullable();
                         break;
                     case "currency":
-                        zodType = "z.number().nullable()"; // Currency as number
+                        columnSchemas[col.name] = z.number().nullable();
                         break;
                     case "boolean":
-                        zodType = "z.boolean().nullable()";
+                        columnSchemas[col.name] = z.boolean().nullable();
                         break;
                     default:
-                        zodType = "z.string().nullable()";
+                        columnSchemas[col.name] = z.string().nullable();
                 }
-                return `"${field.name}": ${zodType}`;
-            })
-            .join(",\n  ");
+            });
+            tableSchemas[table.name] = z.array(z.object(columnSchemas));
+        });
 
-        const tableSchemas = extractionConfig.tables
-            .map((table) => {
-                const columnSchemas = table.columns
-                    .map((col) => {
-                        let zodType: string;
-                        switch (col.type) {
-                            case "number":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "date":
-                                zodType = "z.string().nullable()";
-                                break;
-                            case "currency":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "boolean":
-                                zodType = "z.boolean().nullable()";
-                                break;
-                            default:
-                                zodType = "z.string().nullable()";
-                        }
-                        return `"${col.name}": ${zodType}`;
-                    })
-                    .join(",\n    ");
-
-                return `"${table.name}": z.array(z.object({\n    ${columnSchemas}\n  }))`;
-            })
-            .join(",\n  ");
-
-        const fullSchema = `z.object({
-  ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
-})`;
+        const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
 
         // Build extraction prompt with field descriptions
         const fieldDescriptions = extractionConfig.fields
@@ -148,9 +145,6 @@ Instructions:
         });
 
         try {
-            // Build dynamic schema object for generateObject
-            const schemaObj = eval(`(${fullSchema})`);
-
             const { object } = await generateObject({
                 model,
                 schema: schemaObj,
@@ -199,6 +193,12 @@ Instructions:
                 output: extractionResult,
             });
 
+            logger.info({
+                extractedFieldsCount: extractionResult.fields.length,
+                extractedTablesCount: extractionResult.tables.length,
+                fieldsExtracted: extractionResult.fields.map(f => ({ name: f.fieldName, hasValue: f.value !== null }))
+            }, "Data extraction completed successfully");
+
             return extractionResult;
         } catch (error) {
             generation.end({
@@ -218,6 +218,11 @@ Instructions:
         config: WorkflowConfiguration,
         metadata?: Record<string, unknown>,
     ): Promise<ExtractionResult> {
+        logger.info({
+            fieldsCount: config.fields.length,
+            tablesCount: config.tables.length,
+            workflowMetadata: metadata
+        }, "Starting workflow execution file processing");
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -225,62 +230,52 @@ Instructions:
 
         const model = google("gemini-2.5-flash");
 
-        // Build extraction schema
-        const fieldSchemas = config.fields
-            .map((field) => {
-                let zodType: string;
-                switch (field.type) {
+        // Build dynamic schema object based on provided fields and tables
+        const fieldSchemas: Record<string, any> = {};
+        config.fields.forEach((field) => {
+            switch (field.type) {
+                case "number":
+                    fieldSchemas[field.name] = z.number().nullable();
+                    break;
+                case "date":
+                    fieldSchemas[field.name] = z.string().nullable();
+                    break;
+                case "currency":
+                    fieldSchemas[field.name] = z.number().nullable();
+                    break;
+                case "boolean":
+                    fieldSchemas[field.name] = z.boolean().nullable();
+                    break;
+                default:
+                    fieldSchemas[field.name] = z.string().nullable();
+            }
+        });
+
+        const tableSchemas: Record<string, any> = {};
+        config.tables.forEach((table) => {
+            const columnSchemas: Record<string, any> = {};
+            table.columns.forEach((col) => {
+                switch (col.type) {
                     case "number":
-                        zodType = "z.number().nullable()";
+                        columnSchemas[col.name] = z.number().nullable();
                         break;
                     case "date":
-                        zodType = "z.string().nullable()";
+                        columnSchemas[col.name] = z.string().nullable();
                         break;
                     case "currency":
-                        zodType = "z.number().nullable()";
+                        columnSchemas[col.name] = z.number().nullable();
                         break;
                     case "boolean":
-                        zodType = "z.boolean().nullable()";
+                        columnSchemas[col.name] = z.boolean().nullable();
                         break;
                     default:
-                        zodType = "z.string().nullable()";
+                        columnSchemas[col.name] = z.string().nullable();
                 }
-                return `"${field.name}": ${zodType}`;
-            })
-            .join(",\n  ");
+            });
+            tableSchemas[table.name] = z.array(z.object(columnSchemas));
+        });
 
-        const tableSchemas = config.tables
-            .map((table) => {
-                const columnSchemas = table.columns
-                    .map((col) => {
-                        let zodType: string;
-                        switch (col.type) {
-                            case "number":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "date":
-                                zodType = "z.string().nullable()";
-                                break;
-                            case "currency":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "boolean":
-                                zodType = "z.boolean().nullable()";
-                                break;
-                            default:
-                                zodType = "z.string().nullable()";
-                        }
-                        return `"${col.name}": ${zodType}`;
-                    })
-                    .join(",\n    ");
-
-                return `"${table.name}": z.array(z.object({\n    ${columnSchemas}\n  }))`;
-            })
-            .join(",\n  ");
-
-        const fullSchema = `z.object({
-  ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
-})`;
+        const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
 
         const fieldDescriptions = config.fields
             .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
@@ -334,8 +329,6 @@ Instructions:
         });
 
         try {
-            const schemaObj = eval(`(${fullSchema})`);
-
             const { object } = await generateObject({
                 model,
                 schema: schemaObj,
@@ -383,6 +376,12 @@ Instructions:
             trace.update({
                 output: result,
             });
+
+            logger.info({
+                extractedFieldsCount: result.fields.length,
+                extractedTablesCount: result.tables.length,
+                fieldsExtracted: result.fields.map(f => ({ name: f.fieldName, hasValue: f.value !== null }))
+            }, "Workflow execution file processing completed");
 
             return result;
         } catch (error) {

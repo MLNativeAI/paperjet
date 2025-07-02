@@ -67,16 +67,11 @@ export function CategorizedExtractionResults({ extractionResult }: CategorizedEx
                             <CardContent>
                                 <div className="space-y-3">
                                     {fieldsByCategory[categoryName].map((field: ExtractedValue, fieldIndex: number) => (
-                                        <div
-                                            key={`field-${field.fieldName}-${fieldIndex}`}
-                                            className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
-                                        >
+                                        <div key={`field-${field.fieldName}-${fieldIndex}`} className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="font-medium text-sm">{field.fieldName}</span>
                                             </div>
-                                            <div className="text-sm font-medium">
-                                                {formatValue(field.value, "text")}
-                                            </div>
+                                            <div className="text-sm font-medium">{formatValue(field.value, "text")}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -102,25 +97,19 @@ export function CategorizedExtractionResults({ extractionResult }: CategorizedEx
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow>
-                                                        {Object.keys(table.rows[0].values).map(
-                                                            (columnName: string, colIndex: number) => (
-                                                                <TableHead key={colIndex}>{columnName}</TableHead>
-                                                            ),
-                                                        )}
+                                                        {Object.keys(table.rows[0].values).map((columnName: string, colIndex: number) => (
+                                                            <TableHead key={colIndex}>{columnName}</TableHead>
+                                                        ))}
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
                                                     {table.rows.map((row: any, rowIndex: number) => (
                                                         <TableRow key={`row-${tableIndex}-${rowIndex}`}>
-                                                            {Object.values(row.values).map(
-                                                                (value: any, colIndex: number) => (
-                                                                    <TableCell
-                                                                        key={`col-${tableIndex}-${rowIndex}-${colIndex}`}
-                                                                    >
-                                                                        {formatValue(value, "text")}
-                                                                    </TableCell>
-                                                                ),
-                                                            )}
+                                                            {Object.values(row.values).map((value: any, colIndex: number) => (
+                                                                <TableCell key={`col-${tableIndex}-${rowIndex}-${colIndex}`}>
+                                                                    {formatValue(value, "text")}
+                                                                </TableCell>
+                                                            ))}
                                                         </TableRow>
                                                     ))}
                                                 </TableBody>
@@ -137,15 +126,14 @@ export function CategorizedExtractionResults({ extractionResult }: CategorizedEx
             )}
 
             {/* Empty State */}
-            {(!extractionResult.fields || extractionResult.fields.length === 0) &&
-                (!extractionResult.tables || extractionResult.tables.length === 0) && (
-                    <div className="h-48 flex items-center justify-center">
-                        <div className="text-center">
-                            <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                            <p className="text-sm text-muted-foreground">No data extracted</p>
-                        </div>
+            {(!extractionResult.fields || extractionResult.fields.length === 0) && (!extractionResult.tables || extractionResult.tables.length === 0) && (
+                <div className="h-48 flex items-center justify-center">
+                    <div className="text-center">
+                        <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground">No data extracted</p>
                     </div>
-                )}
+                </div>
+            )}
         </div>
     );
 }

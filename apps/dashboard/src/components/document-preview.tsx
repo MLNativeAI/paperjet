@@ -77,24 +77,14 @@ export function DocumentPreview({ fileId }: DocumentPreviewProps) {
             <CardContent className="p-0">
                 <div className="h-[500px] md:h-[800px] w-full">
                     {isPdf ? (
-                        <iframe
-                            src={documentData.presignedUrl}
-                            className="w-full h-full border-0 rounded-b-lg"
-                            title="Document Preview"
-                        />
+                        <iframe src={documentData.presignedUrl} className="w-full h-full border-0 rounded-b-lg" title="Document Preview" />
                     ) : isImage ? (
-                        <img
-                            src={documentData.presignedUrl}
-                            alt="Document Preview"
-                            className="w-full h-full object-contain rounded-b-lg"
-                        />
+                        <img src={documentData.presignedUrl} alt="Document Preview" className="w-full h-full object-contain rounded-b-lg" />
                     ) : (
                         <div className="flex items-center justify-center h-full">
                             <div className="text-center">
                                 <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                                <p className="text-sm text-muted-foreground">
-                                    Preview not available for this file type
-                                </p>
+                                <p className="text-sm text-muted-foreground">Preview not available for this file type</p>
                                 <p className="text-xs text-muted-foreground mt-1">{documentData.filename}</p>
                             </div>
                         </div>

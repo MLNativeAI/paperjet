@@ -40,10 +40,7 @@ export function ExtractedTable({ table, tableIndex, extractionResult }: Extracte
                         <thead>
                             <tr className="bg-muted">
                                 {table.columns.map((column, colIndex) => (
-                                    <th
-                                        key={colIndex}
-                                        className="border border-gray-200 px-3 py-2 text-left font-medium"
-                                    >
+                                    <th key={colIndex} className="border border-gray-200 px-3 py-2 text-left font-medium">
                                         {column.name}
                                         <Badge variant="outline" className="ml-1 text-xs">
                                             {column.type}
@@ -66,9 +63,7 @@ export function ExtractedTable({ table, tableIndex, extractionResult }: Extracte
                     </table>
                 </div>
             ) : (
-                <div className="text-center py-4 text-muted-foreground">
-                    {extractionResult ? "No table data extracted" : "No extraction run yet"}
-                </div>
+                <div className="text-center py-4 text-muted-foreground">{extractionResult ? "No table data extracted" : "No extraction run yet"}</div>
             )}
         </div>
     );

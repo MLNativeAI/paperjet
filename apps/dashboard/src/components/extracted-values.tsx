@@ -94,13 +94,7 @@ export function ExtractedValues({
                                 />
                             ))}
 
-                            {isAddingField && (
-                                <AddFieldForm
-                                    onFieldAdd={onFieldAdd}
-                                    onExtractData={onExtractData}
-                                    onCancel={() => setIsAddingField(false)}
-                                />
-                            )}
+                            {isAddingField && <AddFieldForm onFieldAdd={onFieldAdd} onExtractData={onExtractData} onCancel={() => setIsAddingField(false)} />}
                         </div>
                     )}
                 </CardContent>

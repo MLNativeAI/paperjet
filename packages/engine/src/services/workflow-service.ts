@@ -4,6 +4,7 @@ import { type DocumentAnalysis, type WorkflowConfiguration, workflowConfiguratio
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { generateId, ID_PREFIXES } from "../utils/id";
+import { logger } from "@paperjet/shared";
 import type { DocumentAnalysisService } from "./document-analysis-service";
 import type { DocumentExtractionService } from "./document-extraction-service";
 import type { WorkflowExecutionService } from "./workflow-execution-service";
@@ -29,7 +30,7 @@ export class WorkflowService {
         const result = workflows.map((w) => {
             const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(w.configuration));
             if (!parsedConfig.success) {
-                console.warn(`Invalid workflow configuration for workflow ${w.id}:`, parsedConfig.error);
+                logger.warn(parsedConfig.error, `Invalid workflow configuration for workflow ${w.id}:`);
                 // Return a default configuration if parsing fails
                 return {
                     ...w,
@@ -66,7 +67,7 @@ export class WorkflowService {
 
         const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
         if (!parsedConfig.success) {
-            console.warn(`Invalid workflow configuration for workflow ${workflowId}:`, parsedConfig.error);
+            logger.warn(parsedConfig.error, `Invalid workflow configuration for workflow ${workflowId}:`);
             // Return a default configuration if parsing fails
             return {
                 ...workflowData,
@@ -130,7 +131,7 @@ export class WorkflowService {
         // Check if analysis is complete by looking at configuration
         const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
         if (!parsedConfig.success) {
-            console.warn(`Invalid workflow configuration for workflow ${workflowId}:`, parsedConfig.error);
+            logger.warn(parsedConfig.error, `Invalid workflow configuration for workflow ${workflowId}:`);
             // Return default values if parsing fails
             return {
                 analysisComplete: false,
@@ -201,6 +202,8 @@ export class WorkflowService {
     ): Promise<{
         analysis: DocumentAnalysis;
     }> {
+        logger.info({ workflowId, userId }, "Starting workflow document analysis");
+        
         // Get workflow and associated file
         const [workflowData] = await db
             .select({
@@ -243,6 +246,13 @@ export class WorkflowService {
             })
             .where(eq(workflow.id, workflowId));
 
+        logger.info({
+            workflowId,
+            documentType: analysisResult.documentType,
+            fieldsCount: analysisResult.suggestedFields?.length || 0,
+            tablesCount: analysisResult.suggestedTables?.length || 0
+        }, "Workflow document analysis completed");
+
         return {
             analysis: analysisResult,
         };
@@ -255,6 +265,13 @@ export class WorkflowService {
         workflowId: string;
         fileId: string;
     }> {
+        logger.info({
+            userId,
+            fileName: fileParam.name,
+            fileSize: fileParam.size,
+            fileType: fileParam.type
+        }, "Creating new workflow from file");
+        
         // Save file first
         const fileId = generateId(ID_PREFIXES.file);
         const filename = `workflow-samples/${fileId}-${fileParam.name}`;
@@ -293,6 +310,13 @@ export class WorkflowService {
             createdAt: new Date(),
         });
 
+        logger.info({
+            workflowId,
+            fileId,
+            userId,
+            workflowName
+        }, "Workflow created successfully from file");
+
         return {
             workflowId,
             fileId,
@@ -320,6 +344,13 @@ export class WorkflowService {
             }>;
         },
     ) {
+        logger.info({
+            workflowId,
+            fileId,
+            userId,
+            fieldsCount: extractionConfig.fields.length,
+            tablesCount: extractionConfig.tables.length
+        }, "Starting data extraction from document");
         // Get file from database
         const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
 
@@ -331,15 +362,18 @@ export class WorkflowService {
         const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
 
         // Use the document extraction service
-        const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(
-            presignedUrl,
-            extractionConfig,
-            {
-                workflowId,
-                fileId,
-                userId,
-            },
-        );
+        const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(presignedUrl, extractionConfig, {
+            workflowId,
+            fileId,
+            userId,
+        });
+
+        logger.info({
+            workflowId,
+            fileId,
+            extractedFieldsCount: extractionResult.fields.length,
+            extractedTablesCount: extractionResult.tables.length
+        }, "Data extraction from document completed");
 
         return {
             fileId,
@@ -368,6 +402,14 @@ export class WorkflowService {
     }
 
     async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
+        logger.info({
+            workflowId,
+            userId,
+            fileName: uploadedFile.name,
+            fileSize: uploadedFile.size,
+            fileType: uploadedFile.type
+        }, "Starting workflow execution");
+        
         // Get workflow and verify ownership
         const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
@@ -383,13 +425,13 @@ export class WorkflowService {
         const config = parsedConfig.data;
 
         // Use the workflow execution service
-        const result = await this.deps.workflowExecutionService.executeWorkflow(
+        const result = await this.deps.workflowExecutionService.executeWorkflow(workflowId, workflowData.name, config, userId, uploadedFile);
+
+        logger.info({
             workflowId,
-            workflowData.name,
-            config,
-            userId,
-            uploadedFile,
-        );
+            executionId: result.executionId,
+            status: result.status
+        }, "Workflow execution completed via service");
 
         return result;
     }

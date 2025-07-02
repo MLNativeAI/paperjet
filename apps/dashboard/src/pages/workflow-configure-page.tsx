@@ -169,20 +169,12 @@ export default function WorkflowConfigurePage() {
                                         <Button variant="outline" onClick={() => navigate({ to: "/" })}>
                                             Cancel
                                         </Button>
-                                        <Button
-                                            variant="secondary"
-                                            onClick={handleExtractData}
-                                            disabled={extractData.isPending || !fileId}
-                                        >
+                                        <Button variant="secondary" onClick={handleExtractData} disabled={extractData.isPending || !fileId}>
                                             {extractData.isPending ? "Extracting..." : "Test Extraction"}
                                         </Button>
                                     </div>
 
-                                    <Button
-                                        onClick={handleUpdateWorkflow}
-                                        disabled={updateWorkflow.isPending || !workflowName.trim()}
-                                        size="lg"
-                                    >
+                                    <Button onClick={handleUpdateWorkflow} disabled={updateWorkflow.isPending || !workflowName.trim()} size="lg">
                                         {updateWorkflow.isPending ? "Saving Workflow..." : "Save Workflow"}
                                     </Button>
                                 </div>

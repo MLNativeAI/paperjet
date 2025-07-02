@@ -12,10 +12,7 @@ export function LoadingSkeleton() {
             <CardContent>
                 <div className="space-y-4">
                     {Array.from({ length: 3 }).map((_, index) => (
-                        <div
-                            key={`skeleton-field-${index}`}
-                            className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
-                        >
+                        <div key={`skeleton-field-${index}`} className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3">
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="h-4 w-24 bg-gray-300 rounded animate-pulse" />
                                 <div className="h-5 w-12 bg-gray-200 rounded-full animate-pulse" />

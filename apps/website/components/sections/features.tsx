@@ -23,8 +23,7 @@ const item = {
 const features = [
     {
         title: "Privacy-First Processing",
-        description:
-            "Keep your sensitive documents secure with local processing and no data leaving your infrastructure.",
+        description: "Keep your sensitive documents secure with local processing and no data leaving your infrastructure.",
         icon: <Shield className="size-5" />,
     },
     {
@@ -34,8 +33,7 @@ const features = [
     },
     {
         title: "Universal Document Support",
-        description:
-            "Process any document type - from simple invoices to complex construction blueprints and legal contracts.",
+        description: "Process any document type - from simple invoices to complex construction blueprints and legal contracts.",
         icon: <Star className="size-5" />,
     },
     {
@@ -45,8 +43,7 @@ const features = [
     },
     {
         title: "Advanced Extraction",
-        description:
-            "Leverage AI-powered extraction to pull structured data from unstructured documents with high accuracy.",
+        description: "Leverage AI-powered extraction to pull structured data from unstructured documents with high accuracy.",
         icon: <BarChart className="size-5" />,
     },
     {
@@ -70,12 +67,10 @@ export function Features() {
                     <Badge className="rounded-full px-4 py-1.5 text-sm font-medium" variant="secondary">
                         Features
                     </Badge>
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                        Everything You Need for Document Processing
-                    </h2>
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Everything You Need for Document Processing</h2>
                     <p className="max-w-[800px] text-muted-foreground md:text-lg">
-                        Our comprehensive platform provides all the tools you need to extract, process, and analyze
-                        documents while maintaining complete privacy and control.
+                        Our comprehensive platform provides all the tools you need to extract, process, and analyze documents while maintaining complete privacy
+                        and control.
                     </p>
                 </motion.div>
 

@@ -4,6 +4,7 @@ import type { WorkflowConfiguration } from "@paperjet/db/types";
 import { desc, eq } from "drizzle-orm";
 import type { Langfuse } from "langfuse";
 import { generateId, ID_PREFIXES } from "../utils/id";
+import { logger } from "@paperjet/shared";
 import type { DocumentExtractionService } from "./document-extraction-service";
 
 export interface WorkflowExecutionServiceDeps {
@@ -20,13 +21,18 @@ export interface WorkflowExecutionServiceDeps {
 export class WorkflowExecutionService {
     constructor(private deps: WorkflowExecutionServiceDeps) {}
 
-    async executeWorkflow(
-        workflowId: string,
-        workflowName: string,
-        config: WorkflowConfiguration,
-        userId: string,
-        uploadedFile: File,
-    ) {
+    async executeWorkflow(workflowId: string, workflowName: string, config: WorkflowConfiguration, userId: string, uploadedFile: File) {
+        logger.info({
+            workflowId,
+            workflowName,
+            userId,
+            fileName: uploadedFile.name,
+            fileSize: uploadedFile.size,
+            fileType: uploadedFile.type,
+            fieldsCount: config.fields.length,
+            tablesCount: config.tables.length
+        }, "Starting workflow execution");
+        
         // Create execution record for single file
         const executionId = generateId(ID_PREFIXES.workflowExecution);
         const fileId = generateId(ID_PREFIXES.file);
@@ -51,6 +57,7 @@ export class WorkflowExecutionService {
 
         try {
             // Save file to storage
+            logger.info({ fileId, filename }, "Saving execution file to storage");
             await db.insert(file).values({
                 id: fileId,
                 filename,
@@ -73,6 +80,7 @@ export class WorkflowExecutionService {
             });
 
             // Extract data using extraction service
+            logger.info({ executionId, workflowId }, "Starting data extraction for workflow execution");
             const presignedUrl = await this.deps.s3.presign(filename);
             const extractionResult = await this.deps.extractionService.processExecutionFile(presignedUrl, config, {
                 executionId,
@@ -98,6 +106,13 @@ export class WorkflowExecutionService {
                 },
             });
 
+            logger.info({
+                executionId,
+                workflowId,
+                extractedFieldsCount: extractionResult.fields.length,
+                extractedTablesCount: extractionResult.tables.length
+            }, "Workflow execution completed successfully");
+
             return {
                 executionId,
                 status: "completed",
@@ -106,7 +121,12 @@ export class WorkflowExecutionService {
                 extractionResult,
             };
         } catch (error) {
-            console.error("File processing error:", error);
+            logger.error({ 
+                executionId, 
+                workflowId, 
+                error: error instanceof Error ? error.message : "Unknown error",
+                userId
+            }, "Workflow execution failed");
 
             // Update execution with error
             await db

@@ -46,9 +46,7 @@ export function FAQ() {
                         FAQ
                     </Badge>
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Frequently Asked Questions</h2>
-                    <p className="max-w-[800px] text-muted-foreground md:text-lg">
-                        Find answers to common questions about our platform.
-                    </p>
+                    <p className="max-w-[800px] text-muted-foreground md:text-lg">Find answers to common questions about our platform.</p>
                 </motion.div>
 
                 <div className="mx-auto max-w-3xl">
@@ -62,9 +60,7 @@ export function FAQ() {
                                 transition={{ duration: 0.3, delay: i * 0.05 }}
                             >
                                 <AccordionItem value={`item-${i}`} className="border-b border-border/40 py-2">
-                                    <AccordionTrigger className="text-left font-medium hover:no-underline">
-                                        {faq.question}
-                                    </AccordionTrigger>
+                                    <AccordionTrigger className="text-left font-medium hover:no-underline">{faq.question}</AccordionTrigger>
                                     <AccordionContent className="text-muted-foreground">{faq.answer}</AccordionContent>
                                 </AccordionItem>
                             </motion.div>

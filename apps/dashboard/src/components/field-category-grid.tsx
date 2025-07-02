@@ -14,14 +14,7 @@ interface FieldCategoryGridProps {
     onExtractData?: () => void;
 }
 
-export function FieldCategoryGrid({
-    fields,
-    extractionResult,
-    onFieldUpdate,
-    onFieldAdd,
-    onFieldRemove,
-    onExtractData,
-}: FieldCategoryGridProps) {
+export function FieldCategoryGrid({ fields, extractionResult, onFieldUpdate, onFieldAdd, onFieldRemove, onExtractData }: FieldCategoryGridProps) {
     const [isAddingField, setIsAddingField] = useState(false);
 
     // Group fields by category
@@ -95,11 +88,7 @@ export function FieldCategoryGrid({
             {/* Add Field Form */}
             {isAddingField && (
                 <div className="max-w-md">
-                    <AddFieldForm
-                        onFieldAdd={onFieldAdd}
-                        onExtractData={onExtractData}
-                        onCancel={() => setIsAddingField(false)}
-                    />
+                    <AddFieldForm onFieldAdd={onFieldAdd} onExtractData={onExtractData} onCancel={() => setIsAddingField(false)} />
                 </div>
             )}
         </div>

@@ -10,6 +10,7 @@ import {
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
+import { logger } from "@paperjet/shared";
 
 export interface DocumentAnalysisServiceDeps {
     langfuse: Langfuse;
@@ -19,6 +20,8 @@ export class DocumentAnalysisService {
     constructor(private deps: DocumentAnalysisServiceDeps) {}
 
     async analyzeDocumentType(presignedUrl: string): Promise<DocumentTypeAnalysis> {
+        logger.info({ presignedUrl }, "Starting document type analysis");
+        
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -86,6 +89,11 @@ Be specific about the document type and provide a clear description that will he
                 output: object,
             });
 
+            logger.info({ 
+                documentType: object.documentType,
+                description: object.description?.substring(0, 100) + "..."
+            }, "Document type analysis completed");
+
             return object as DocumentTypeAnalysis;
         } catch (error) {
             generation.end({
@@ -101,6 +109,10 @@ Be specific about the document type and provide a clear description that will he
     }
 
     async identifyCategories(presignedUrl: string, documentType: DocumentTypeAnalysis): Promise<CategoryAnalysis> {
+        logger.info({ 
+            documentType: documentType.documentType 
+        }, "Starting category identification");
+        
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -181,6 +193,11 @@ Focus on creating categories that make sense for this specific document type.`;
                 output: object,
             });
 
+            logger.info({ 
+                categoriesFound: object.categories.length,
+                categories: object.categories.map(c => c.name)
+            }, "Category identification completed");
+
             return object as CategoryAnalysis;
         } catch (error) {
             generation.end({
@@ -195,11 +212,12 @@ Focus on creating categories that make sense for this specific document type.`;
         }
     }
 
-    async extractFieldsWithCategories(
-        presignedUrl: string,
-        documentType: DocumentTypeAnalysis,
-        categories: CategoryAnalysis,
-    ): Promise<FieldCategoryAnalysis> {
+    async extractFieldsWithCategories(presignedUrl: string, documentType: DocumentTypeAnalysis, categories: CategoryAnalysis): Promise<FieldCategoryAnalysis> {
+        logger.info({ 
+            documentType: documentType.documentType,
+            categoriesCount: categories.categories.length
+        }, "Starting field extraction with categories");
+        
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -288,6 +306,11 @@ Provide practical, commonly needed information extraction focused on business pr
             trace.update({
                 output: object,
             });
+
+            logger.info({ 
+                fieldsFound: object.suggestedFields.length,
+                fields: object.suggestedFields.map(f => f.name)
+            }, "Field extraction with categories completed");
 
             return object as FieldCategoryAnalysis;
         } catch (error) {
@@ -401,7 +424,7 @@ If no clear table structures are found, return an empty array.`;
 
             return result;
         } catch (error) {
-            console.warn("Table identification failed:", error);
+            logger.warn(error, "Table identification failed:");
 
             generation.end({
                 output: error,
@@ -416,6 +439,8 @@ If no clear table structures are found, return an empty array.`;
     }
 
     async performCompleteAnalysis(presignedUrl: string) {
+        logger.info({ presignedUrl }, "Starting complete document analysis");
+        
         const parentTrace = this.deps.langfuse.trace({
             name: "complete-document-analysis",
             metadata: {
@@ -432,11 +457,7 @@ If no clear table structures are found, return an empty array.`;
             const categoryAnalysis = await this.identifyCategories(presignedUrl, documentTypeAnalysis);
 
             // Step 3: Field Extraction with Categories
-            const fieldAnalysis = await this.extractFieldsWithCategories(
-                presignedUrl,
-                documentTypeAnalysis,
-                categoryAnalysis,
-            );
+            const fieldAnalysis = await this.extractFieldsWithCategories(presignedUrl, documentTypeAnalysis, categoryAnalysis);
 
             // Step 4: Table Identification
             const tableAnalysis = await this.identifyTables(presignedUrl, documentTypeAnalysis);
@@ -450,6 +471,12 @@ If no clear table structures are found, return an empty array.`;
             parentTrace.update({
                 output: result,
             });
+
+            logger.info({
+                documentType: result.documentType,
+                fieldsCount: result.suggestedFields.length,
+                tablesCount: result.suggestedTables.length
+            }, "Complete document analysis finished");
 
             return result;
         } catch (error) {

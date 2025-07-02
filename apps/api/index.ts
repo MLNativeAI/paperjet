@@ -32,7 +32,7 @@ app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
 // Health check
 app.get("/api/health", async (c) => {
-    logger.info("health check", { endpoint: "/api/health", method: "GET" });
+    logger.info({ endpoint: "/api/health", method: "GET" }, "health check");
     return c.json({
         status: "ok",
     });
@@ -56,10 +56,10 @@ const server = Bun.serve({
     fetch: app.fetch,
 });
 
-logger.info(`🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`, {
+logger.info({
     port: server.port,
     environment: envVars.ENVIRONMENT,
     hostname: "0.0.0.0",
-});
+}, `🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`);
 
 export type ApiRoutes = typeof apiRoutes;

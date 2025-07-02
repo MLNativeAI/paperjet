@@ -29,13 +29,7 @@ import { Calendar, CheckCircle, ChevronDown, ChevronRight, Clock, Eye, PlayIcon,
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -102,11 +96,7 @@ function WorkflowExecutionRow({ workflowId }: { workflowId: string }) {
     }
 
     if (executions.length === 0) {
-        return (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-                No executions yet. Run this workflow to see execution history.
-            </div>
-        );
+        return <div className="p-4 text-center text-sm text-muted-foreground">No executions yet. Run this workflow to see execution history.</div>;
     }
 
     return (
@@ -114,17 +104,12 @@ function WorkflowExecutionRow({ workflowId }: { workflowId: string }) {
             <h4 className="font-medium mb-3 text-sm">Recent Executions</h4>
             <div className="space-y-2">
                 {executions.slice(0, 3).map((execution) => (
-                    <div
-                        key={execution.id}
-                        className="flex items-center justify-between p-2 bg-background rounded border"
-                    >
+                    <div key={execution.id} className="flex items-center justify-between p-2 bg-background rounded border">
                         <div className="flex items-center gap-3 flex-1">
                             {getStatusIcon(execution.status)}
                             <div className="flex-1">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium">
-                                        {new Date(execution.startedAt).toLocaleDateString()}
-                                    </span>
+                                    <span className="text-sm font-medium">{new Date(execution.startedAt).toLocaleDateString()}</span>
                                     <Badge variant={getStatusColor(execution.status)} className="text-xs">
                                         {execution.status}
                                     </Badge>
@@ -132,23 +117,13 @@ function WorkflowExecutionRow({ workflowId }: { workflowId: string }) {
                                 <p className="text-xs text-muted-foreground">{execution.filename || "No filename"}</p>
                             </div>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 px-2"
-                            onClick={() => navigate({ to: `/executions/${execution.id}` })}
-                        >
+                        <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => navigate({ to: `/executions/${execution.id}` })}>
                             <Eye className="h-3 w-3" />
                         </Button>
                     </div>
                 ))}
                 {executions.length > 3 && (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full mt-2"
-                        onClick={() => navigate({ to: `/workflows/${workflowId}/history` })}
-                    >
+                    <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => navigate({ to: `/workflows/${workflowId}/history` })}>
                         View all {executions.length} executions
                     </Button>
                 )}
@@ -176,11 +151,7 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
             cell: ({ row }) => {
                 return (
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => row.toggleExpanded()}>
-                        {row.getIsExpanded() ? (
-                            <ChevronDown className="h-4 w-4" />
-                        ) : (
-                            <ChevronRight className="h-4 w-4" />
-                        )}
+                        {row.getIsExpanded() ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     </Button>
                 );
             },
@@ -195,11 +166,7 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
         {
             accessorKey: "description",
             header: "Description",
-            cell: ({ row }) => (
-                <div className="text-sm text-muted-foreground max-w-xs truncate">
-                    {row.original.description || "No description"}
-                </div>
-            ),
+            cell: ({ row }) => <div className="text-sm text-muted-foreground max-w-xs truncate">{row.original.description || "No description"}</div>,
         },
         {
             accessorKey: "configuration",
@@ -231,21 +198,13 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
             header: "Actions",
             cell: ({ row }) => (
                 <div className="flex items-center gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate({ to: `/workflows/${row.original.id}/run` })}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => navigate({ to: `/workflows/${row.original.id}/run` })}>
                         <PlayIcon className="h-4 w-4 mr-2" />
                         Run
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                                size="icon"
-                            >
+                            <Button variant="ghost" className="data-[state=open]:bg-muted text-muted-foreground flex size-8" size="icon">
                                 <IconDotsVertical className="h-4 w-4" />
                                 <span className="sr-only">Open menu</span>
                             </Button>
@@ -255,17 +214,12 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
                                 <IconHistory className="h-4 w-4 mr-2" />
                                 View History
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => navigate({ to: `/workflows/${row.original.id}/configure` })}
-                            >
+                            <DropdownMenuItem onClick={() => navigate({ to: `/workflows/${row.original.id}/configure` })}>
                                 <IconEdit className="h-4 w-4 mr-2" />
                                 Edit
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() => onDeleteWorkflow(row.original.id, row.original.name)}
-                            >
+                            <DropdownMenuItem variant="destructive" onClick={() => onDeleteWorkflow(row.original.id, row.original.name)}>
                                 <IconTrash className="h-4 w-4 mr-2" />
                                 Delete
                             </DropdownMenuItem>
@@ -316,9 +270,7 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
                                 {headerGroup.headers.map((header) => {
                                     return (
                                         <TableHead key={header.id} colSpan={header.colSpan}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(header.column.columnDef.header, header.getContext())}
+                                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                         </TableHead>
                                     );
                                 })}
@@ -329,14 +281,9 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <React.Fragment key={row.id}>
-                                    <TableRow
-                                        data-state={row.getIsSelected() && "selected"}
-                                        className="hover:bg-muted/50"
-                                    >
+                                    <TableRow data-state={row.getIsSelected() && "selected"} className="hover:bg-muted/50">
                                         {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </TableCell>
+                                            <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                                         ))}
                                     </TableRow>
                                     {row.getIsExpanded() && (
@@ -360,8 +307,7 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
             </div>
             <div className="flex items-center justify-between px-4 py-4">
                 <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-                    {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length}{" "}
-                    row(s) selected.
+                    {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
                 <div className="flex w-full items-center gap-8 lg:w-fit">
                     <div className="hidden items-center gap-2 lg:flex">
@@ -399,23 +345,11 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
                             <span className="sr-only">Go to first page</span>
                             <IconChevronsLeft className="h-4 w-4" />
                         </Button>
-                        <Button
-                            variant="outline"
-                            className="size-8"
-                            size="icon"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
-                        >
+                        <Button variant="outline" className="size-8" size="icon" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
                             <span className="sr-only">Go to previous page</span>
                             <IconChevronLeft className="h-4 w-4" />
                         </Button>
-                        <Button
-                            variant="outline"
-                            className="size-8"
-                            size="icon"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
-                        >
+                        <Button variant="outline" className="size-8" size="icon" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
                             <span className="sr-only">Go to next page</span>
                             <IconChevronRight className="h-4 w-4" />
                         </Button>

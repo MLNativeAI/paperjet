@@ -21,9 +21,7 @@ export function WorkflowExtractionResults({ result }: WorkflowExtractionResultsP
                             {fields.map((field: ExtractedValue, index: number) => (
                                 <div key={`field-${field.fieldName}-${index}`} className="p-3 border rounded-lg">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="text-sm font-medium text-muted-foreground">
-                                            {field.fieldName}
-                                        </span>
+                                        <span className="text-sm font-medium text-muted-foreground">{field.fieldName}</span>
                                     </div>
                                     <div className="text-sm">
                                         {field.value !== null && field.value !== undefined ? (
@@ -44,10 +42,7 @@ export function WorkflowExtractionResults({ result }: WorkflowExtractionResultsP
                         <h4 className="font-medium mb-2">Extracted Tables</h4>
                         <div className="space-y-4">
                             {tables.map((table: ExtractedTable, tableIndex: number) => (
-                                <div
-                                    key={`table-${table.tableName || `table-${tableIndex}`}`}
-                                    className="border rounded-lg"
-                                >
+                                <div key={`table-${table.tableName || `table-${tableIndex}`}`} className="border rounded-lg">
                                     <div className="p-3 border-b bg-muted/50">
                                         <h5 className="font-medium">{table.tableName}</h5>
                                         <p className="text-sm text-muted-foreground">{table.rows?.length || 0} rows</p>
@@ -57,38 +52,26 @@ export function WorkflowExtractionResults({ result }: WorkflowExtractionResultsP
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow>
-                                                        {Object.keys(table.rows[0].values || table.rows[0]).map(
-                                                            (key: string) => (
-                                                                <TableHead key={key} className="text-xs">
-                                                                    {key
-                                                                        .replace(/_/g, " ")
-                                                                        .replace(/\b\w/g, (l) => l.toUpperCase())}
-                                                                </TableHead>
-                                                            ),
-                                                        )}
+                                                        {Object.keys(table.rows[0].values || table.rows[0]).map((key: string) => (
+                                                            <TableHead key={key} className="text-xs">
+                                                                {key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                                                            </TableHead>
+                                                        ))}
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
                                                     {table.rows.map(
                                                         (
                                                             row: {
-                                                                values?: Record<
-                                                                    string,
-                                                                    string | number | boolean | Date | null
-                                                                >;
+                                                                values?: Record<string, string | number | boolean | Date | null>;
                                                             },
                                                             rowIndex: number,
                                                         ) => (
                                                             <TableRow key={`row-${tableIndex}-${rowIndex}`}>
                                                                 {Object.entries(row.values || row).map(
-                                                                    ([key, value]: [
-                                                                        string,
-                                                                        string | number | boolean | Date | null,
-                                                                    ]) => (
+                                                                    ([key, value]: [string, string | number | boolean | Date | null]) => (
                                                                         <TableCell key={key} className="text-xs">
-                                                                            {value !== null && value !== undefined
-                                                                                ? String(value)
-                                                                                : "-"}
+                                                                            {value !== null && value !== undefined ? String(value) : "-"}
                                                                         </TableCell>
                                                                     ),
                                                                 )}
@@ -108,9 +91,7 @@ export function WorkflowExtractionResults({ result }: WorkflowExtractionResultsP
         );
     } catch (error) {
         return (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded">
-                Error parsing results: {error instanceof Error ? error.message : "Unknown error"}
-            </div>
+            <div className="p-3 text-sm text-red-600 bg-red-50 rounded">Error parsing results: {error instanceof Error ? error.message : "Unknown error"}</div>
         );
     }
 }

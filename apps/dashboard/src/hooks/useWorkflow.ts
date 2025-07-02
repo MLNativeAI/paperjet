@@ -21,8 +21,7 @@ export function useWorkflow(workflowId: string) {
     });
 
     const updateWorkflow = useMutation({
-        mutationFn: (data: { name: string; fields: ExtractionField[]; description?: string; isPublic?: boolean }) =>
-            updateWorkflowApi(workflowId, data),
+        mutationFn: (data: { name: string; fields: ExtractionField[]; description?: string; isPublic?: boolean }) => updateWorkflowApi(workflowId, data),
         onSuccess: () => {
             toast.success("Workflow updated successfully!");
             navigate({ to: "/" });
@@ -33,8 +32,7 @@ export function useWorkflow(workflowId: string) {
     });
 
     const extractData = useMutation({
-        mutationFn: (data: { fileId: string; fields?: ExtractionField[]; tables?: ExtractionTable[] }) =>
-            extractDataApi(workflowId, data),
+        mutationFn: (data: { fileId: string; fields?: ExtractionField[]; tables?: ExtractionTable[] }) => extractDataApi(workflowId, data),
         onError: () => {
             toast.error("Failed to extract data from document");
         },

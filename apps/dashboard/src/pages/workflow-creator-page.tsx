@@ -1,15 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-    ArrowLeft,
-    DollarSign,
-    FileSpreadsheet,
-    FileText,
-    Loader2,
-    Package,
-    Receipt,
-    ScrollText,
-    Upload,
-} from "lucide-react";
+import { ArrowLeft, DollarSign, FileSpreadsheet, FileText, Loader2, Package, Receipt, ScrollText, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExtractedValues } from "@/components/extracted-values";
@@ -73,8 +63,7 @@ export default function WorkflowCreatorPage() {
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [phase, setPhase] = useState<"template" | "upload" | "analyzing" | "extracting" | "complete">("template");
 
-    const { createWorkflowFromFile, analyzeWorkflow, extractData, workflow, isAnalysisComplete, analysisStatus } =
-        useWorkflow(workflowId);
+    const { createWorkflowFromFile, analyzeWorkflow, extractData, workflow, isAnalysisComplete, analysisStatus } = useWorkflow(workflowId);
 
     const handleFileSelect = (selectedFile: File) => {
         setFile(selectedFile);
@@ -128,18 +117,14 @@ export default function WorkflowCreatorPage() {
         <div className="w-full px-4 py-8">
             <div className="mb-8 text-center">
                 <h1 className="text-3xl font-bold mb-4">Create New Workflow</h1>
-                <p className="text-muted-foreground">
-                    Choose a template to get started or create a custom workflow from scratch
-                </p>
+                <p className="text-muted-foreground">Choose a template to get started or create a custom workflow from scratch</p>
             </div>
 
             <div className="space-y-8">
                 {/* Custom Workflow Option */}
                 <div>
                     <h2 className="text-xl font-semibold mb-4">Create a custom workflow</h2>
-                    <p className="text-muted-foreground mb-6">
-                        Upload any document and we'll analyze it to suggest extraction fields
-                    </p>
+                    <p className="text-muted-foreground mb-6">Upload any document and we'll analyze it to suggest extraction fields</p>
 
                     <Card
                         className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50 border-dashed"
@@ -156,17 +141,11 @@ export default function WorkflowCreatorPage() {
                 {/* Template Selection */}
                 <div className="border-t pt-8">
                     <h2 className="text-xl font-semibold mb-4">Or choose from a template</h2>
-                    <p className="text-muted-foreground mb-6">
-                        Start with a pre-built workflow for common document types
-                    </p>
+                    <p className="text-muted-foreground mb-6">Start with a pre-built workflow for common document types</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {workflowTemplates.map((template) => (
-                            <WorkflowTemplateCard
-                                key={template.id}
-                                template={template}
-                                onClick={handleTemplateSelect}
-                            />
+                            <WorkflowTemplateCard key={template.id} template={template} onClick={handleTemplateSelect} />
                         ))}
                     </div>
                 </div>
@@ -194,9 +173,7 @@ export default function WorkflowCreatorPage() {
 
                     <div className="text-center">
                         <h1 className="text-3xl font-bold mb-4">
-                            {selectedTemplateData
-                                ? `Create ${selectedTemplateData.name} Workflow`
-                                : "Create Custom Workflow"}
+                            {selectedTemplateData ? `Create ${selectedTemplateData.name} Workflow` : "Create Custom Workflow"}
                         </h1>
                         <p className="text-muted-foreground">
                             {selectedTemplateData
@@ -220,13 +197,9 @@ export default function WorkflowCreatorPage() {
         return (
             <div className="w-full px-4 py-8">
                 <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold mb-4">
-                        {isAnalyzing ? "Analyzing Document" : "Extracting Data"}
-                    </h1>
+                    <h1 className="text-3xl font-bold mb-4">{isAnalyzing ? "Analyzing Document" : "Extracting Data"}</h1>
                     <p className="text-muted-foreground">
-                        {isAnalyzing
-                            ? "We're analyzing your document to suggest fields for extraction..."
-                            : "Extracting data based on the analysis..."}
+                        {isAnalyzing ? "We're analyzing your document to suggest fields for extraction..." : "Extracting data based on the analysis..."}
                     </p>
                 </div>
 
@@ -251,9 +224,7 @@ export default function WorkflowCreatorPage() {
             <div className="w-full px-4 py-8">
                 <div className="mb-8 text-center">
                     <h1 className="text-3xl font-bold mb-4">Workflow Results</h1>
-                    <p className="text-muted-foreground">
-                        Review the extracted data and configure field settings as needed.
-                    </p>
+                    <p className="text-muted-foreground">Review the extracted data and configure field settings as needed.</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -299,10 +270,7 @@ export default function WorkflowCreatorPage() {
                         />
 
                         <div className="mt-6 space-y-4">
-                            <Button
-                                onClick={() => navigate({ to: `/workflows/${workflowId}/configure` })}
-                                className="w-full"
-                            >
+                            <Button onClick={() => navigate({ to: `/workflows/${workflowId}/configure` })} className="w-full">
                                 Configure Fields & Save Workflow
                             </Button>
                             <Button variant="outline" onClick={() => navigate({ to: "/" })} className="w-full">
