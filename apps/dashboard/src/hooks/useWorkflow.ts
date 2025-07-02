@@ -2,12 +2,7 @@ import type { ExtractionField, ExtractionTable } from "@paperjet/db/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import {
-    extractData as extractDataApi,
-    getAnalysisStatus as getAnalysisStatusApi,
-    getWorkflow,
-    updateWorkflow as updateWorkflowApi,
-} from "@/lib/api";
+import { extractData as extractDataApi, getAnalysisStatus as getAnalysisStatusApi, getWorkflow, updateWorkflow as updateWorkflowApi } from "@/lib/api";
 
 export function useWorkflow(workflowId: string) {
     const navigate = useNavigate();

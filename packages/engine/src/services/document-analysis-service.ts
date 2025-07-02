@@ -1,10 +1,5 @@
 import { google } from "@ai-sdk/google";
-import {
-    type DocumentTypeAndCategories,
-    documentTypeAndCategoriesSchema,
-    type FieldCategoryAnalysis,
-    fieldCategoryAnalysisSchema,
-} from "@paperjet/db/types";
+import { type DocumentTypeAndCategories, documentTypeAndCategoriesSchema, type FieldCategoryAnalysis, fieldCategoryAnalysisSchema } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
@@ -34,7 +29,6 @@ export class DocumentAnalysisService {
         3. Based on the document type and categories, create a 1-2 sentence description for a process that would be used to extract the data from the document.
         Example: "Extracts invoice details, vendor information, billing information, line items and payment terms"
         `;
-
 
         // Create a trace for this analysis step
         const trace = this.deps.langfuse.trace({
@@ -355,6 +349,7 @@ If no clear table structures are found, return an empty array.`;
         try {
             // Step 1: Document Type Analysis
             const documentTypeAnalysis = await this.analyzeDocumentType(presignedUrl);
+            // Step 2 & 3: Field Extraction and Table Identification in parallel
             const [fieldAnalysis, tableAnalysis] = await Promise.all([
                 this.extractFieldsWithCategories(presignedUrl, documentTypeAnalysis),
                 this.identifyTables(presignedUrl, documentTypeAnalysis),

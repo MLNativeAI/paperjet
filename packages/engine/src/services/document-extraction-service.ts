@@ -1,16 +1,16 @@
 import { google } from "@ai-sdk/google";
 import type { ExtractionResult, WorkflowConfiguration } from "@paperjet/db/types";
+import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
-import { logger } from "@paperjet/shared";
 
 export interface DocumentExtractionServiceDeps {
     langfuse: Langfuse;
 }
 
 export class DocumentExtractionService {
-    constructor(private deps: DocumentExtractionServiceDeps) { }
+    constructor(private deps: DocumentExtractionServiceDeps) {}
 
     async extractDataFromDocument(
         presignedUrl: string,
@@ -32,12 +32,15 @@ export class DocumentExtractionService {
         },
         metadata?: Record<string, unknown>,
     ): Promise<ExtractionResult> {
-        logger.info({
-            fieldsCount: extractionConfig.fields.length,
-            tablesCount: extractionConfig.tables.length,
-            fields: extractionConfig.fields.map(f => f.name),
-            tables: extractionConfig.tables.map(t => t.name)
-        }, "Starting data extraction from document");
+        logger.info(
+            {
+                fieldsCount: extractionConfig.fields.length,
+                tablesCount: extractionConfig.tables.length,
+                fields: extractionConfig.fields.map((f) => f.name),
+                tables: extractionConfig.tables.map((t) => t.name),
+            },
+            "Starting data extraction from document",
+        );
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -93,15 +96,11 @@ export class DocumentExtractionService {
         const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
 
         // Build extraction prompt with field descriptions
-        const fieldDescriptions = extractionConfig.fields
-            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
-            .join("\n");
+        const fieldDescriptions = extractionConfig.fields.map((field) => `- ${field.name} (${field.type}): ${field.description}`).join("\n");
 
         const tableDescriptions = extractionConfig.tables
             .map((table) => {
-                const columnDescs = table.columns
-                    .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
-                    .join("\n");
+                const columnDescs = table.columns.map((col) => `    - ${col.name} (${col.type}): ${col.description}`).join("\n");
                 return `- ${table.name}: ${table.description}\n${columnDescs}`;
             })
             .join("\n");
@@ -193,11 +192,14 @@ Instructions:
                 output: extractionResult,
             });
 
-            logger.info({
-                extractedFieldsCount: extractionResult.fields.length,
-                extractedTablesCount: extractionResult.tables.length,
-                fieldsExtracted: extractionResult.fields.map(f => ({ name: f.fieldName, hasValue: f.value !== null }))
-            }, "Data extraction completed successfully");
+            logger.info(
+                {
+                    extractedFieldsCount: extractionResult.fields.length,
+                    extractedTablesCount: extractionResult.tables.length,
+                    fieldsExtracted: extractionResult.fields.map((f) => ({ name: f.fieldName, hasValue: f.value !== null })),
+                },
+                "Data extraction completed successfully",
+            );
 
             return extractionResult;
         } catch (error) {
@@ -213,16 +215,15 @@ Instructions:
         }
     }
 
-    async processExecutionFile(
-        presignedUrl: string,
-        config: WorkflowConfiguration,
-        metadata?: Record<string, unknown>,
-    ): Promise<ExtractionResult> {
-        logger.info({
-            fieldsCount: config.fields.length,
-            tablesCount: config.tables.length,
-            workflowMetadata: metadata
-        }, "Starting workflow execution file processing");
+    async processExecutionFile(presignedUrl: string, config: WorkflowConfiguration, metadata?: Record<string, unknown>): Promise<ExtractionResult> {
+        logger.info(
+            {
+                fieldsCount: config.fields.length,
+                tablesCount: config.tables.length,
+                workflowMetadata: metadata,
+            },
+            "Starting workflow execution file processing",
+        );
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             throw new Error("Google API key not configured");
@@ -277,15 +278,11 @@ Instructions:
 
         const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
 
-        const fieldDescriptions = config.fields
-            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
-            .join("\n");
+        const fieldDescriptions = config.fields.map((field) => `- ${field.name} (${field.type}): ${field.description}`).join("\n");
 
         const tableDescriptions = config.tables
             .map((table) => {
-                const columnDescs = table.columns
-                    .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
-                    .join("\n");
+                const columnDescs = table.columns.map((col) => `    - ${col.name} (${col.type}): ${col.description}`).join("\n");
                 return `- ${table.name}: ${table.description}\n${columnDescs}`;
             })
             .join("\n");
@@ -377,11 +374,14 @@ Instructions:
                 output: result,
             });
 
-            logger.info({
-                extractedFieldsCount: result.fields.length,
-                extractedTablesCount: result.tables.length,
-                fieldsExtracted: result.fields.map(f => ({ name: f.fieldName, hasValue: f.value !== null }))
-            }, "Workflow execution file processing completed");
+            logger.info(
+                {
+                    extractedFieldsCount: result.fields.length,
+                    extractedTablesCount: result.tables.length,
+                    fieldsExtracted: result.fields.map((f) => ({ name: f.fieldName, hasValue: f.value !== null })),
+                },
+                "Workflow execution file processing completed",
+            );
 
             return result;
         } catch (error) {

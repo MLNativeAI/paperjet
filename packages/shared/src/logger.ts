@@ -63,5 +63,5 @@ export function getLogger() {
 export const logger = new Proxy({} as ReturnType<typeof createLogger>, {
     get(target, prop) {
         return getLogger()[prop as keyof ReturnType<typeof createLogger>];
-    }
+    },
 });

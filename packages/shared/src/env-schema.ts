@@ -12,7 +12,7 @@ export const envSchema = z.object({
     S3_BUCKET: z.string().min(1, "S3_BUCKET is required"),
     PORT: z.string().regex(/^\d+$/, "Port must be a numeric string").default("3000").transform(Number),
     ENVIRONMENT: z.enum(["dev", "staging", "prod"]).default("dev"),
-    
+
     // auth
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
@@ -21,11 +21,11 @@ export const envSchema = z.object({
     BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
     RESEND_API_KEY: z.string().min(1, "RESEND_API_KEY is required"),
     FROM_EMAIL: z.string().email("FROM_EMAIL must be a valid email address").default("noreply@getpaperjet.com"),
-    
+
     // logging
     AXIOM_TOKEN: z.string().optional(),
     AXIOM_DATASET: z.string().default("paperjet"),
-    
+
     // langfuse
     LANGFUSE_SECRET_KEY: z.string().optional(),
     LANGFUSE_PUBLIC_KEY: z.string().optional(),

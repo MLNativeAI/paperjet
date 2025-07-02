@@ -32,7 +32,6 @@ export class WorkflowService {
         return parsedConfig.data ?? { fields: [], tables: [] };
     }
 
-
     async createWorkflow(
         fileParam: File,
         userId: string,
@@ -71,11 +70,12 @@ export class WorkflowService {
         await db.insert(workflow).values({
             id: workflowId,
             name: workflowName,
+            description: "",
             configuration: JSON.stringify({
                 fields: [],
                 tables: [],
             }),
-            status: 'analyzing',
+            status: "analyzing",
             ownerId: userId,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -104,7 +104,6 @@ export class WorkflowService {
             fileId,
         };
     }
-
 
     async analyzeWorkflowDocument(
         workflowId: string,
@@ -174,7 +173,6 @@ export class WorkflowService {
             analysis: analysisResult,
         };
     }
-
 
     async extractDataFromDocument(
         workflowId: string,
@@ -252,13 +250,15 @@ export class WorkflowService {
     async getWorkflows(userId: string) {
         const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
 
-        const result = await Promise.all(workflows.map(async (w) => {
-            const parsedConfig = await this.#parseWorkflowConfiguration(w.configuration);
-            return {
-                ...w,
-                configuration: parsedConfig,
-            };
-        }));
+        const result = await Promise.all(
+            workflows.map(async (w) => {
+                const parsedConfig = await this.#parseWorkflowConfiguration(w.configuration);
+                return {
+                    ...w,
+                    configuration: parsedConfig,
+                };
+            }),
+        );
 
         return result;
     }
@@ -284,7 +284,6 @@ export class WorkflowService {
         }
 
         const parsedConfig = await this.#parseWorkflowConfiguration(workflowData.configuration);
-
 
         return {
             ...workflowData,
@@ -330,6 +329,46 @@ export class WorkflowService {
         }
 
         await db.update(workflow).set(updateData).where(eq(workflow.id, workflowId));
+    }
+
+    async updateWorkflowBasicData(
+        workflowId: string,
+        userId: string,
+        updates: {
+            name: string;
+            description?: string;
+        },
+    ) {
+        const updateBasicDataSchema = z.object({
+            name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+            description: z.string().optional(),
+        });
+
+        const validatedData = updateBasicDataSchema.parse(updates);
+
+        // Check if workflow exists and user owns it
+        const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
+
+        if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
+            throw new Error("Workflow not found");
+        }
+
+        // Update workflow basic data
+        await db.update(workflow).set({
+            name: validatedData.name,
+            description: validatedData.description,
+            updatedAt: new Date(),
+        }).where(eq(workflow.id, workflowId));
+
+        logger.info(
+            {
+                workflowId,
+                userId,
+                name: validatedData.name,
+                hasDescription: !!validatedData.description,
+            },
+            "Workflow basic data updated",
+        );
     }
 
     async getAnalysisStatus(workflowId: string, userId: string) {

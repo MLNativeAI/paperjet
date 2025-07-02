@@ -16,6 +16,11 @@ const updateWorkflowSchema = z.object({
     isPublic: z.boolean().optional(),
 });
 
+const updateWorkflowBasicDataSchema = z.object({
+    name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+    description: z.string().optional(),
+});
+
 const createWorkflowFormSchema = z.object({
     file: z
         .instanceof(File)
@@ -103,6 +108,25 @@ const router = app
             return c.json({ error: "Internal server error" }, 500);
         }
     })
+    .patch("/:id/basic-data", zValidator("param", paramIdSchema), zValidator("json", updateWorkflowBasicDataSchema), async (c) => {
+        try {
+            const user = await getUser(c);
+            const { id: workflowId } = c.req.valid("param");
+            const body = c.req.valid("json");
+
+            await workflowService.updateWorkflowBasicData(workflowId, user.id, body);
+            return c.json({ message: "Workflow basic data updated successfully" });
+        } catch (error) {
+            logger.error(error, "Update workflow basic data error:");
+            if (error instanceof z.ZodError) {
+                return c.json({ error: "Invalid workflow data", details: error.errors }, 400);
+            }
+            if (error instanceof Error && error.message === "Workflow not found") {
+                return c.json({ error: "Workflow not found" }, 404);
+            }
+            return c.json({ error: "Internal server error" }, 500);
+        }
+    })
     .get("/:id/analysis-status", zValidator("param", paramIdSchema), async (c) => {
         try {
             const user = await getUser(c);
@@ -138,7 +162,7 @@ const router = app
             const { id: workflowId } = c.req.valid("param");
 
             // Start analysis in background (don't await)
-            workflowService.analyzeWorkflowDocument(workflowId, user.id)
+            workflowService.analyzeWorkflowDocument(workflowId, user.id);
 
             // Return immediately
             return c.json({ message: "Analysis started", workflowId });

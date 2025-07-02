@@ -56,10 +56,13 @@ const server = Bun.serve({
     fetch: app.fetch,
 });
 
-logger.info({
-    port: server.port,
-    environment: envVars.ENVIRONMENT,
-    hostname: "0.0.0.0",
-}, `🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`);
+logger.info(
+    {
+        port: server.port,
+        environment: envVars.ENVIRONMENT,
+        hostname: "0.0.0.0",
+    },
+    `🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`,
+);
 
 export type ApiRoutes = typeof apiRoutes;

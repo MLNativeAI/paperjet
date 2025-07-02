@@ -1,10 +1,10 @@
 import { db } from "@paperjet/db";
 import { file, workflowExecution } from "@paperjet/db/schema";
 import type { WorkflowConfiguration } from "@paperjet/db/types";
+import { logger } from "@paperjet/shared";
 import { desc, eq } from "drizzle-orm";
 import type { Langfuse } from "langfuse";
 import { generateId, ID_PREFIXES } from "../utils/id";
-import { logger } from "@paperjet/shared";
 import type { DocumentExtractionService } from "./document-extraction-service";
 
 export interface WorkflowExecutionServiceDeps {
@@ -22,17 +22,20 @@ export class WorkflowExecutionService {
     constructor(private deps: WorkflowExecutionServiceDeps) {}
 
     async executeWorkflow(workflowId: string, workflowName: string, config: WorkflowConfiguration, userId: string, uploadedFile: File) {
-        logger.info({
-            workflowId,
-            workflowName,
-            userId,
-            fileName: uploadedFile.name,
-            fileSize: uploadedFile.size,
-            fileType: uploadedFile.type,
-            fieldsCount: config.fields.length,
-            tablesCount: config.tables.length
-        }, "Starting workflow execution");
-        
+        logger.info(
+            {
+                workflowId,
+                workflowName,
+                userId,
+                fileName: uploadedFile.name,
+                fileSize: uploadedFile.size,
+                fileType: uploadedFile.type,
+                fieldsCount: config.fields.length,
+                tablesCount: config.tables.length,
+            },
+            "Starting workflow execution",
+        );
+
         // Create execution record for single file
         const executionId = generateId(ID_PREFIXES.workflowExecution);
         const fileId = generateId(ID_PREFIXES.file);
@@ -106,12 +109,15 @@ export class WorkflowExecutionService {
                 },
             });
 
-            logger.info({
-                executionId,
-                workflowId,
-                extractedFieldsCount: extractionResult.fields.length,
-                extractedTablesCount: extractionResult.tables.length
-            }, "Workflow execution completed successfully");
+            logger.info(
+                {
+                    executionId,
+                    workflowId,
+                    extractedFieldsCount: extractionResult.fields.length,
+                    extractedTablesCount: extractionResult.tables.length,
+                },
+                "Workflow execution completed successfully",
+            );
 
             return {
                 executionId,
@@ -121,12 +127,15 @@ export class WorkflowExecutionService {
                 extractionResult,
             };
         } catch (error) {
-            logger.error({ 
-                executionId, 
-                workflowId, 
-                error: error instanceof Error ? error.message : "Unknown error",
-                userId
-            }, "Workflow execution failed");
+            logger.error(
+                {
+                    executionId,
+                    workflowId,
+                    error: error instanceof Error ? error.message : "Unknown error",
+                    userId,
+                },
+                "Workflow execution failed",
+            );
 
             // Update execution with error
             await db

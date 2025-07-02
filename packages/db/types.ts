@@ -53,7 +53,6 @@ export const documentAnalysisSchema = z.object({
     suggestedTables: z.array(extractionTableSchema),
 });
 
-
 // Multi-step analysis schemas
 export const documentTypeAndCategoriesSchema = z.object({
     documentType: z.string(),
@@ -67,7 +66,6 @@ export const fieldCategoryAnalysisSchema = z.object({
     suggestedFields: z.array(extractionFieldSchema),
     suggestedTables: z.array(extractionTableSchema),
 });
-
 
 export type FieldCategoryAnalysis = z.infer<typeof fieldCategoryAnalysisSchema>;
 
