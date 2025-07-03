@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ValidWorkflow } from "@paperjet/db/types";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function BasicWorkflowDataForm({ workflow }: { workflow: Workflow }) {
+export default function BasicWorkflowDataForm({ workflow }: { workflow: ValidWorkflow }) {
     const { mutate: updateWorkflow, isPending } = useUpdateWorkflowBasicData();
 
     const form = useForm<FormData>({

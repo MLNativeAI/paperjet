@@ -1,6 +1,6 @@
 import { db } from "@paperjet/db";
 import { file, workflow, workflowFile } from "@paperjet/db/schema";
-import { type DocumentAnalysis, type WorkflowConfiguration, type WorkflowStatus, workflowConfigurationSchema } from "@paperjet/db/types";
+import { type DocumentAnalysis, type ValidWorkflow, type WorkflowConfiguration, type WorkflowStatus, workflowConfigurationSchema } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -152,6 +152,8 @@ export class WorkflowService {
             .update(workflow)
             .set({
                 configuration: JSON.stringify(configuration),
+                name: analysisResult.workflowName,
+                description: analysisResult.description,
                 status: "extracting",
                 updatedAt: new Date(),
             })
@@ -263,11 +265,12 @@ export class WorkflowService {
         return result;
     }
 
-    async getWorkflow(workflowId: string, userId: string) {
+    async getWorkflow(workflowId: string, userId: string): Promise<ValidWorkflow> {
         const [workflowData] = await db
             .select({
                 id: workflow.id,
                 name: workflow.name,
+                description: workflow.description,
                 configuration: workflow.configuration,
                 status: workflow.status,
                 ownerId: workflow.ownerId,

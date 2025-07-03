@@ -1,55 +1,62 @@
 {
-    "version": "7",
-    "dialect": "postgresql",
-    "entries": [
-        {
-            "idx": 0,
-            "version": "7",
-            "when": 1749571894604,
-            "tag": "0000_omniscient_jetstream",
-            "breakpoints": true
-        },
-        {
-            "idx": 1,
-            "version": "7",
-            "when": 1750672673298,
-            "tag": "0001_sleepy_vision",
-            "breakpoints": true
-        },
-        {
-            "idx": 2,
-            "version": "7",
-            "when": 1750941772964,
-            "tag": "0002_known_cassandra_nova",
-            "breakpoints": true
-        },
-        {
-            "idx": 3,
-            "version": "7",
-            "when": 1751016496877,
-            "tag": "0003_abnormal_stone_men",
-            "breakpoints": true
-        },
-        {
-            "idx": 4,
-            "version": "7",
-            "when": 1751222982350,
-            "tag": "0004_cool_cargill",
-            "breakpoints": true
-        },
-        {
-            "idx": 5,
-            "version": "7",
-            "when": 1751223000000,
-            "tag": "0005_convert_uuids_to_prefixed_ids",
-            "breakpoints": true
-        },
-        {
-            "idx": 6,
-            "version": "7",
-            "when": 1751457106633,
-            "tag": "0006_short_mac_gargan",
-            "breakpoints": true
-        }
-    ]
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1749571894604,
+      "tag": "0000_omniscient_jetstream",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1750672673298,
+      "tag": "0001_sleepy_vision",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1750941772964,
+      "tag": "0002_known_cassandra_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1751016496877,
+      "tag": "0003_abnormal_stone_men",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1751222982350,
+      "tag": "0004_cool_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1751223000000,
+      "tag": "0005_convert_uuids_to_prefixed_ids",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1751457106633,
+      "tag": "0006_short_mac_gargan",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1751466009453,
+      "tag": "0007_unknown_mockingbird",
+      "breakpoints": true
+    }
+  ]
 }

@@ -16,8 +16,12 @@ export type FileDataWithPresignedUrl = FileData & {
 export const workflowStatusSchema = z.enum(["draft", "analyzing", "extracting", "configuring", "active"]);
 export type WorkflowStatus = z.infer<typeof workflowStatusSchema>;
 
-export type WorkflowData = typeof workflow.$inferSelect;
+export type Workflow = typeof workflow.$inferSelect;
 export type WorkflowFileData = typeof workflowFile.$inferSelect;
+
+export type ValidWorkflow = Omit<Workflow, "configuration"> & {
+    configuration: WorkflowConfiguration;
+};
 
 // Field extraction configuration
 export const fieldTypeSchema = z.enum(["text", "number", "date", "currency", "boolean"]);
@@ -55,6 +59,7 @@ export const documentAnalysisSchema = z.object({
 
 // Multi-step analysis schemas
 export const documentTypeAndCategoriesSchema = z.object({
+    workflowName: z.string(),
     documentType: z.string(),
     description: z.string(),
     categories: z.array(z.string()),
@@ -92,6 +97,7 @@ export const extractionResultSchema = z.object({
 export type ExtractedValue = z.infer<typeof extractedValueSchema>;
 export type ExtractedTable = z.infer<typeof extractedTableSchema>;
 export type ExtractionResult = z.infer<typeof extractionResultSchema>;
+
 
 // Workflow execution types
 export type WorkflowExecutionData = typeof workflowExecution.$inferSelect;

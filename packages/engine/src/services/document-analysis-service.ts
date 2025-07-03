@@ -25,9 +25,11 @@ export class DocumentAnalysisService {
         const prompt = `You're a document analysis expert. Analyze this document and provide:
 
         1. Document type (invoice, contract, form, purchase order, receipt, bank statement, etc.)
+
         2. Identify the data categories/group in the document, ex. invoice details, vendor information, billing information, line items, payment terms
         3. Based on the document type and categories, create a 1-2 sentence description for a process that would be used to extract the data from the document.
         Example: "Extracts invoice details, vendor information, billing information, line items and payment terms"
+        4. A workflow name for the document type ex. Invoice processor
         `;
 
         // Create a trace for this analysis step
@@ -366,6 +368,7 @@ If no clear table structures are found, return an empty array.`;
             );
 
             return {
+                workflowName: documentTypeAnalysis.workflowName,
                 documentType: documentTypeAnalysis.documentType,
                 description: documentTypeAnalysis.description,
                 suggestedFields: fieldAnalysis.suggestedFields,

@@ -19,8 +19,18 @@ export default function WorkflowFinalizePage() {
                 </div>
             </div>
             <div className="pt-8 border-t">
-                <BasicWorkflowDataForm workflow={workflow} />
+                {workflow && <BasicWorkflowDataForm workflow={workflow} />}
             </div>
+            <h3 className="text-lg font-medium">Fields</h3>
+            <div className="grid grid-cols-2 gap-4">
+            {workflow?.configuration.fields.map((field) => (
+                <div key={field.name}>
+                    <h4 className="text-md font-medium">{field.name}</h4>
+                    <p className="text-muted-foreground">{field.description}</p>
+                </div>
+            ))}
+            </div>
+
         </div>
     );
 }

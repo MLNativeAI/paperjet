@@ -1,4 +1,4 @@
-import type { ExtractionField, ExtractionTable } from "@paperjet/db/types";
+import type { ExtractionField, ExtractionTable, ValidWorkflow, Workflow } from "@paperjet/db/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ export function useWorkflow(workflowId: string) {
 
     const { data: workflow, isLoading } = useQuery({
         queryKey: ["workflow", workflowId],
-        queryFn: () => getWorkflow(workflowId),
+        queryFn: () => getWorkflow(workflowId) as Promise<ValidWorkflow>,
         enabled: !!workflowId,
         // Refetch more frequently when workflow is in transitional states
         refetchInterval: (query) => {
