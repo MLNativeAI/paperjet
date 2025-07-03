@@ -1,4 +1,4 @@
-import { type DocumentTypeAndCategories, type FieldCategoryAnalysis, fieldCategoryAnalysisSchema } from "@paperjet/db/types";
+import { type FieldCategoryAnalysis, fieldCategoryAnalysisSchema } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
@@ -9,77 +9,35 @@ export interface DocumentAnalysisServiceDeps {
     langfuse: Langfuse;
 }
 
+
+
+const categoriesZodSchema = z.object({
+    categories: z.array(z.object({
+        slug: z.string(),
+        displayName: z.string(),
+        ordinal: z.number(),
+        tables: z.array(z.object({
+            name: z.string(),
+            description: z.string(),
+        })),
+    })),
+})
+
+
+// Multi-step analysis schemas
+export const documentTypeSchema = z.object({
+    workflowName: z.string(),
+    documentType: z.string(),
+    description: z.string(),
+});
+export type DocumentType = z.infer<typeof documentTypeSchema>;
+
+
+type CategoriesType = z.infer<typeof categoriesZodSchema>;
+
 export class DocumentAnalysisService {
     constructor(private deps: DocumentAnalysisServiceDeps) {}
 
-    async extractCategoriesAndTables(presignedUrl: string, documentType: string): Promise<{ categories: { slug: string; displayName: string }[]; tables: { name: string; description: string; category: { slug: string; displayName: string } }[] }> {
-        logger.info({ presignedUrl, documentType }, "Starting categories and tables extraction");
-
-        const prompt = `Analyze this ${documentType} document and extract:
-
-1. **Data Categories**: Identify logical groupings of information in the document (e.g., "Invoice Details", "Vendor Information", "Billing Information", "Line Items", "Payment Terms")
-
-2. **Table Structures**: Identify any tabular data like line items, product lists, transaction details, or data grids
-
-For each category, provide:
-- slug: snake_case version (e.g., "invoice_details", "vendor_information", "billing_information")
-- displayName: Human-readable format (e.g., "Invoice Details", "Vendor Information", "Billing Information")
-
-For each table, provide:
-- name: Descriptive table name
-- description: What the table contains
-- category: Which category this table belongs to (both slug and displayName)
-
-Focus on business-relevant data structures and logical information groupings.`;
-
-        try {
-            const { object } = await generateObject({
-                model: aiSdkModel(),
-                schema: z.object({
-                    categories: z.array(z.object({
-                        slug: z.string(),
-                        displayName: z.string(),
-                    })),
-                    tables: z.array(z.object({
-                        name: z.string(),
-                        description: z.string(),
-                        category: z.object({
-                            slug: z.string(),
-                            displayName: z.string(),
-                        }),
-                    })),
-                }),
-                messages: [
-                    {
-                        role: "user",
-                        content: [
-                            {
-                                type: "text",
-                                text: prompt,
-                            },
-                            {
-                                type: "image",
-                                image: new URL(presignedUrl),
-                            },
-                        ],
-                    },
-                ]
-            });
-
-            logger.info(
-                {
-                    categoriesCount: object.categories.length,
-                    tablesCount: object.tables.length,
-                    categories: object.categories.map(c => c.displayName),
-                },
-                "Categories and tables extraction completed",
-            );
-
-            return object;
-        } catch (error) {
-            throw error;
-        }
-    }
 
     async analyzeDocumentType(presignedUrl: string): Promise<DocumentTypeAndCategories> {
         logger.info({ presignedUrl }, "Starting document type analysis");
@@ -117,27 +75,65 @@ Focus on business-relevant data structures and logical information groupings.`;
                 ],
             });
 
-            // Now extract categories and tables using the document type
-            const categoriesAndTables = await this.extractCategoriesAndTables(presignedUrl, object.documentType);
 
-            const result = {
-                workflowName: object.workflowName,
-                documentType: object.documentType,
-                description: object.description,
-                categories: categoriesAndTables.categories,
-                tables: categoriesAndTables.tables,
-            };
+            return object
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async identifyCategoriesAndTables(presignedUrl: string): Promise<CategoriesType> {
+        logger.info({ presignedUrl }, "Starting categories and tables extraction");
+
+        const prompt = `Analyze this document and extract information in a structured way:
+
+1. **Data Categories**: Identify logical groupings of information in the document in the order they appear (e.g., "Invoice Details", "Vendor Information", "Billing Information", "Line Items", "Payment Terms")
+
+2. **Table Structures**: For each category, identify any tabular data like line items, product lists, transaction details, or data grids that belong to that category
+
+For each category, provide:
+- slug: snake_case version (e.g., "invoice_details", "vendor_information", "billing_information")
+- displayName: Human-readable format (e.g., "Invoice Details", "Vendor Information", "Billing Information")
+- ordinal: The order in which this category appears in the document (starting from 0)
+- tables: Array of tables that belong to this category
+
+For each table within a category, provide:
+- name: Descriptive table name
+- description: What the table contains
+
+Important: Categories should be listed in the order they appear in the document, and tables should be nested within their respective categories. Focus on business-relevant data structures and logical information groupings.`;
+
+        try {
+            const { object } = await generateObject({
+                model: aiSdkModel(),
+                schema: categoriesZodSchema,
+                messages: [
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                type: "text",
+                                text: prompt,
+                            },
+                            {
+                                type: "image",
+                                image: new URL(presignedUrl),
+                            },
+                        ],
+                    },
+                ]
+            });
 
             logger.info(
                 {
-                    documentType: result.documentType,
-                    categoriesCount: result.categories.length,
-                    tablesCount: result.tables.length,
+                    categoriesCount: object.categories.length,
+                    tablesCount: object.categories.reduce((total, cat) => total + cat.tables.length, 0),
+                    categories: object.categories.map(c => c.displayName),
                 },
-                "Document type analysis completed",
+                "Categories and tables extraction completed",
             );
 
-            return result as DocumentTypeAndCategories;
+            return object;
         } catch (error) {
             throw error;
         }
@@ -291,17 +287,11 @@ If a table is mentioned above but no actual tabular data is found in the documen
     async performCompleteAnalysis(presignedUrl: string) {
         logger.info({ presignedUrl }, "Starting complete document analysis");
 
-        const parentTrace = this.deps.langfuse.trace({
-            name: "complete-document-analysis",
-            metadata: {
-                operation: "complete_analysis",
-                imageUrl: presignedUrl,
-            },
-        });
-
         try {
-            // Step 1: Document Type Analysis (includes categories and table identification)
             const documentTypeAnalysis = await this.analyzeDocumentType(presignedUrl);
+
+            const categoriesAndTables = await this.identifyCategoriesAndTables(presignedUrl);
+
 
             // Step 2 & 3: Field Extraction and Table Field Extraction in parallel
             const [fieldAnalysis, enrichedTables] = await Promise.all([
@@ -327,10 +317,6 @@ If a table is mentioned above but no actual tabular data is found in the documen
                 suggestedTables: enrichedTables,
             };
         } catch (error) {
-            parentTrace.update({
-                output: error,
-            });
-
             throw error;
         }
     }

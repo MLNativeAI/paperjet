@@ -68,19 +68,12 @@ export const workflow = pgTable("workflow", {
     ownerId: text("owner_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").notNull(),
-    updatedAt: timestamp("updated_at").notNull(),
-});
-
-export const workflowFile = pgTable("workflow_file", {
-    id: text("id").primaryKey(),
-    workflowId: text("workflow_id")
-        .notNull()
-        .references(() => workflow.id, { onDelete: "cascade" }),
     fileId: text("file_id")
         .notNull()
         .references(() => file.id, { onDelete: "cascade" }),
+    sampleData: text("sample_data").notNull(), // JSON string
     createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const workflowExecution = pgTable("workflow_execution", {
@@ -97,22 +90,6 @@ export const workflowExecution = pgTable("workflow_execution", {
     startedAt: timestamp("started_at").notNull(),
     completedAt: timestamp("completed_at"),
     createdAt: timestamp("created_at").notNull(),
-    ownerId: text("owner_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
-});
-
-export const workflowSample = pgTable("workflow_sample", {
-    id: text("id").primaryKey(),
-    workflowId: text("workflow_id")
-        .notNull()
-        .references(() => workflow.id, { onDelete: "cascade" }),
-    fileId: text("file_id")
-        .notNull()
-        .references(() => file.id, { onDelete: "cascade" }),
-    extractedData: text("extracted_data").notNull(), // JSON string of sample extracted data
-    createdAt: timestamp("created_at").notNull(),
-    updatedAt: timestamp("updated_at").notNull(),
     ownerId: text("owner_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),

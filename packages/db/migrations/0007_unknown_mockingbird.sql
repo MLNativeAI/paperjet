@@ -1,1 +1,0 @@
-ALTER TABLE "workflow" ADD COLUMN "description" text DEFAULT '' NOT NULL;

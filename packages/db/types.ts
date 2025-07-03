@@ -26,18 +26,11 @@ export type ValidWorkflow = Omit<Workflow, "configuration"> & {
 // Field extraction configuration
 export const fieldTypeSchema = z.enum(["text", "number", "date", "currency", "boolean"]);
 
-// Category schema with slug and display name
-export const categorySchema = z.object({
-    slug: z.string(),
-    displayName: z.string(),
-});
-
 export const extractionFieldSchema = z.object({
     name: z.string(),
     description: z.string(),
     type: fieldTypeSchema,
     required: z.boolean().default(false),
-    category: categorySchema.default({ slug: "general_information", displayName: "General Information" }),
 });
 
 export const extractionFieldWithSampleSchema = z.object({
@@ -80,21 +73,14 @@ export const documentAnalysisSchema = z.object({
     suggestedTables: z.array(extractionTableSchema),
 });
 
-// Multi-step analysis schemas
-export const documentTypeAndCategoriesSchema = z.object({
-    workflowName: z.string(),
-    documentType: z.string(),
-    description: z.string(),
-    categories: z.array(categorySchema),
-    tables: z.array(z.object({
-        name: z.string(),
-        description: z.string(),
-        category: categorySchema,
-    })),
+
+export const categorySchema = z.object({
+    slug: z.string(),
+    displayName: z.string(),
+    ordinal: z.number(),
 });
 
 export type Category = z.infer<typeof categorySchema>;
-export type DocumentTypeAndCategories = z.infer<typeof documentTypeAndCategoriesSchema>;
 
 export const fieldCategoryAnalysisSchema = z.object({
     suggestedFields: z.array(extractionFieldSchema),
