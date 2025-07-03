@@ -1,9 +1,9 @@
-import { google } from "@ai-sdk/google";
-import { type DocumentTypeAndCategories, documentTypeAndCategoriesSchema, type FieldCategoryAnalysis, fieldCategoryAnalysisSchema } from "@paperjet/db/types";
+import { type DocumentTypeAndCategories, type FieldCategoryAnalysis, fieldCategoryAnalysisSchema } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
+import { aiSdkModel } from "../lib/model";
 
 export interface DocumentAnalysisServiceDeps {
     langfuse: Langfuse;
@@ -14,13 +14,6 @@ export class DocumentAnalysisService {
 
     async extractCategoriesAndTables(presignedUrl: string, documentType: string): Promise<{ categories: { slug: string; displayName: string }[]; tables: { name: string; description: string; category: { slug: string; displayName: string } }[] }> {
         logger.info({ presignedUrl, documentType }, "Starting categories and tables extraction");
-
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
 
         const prompt = `Analyze this ${documentType} document and extract:
 
@@ -39,29 +32,9 @@ For each table, provide:
 
 Focus on business-relevant data structures and logical information groupings.`;
 
-        // Create a trace for this analysis step
-        const trace = this.deps.langfuse.trace({
-            name: "categories-and-tables-extraction",
-            metadata: {
-                step: "categories_and_tables_extraction",
-                model: "gemini-2.5-flash",
-                documentType,
-            },
-        });
-
-        const generation = trace.generation({
-            name: "extract-categories-and-tables",
-            model: "gemini-2.5-flash",
-            input: {
-                prompt,
-                image_url: presignedUrl,
-                documentType,
-            },
-        });
-
         try {
             const { object } = await generateObject({
-                model,
+                model: aiSdkModel(),
                 schema: z.object({
                     categories: z.array(z.object({
                         slug: z.string(),
@@ -90,21 +63,7 @@ Focus on business-relevant data structures and logical information groupings.`;
                             },
                         ],
                     },
-                ],
-                experimental_telemetry: {
-                    isEnabled: true,
-                    metadata: {
-                        langfuseTraceId: trace.id,
-                    },
-                },
-            });
-
-            generation.end({
-                output: object,
-            });
-
-            trace.update({
-                output: object,
+                ]
             });
 
             logger.info(
@@ -118,27 +77,12 @@ Focus on business-relevant data structures and logical information groupings.`;
 
             return object;
         } catch (error) {
-            generation.end({
-                output: error,
-            });
-
-            trace.update({
-                output: error,
-            });
-
             throw error;
         }
     }
 
     async analyzeDocumentType(presignedUrl: string): Promise<DocumentTypeAndCategories> {
         logger.info({ presignedUrl }, "Starting document type analysis");
-
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
 
         const prompt = `You're a document analysis expert. Analyze this document and provide:
 
@@ -148,27 +92,9 @@ Focus on business-relevant data structures and logical information groupings.`;
         3. A workflow name for the document type ex. Invoice processor
         `;
 
-        // Create a trace for this analysis step
-        const trace = this.deps.langfuse.trace({
-            name: "document-type-analysis",
-            metadata: {
-                step: "document_type_analysis",
-                model: "gemini-2.5-flash",
-            },
-        });
-
-        const generation = trace.generation({
-            name: "analyze-document-type",
-            model: "gemini-2.5-flash",
-            input: {
-                prompt,
-                image_url: presignedUrl,
-            },
-        });
-
         try {
             const { object } = await generateObject({
-                model,
+                model: aiSdkModel(),
                 schema: z.object({
                     workflowName: z.string(),
                     documentType: z.string(),
@@ -189,16 +115,6 @@ Focus on business-relevant data structures and logical information groupings.`;
                         ],
                     },
                 ],
-                experimental_telemetry: {
-                    isEnabled: true,
-                    metadata: {
-                        langfuseTraceId: trace.id,
-                    },
-                },
-            });
-
-            generation.end({
-                output: object,
             });
 
             // Now extract categories and tables using the document type
@@ -212,10 +128,6 @@ Focus on business-relevant data structures and logical information groupings.`;
                 tables: categoriesAndTables.tables,
             };
 
-            trace.update({
-                output: result,
-            });
-
             logger.info(
                 {
                     documentType: result.documentType,
@@ -227,14 +139,6 @@ Focus on business-relevant data structures and logical information groupings.`;
 
             return result as DocumentTypeAndCategories;
         } catch (error) {
-            generation.end({
-                output: error,
-            });
-
-            trace.update({
-                output: error,
-            });
-
             throw error;
         }
     }
@@ -247,12 +151,6 @@ Focus on business-relevant data structures and logical information groupings.`;
             "Starting field extraction with categories",
         );
 
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
         const categoryList = documentType.categories.map((c) => `- ${c.displayName} (${c.slug})`).join("\n");
 
         const prompt = `Extract singular fields (NOT tables or lists) from this ${documentType.documentType} document and assign each to one of these categories:
@@ -279,31 +177,9 @@ Examples of good field descriptions:
 
 Provide practical, commonly needed information extraction focused on business processes.`;
 
-        // Create a trace for this analysis step
-        const trace = this.deps.langfuse.trace({
-            name: "field-extraction-with-categories",
-            metadata: {
-                step: "field_extraction",
-                model: "gemini-2.5-flash",
-                documentType: documentType.documentType,
-                categoriesCount: documentType.categories.length,
-            },
-        });
-
-        const generation = trace.generation({
-            name: "extract-fields-with-categories",
-            model: "gemini-2.5-flash",
-            input: {
-                prompt,
-                image_url: presignedUrl,
-                documentType: documentType.documentType,
-                categories: documentType.categories,
-            },
-        });
-
         try {
             const { object } = await generateObject({
-                model,
+                model: aiSdkModel(),
                 schema: fieldCategoryAnalysisSchema,
                 messages: [
                     {
@@ -319,21 +195,7 @@ Provide practical, commonly needed information extraction focused on business pr
                             },
                         ],
                     },
-                ],
-                experimental_telemetry: {
-                    isEnabled: true,
-                    metadata: {
-                        langfuseTraceId: trace.id,
-                    },
-                },
-            });
-
-            generation.end({
-                output: object,
-            });
-
-            trace.update({
-                output: object,
+                ]
             });
 
             logger.info(
@@ -346,26 +208,11 @@ Provide practical, commonly needed information extraction focused on business pr
 
             return object as FieldCategoryAnalysis;
         } catch (error) {
-            generation.end({
-                output: error,
-            });
-
-            trace.update({
-                output: error,
-            });
-
             throw error;
         }
     }
 
     async extractTableFields(presignedUrl: string, documentType: DocumentTypeAndCategories): Promise<any[]> {
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
-        
         const tableList = documentType.tables.map(t => `- ${t.name}: ${t.description}`).join("\n");
 
         const prompt = `Extract the column structure and field definitions for these identified tables in this ${documentType.documentType} document:
@@ -380,31 +227,9 @@ For each table, analyze the actual data and provide:
 
 If a table is mentioned above but no actual tabular data is found in the document, return an empty columns array for that table.`;
 
-        // Create a trace for this analysis step
-        const trace = this.deps.langfuse.trace({
-            name: "table-fields-extraction",
-            metadata: {
-                step: "table_fields_extraction",
-                model: "gemini-2.5-flash",
-                documentType: documentType.documentType,
-                tablesCount: documentType.tables.length,
-            },
-        });
-
-        const generation = trace.generation({
-            name: "extract-table-fields",
-            model: "gemini-2.5-flash",
-            input: {
-                prompt,
-                image_url: presignedUrl,
-                documentType: documentType.documentType,
-                tables: documentType.tables,
-            },
-        });
-
         try {
             const { object } = await generateObject({
-                model,
+                model: aiSdkModel(),
                 schema: z.object({
                     tables: z.array(
                         z.object({
@@ -434,13 +259,7 @@ If a table is mentioned above but no actual tabular data is found in the documen
                             },
                         ],
                     },
-                ],
-                experimental_telemetry: {
-                    isEnabled: true,
-                    metadata: {
-                        langfuseTraceId: trace.id,
-                    },
-                },
+                ]
             });
 
             // Bridge table metadata with field definitions
@@ -454,14 +273,6 @@ If a table is mentioned above but no actual tabular data is found in the documen
                 };
             });
 
-            generation.end({
-                output: enrichedTables,
-            });
-
-            trace.update({
-                output: enrichedTables,
-            });
-
             logger.info(
                 {
                     tablesProcessed: enrichedTables.length,
@@ -473,15 +284,6 @@ If a table is mentioned above but no actual tabular data is found in the documen
             return enrichedTables;
         } catch (error) {
             logger.warn(error, "Table identification failed:");
-
-            generation.end({
-                output: error,
-            });
-
-            trace.update({
-                output: error,
-            });
-
             return [];
         }
     }
@@ -500,7 +302,7 @@ If a table is mentioned above but no actual tabular data is found in the documen
         try {
             // Step 1: Document Type Analysis (includes categories and table identification)
             const documentTypeAnalysis = await this.analyzeDocumentType(presignedUrl);
-            
+
             // Step 2 & 3: Field Extraction and Table Field Extraction in parallel
             const [fieldAnalysis, enrichedTables] = await Promise.all([
                 this.extractFieldsWithCategories(presignedUrl, documentTypeAnalysis),
