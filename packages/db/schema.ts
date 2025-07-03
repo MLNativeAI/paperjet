@@ -63,6 +63,7 @@ export const workflow = pgTable("workflow", {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     description: text("description").notNull().default(""),
+    categories: text("categories").notNull(), // JSON string
     configuration: text("configuration").notNull(), // JSON string
     status: text("status").notNull().default("draft"), // 'draft' | 'analyzing' | 'extracting' | 'configuring' | 'active' | 'error'
     ownerId: text("owner_id")

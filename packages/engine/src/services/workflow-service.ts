@@ -1,16 +1,15 @@
 import { db } from "@paperjet/db";
-import { file, workflow, workflowFile, workflowSample } from "@paperjet/db/schema";
-import { type DocumentAnalysis, type ValidWorkflow, type ValidWorkflowWithSample, type WorkflowConfiguration, type WorkflowConfigurationWithSample, type WorkflowStatus, workflowConfigurationSchema } from "@paperjet/db/types";
+import { file, workflow } from "@paperjet/db/schema";
 import { logger } from "@paperjet/shared";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { generateId, ID_PREFIXES } from "../utils/id";
-import type { DocumentAnalysisService } from "./document-analysis-service";
+import { performCompleteAnalysis, } from "./document-analysis-service";
 import type { DocumentExtractionService } from "./document-extraction-service";
 import type { WorkflowExecutionService } from "./workflow-execution-service";
+import type { DocumentAnalysis, WorkflowConfiguration } from "../types";
 
 export interface WorkflowServiceDeps {
-    documentAnalysisService: DocumentAnalysisService;
     documentExtractionService: DocumentExtractionService;
     workflowExecutionService: WorkflowExecutionService;
     s3: {
@@ -71,22 +70,14 @@ export class WorkflowService {
             id: workflowId,
             name: workflowName,
             description: "",
-            configuration: JSON.stringify({
-                fields: [],
-                tables: [],
-            }),
+            categories: "[]",
+            configuration: "{}",
+            sampleData: "{}",
+            fileId,
             status: "analyzing",
             ownerId: userId,
             createdAt: new Date(),
             updatedAt: new Date(),
-        });
-
-        // Link file to workflow
-        await db.insert(workflowFile).values({
-            id: generateId(ID_PREFIXES.workflowFile),
-            workflowId,
-            fileId,
-            createdAt: new Date(),
         });
 
         logger.info(
@@ -115,57 +106,39 @@ export class WorkflowService {
 
         // Get workflow and associated file
         const [workflowData] = await db
-            .select({
-                workflowId: workflow.id,
-                workflowName: workflow.name,
-                fileId: workflowFile.fileId,
-                filename: file.filename,
-            })
+            .select()
             .from(workflow)
-            .leftJoin(workflowFile, eq(workflow.id, workflowFile.workflowId))
-            .leftJoin(file, eq(workflowFile.fileId, file.id))
             .where(eq(workflow.id, workflowId));
 
-        if (!workflowData || workflowData.workflowId === null) {
+        if (!workflowData) {
             throw new Error("Workflow not found");
-        }
-
-        if (!workflowData.fileId || !workflowData.filename) {
-            throw new Error("No file associated with this workflow");
         }
 
         // Get presigned URL for the existing file
         const presignedUrl = await this.deps.s3.presign(workflowData.filename);
 
         // Use the document analysis service to perform complete analysis
-        const analysisResult = await this.deps.documentAnalysisService.performCompleteAnalysis(presignedUrl);
+        const analysisResult = await performCompleteAnalysis(presignedUrl);
 
         // Update workflow configuration with analysis results and set status to extracting
-        const configuration = {
-            fields: analysisResult.suggestedFields || [],
-            tables: analysisResult.suggestedTables || [],
-            documentType: analysisResult.documentType || "Unknown",
-            description: analysisResult.description || "Unknown",
+        const configuration: WorkflowConfiguration = {
+            fields: analysisResult.suggestedFields,
+            tables: analysisResult.suggestedTables,
         };
 
         await db
             .update(workflow)
             .set({
-                configuration: JSON.stringify(configuration),
                 name: analysisResult.workflowName,
                 description: analysisResult.description,
+                categories: JSON.stringify(analysisResult.categories),
+                configuration: JSON.stringify(configuration),
                 status: "extracting",
                 updatedAt: new Date(),
             })
             .where(eq(workflow.id, workflowId));
 
         logger.info(
-            {
-                workflowId,
-                documentType: analysisResult.documentType,
-                fieldsCount: analysisResult.suggestedFields?.length || 0,
-                tablesCount: analysisResult.suggestedTables?.length || 0,
-            },
             "Workflow document analysis completed, triggering data extraction",
         );
 

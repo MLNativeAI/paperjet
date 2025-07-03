@@ -19,9 +19,9 @@ export type WorkflowStatus = z.infer<typeof workflowStatusSchema>;
 export type Workflow = typeof workflow.$inferSelect;
 export type WorkflowFileData = typeof workflowFile.$inferSelect;
 
-export type ValidWorkflow = Omit<Workflow, "configuration"> & {
-    configuration: WorkflowConfiguration;
-};
+// export type ValidWorkflow = Omit<Workflow, "configuration"> & {
+//     configuration: WorkflowConfiguration;
+// };
 
 // Field extraction configuration
 export const fieldTypeSchema = z.enum(["text", "number", "date", "currency", "boolean"]);
@@ -38,7 +38,6 @@ export const extractionFieldWithSampleSchema = z.object({
     description: z.string(),
     type: fieldTypeSchema,
     required: z.boolean().default(false),
-    category: categorySchema.default({ slug: "general_information", displayName: "General Information" }),
     sampleValue: z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable().optional(),
 });
 
@@ -48,11 +47,6 @@ export const extractionTableSchema = z.object({
     columns: z.array(extractionFieldSchema),
 });
 
-export const workflowConfigurationSchema = z.object({
-    fields: z.array(extractionFieldSchema),
-    tables: z.array(extractionTableSchema),
-    documentType: z.string().optional(),
-});
 
 export const workflowConfigurationWithSampleSchema = z.object({
     fields: z.array(extractionFieldWithSampleSchema),
@@ -63,7 +57,6 @@ export const workflowConfigurationWithSampleSchema = z.object({
 export type ExtractionField = z.infer<typeof extractionFieldSchema>;
 export type ExtractionFieldWithSample = z.infer<typeof extractionFieldWithSampleSchema>;
 export type ExtractionTable = z.infer<typeof extractionTableSchema>;
-export type WorkflowConfiguration = z.infer<typeof workflowConfigurationSchema>;
 export type WorkflowConfigurationWithSample = z.infer<typeof workflowConfigurationWithSampleSchema>;
 
 // Document analysis result
@@ -146,7 +139,7 @@ export type WorkflowExecutionWithFiles = z.infer<typeof workflowExecutionWithFil
 // Workflow sample types
 export type WorkflowSampleData = typeof workflowSample.$inferSelect;
 
-export type WorkflowWithSample = ValidWorkflow & {
+export type WorkflowWithSample = Workflow & {
     sample?: WorkflowSampleData;
 };
 

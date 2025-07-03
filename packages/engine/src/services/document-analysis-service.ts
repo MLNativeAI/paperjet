@@ -20,8 +20,11 @@ export type AnalysisResult = {
         categoryId: string;
     }>;
     suggestedTables: Array<{
-        name: string;
-        description: string;
+        columns: Array<{
+            name: string;
+            description: string;
+            type: "text" | "number" | "date" | "currency" | "boolean";
+        }>;
         categoryId: string;
     }>;
 }
@@ -329,9 +332,8 @@ If the table "${table.name}" is not found or has no actual tabular data in the d
         "Field extraction for table completed",
     );
 
-    return object.columns.map(column => ({
-        ...column,
+    return {
+        columns: object.columns,
         categoryId: table.categoryId,
-        required: true,
-    }));
+    }
 }
