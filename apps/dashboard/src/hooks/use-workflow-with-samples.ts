@@ -1,6 +1,6 @@
-import type { ValidWorkflowWithSample } from "@paperjet/db/types";
+import { getWorkflow } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { getWorkflowWithSamples } from "@/lib/api";
+import type { Workflow } from "@paperjet/engine/types";
 
 export function useWorkflowWithSamples(workflowId: string) {
     const {
@@ -9,7 +9,7 @@ export function useWorkflowWithSamples(workflowId: string) {
         error,
     } = useQuery({
         queryKey: ["workflow-with-samples", workflowId],
-        queryFn: () => getWorkflowWithSamples(workflowId) as Promise<ValidWorkflowWithSample>,
+        queryFn: () => getWorkflow(workflowId) as Promise<Workflow>,
         enabled: !!workflowId,
         // Refetch more frequently when workflow is in transitional states
         refetchInterval: (query) => {

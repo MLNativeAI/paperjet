@@ -22,7 +22,8 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["./src/*"],
-            "@api/*": ["../api/*"]
+            "@api/*": ["../api/*"],
+            "@paperjet/engine/*": ["../../packages/engine/src/*"]
         }
     },
     "include": ["src"]

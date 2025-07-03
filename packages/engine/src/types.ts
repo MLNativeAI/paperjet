@@ -1,5 +1,4 @@
 import type { DbWorkflow, FileData } from "@paperjet/db/types";
-import type { ExtractionResult } from "@paperjet/db/types";
 import z from "zod";
 
 // Engine-specific types
@@ -83,3 +82,28 @@ export type Workflow = Omit<DbWorkflow, "configuration" | "sampleData" | "catego
 export type FileDataWithPresignedUrl = FileData & {
     presignedUrl: string;
 };
+
+
+// Data extraction schemas
+export const extractedValueSchema = z.object({
+    fieldName: z.string(),
+    value: z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
+});
+
+export const extractedTableRowSchema = z.object({
+    values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable()),
+});
+
+export const extractedTableSchema = z.object({
+    tableName: z.string(),
+    rows: z.array(extractedTableRowSchema),
+});
+
+export const extractionResultSchema = z.object({
+    fields: z.array(extractedValueSchema),
+    tables: z.array(extractedTableSchema),
+});
+
+export type ExtractedValue = z.infer<typeof extractedValueSchema>;
+export type ExtractedTable = z.infer<typeof extractedTableSchema>;
+export type ExtractionResult = z.infer<typeof extractionResultSchema>;

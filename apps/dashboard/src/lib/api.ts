@@ -1,5 +1,5 @@
 import type { ApiRoutes } from "@api/index";
-import type { ExtractionField, ExtractionTable } from "@paperjet/db/types";
+import type { ExtractedValue, ExtractedTable } from "@paperjet/engine/types";
 import { hc } from "hono/client";
 
 const client = hc<ApiRoutes>("/");
@@ -19,70 +19,58 @@ export const getWorkflow = async (workflowId: string) => {
     return response.json();
 };
 
-export const getWorkflowWithSamples = async (workflowId: string) => {
-    const response = await api.workflows[":id"].$get({
-        param: { id: workflowId },
-    });
+// export const updateWorkflow = async (
+//     workflowId: string,
+//     data: {
+//         name: string;
+//         fields: ExtractionField[];
+//         description?: string;
+//         isPublic?: boolean;
+//     },
+// ) => {
+//     const response = await api.workflows[":id"].$put({
+//         param: { id: workflowId },
+//         json: {
+//             name: data.name,
+//             fields: data.fields,
+//             description: data.description,
+//             isPublic: data.isPublic,
+//         },
+//     });
 
-    if (!response.ok) {
-        throw new Error("Failed to fetch workflow with samples");
-    }
+//     if (!response.ok) {
+//         throw new Error("Failed to update workflow");
+//     }
 
-    return response.json();
-};
+//     return response.json();
+// };
 
-export const updateWorkflow = async (
-    workflowId: string,
-    data: {
-        name: string;
-        fields: ExtractionField[];
-        description?: string;
-        isPublic?: boolean;
-    },
-) => {
-    const response = await api.workflows[":id"].$put({
-        param: { id: workflowId },
-        json: {
-            name: data.name,
-            fields: data.fields,
-            description: data.description,
-            isPublic: data.isPublic,
-        },
-    });
+// export const extractData = async (
+//     workflowId: string,
+//     data: {
+//         fileId: string;
+//         fields?: ExtractionField[];
+//         tables?: ExtractionTable[];
+//     },
+// ) => {
+//     const response = await api.workflows[":id"].extract.$post({
+//         param: { id: workflowId },
+//         json: {
+//             fileId: data.fileId,
+//             fields: data.fields,
+//             tables: data.tables,
+//         },
+//     });
 
-    if (!response.ok) {
-        throw new Error("Failed to update workflow");
-    }
+//     if (!response.ok) {
+//         throw new Error("Failed to extract data");
+//     }
 
-    return response.json();
-};
-
-export const extractData = async (
-    workflowId: string,
-    data: {
-        fileId: string;
-        fields?: ExtractionField[];
-        tables?: ExtractionTable[];
-    },
-) => {
-    const response = await api.workflows[":id"].extract.$post({
-        param: { id: workflowId },
-        json: {
-            fileId: data.fileId,
-            fields: data.fields,
-            tables: data.tables,
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error("Failed to extract data");
-    }
-
-    return response.json();
-};
+//     return response.json();
+// };
 
 export const getAnalysisStatus = async (workflowId: string) => {
-    const response = await api.workflows[":id"]["analysis-status"].$get({
+    const response = await api.workflows[":id"].$get({
         param: { id: workflowId },
     });
 

@@ -216,10 +216,11 @@ For each field found in the document:
 1. Provide a clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
 2. Determine the expected data type (text, number, date, currency, boolean)
 3. Write a detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
-4. Assign it to the MOST APPROPRIATE category ID based on where it logically belongs
+4. Assign it to the MOST APPROPRIATE category using the category slug (e.g., "invoice_header", "company_information", etc.)
 
 Important rules:
 - Each field should appear ONLY ONCE in the entire list
+- Use the category slug for the categoryId field (e.g., "invoice_header", "payment_due")
 - Assign each field to the category where it most logically belongs
 - If a field could belong to multiple categories, choose the most specific/primary one
 - Common fields like invoice_number, dates, and totals should be assigned to their primary category (usually the header or summary)
@@ -251,21 +252,30 @@ Extract all fields from the document, ensuring no duplicates.`;
         ],
     });
 
+    // Create a map from slug to categoryId for conversion
+    const slugToCategoryId = new Map(
+        categories.map((cat) => [cat.slug, cat.categoryId])
+    );
+
+    // Convert slugs to categoryIds in the extracted fields
+    const fieldsWithCorrectCategoryIds = object.fields.map((field) => ({
+        ...field,
+        categoryId: slugToCategoryId.get(field.categoryId) || field.categoryId, // Use the mapped categoryId or keep original if not found
+        required: true,
+    }));
+
     logger.info(
         {
-            totalFields: object.fields.length,
+            totalFields: fieldsWithCorrectCategoryIds.length,
             fieldsByCategory: categories.map((cat) => ({
                 category: cat.displayName,
-                count: object.fields.filter((f) => f.categoryId === cat.categoryId).length,
+                count: fieldsWithCorrectCategoryIds.filter((f) => f.categoryId === cat.categoryId).length,
             })),
         },
         "Unified field extraction completed",
     );
 
-    return object.fields.map((field) => ({
-        ...field,
-        required: true,
-    }));
+    return fieldsWithCorrectCategoryIds;
 }
 
 // Schema for single table extraction

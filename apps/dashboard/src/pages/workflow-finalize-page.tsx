@@ -1,14 +1,14 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import BasicWorkflowDataForm from "@/components/workflow/basic-workflow-data-form";
 import WorkflowFields from "@/components/workflow/workflow-fields";
-import { useWorkflowWithSamples } from "@/hooks/use-workflow-with-samples";
+import { useWorkflow } from "@/hooks/useWorkflow";
 
 export default function WorkflowFinalizePage() {
     const { workflowId } = useParams({
         from: "/_app/workflows/$workflowId/finalize",
     });
 
-    const { workflow } = useWorkflowWithSamples(workflowId);
+    const { workflow } = useWorkflow(workflowId);
 
     return (
         <div className="w-full px-4 py-8 space-y-8">
