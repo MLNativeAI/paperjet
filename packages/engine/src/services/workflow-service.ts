@@ -7,7 +7,7 @@ import { generateId, ID_PREFIXES } from "../utils/id";
 import { performCompleteAnalysis, } from "./document-analysis-service";
 import type { DocumentExtractionService } from "./document-extraction-service";
 import type { WorkflowExecutionService } from "./workflow-execution-service";
-import type { DocumentAnalysis, WorkflowConfiguration } from "../types";
+import type { WorkflowConfiguration, workflowConfigurationSchema } from "../types";
 
 export interface WorkflowServiceDeps {
     documentExtractionService: DocumentExtractionService;
@@ -106,12 +106,22 @@ export class WorkflowService {
 
         // Get workflow and associated file
         const [workflowData] = await db
-            .select()
+            .select({
+                workflowId: workflow.id,
+                workflowName: workflow.name,
+                fileId: workflow.fileId,
+                filename: file.filename,
+            })
             .from(workflow)
+            .leftJoin(file, eq(workflow.fileId, file.id))
             .where(eq(workflow.id, workflowId));
 
         if (!workflowData) {
             throw new Error("Workflow not found");
+        }
+
+        if (!workflowData.fileId || !workflowData.filename) {
+            throw new Error("No file associated with this workflow");
         }
 
         // Get presigned URL for the existing file

@@ -2,31 +2,14 @@ import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { aiSdkModel } from "../lib/model";
+import { type CategoriesConfiguration, type FieldsConfiguration, type TableConfiguration } from "../types";
 
 export type AnalysisResult = {
     workflowName: string;
     description: string;
-    categories: Array<{
-        categoryId: string;
-        slug: string;
-        displayName: string;
-        ordinal: number;
-    }>;
-    suggestedFields: Array<{
-        name: string;
-        description: string;
-        type: "text" | "number" | "date" | "currency" | "boolean";
-        required: boolean;
-        categoryId: string;
-    }>;
-    suggestedTables: Array<{
-        columns: Array<{
-            name: string;
-            description: string;
-            type: "text" | "number" | "date" | "currency" | "boolean";
-        }>;
-        categoryId: string;
-    }>;
+    categories: CategoriesConfiguration;
+    fields: FieldsConfiguration;
+    tables: TableConfiguration;
 }
 
 export async function performCompleteAnalysis(presignedUrl: string): Promise<AnalysisResult> {
@@ -74,9 +57,16 @@ export async function performCompleteAnalysis(presignedUrl: string): Promise<Ana
         return {
             workflowName: documentTypeAnalysis.workflowName,
             description: documentTypeAnalysis.description,
-            categories: categories,
-            suggestedFields: categoryFieldResults.flat(),
-            suggestedTables: tableFieldResults.flat()
+            categories: categories.map(cat => {
+                return {
+                    categoryId: cat.categoryId,
+                    slug: cat.slug,
+                    displayName: cat.displayName,
+                    ordinal: cat.ordinal,
+                }
+            }),
+            fields: categoryFieldResults.flat(),
+            tables: tableFieldResults.flat()
         };
     } catch (error) {
         throw error;
