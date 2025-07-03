@@ -8,6 +8,7 @@ import { performCompleteAnalysis } from "./document-analysis-service";
 import type { DocumentExtractionService } from "./document-extraction-service";
 import type { WorkflowExecutionService } from "./workflow-execution-service";
 import { workflowConfigurationSchema, type Workflow, type WorkflowConfiguration } from "../types";
+import type { ExtractionResult } from "@paperjet/db/types";
 
 export interface WorkflowServiceDeps {
     documentExtractionService: DocumentExtractionService;
@@ -66,13 +67,20 @@ export class WorkflowService {
         const workflowId = generateId(ID_PREFIXES.workflow);
         const workflowName = "New Workflow"; // Will be updated after analysis
 
+        const emptyConfiguration: WorkflowConfiguration = { fields: [], tables: [] };
+
+        const emptyResult: ExtractionResult = {
+            fields: [],
+            tables: [],
+        };
+
         await db.insert(workflow).values({
             id: workflowId,
             name: workflowName,
             description: "",
             categories: "[]",
-            configuration: "{}",
-            sampleData: "{}",
+            configuration: JSON.stringify(emptyConfiguration),
+            sampleData: JSON.stringify(emptyResult),
             fileId,
             status: "analyzing",
             ownerId: userId,

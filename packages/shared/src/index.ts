@@ -15,7 +15,5 @@ export type ApiResponse<T> = {
     error?: string;
 };
 
-// Export environment schema and types
 export { type BunEnvModule, type EnvVars, envSchema } from "./env-schema";
-// Export logger utilities
-export { createLogger, getLogger, initializeLogger, type LoggerConfig, logger } from "./logger";
+export { logger } from "./logger";

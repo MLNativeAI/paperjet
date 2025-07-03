@@ -7,7 +7,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
 import type { Context, Next } from "hono";
 import { Resend } from "resend";
-import { envVars, logger } from "./env";
+import { logger } from "@paperjet/shared";
+import { envVars } from "./env";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];
 

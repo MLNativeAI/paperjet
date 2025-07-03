@@ -20,7 +20,7 @@ export const getWorkflow = async (workflowId: string) => {
 };
 
 export const getWorkflowWithSamples = async (workflowId: string) => {
-    const response = await api.workflows[":id"]["with-samples"].$get({
+    const response = await api.workflows[":id"].$get({
         param: { id: workflowId },
     });
 

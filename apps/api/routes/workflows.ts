@@ -2,7 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
-import { logger } from "@/lib/env";
+import { logger } from "@paperjet/shared";
 import { workflowService } from "@/lib/services";
 import { fileIdSchema, workflowIdSchema } from "@/lib/validation";
 
