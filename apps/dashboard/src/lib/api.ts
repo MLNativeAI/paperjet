@@ -188,3 +188,16 @@ export const executeWorkflowBulk = async (workflowId: string, files: File[]) => 
 
     return response.json();
 };
+
+// Document API functions
+export const getDocument = async (fileId: string) => {
+    const response = await api.workflows[":fileId"].document.$get({
+        param: { fileId },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch document");
+    }
+
+    return response.json();
+};
