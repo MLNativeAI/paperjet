@@ -1,7 +1,12 @@
 import { useParams } from "@tanstack/react-router";
-import BasicWorkflowDataForm from "@/components/workflow/basic-workflow-data-form";
-import WorkflowFields from "@/components/workflow/workflow-fields";
+import { useRef, useState } from "react";
+import BasicWorkflowDataForm, { type BasicWorkflowDataFormRef } from "@/components/workflow/basic-workflow-data-form";
+import WorkflowCategories from "@/components/workflow/workflow-categories";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useWorkflow } from "@/hooks/useWorkflow";
+import { useUpdateWorkflowBasicData } from "@/hooks/use-update-workflow-basic-data";
 
 export default function WorkflowFinalizePage() {
     const { workflowId } = useParams({
@@ -9,6 +14,22 @@ export default function WorkflowFinalizePage() {
     });
 
     const { workflow } = useWorkflow(workflowId);
+    const { mutate: updateWorkflow, isPending } = useUpdateWorkflowBasicData();
+    const formRef = useRef<BasicWorkflowDataFormRef>(null);
+    const [showWorkflowConfiguration, setShowWorkflowConfiguration] = useState(true);
+
+    const handleSaveWorkflow = async () => {
+        if (!formRef.current || !workflow) return;
+
+        const formData = await formRef.current.submit();
+        if (formData) {
+            updateWorkflow({
+                workflowId: workflow.id,
+                name: formData.name,
+                description: formData.description,
+            });
+        }
+    };
 
     return (
         <div className="w-full px-4 py-8 space-y-8">
@@ -19,31 +40,55 @@ export default function WorkflowFinalizePage() {
                     <p className="text-muted-foreground mt-2">Review, customize and save your workflow</p>
                 </div>
             </div>
-            <div className="pt-8 border-t">{workflow && <BasicWorkflowDataForm workflow={workflow} />}</div>
-            {workflow && <WorkflowFields workflow={workflow} />}
-            {workflow?.configuration.tables && workflow.configuration.tables.length > 0 && (
-                <>
-                    <h3 className="text-lg font-medium">Tables</h3>
-                    <div className="space-y-4">
-                        {workflow.configuration.tables.map((table) => (
-                            <div key={table.name} className="p-4 border rounded-lg">
-                                <h4 className="text-md font-medium">{table.name}</h4>
-                                <p className="text-muted-foreground text-sm mb-3">{table.description}</p>
-                                <div className="mt-4">
-                                    <h5 className="text-sm font-medium mb-2">Columns:</h5>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {table.columns.map((column) => (
-                                            <div key={column.name} className="p-2 bg-muted rounded text-sm">
-                                                <span className="font-medium">{column.name}</span>
-                                                <span className="text-muted-foreground"> ({column.type})</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+
+            {/* Workflow Basic Info Form */}
+            <div className="pt-8 border-t">
+                {workflow && <BasicWorkflowDataForm ref={formRef} workflow={workflow} />}
+            </div>
+
+            {/* Categories with Fields and Tables */}
+            {workflow && showWorkflowConfiguration && (
+                <div className="pt-8 border-t">
+                    <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold mb-6">Workflow Configuration</h2>
+                    <div className="flex items-center gap-6">
+                        <Button
+                            variant="outline"
+                            onClick={() => console.log("Configure sections clicked")}
+                        >
+                            Configure sections
+                        </Button>
+
+                        <div className="flex items-center gap-2">
+                            <Switch
+                                id="workflow-config"
+                                checked={showWorkflowConfiguration}
+                                onCheckedChange={setShowWorkflowConfiguration}
+                            />
+                            <Label htmlFor="workflow-config" className="cursor-pointer">
+                                Workflow configuration
+                            </Label>
+                        </div>
                     </div>
-                </>
+                    </div>
+
+                    <WorkflowCategories workflow={workflow} />
+                </div>
+            )}
+
+            {/* Action Row */}
+            {workflow && (
+                <div className="flex items-center justify-end pt-8 border-t">
+
+
+                    <Button
+                        size="lg"
+                        onClick={handleSaveWorkflow}
+                        disabled={isPending}
+                    >
+                        {isPending ? "Saving..." : "Save Workflow"}
+                    </Button>
+                </div>
             )}
         </div>
     );

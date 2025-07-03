@@ -1,10 +1,9 @@
 import { google } from "@ai-sdk/google";
-import type { ExtractionResult } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
-import { type WorkflowConfiguration } from "../types";
+import { type ExtractionResult, type WorkflowConfiguration } from "../types";
 import { aiSdkModel } from "../lib/model";
 
 export interface DocumentExtractionServiceDeps {
