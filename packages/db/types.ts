@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { file, workflow, workflowExecution, workflowFile } from "./schema";
+import type { file, workflow, workflowExecution, workflowFile, workflowSample } from "./schema";
 
 export const uploadFileSchema = z.object({
     file: z.instanceof(File),
@@ -26,12 +26,27 @@ export type ValidWorkflow = Omit<Workflow, "configuration"> & {
 // Field extraction configuration
 export const fieldTypeSchema = z.enum(["text", "number", "date", "currency", "boolean"]);
 
+// Category schema with slug and display name
+export const categorySchema = z.object({
+    slug: z.string(),
+    displayName: z.string(),
+});
+
 export const extractionFieldSchema = z.object({
     name: z.string(),
     description: z.string(),
     type: fieldTypeSchema,
     required: z.boolean().default(false),
-    category: z.string().default("General Information"),
+    category: categorySchema.default({ slug: "general_information", displayName: "General Information" }),
+});
+
+export const extractionFieldWithSampleSchema = z.object({
+    name: z.string(),
+    description: z.string(),
+    type: fieldTypeSchema,
+    required: z.boolean().default(false),
+    category: categorySchema.default({ slug: "general_information", displayName: "General Information" }),
+    sampleValue: z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable().optional(),
 });
 
 export const extractionTableSchema = z.object({
@@ -46,9 +61,17 @@ export const workflowConfigurationSchema = z.object({
     documentType: z.string().optional(),
 });
 
+export const workflowConfigurationWithSampleSchema = z.object({
+    fields: z.array(extractionFieldWithSampleSchema),
+    tables: z.array(extractionTableSchema),
+    documentType: z.string().optional(),
+});
+
 export type ExtractionField = z.infer<typeof extractionFieldSchema>;
+export type ExtractionFieldWithSample = z.infer<typeof extractionFieldWithSampleSchema>;
 export type ExtractionTable = z.infer<typeof extractionTableSchema>;
 export type WorkflowConfiguration = z.infer<typeof workflowConfigurationSchema>;
+export type WorkflowConfigurationWithSample = z.infer<typeof workflowConfigurationWithSampleSchema>;
 
 // Document analysis result
 export const documentAnalysisSchema = z.object({
@@ -62,9 +85,15 @@ export const documentTypeAndCategoriesSchema = z.object({
     workflowName: z.string(),
     documentType: z.string(),
     description: z.string(),
-    categories: z.array(z.string()),
+    categories: z.array(categorySchema),
+    tables: z.array(z.object({
+        name: z.string(),
+        description: z.string(),
+        category: categorySchema,
+    })),
 });
 
+export type Category = z.infer<typeof categorySchema>;
 export type DocumentTypeAndCategories = z.infer<typeof documentTypeAndCategoriesSchema>;
 
 export const fieldCategoryAnalysisSchema = z.object({
@@ -127,3 +156,14 @@ export const workflowExecutionWithFilesSchema = z.object({
 });
 
 export type WorkflowExecutionWithFiles = z.infer<typeof workflowExecutionWithFilesSchema>;
+
+// Workflow sample types
+export type WorkflowSampleData = typeof workflowSample.$inferSelect;
+
+export type WorkflowWithSample = ValidWorkflow & {
+    sample?: WorkflowSampleData;
+};
+
+export type ValidWorkflowWithSample = Omit<Workflow, "configuration"> & {
+    configuration: WorkflowConfigurationWithSample;
+};

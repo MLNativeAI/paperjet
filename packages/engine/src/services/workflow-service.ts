@@ -1,6 +1,6 @@
 import { db } from "@paperjet/db";
-import { file, workflow, workflowFile } from "@paperjet/db/schema";
-import { type DocumentAnalysis, type ValidWorkflow, type WorkflowConfiguration, type WorkflowStatus, workflowConfigurationSchema } from "@paperjet/db/types";
+import { file, workflow, workflowFile, workflowSample } from "@paperjet/db/schema";
+import { type DocumentAnalysis, type ValidWorkflow, type ValidWorkflowWithSample, type WorkflowConfiguration, type WorkflowConfigurationWithSample, type WorkflowStatus, workflowConfigurationSchema } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -234,6 +234,17 @@ export class WorkflowService {
             "Data extraction from document completed",
         );
 
+        // Store sample data in workflow_sample table
+        await db.insert(workflowSample).values({
+            id: generateId(ID_PREFIXES.WORKFLOW_SAMPLE),
+            workflowId,
+            fileId,
+            extractedData: JSON.stringify(extractionResult),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            ownerId: userId,
+        });
+
         // Update workflow status to configuring after extraction
         await db
             .update(workflow)
@@ -242,6 +253,16 @@ export class WorkflowService {
                 updatedAt: new Date(),
             })
             .where(eq(workflow.id, workflowId));
+
+        logger.info(
+            {
+                workflowId,
+                fileId,
+                extractedFieldsCount: extractionResult.fields.length,
+                extractedTablesCount: extractionResult.tables.length,
+            },
+            "Sample data stored in workflow_sample table",
+        );
 
         return {
             fileId,
@@ -265,7 +286,7 @@ export class WorkflowService {
         return result;
     }
 
-    async getWorkflow(workflowId: string, userId: string): Promise<ValidWorkflow> {
+    async getWorkflow(workflowId: string, userId: string): Promise<ValidWorkflow & { sample?: any }> {
         const [workflowData] = await db
             .select({
                 id: workflow.id,
@@ -277,9 +298,11 @@ export class WorkflowService {
                 createdAt: workflow.createdAt,
                 updatedAt: workflow.updatedAt,
                 fileId: workflowFile.fileId,
+                sampleData: workflowSample.extractedData,
             })
             .from(workflow)
             .leftJoin(workflowFile, eq(workflow.id, workflowFile.workflowId))
+            .leftJoin(workflowSample, eq(workflow.id, workflowSample.workflowId))
             .where(eq(workflow.id, workflowId));
 
         if (!workflowData || workflowData.ownerId !== userId) {
@@ -291,6 +314,7 @@ export class WorkflowService {
         return {
             ...workflowData,
             configuration: parsedConfig,
+            sample: workflowData.sampleData ? JSON.parse(workflowData.sampleData) : undefined,
         };
     }
 
@@ -332,6 +356,56 @@ export class WorkflowService {
         }
 
         await db.update(workflow).set(updateData).where(eq(workflow.id, workflowId));
+    }
+
+    async getWorkflowWithEmbeddedSamples(workflowId: string, userId: string): Promise<ValidWorkflowWithSample> {
+        const [workflowData] = await db
+            .select({
+                id: workflow.id,
+                name: workflow.name,
+                description: workflow.description,
+                configuration: workflow.configuration,
+                status: workflow.status,
+                ownerId: workflow.ownerId,
+                createdAt: workflow.createdAt,
+                updatedAt: workflow.updatedAt,
+                fileId: workflowFile.fileId,
+                sampleData: workflowSample.extractedData,
+            })
+            .from(workflow)
+            .leftJoin(workflowFile, eq(workflow.id, workflowFile.workflowId))
+            .leftJoin(workflowSample, eq(workflow.id, workflowSample.workflowId))
+            .where(eq(workflow.id, workflowId));
+
+        if (!workflowData || workflowData.ownerId !== userId) {
+            throw new Error("Workflow not found");
+        }
+
+        const parsedConfig = await this.#parseWorkflowConfiguration(workflowData.configuration);
+        let sampleData = null;
+
+        try {
+            sampleData = workflowData.sampleData ? JSON.parse(workflowData.sampleData) : null;
+        } catch (error) {
+            logger.warn({ workflowId, error }, "Failed to parse sample data");
+        }
+
+        // Embed sample values into field configuration
+        const configurationWithSamples: WorkflowConfigurationWithSample = {
+            ...parsedConfig,
+            fields: parsedConfig.fields.map(field => {
+                const sampleValue = sampleData?.fields?.find((f: any) => f.fieldName === field.name)?.value;
+                return {
+                    ...field,
+                    sampleValue: sampleValue || null,
+                };
+            }),
+        };
+
+        return {
+            ...workflowData,
+            configuration: configurationWithSamples,
+        };
     }
 
     async updateWorkflowBasicData(

@@ -56,7 +56,9 @@ export default function WorkflowCreatorPage() {
         <div className="w-full px-4 py-8">
             <div className="mb-8 text-center">
                 <h1 className="text-3xl font-bold mb-4">Create New Workflow</h1>
-                <p className="text-muted-foreground">Choose a template to get started or create a custom workflow from scratch</p>
+                <p className="text-muted-foreground">
+                    Choose a template to get started or create a custom workflow from scratch
+                </p>
             </div>
 
             <div className="space-y-8">
@@ -66,7 +68,9 @@ export default function WorkflowCreatorPage() {
                 {/* Template Selection */}
                 <div className="border-t pt-8">
                     <h2 className="text-xl font-semibold mb-4">...or choose from a template</h2>
-                    <p className="text-muted-foreground mb-6">Start with a pre-built workflow for common document types</p>
+                    <p className="text-muted-foreground mb-6">
+                        Start with a pre-built workflow for common document types
+                    </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {workflowTemplates.map((template) => (

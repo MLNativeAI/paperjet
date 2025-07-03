@@ -29,7 +29,7 @@ export function useUpdateWorkflowBasicData() {
             // Invalidate the workflow query to refresh the data
             queryClient.invalidateQueries({ queryKey: ["workflow", workflowId] });
             queryClient.invalidateQueries({ queryKey: ["workflows"] });
-            
+
             toast.success("Workflow updated successfully");
         },
         onError: (error) => {

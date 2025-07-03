@@ -101,3 +101,19 @@ export const workflowExecution = pgTable("workflow_execution", {
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
 });
+
+export const workflowSample = pgTable("workflow_sample", {
+    id: text("id").primaryKey(),
+    workflowId: text("workflow_id")
+        .notNull()
+        .references(() => workflow.id, { onDelete: "cascade" }),
+    fileId: text("file_id")
+        .notNull()
+        .references(() => file.id, { onDelete: "cascade" }),
+    extractedData: text("extracted_data").notNull(), // JSON string of sample extracted data
+    createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull(),
+    ownerId: text("owner_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+});

@@ -19,6 +19,18 @@ export const getWorkflow = async (workflowId: string) => {
     return response.json();
 };
 
+export const getWorkflowWithSamples = async (workflowId: string) => {
+    const response = await api.workflows[":id"]["with-samples"].$get({
+        param: { id: workflowId },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch workflow with samples");
+    }
+
+    return response.json();
+};
+
 export const updateWorkflow = async (
     workflowId: string,
     data: {

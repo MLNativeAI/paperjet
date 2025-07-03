@@ -1,15 +1,20 @@
-import type { ExtractionField, ExtractionTable, ValidWorkflow, Workflow } from "@paperjet/db/types";
+import type { ExtractionField, ExtractionResult, ExtractionTable, ValidWorkflow } from "@paperjet/db/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { extractData as extractDataApi, getAnalysisStatus as getAnalysisStatusApi, getWorkflow, updateWorkflow as updateWorkflowApi } from "@/lib/api";
+import {
+    extractData as extractDataApi,
+    getAnalysisStatus as getAnalysisStatusApi,
+    getWorkflow,
+    updateWorkflow as updateWorkflowApi,
+} from "@/lib/api";
 
 export function useWorkflow(workflowId: string) {
     const navigate = useNavigate();
 
     const { data: workflow, isLoading } = useQuery({
         queryKey: ["workflow", workflowId],
-        queryFn: () => getWorkflow(workflowId) as Promise<ValidWorkflow>,
+        queryFn: () => getWorkflow(workflowId) as Promise<ValidWorkflow & { sample?: ExtractionResult }>,
         enabled: !!workflowId,
         // Refetch more frequently when workflow is in transitional states
         refetchInterval: (query) => {
@@ -22,7 +27,8 @@ export function useWorkflow(workflowId: string) {
     });
 
     const updateWorkflow = useMutation({
-        mutationFn: (data: { name: string; fields: ExtractionField[]; description?: string; isPublic?: boolean }) => updateWorkflowApi(workflowId, data),
+        mutationFn: (data: { name: string; fields: ExtractionField[]; description?: string; isPublic?: boolean }) =>
+            updateWorkflowApi(workflowId, data),
         onSuccess: () => {
             toast.success("Workflow updated successfully!");
             navigate({ to: "/" });
@@ -33,7 +39,8 @@ export function useWorkflow(workflowId: string) {
     });
 
     const extractData = useMutation({
-        mutationFn: (data: { fileId: string; fields?: ExtractionField[]; tables?: ExtractionTable[] }) => extractDataApi(workflowId, data),
+        mutationFn: (data: { fileId: string; fields?: ExtractionField[]; tables?: ExtractionTable[] }) =>
+            extractDataApi(workflowId, data),
         onError: () => {
             toast.error("Failed to extract data from document");
         },

@@ -1,13 +1,14 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
 import BasicWorkflowDataForm from "@/components/workflow/basic-workflow-data-form";
-import { useWorkflow } from "@/hooks/useWorkflow";
+import WorkflowFields from "@/components/workflow/workflow-fields";
+import { useWorkflowWithSamples } from "@/hooks/use-workflow-with-samples";
 
 export default function WorkflowFinalizePage() {
     const { workflowId } = useParams({
         from: "/_app/workflows/$workflowId/finalize",
     });
 
-    const { workflow } = useWorkflow(workflowId);
+    const { workflow } = useWorkflowWithSamples(workflowId);
 
     return (
         <div className="w-full px-4 py-8 space-y-8">
@@ -18,19 +19,32 @@ export default function WorkflowFinalizePage() {
                     <p className="text-muted-foreground mt-2">Review, customize and save your workflow</p>
                 </div>
             </div>
-            <div className="pt-8 border-t">
-                {workflow && <BasicWorkflowDataForm workflow={workflow} />}
-            </div>
-            <h3 className="text-lg font-medium">Fields</h3>
-            <div className="grid grid-cols-2 gap-4">
-            {workflow?.configuration.fields.map((field) => (
-                <div key={field.name}>
-                    <h4 className="text-md font-medium">{field.name}</h4>
-                    <p className="text-muted-foreground">{field.description}</p>
-                </div>
-            ))}
-            </div>
-
+            <div className="pt-8 border-t">{workflow && <BasicWorkflowDataForm workflow={workflow} />}</div>
+            {workflow && <WorkflowFields workflow={workflow} />}
+            {workflow?.configuration.tables && workflow.configuration.tables.length > 0 && (
+                <>
+                    <h3 className="text-lg font-medium">Tables</h3>
+                    <div className="space-y-4">
+                        {workflow.configuration.tables.map((table) => (
+                            <div key={table.name} className="p-4 border rounded-lg">
+                                <h4 className="text-md font-medium">{table.name}</h4>
+                                <p className="text-muted-foreground text-sm mb-3">{table.description}</p>
+                                <div className="mt-4">
+                                    <h5 className="text-sm font-medium mb-2">Columns:</h5>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {table.columns.map((column) => (
+                                            <div key={column.name} className="p-2 bg-muted rounded text-sm">
+                                                <span className="font-medium">{column.name}</span>
+                                                <span className="text-muted-foreground"> ({column.type})</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 }

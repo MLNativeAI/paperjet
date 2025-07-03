@@ -18,7 +18,10 @@ export function WorkflowTemplateCard({ template, onClick }: WorkflowTemplateCard
     const Icon = template.icon;
 
     return (
-        <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50" onClick={() => onClick(template.id)}>
+        <Card
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50"
+            onClick={() => onClick(template.id)}
+        >
             <CardHeader>
                 <div className="flex items-start gap-3">
                     <div className={`p-2 rounded-lg bg-gray-50 ${template.color}`}>

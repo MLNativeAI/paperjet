@@ -52,7 +52,10 @@ export function ExtractedTableDisplay({ tables, extractionResult }: ExtractedTab
                                             <thead>
                                                 <tr className="bg-muted">
                                                     {table.columns.map((column) => (
-                                                        <th key={column.name} className="border border-gray-200 px-3 py-2 text-left font-medium">
+                                                        <th
+                                                            key={column.name}
+                                                            className="border border-gray-200 px-3 py-2 text-left font-medium"
+                                                        >
                                                             {column.name}
                                                         </th>
                                                     ))}
@@ -60,7 +63,10 @@ export function ExtractedTableDisplay({ tables, extractionResult }: ExtractedTab
                                             </thead>
                                             <tbody>
                                                 {extractedTable.rows.map((row, rowIndex) => (
-                                                    <tr key={`row-${rowIndex}-${table.name}`} className="hover:bg-muted/50">
+                                                    <tr
+                                                        key={`row-${rowIndex}-${table.name}`}
+                                                        className="hover:bg-muted/50"
+                                                    >
                                                         {table.columns.map((column, colIndex) => (
                                                             <td
                                                                 key={`${table.name}-${column.name}-${rowIndex}-${colIndex}`}
@@ -75,7 +81,9 @@ export function ExtractedTableDisplay({ tables, extractionResult }: ExtractedTab
                                         </table>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-4 text-muted-foreground">No table data extracted</div>
+                                    <div className="text-center py-4 text-muted-foreground">
+                                        No table data extracted
+                                    </div>
                                 )}
                             </div>
                         );

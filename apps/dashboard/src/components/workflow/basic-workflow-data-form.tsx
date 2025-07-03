@@ -60,7 +60,11 @@ export default function BasicWorkflowDataForm({ workflow }: { workflow: ValidWor
                         <FormItem>
                             <FormLabel>Description (optional)</FormLabel>
                             <FormControl>
-                                <Textarea placeholder="Describe what this workflow does" className="min-h-[100px]" {...field} />
+                                <Textarea
+                                    placeholder="Describe what this workflow does"
+                                    className="min-h-[100px]"
+                                    {...field}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

@@ -28,7 +28,13 @@ import * as React from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -130,14 +136,20 @@ export function RunsDataTable({ data, onExportRun, onDeleteRun, formatDuration }
         {
             accessorKey: "duration",
             header: "Duration",
-            cell: ({ row }) => <div className="text-sm">{formatDuration(row.original.startedAt, row.original.completedAt)}</div>,
+            cell: ({ row }) => (
+                <div className="text-sm">{formatDuration(row.original.startedAt, row.original.completedAt)}</div>
+            ),
         },
         {
             id: "actions",
             header: "Actions",
             cell: ({ row }) => (
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => navigate({ to: `/executions/${row.original.id}` })}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate({ to: `/executions/${row.original.id}` })}
+                    >
                         <IconEye className="h-4 w-4 mr-2" />
                         View
                     </Button>
@@ -149,7 +161,11 @@ export function RunsDataTable({ data, onExportRun, onDeleteRun, formatDuration }
                     )}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="data-[state=open]:bg-muted text-muted-foreground flex size-8" size="icon">
+                            <Button
+                                variant="ghost"
+                                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                                size="icon"
+                            >
                                 <IconDotsVertical className="h-4 w-4" />
                                 <span className="sr-only">Open menu</span>
                             </Button>
@@ -212,7 +228,9 @@ export function RunsDataTable({ data, onExportRun, onDeleteRun, formatDuration }
                                 {headerGroup.headers.map((header) => {
                                     return (
                                         <TableHead key={header.id} colSpan={header.colSpan}>
-                                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(header.column.columnDef.header, header.getContext())}
                                         </TableHead>
                                     );
                                 })}
@@ -222,9 +240,15 @@ export function RunsDataTable({ data, onExportRun, onDeleteRun, formatDuration }
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className="hover:bg-muted/50">
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                    className="hover:bg-muted/50"
+                                >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                                        <TableCell key={cell.id}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
                                     ))}
                                 </TableRow>
                             ))
@@ -240,7 +264,8 @@ export function RunsDataTable({ data, onExportRun, onDeleteRun, formatDuration }
             </div>
             <div className="flex items-center justify-between px-4 py-4">
                 <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-                    {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
+                    {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length}{" "}
+                    row(s) selected.
                 </div>
                 <div className="flex w-full items-center gap-8 lg:w-fit">
                     <div className="hidden items-center gap-2 lg:flex">
@@ -278,11 +303,23 @@ export function RunsDataTable({ data, onExportRun, onDeleteRun, formatDuration }
                             <span className="sr-only">Go to first page</span>
                             <IconChevronsLeft className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" className="size-8" size="icon" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+                        <Button
+                            variant="outline"
+                            className="size-8"
+                            size="icon"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
                             <span className="sr-only">Go to previous page</span>
                             <IconChevronLeft className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" className="size-8" size="icon" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+                        <Button
+                            variant="outline"
+                            className="size-8"
+                            size="icon"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
                             <span className="sr-only">Go to next page</span>
                             <IconChevronRight className="h-4 w-4" />
                         </Button>

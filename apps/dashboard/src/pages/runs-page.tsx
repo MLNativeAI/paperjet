@@ -4,7 +4,12 @@ import { useState } from "react";
 import { RunsDataTable } from "@/components/runs-data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useRuns } from "@/hooks/use-runs";
 
@@ -19,7 +24,8 @@ export default function RunsPage() {
 
     const filteredRuns = runs.filter((run) => {
         const matchesSearch =
-            run.workflowName.toLowerCase().includes(searchQuery.toLowerCase()) || run.filename?.toLowerCase().includes(searchQuery.toLowerCase());
+            run.workflowName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            run.filename?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === "all" || run.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
@@ -129,7 +135,9 @@ export default function RunsPage() {
                             <DropdownMenuItem onClick={() => setStatusFilter("all")}>All Statuses</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setStatusFilter("completed")}>Completed</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setStatusFilter("failed")}>Failed</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setStatusFilter("processing")}>Processing</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setStatusFilter("processing")}>
+                                Processing
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setStatusFilter("pending")}>Pending</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -140,7 +148,9 @@ export default function RunsPage() {
                         <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                         <h3 className="text-lg font-semibold mb-2">No runs found</h3>
                         <p className="text-muted-foreground mb-4">
-                            {runs.length === 0 ? "No workflow runs have been executed yet." : "No runs match your current filters."}
+                            {runs.length === 0
+                                ? "No workflow runs have been executed yet."
+                                : "No runs match your current filters."}
                         </p>
                         {runs.length === 0 && (
                             <Button onClick={() => navigate({ to: "/" })}>
@@ -150,7 +160,12 @@ export default function RunsPage() {
                         )}
                     </div>
                 ) : (
-                    <RunsDataTable data={filteredRuns} onExportRun={exportRun} onDeleteRun={deleteRun} formatDuration={formatDuration} />
+                    <RunsDataTable
+                        data={filteredRuns}
+                        onExportRun={exportRun}
+                        onDeleteRun={deleteRun}
+                        formatDuration={formatDuration}
+                    />
                 )}
             </div>
         </div>

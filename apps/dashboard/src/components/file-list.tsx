@@ -90,7 +90,9 @@ export function FileList({
                                     {getStatusIcon(uploadedFile.status)}
                                     <div>
                                         <p className="font-medium">{uploadedFile.file.name}</p>
-                                        <p className="text-sm text-muted-foreground">{(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB
+                                        </p>
                                     </div>
                                 </div>
 
@@ -98,7 +100,11 @@ export function FileList({
                                     <Badge variant={getStatusColor(uploadedFile.status)}>{uploadedFile.status}</Badge>
 
                                     {uploadedFile.status === "completed" && uploadedFile.result && (
-                                        <Button variant="ghost" size="sm" onClick={() => onToggleResultExpansion(uploadedFile.id)}>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => onToggleResultExpansion(uploadedFile.id)}
+                                        >
                                             {expandedResults.has(uploadedFile.id) ? (
                                                 <>
                                                     <ChevronDown className="h-4 w-4 mr-1" />
@@ -120,14 +126,20 @@ export function FileList({
                                     )}
 
                                     {uploadedFile.status === "failed" && uploadedFile.error && (
-                                        <div className="text-sm text-red-600 max-w-xs truncate">{uploadedFile.error}</div>
+                                        <div className="text-sm text-red-600 max-w-xs truncate">
+                                            {uploadedFile.error}
+                                        </div>
                                     )}
                                 </div>
                             </div>
 
-                            {uploadedFile.status === "completed" && uploadedFile.result && expandedResults.has(uploadedFile.id) && (
-                                <div className="border-t p-4 bg-muted/20">{renderExtractionResults(uploadedFile.result, uploadedFile.id)}</div>
-                            )}
+                            {uploadedFile.status === "completed" &&
+                                uploadedFile.result &&
+                                expandedResults.has(uploadedFile.id) && (
+                                    <div className="border-t p-4 bg-muted/20">
+                                        {renderExtractionResults(uploadedFile.result, uploadedFile.id)}
+                                    </div>
+                                )}
                         </div>
                     ))}
                 </div>

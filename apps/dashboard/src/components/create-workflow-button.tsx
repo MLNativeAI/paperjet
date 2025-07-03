@@ -10,10 +10,20 @@ interface CreateWorkflowButtonProps {
     onCreateWorkflow: (fields: ExtractionField[], tables: ExtractionTable[]) => void;
 }
 
-export function CreateWorkflowButton({ fields, tables, extractionResult, isCreatingWorkflow, onCreateWorkflow }: CreateWorkflowButtonProps) {
+export function CreateWorkflowButton({
+    fields,
+    tables,
+    extractionResult,
+    isCreatingWorkflow,
+    onCreateWorkflow,
+}: CreateWorkflowButtonProps) {
     return (
         <div className="flex justify-end">
-            <Button onClick={() => onCreateWorkflow(fields, tables)} disabled={isCreatingWorkflow || !extractionResult || fields.length === 0} size="lg">
+            <Button
+                onClick={() => onCreateWorkflow(fields, tables)}
+                disabled={isCreatingWorkflow || !extractionResult || fields.length === 0}
+                size="lg"
+            >
                 {isCreatingWorkflow ? (
                     <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />

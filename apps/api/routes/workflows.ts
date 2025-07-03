@@ -89,6 +89,20 @@ const router = app
             return c.json({ error: "Failed to get workflow" }, 500);
         }
     })
+    .get("/:id/with-samples", zValidator("param", paramIdSchema), async (c) => {
+        try {
+            const user = await getUser(c);
+            const { id: workflowId } = c.req.valid("param");
+            const workflowData = await workflowService.getWorkflowWithEmbeddedSamples(workflowId, user.id);
+            return c.json(workflowData);
+        } catch (error) {
+            logger.error(error, "Get workflow with samples error:");
+            if (error instanceof Error && error.message === "Workflow not found") {
+                return c.json({ error: "Workflow not found" }, 404);
+            }
+            return c.json({ error: "Failed to get workflow with samples" }, 500);
+        }
+    })
     .put("/:id", zValidator("param", paramIdSchema), zValidator("json", updateWorkflowSchema), async (c) => {
         try {
             const user = await getUser(c);

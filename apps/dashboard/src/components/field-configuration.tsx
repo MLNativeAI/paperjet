@@ -33,7 +33,11 @@ export function FieldConfiguration({
                 <CardTitle className="flex items-center justify-between">
                     <span>Field Configuration</span>
                     <Button size="sm" variant="outline" onClick={onReExtract} disabled={isExtracting}>
-                        {isExtracting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                        {isExtracting ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <RefreshCw className="h-4 w-4" />
+                        )}
                         Re-extract
                     </Button>
                 </CardTitle>

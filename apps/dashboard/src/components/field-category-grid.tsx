@@ -14,13 +14,20 @@ interface FieldCategoryGridProps {
     onExtractData?: () => void;
 }
 
-export function FieldCategoryGrid({ fields, extractionResult, onFieldUpdate, onFieldAdd, onFieldRemove, onExtractData }: FieldCategoryGridProps) {
+export function FieldCategoryGrid({
+    fields,
+    extractionResult,
+    onFieldUpdate,
+    onFieldAdd,
+    onFieldRemove,
+    onExtractData,
+}: FieldCategoryGridProps) {
     const [isAddingField, setIsAddingField] = useState(false);
 
     // Group fields by category
     const fieldsByCategory = fields.reduce(
         (acc, field, index) => {
-            const category = field.category || "General Information";
+            const category = field.category?.displayName || field.category || "General Information";
             if (!acc[category]) {
                 acc[category] = [];
             }
@@ -88,7 +95,11 @@ export function FieldCategoryGrid({ fields, extractionResult, onFieldUpdate, onF
             {/* Add Field Form */}
             {isAddingField && (
                 <div className="max-w-md">
-                    <AddFieldForm onFieldAdd={onFieldAdd} onExtractData={onExtractData} onCancel={() => setIsAddingField(false)} />
+                    <AddFieldForm
+                        onFieldAdd={onFieldAdd}
+                        onExtractData={onExtractData}
+                        onCancel={() => setIsAddingField(false)}
+                    />
                 </div>
             )}
         </div>
