@@ -1,9 +1,11 @@
 import { google } from "@ai-sdk/google";
-import type { ExtractionResult, WorkflowConfiguration } from "@paperjet/db/types";
+import type { ExtractionResult } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
+import { type WorkflowConfiguration } from "../types";
+import { aiSdkModel } from "../lib/model";
 
 export interface DocumentExtractionServiceDeps {
     langfuse: Langfuse;
@@ -14,43 +16,13 @@ export class DocumentExtractionService {
 
     async extractDataFromDocument(
         presignedUrl: string,
-        extractionConfig: {
-            fields: Array<{
-                name: string;
-                description: string;
-                type: "text" | "number" | "date" | "currency" | "boolean";
-            }>;
-            tables: Array<{
-                name: string;
-                description: string;
-                columns: Array<{
-                    name: string;
-                    description: string;
-                    type: "text" | "number" | "date" | "currency" | "boolean";
-                }>;
-            }>;
-        },
-        metadata?: Record<string, unknown>,
+        configuration: WorkflowConfiguration,
     ): Promise<ExtractionResult> {
-        logger.info(
-            {
-                fieldsCount: extractionConfig.fields.length,
-                tablesCount: extractionConfig.tables.length,
-                fields: extractionConfig.fields.map((f) => f.name),
-                tables: extractionConfig.tables.map((t) => t.name),
-            },
-            "Starting data extraction from document",
-        );
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
-
+        logger.info("Starting data extraction from document",);
         // Build dynamic schema object based on provided fields and tables
+        // TODO: for now, we will not extract fields per category, we will add that later
         const fieldSchemas: Record<string, any> = {};
-        extractionConfig.fields.forEach((field) => {
+        configuration.fields.forEach((field) => {
             switch (field.type) {
                 case "number":
                     fieldSchemas[field.name] = z.number().nullable();
@@ -70,7 +42,7 @@ export class DocumentExtractionService {
         });
 
         const tableSchemas: Record<string, any> = {};
-        extractionConfig.tables.forEach((table) => {
+        configuration.tables.forEach((table) => {
             const columnSchemas: Record<string, any> = {};
             table.columns.forEach((col) => {
                 switch (col.type) {
@@ -96,9 +68,9 @@ export class DocumentExtractionService {
         const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
 
         // Build extraction prompt with field descriptions
-        const fieldDescriptions = extractionConfig.fields.map((field) => `- ${field.name} (${field.type}): ${field.description}`).join("\n");
+        const fieldDescriptions = configuration.fields.map((field) => `- ${field.name} (${field.type}): ${field.description}`).join("\n");
 
-        const tableDescriptions = extractionConfig.tables
+        const tableDescriptions = configuration.tables
             .map((table) => {
                 const columnDescs = table.columns.map((col) => `    - ${col.name} (${col.type}): ${col.description}`).join("\n");
                 return `- ${table.name}: ${table.description}\n${columnDescs}`;
@@ -121,31 +93,9 @@ Instructions:
 - For tables, extract all rows found
 - Maintain data accuracy and completeness`;
 
-        // Create a trace for this extraction
-        const trace = this.deps.langfuse.trace({
-            name: "document-data-extraction",
-            metadata: {
-                operation: "data_extraction",
-                model: "gemini-2.5-flash",
-                fieldsCount: extractionConfig.fields.length,
-                tablesCount: extractionConfig.tables.length,
-                ...metadata,
-            },
-        });
-
-        const generation = trace.generation({
-            name: "extract-document-data",
-            model: "gemini-2.5-flash",
-            input: {
-                prompt,
-                image_url: presignedUrl,
-                extraction_config: extractionConfig,
-            },
-        });
-
         try {
             const { object } = await generateObject({
-                model,
+                model: aiSdkModel(),
                 schema: schemaObj,
                 messages: [
                     {
@@ -161,22 +111,16 @@ Instructions:
                             },
                         ],
                     },
-                ],
-                experimental_telemetry: {
-                    isEnabled: true,
-                    metadata: {
-                        langfuseTraceId: trace.id,
-                    },
-                },
+                ]
             });
 
             // Transform the result to match our extraction result schema
             const extractionResult: ExtractionResult = {
-                fields: extractionConfig.fields.map((field) => ({
+                fields: configuration.fields.map((field) => ({
                     fieldName: field.name,
                     value: (object as any)[field.name],
                 })),
-                tables: extractionConfig.tables.map((table) => ({
+                tables: configuration.tables.map((table) => ({
                     tableName: table.name,
                     rows: ((object as any)[table.name] || []).map((row: any) => ({
                         values: row,
@@ -184,33 +128,12 @@ Instructions:
                 })),
             };
 
-            generation.end({
-                output: extractionResult,
-            });
-
-            trace.update({
-                output: extractionResult,
-            });
-
             logger.info(
-                {
-                    extractedFieldsCount: extractionResult.fields.length,
-                    extractedTablesCount: extractionResult.tables.length,
-                    fieldsExtracted: extractionResult.fields.map((f) => ({ name: f.fieldName, hasValue: f.value !== null })),
-                },
                 "Data extraction completed successfully",
             );
 
             return extractionResult;
         } catch (error) {
-            generation.end({
-                output: error,
-            });
-
-            trace.update({
-                output: error,
-            });
-
             throw error;
         }
     }

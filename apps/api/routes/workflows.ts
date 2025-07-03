@@ -28,34 +28,6 @@ const createWorkflowFormSchema = z.object({
         .refine((file) => file.type === "application/pdf" || file.type.startsWith("image/"), "File must be a PDF or image"),
 });
 
-const extractionSchema = z.object({
-    fileId: fileIdSchema,
-    fields: z
-        .array(
-            z.object({
-                name: z.string(),
-                description: z.string(),
-                type: z.enum(["text", "number", "date", "currency", "boolean"]),
-            }),
-        )
-        .default([]),
-    tables: z
-        .array(
-            z.object({
-                name: z.string(),
-                description: z.string(),
-                columns: z.array(
-                    z.object({
-                        name: z.string(),
-                        description: z.string(),
-                        type: z.enum(["text", "number", "date", "currency", "boolean"]),
-                    }),
-                ),
-            }),
-        )
-        .default([]),
-});
-
 const paramIdSchema = z.object({
     id: workflowIdSchema,
 });
@@ -89,20 +61,6 @@ const router = app
             return c.json({ error: "Failed to get workflow" }, 500);
         }
     })
-    .get("/:id/with-samples", zValidator("param", paramIdSchema), async (c) => {
-        try {
-            const user = await getUser(c);
-            const { id: workflowId } = c.req.valid("param");
-            const workflowData = await workflowService.getWorkflowWithEmbeddedSamples(workflowId, user.id);
-            return c.json(workflowData);
-        } catch (error) {
-            logger.error(error, "Get workflow with samples error:");
-            if (error instanceof Error && error.message === "Workflow not found") {
-                return c.json({ error: "Workflow not found" }, 404);
-            }
-            return c.json({ error: "Failed to get workflow with samples" }, 500);
-        }
-    })
     .put("/:id", zValidator("param", paramIdSchema), zValidator("json", updateWorkflowSchema), async (c) => {
         try {
             const user = await getUser(c);
@@ -128,7 +86,7 @@ const router = app
             const { id: workflowId } = c.req.valid("param");
             const body = c.req.valid("json");
 
-            await workflowService.updateWorkflowBasicData(workflowId, user.id, body);
+            await workflowService.updateWorkflow(workflowId, user.id, body);
             return c.json({ message: "Workflow basic data updated successfully" });
         } catch (error) {
             logger.error(error, "Update workflow basic data error:");
@@ -139,20 +97,6 @@ const router = app
                 return c.json({ error: "Workflow not found" }, 404);
             }
             return c.json({ error: "Internal server error" }, 500);
-        }
-    })
-    .get("/:id/analysis-status", zValidator("param", paramIdSchema), async (c) => {
-        try {
-            const user = await getUser(c);
-            const { id: workflowId } = c.req.valid("param");
-            const analysisStatus = await workflowService.getAnalysisStatus(workflowId, user.id);
-            return c.json(analysisStatus);
-        } catch (error) {
-            logger.error(error, "Get analysis status error:");
-            if (error instanceof Error && error.message === "Workflow not found") {
-                return c.json({ error: "Workflow not found" }, 404);
-            }
-            return c.json({ error: "Failed to get analysis status" }, 500);
         }
     })
     .post("/", zValidator("form", createWorkflowFormSchema), async (c) => {
@@ -189,29 +133,6 @@ const router = app
                 return c.json({ error: "No file associated with this workflow" }, 400);
             }
             return c.json({ error: "Failed to start analysis" }, 500);
-        }
-    })
-    .post("/:id/extract", zValidator("param", paramIdSchema), zValidator("json", extractionSchema), async (c) => {
-        try {
-            const user = await getUser(c);
-            const { id: workflowId } = c.req.valid("param");
-            const body = c.req.valid("json");
-            const { fileId, ...extractionConfig } = body;
-
-            const result = await workflowService.extractDataFromDocument(workflowId, fileId, user.id, extractionConfig);
-            return c.json(result);
-        } catch (error) {
-            logger.error(error, "Data extraction error:");
-            if (error instanceof Error && error.message === "Workflow not found") {
-                return c.json({ error: "Workflow not found" }, 404);
-            }
-            if (error instanceof Error && error.message === "File not found") {
-                return c.json({ error: "File not found" }, 404);
-            }
-            if (error instanceof z.ZodError) {
-                return c.json({ error: "Invalid extraction configuration" }, 400);
-            }
-            return c.json({ error: "Failed to extract data from document" }, 500);
         }
     })
     .get("/:fileId/document", zValidator("param", fileIdParamSchema), async (c) => {

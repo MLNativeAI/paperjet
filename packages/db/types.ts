@@ -1,23 +1,11 @@
 import { z } from "zod";
-import type { file, workflow, workflowExecution, workflowFile, workflowSample } from "./schema";
-
-export const uploadFileSchema = z.object({
-    file: z.instanceof(File),
-    name: z.string(),
-});
+import type { file, workflowExecution, workflow,  } from "./schema";
 
 export type FileData = typeof file.$inferSelect;
-
-export type FileDataWithPresignedUrl = FileData & {
-    presignedUrl: string;
-};
 
 // Workflow types
 export const workflowStatusSchema = z.enum(["draft", "analyzing", "extracting", "configuring", "active"]);
 export type WorkflowStatus = z.infer<typeof workflowStatusSchema>;
-
-export type Workflow = typeof workflow.$inferSelect;
-export type WorkflowFileData = typeof workflowFile.$inferSelect;
 
 // export type ValidWorkflow = Omit<Workflow, "configuration"> & {
 //     configuration: WorkflowConfiguration;
@@ -109,40 +97,3 @@ export type ExtractionResult = z.infer<typeof extractionResultSchema>;
 
 // Workflow execution types
 export type WorkflowExecutionData = typeof workflowExecution.$inferSelect;
-
-export const executionStatusSchema = z.enum(["pending", "processing", "completed", "failed"]);
-export type ExecutionStatus = z.infer<typeof executionStatusSchema>;
-
-export const workflowExecutionWithFilesSchema = z.object({
-    id: z.string(),
-    workflowId: z.string(),
-    status: executionStatusSchema,
-    startedAt: z.date(),
-    completedAt: z.date().nullable(),
-    createdAt: z.date(),
-    ownerId: z.string(),
-    files: z.array(
-        z.object({
-            id: z.string(),
-            fileId: z.string(),
-            extractionResult: z.string().nullable(),
-            status: executionStatusSchema,
-            errorMessage: z.string().nullable(),
-            createdAt: z.date(),
-            filename: z.string(),
-        }),
-    ),
-});
-
-export type WorkflowExecutionWithFiles = z.infer<typeof workflowExecutionWithFilesSchema>;
-
-// Workflow sample types
-export type WorkflowSampleData = typeof workflowSample.$inferSelect;
-
-export type WorkflowWithSample = Workflow & {
-    sample?: WorkflowSampleData;
-};
-
-export type ValidWorkflowWithSample = Omit<Workflow, "configuration"> & {
-    configuration: WorkflowConfigurationWithSample;
-};

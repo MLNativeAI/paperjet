@@ -323,6 +323,8 @@ If the table "${table.name}" is not found or has no actual tabular data in the d
     );
 
     return {
+        name: table.name,
+        description: table.description,
         columns: object.columns,
         categoryId: table.categoryId,
     }

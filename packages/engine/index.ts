@@ -5,9 +5,6 @@ export { WorkflowExecutionService } from "./src/services/workflow-execution-serv
 export { WorkflowService } from "./src/services/workflow-service";
 export type {
     EngineServiceDeps,
-    ExecutionFileResult,
-    ExtractionConfig,
-    ExtractionResult,
     FileDataWithPresignedUrl,
     WorkflowConfiguration,
     WorkflowExecutionResult,
