@@ -20,9 +20,12 @@ export function CTA() {
                     transition={{ duration: 0.5 }}
                     className="flex flex-col items-center justify-center space-y-6 text-center"
                 >
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Ready to Process Documents Privately?</h2>
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+                        Ready to Process Documents Privately?
+                    </h2>
                     <p className="mx-auto max-w-[700px] text-primary-foreground/80 md:text-xl">
-                        Join organizations worldwide who trust PaperJet to handle their most sensitive documents with complete privacy and control.
+                        Join organizations worldwide who trust PaperJet to handle their most sensitive documents with
+                        complete privacy and control.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 mt-4">
                         <SignupModal

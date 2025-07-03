@@ -83,10 +83,18 @@ export default async function Blog({ params }: { params: Promise<{ slug: string 
                     <span>{formatDate(post.metadata.publishedAt)}</span>
                 </div>
             </div>
-            {post.metadata.summary && <p className="text-lg text-neutral-700 dark:text-neutral-300 mb-8 italic">{post.metadata.summary}</p>}
+            {post.metadata.summary && (
+                <p className="text-lg text-neutral-700 dark:text-neutral-300 mb-8 italic">{post.metadata.summary}</p>
+            )}
             {post.metadata.image && (
                 <div className="mb-6">
-                    <Image src={post.metadata.image} alt={post.metadata.title} width={800} height={400} className="w-full max-w-lg rounded-md" />
+                    <Image
+                        src={post.metadata.image}
+                        alt={post.metadata.title}
+                        width={800}
+                        height={400}
+                        className="w-full max-w-lg rounded-md"
+                    />
                 </div>
             )}
             <article className="prose prose-lg dark:prose-invert max-w-none">

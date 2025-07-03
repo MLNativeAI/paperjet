@@ -4,7 +4,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowRight, CheckCircle, Loader2, Mail, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface SignupModalProps {
     triggerText?: string;
@@ -97,7 +104,8 @@ export function SignupModal({
                         Get Notified When We Launch
                     </DialogTitle>
                     <DialogDescription>
-                        Be the first to experience privacy-first document processing. We'll send you an email as soon as PaperJet is ready!
+                        Be the first to experience privacy-first document processing. We'll send you an email as soon as
+                        PaperJet is ready!
                     </DialogDescription>
                 </DialogHeader>
 
@@ -138,17 +146,28 @@ export function SignupModal({
 
                     <div className="flex gap-3">
                         <Button type="submit" disabled={isLoading || status === "success"} className="flex-1">
-                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
+                            {isLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                                <Mail className="h-4 w-4 mr-2" />
+                            )}
                             {isLoading ? "Subscribing..." : "Notify Me"}
                         </Button>
-                        <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleOpenChange(false)}
+                            disabled={isLoading}
+                        >
                             Cancel
                         </Button>
                     </div>
                 </form>
 
                 <div className="text-xs text-muted-foreground text-center">
-                    <span className="block mt-2">By signing up, you consent to receive product updates and launch notifications from us.</span>
+                    <span className="block mt-2">
+                        By signing up, you consent to receive product updates and launch notifications from us.
+                    </span>
                 </div>
             </DialogContent>
         </Dialog>

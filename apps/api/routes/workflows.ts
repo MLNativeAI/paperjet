@@ -25,7 +25,10 @@ const createWorkflowFormSchema = z.object({
     file: z
         .instanceof(File)
         .refine((file) => file.size > 0, "File cannot be empty")
-        .refine((file) => file.type === "application/pdf" || file.type.startsWith("image/"), "File must be a PDF or image"),
+        .refine(
+            (file) => file.type === "application/pdf" || file.type.startsWith("image/"),
+            "File must be a PDF or image",
+        ),
 });
 
 const paramIdSchema = z.object({
@@ -80,25 +83,30 @@ const router = app
             return c.json({ error: "Internal server error" }, 500);
         }
     })
-    .patch("/:id/basic-data", zValidator("param", paramIdSchema), zValidator("json", updateWorkflowBasicDataSchema), async (c) => {
-        try {
-            const user = await getUser(c);
-            const { id: workflowId } = c.req.valid("param");
-            const body = c.req.valid("json");
+    .patch(
+        "/:id/basic-data",
+        zValidator("param", paramIdSchema),
+        zValidator("json", updateWorkflowBasicDataSchema),
+        async (c) => {
+            try {
+                const user = await getUser(c);
+                const { id: workflowId } = c.req.valid("param");
+                const body = c.req.valid("json");
 
-            await workflowService.updateWorkflow(workflowId, user.id, body);
-            return c.json({ message: "Workflow basic data updated successfully" });
-        } catch (error) {
-            logger.error(error, "Update workflow basic data error:");
-            if (error instanceof z.ZodError) {
-                return c.json({ error: "Invalid workflow data", details: error.errors }, 400);
+                await workflowService.updateWorkflow(workflowId, user.id, body);
+                return c.json({ message: "Workflow basic data updated successfully" });
+            } catch (error) {
+                logger.error(error, "Update workflow basic data error:");
+                if (error instanceof z.ZodError) {
+                    return c.json({ error: "Invalid workflow data", details: error.errors }, 400);
+                }
+                if (error instanceof Error && error.message === "Workflow not found") {
+                    return c.json({ error: "Workflow not found" }, 404);
+                }
+                return c.json({ error: "Internal server error" }, 500);
             }
-            if (error instanceof Error && error.message === "Workflow not found") {
-                return c.json({ error: "Workflow not found" }, 404);
-            }
-            return c.json({ error: "Internal server error" }, 500);
-        }
-    })
+        },
+    )
     .post("/", zValidator("form", createWorkflowFormSchema), async (c) => {
         try {
             const user = await getUser(c);

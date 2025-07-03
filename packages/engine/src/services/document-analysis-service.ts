@@ -10,7 +10,7 @@ export type AnalysisResult = {
     categories: CategoriesConfiguration;
     fields: FieldsConfiguration;
     tables: TableConfiguration;
-}
+};
 
 export async function performCompleteAnalysis(presignedUrl: string): Promise<AnalysisResult> {
     logger.info({ presignedUrl }, "Starting complete document analysis");
@@ -28,23 +28,21 @@ export async function performCompleteAnalysis(presignedUrl: string): Promise<Ana
         }));
 
         // Combine document type with categories for table processing
-        const allTables = categories.flatMap(category =>
-            category.tables.map(table => ({
+        const allTables = categories.flatMap((category) =>
+            category.tables.map((table) => ({
                 ...table,
                 categoryId: category.categoryId,
                 categoryName: category.displayName,
-            }))
+            })),
         );
 
         // Step 2: Extract fields for each category in parallel
-        const categoryFieldPromises = categories.map(category =>
-            extractFieldsForCategory(presignedUrl, category.categoryId, category.displayName)
+        const categoryFieldPromises = categories.map((category) =>
+            extractFieldsForCategory(presignedUrl, category.categoryId, category.displayName),
         );
 
         // Step 3: Extract table fields for each table in parallel
-        const tableFieldPromises = allTables.map(table =>
-            extractFieldsForTable(presignedUrl, table)
-        );
+        const tableFieldPromises = allTables.map((table) => extractFieldsForTable(presignedUrl, table));
 
         // Execute all field and table extractions in parallel
         const [categoryFieldResults, tableFieldResults] = await Promise.all([
@@ -57,16 +55,16 @@ export async function performCompleteAnalysis(presignedUrl: string): Promise<Ana
         return {
             workflowName: documentTypeAnalysis.workflowName,
             description: documentTypeAnalysis.description,
-            categories: categories.map(cat => {
+            categories: categories.map((cat) => {
                 return {
                     categoryId: cat.categoryId,
                     slug: cat.slug,
                     displayName: cat.displayName,
                     ordinal: cat.ordinal,
-                }
+                };
             }),
             fields: categoryFieldResults.flat(),
-            tables: tableFieldResults.flat()
+            tables: tableFieldResults.flat(),
         };
     } catch (error) {
         throw error;
@@ -78,7 +76,6 @@ const documentTypeSchema = z.object({
     documentType: z.string(),
     description: z.string(),
 });
-
 
 async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof documentTypeSchema>> {
     logger.info({ presignedUrl }, "Starting document type analysis");
@@ -112,24 +109,27 @@ async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof
             ],
         });
 
-        return object
+        return object;
     } catch (error) {
         throw error;
     }
 }
 
-
 const categoriesZodSchema = z.object({
-    categories: z.array(z.object({
-        slug: z.string(),
-        displayName: z.string(),
-        ordinal: z.number(),
-        tables: z.array(z.object({
-            name: z.string(),
-            description: z.string(),
-        })),
-    })),
-})
+    categories: z.array(
+        z.object({
+            slug: z.string(),
+            displayName: z.string(),
+            ordinal: z.number(),
+            tables: z.array(
+                z.object({
+                    name: z.string(),
+                    description: z.string(),
+                }),
+            ),
+        }),
+    ),
+});
 
 async function identifyCategoriesAndTables(presignedUrl: string): Promise<z.infer<typeof categoriesZodSchema>> {
     logger.info({ presignedUrl }, "Starting categories and tables extraction");
@@ -170,14 +170,14 @@ Important: Categories should be listed in the order they appear in the document,
                         },
                     ],
                 },
-            ]
+            ],
         });
 
         logger.info(
             {
                 categoriesCount: object.categories.length,
                 tablesCount: object.categories.reduce((total, cat) => total + cat.tables.length, 0),
-                categories: object.categories.map(c => c.displayName),
+                categories: object.categories.map((c) => c.displayName),
             },
             "Categories and tables extraction completed",
         );
@@ -188,21 +188,18 @@ Important: Categories should be listed in the order they appear in the document,
     }
 }
 
-
 // Schema for single category field extraction
 const categoryFieldExtractionSchema = z.object({
-    suggestedFields: z.array(z.object({
-        name: z.string(),
-        description: z.string(),
-        type: z.enum(["text", "number", "date", "currency", "boolean"]),
-    })),
+    suggestedFields: z.array(
+        z.object({
+            name: z.string(),
+            description: z.string(),
+            type: z.enum(["text", "number", "date", "currency", "boolean"]),
+        }),
+    ),
 });
 
-async function extractFieldsForCategory(
-    presignedUrl: string,
-    categoryId: string,
-    categoryName: string
-) {
+async function extractFieldsForCategory(presignedUrl: string, categoryId: string, categoryName: string) {
     logger.info(
         {
             categoryId,
@@ -249,29 +246,28 @@ Only return fields that clearly belong to the "${categoryName}" category. If no 
                     },
                 ],
             },
-        ]
+        ],
     });
 
-    logger.info(
-        "Field extraction for category completed",
-    );
+    logger.info("Field extraction for category completed");
 
-    return object.suggestedFields.map(field => ({
+    return object.suggestedFields.map((field) => ({
         ...field,
         categoryId,
         required: true,
     }));
 }
 
-
 // Schema for single table extraction
 const singleTableExtractionSchema = z.object({
-    columns: z.array(z.object({
-        name: z.string(),
-        description: z.string(),
-        type: z.enum(["text", "number", "date", "currency", "boolean"]),
-        required: z.boolean().default(false),
-    })),
+    columns: z.array(
+        z.object({
+            name: z.string(),
+            description: z.string(),
+            type: z.enum(["text", "number", "date", "currency", "boolean"]),
+            required: z.boolean().default(false),
+        }),
+    ),
 });
 
 async function extractFieldsForTable(
@@ -315,17 +311,15 @@ If the table "${table.name}" is not found or has no actual tabular data in the d
                     },
                 ],
             },
-        ]
+        ],
     });
 
-    logger.info(
-        "Field extraction for table completed",
-    );
+    logger.info("Field extraction for table completed");
 
     return {
         name: table.name,
         description: table.description,
         columns: object.columns,
         categoryId: table.categoryId,
-    }
+    };
 }

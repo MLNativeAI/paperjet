@@ -4,7 +4,7 @@ import { logger } from "@paperjet/shared";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { generateId, ID_PREFIXES } from "../utils/id";
-import { performCompleteAnalysis, } from "./document-analysis-service";
+import { performCompleteAnalysis } from "./document-analysis-service";
 import type { DocumentExtractionService } from "./document-extraction-service";
 import type { WorkflowExecutionService } from "./workflow-execution-service";
 import { workflowConfigurationSchema, type Workflow, type WorkflowConfiguration } from "../types";
@@ -96,10 +96,7 @@ export class WorkflowService {
         };
     }
 
-    async analyzeWorkflowDocument(
-        workflowId: string,
-        userId: string,
-    ): Promise<void> {
+    async analyzeWorkflowDocument(workflowId: string, userId: string): Promise<void> {
         logger.info({ workflowId, userId }, "Starting workflow document analysis");
 
         // Get workflow and associated file
@@ -146,9 +143,7 @@ export class WorkflowService {
             })
             .where(eq(workflow.id, workflowId));
 
-        logger.info(
-            "Workflow document analysis completed, triggering data extraction",
-        );
+        logger.info("Workflow document analysis completed, triggering data extraction");
 
         await this.extractDataFromDocument(workflowId, workflowData.fileId, userId, configuration);
     }
@@ -171,7 +166,10 @@ export class WorkflowService {
         const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
 
         // Use the document extraction service
-        const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(presignedUrl, configuration);
+        const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(
+            presignedUrl,
+            configuration,
+        );
 
         logger.info(
             {
@@ -184,10 +182,13 @@ export class WorkflowService {
         );
 
         // Store sample data in workflow_sample table
-        await db.update(workflow).set({
-            sampleData: JSON.stringify(extractionResult),
-            updatedAt: new Date(),
-        }).where(eq(workflow.id, workflowId));
+        await db
+            .update(workflow)
+            .set({
+                sampleData: JSON.stringify(extractionResult),
+                updatedAt: new Date(),
+            })
+            .where(eq(workflow.id, workflowId));
 
         // Update workflow status to configuring after extraction
         await db
@@ -231,10 +232,7 @@ export class WorkflowService {
     }
 
     async getWorkflow(workflowId: string, userId: string): Promise<Workflow> {
-        const [workflowData] = await db
-            .select()
-            .from(workflow)
-            .where(eq(workflow.id, workflowId));
+        const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
         if (!workflowData || workflowData.ownerId !== userId) {
             throw new Error("Workflow not found");
@@ -331,7 +329,13 @@ export class WorkflowService {
         const config = await this.#parseWorkflowConfiguration(workflowData.configuration);
 
         // Use the workflow execution service
-        const result = await this.deps.workflowExecutionService.executeWorkflow(workflowId, workflowData.name, config, userId, uploadedFile);
+        const result = await this.deps.workflowExecutionService.executeWorkflow(
+            workflowId,
+            workflowData.name,
+            config,
+            userId,
+            uploadedFile,
+        );
 
         logger.info(
             {

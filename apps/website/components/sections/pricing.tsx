@@ -12,7 +12,13 @@ const monthlyPlans = [
         name: "Free",
         price: "Free",
         description: "Perfect for small teams and evaluation.",
-        features: ["Up to 10 documents/month", "Basic document extraction", "Community support", "Self-hosted deployment", "Open source license"],
+        features: [
+            "Up to 10 documents/month",
+            "Basic document extraction",
+            "Community support",
+            "Self-hosted deployment",
+            "Open source license",
+        ],
         cta: "Get Started",
     },
     {
@@ -53,7 +59,13 @@ const annualPlans = [
         name: "Free",
         price: "Free",
         description: "Perfect for small teams and evaluation.",
-        features: ["Up to 10 documents/month", "Basic document extraction", "Community support", "Self-hosted deployment", "Open source license"],
+        features: [
+            "Up to 10 documents/month",
+            "Basic document extraction",
+            "Community support",
+            "Self-hosted deployment",
+            "Open source license",
+        ],
         cta: "Get Started",
     },
     {
@@ -107,7 +119,8 @@ export function Pricing() {
                     </Badge>
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Simple, Transparent Pricing</h2>
                     <p className="max-w-[800px] text-muted-foreground md:text-lg">
-                        Choose the deployment option that's right for your organization. All plans include the full PaperJet platform.
+                        Choose the deployment option that's right for your organization. All plans include the full
+                        PaperJet platform.
                     </p>
                 </motion.div>
 

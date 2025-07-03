@@ -13,9 +13,7 @@ export default function WorkflowFields({ workflow }: { workflow: ValidWorkflowWi
     const fieldsByCategory = workflow.configuration.fields.reduce(
         (acc, field) => {
             // Handle both new category object format and legacy string format
-            const category = typeof field.category === 'object'
-                ? field.category?.displayName
-                : field.category || "General Information";
+            const category = typeof field.category === "object" ? field.category?.displayName : field.category || "General Information";
 
             if (!acc[category]) {
                 acc[category] = [];
@@ -32,9 +30,7 @@ export default function WorkflowFields({ workflow }: { workflow: ValidWorkflowWi
         <div className="space-y-6">
             {categories.map(([category, fields]) => (
                 <div key={category} className="space-y-4">
-                    <h4 className="text-md font-semibold text-primary border-b pb-2">
-                        {category}
-                    </h4>
+                    <h4 className="text-md font-semibold text-primary border-b pb-2">{category}</h4>
                     <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
                         {fields.map((field) => (
                             <div key={field.name} className="p-4 border rounded-lg">

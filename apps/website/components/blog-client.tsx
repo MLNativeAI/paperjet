@@ -95,7 +95,9 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
                                         {post.metadata.title}
                                     </h3>
                                     {post.metadata.summary && (
-                                        <p className="mt-3 text-gray-500 dark:text-gray-400 text-sm line-clamp-2">{post.metadata.summary}</p>
+                                        <p className="mt-3 text-gray-500 dark:text-gray-400 text-sm line-clamp-2">
+                                            {post.metadata.summary}
+                                        </p>
                                     )}
                                     <div className="mt-4 flex items-center text-gray-600 dark:text-gray-400 text-sm font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                         Read more
@@ -105,7 +107,12 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
                                         >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M9 5l7 7-7 7"
+                                            />
                                         </svg>
                                     </div>
                                 </div>

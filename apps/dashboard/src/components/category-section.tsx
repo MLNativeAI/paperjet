@@ -15,15 +15,7 @@ interface CategorySectionProps {
     startingFieldIndex: number;
 }
 
-export function CategorySection({
-    categoryName,
-    fields,
-    extractionResult,
-    onFieldUpdate,
-    onFieldRemove,
-    onExtractData,
-    startingFieldIndex,
-}: CategorySectionProps) {
+export function CategorySection({ categoryName, fields, extractionResult, onFieldUpdate, onFieldRemove, onExtractData, startingFieldIndex }: CategorySectionProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [expandedFields, setExpandedFields] = useState<Set<number>>(new Set());
     const [editingField, setEditingField] = useState<number | null>(null);
@@ -56,11 +48,7 @@ export function CategorySection({
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                    <Button
-                        variant="ghost"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="flex items-center gap-2 p-0 h-auto font-semibold text-base hover:bg-transparent"
-                    >
+                    <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)} className="flex items-center gap-2 p-0 h-auto font-semibold text-base hover:bg-transparent">
                         {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         {categoryName}
                     </Button>

@@ -7,17 +7,20 @@ const steps = [
     {
         step: "01",
         title: "Upload a Document",
-        description: "Simply drag and drop or upload any document - PDFs, images, forms, or scanned files. PaperJet handles all formats.",
+        description:
+            "Simply drag and drop or upload any document - PDFs, images, forms, or scanned files. PaperJet handles all formats.",
     },
     {
         step: "02",
         title: "Describe What You Want",
-        description: "Tell PaperJet what data to extract in plain English. No complex configuration - just describe your needs naturally.",
+        description:
+            "Tell PaperJet what data to extract in plain English. No complex configuration - just describe your needs naturally.",
     },
     {
         step: "03",
         title: "Save It as a Workflow",
-        description: "Turn your extraction into a reusable workflow. Process similar documents automatically with the same extraction rules.",
+        description:
+            "Turn your extraction into a reusable workflow. Process similar documents automatically with the same extraction rules.",
     },
 ];
 

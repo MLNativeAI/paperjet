@@ -18,7 +18,7 @@ export class DocumentExtractionService {
         presignedUrl: string,
         configuration: WorkflowConfiguration,
     ): Promise<ExtractionResult> {
-        logger.info("Starting data extraction from document",);
+        logger.info("Starting data extraction from document");
         // Build dynamic schema object based on provided fields and tables
         // TODO: for now, we will not extract fields per category, we will add that later
         const fieldSchemas: Record<string, any> = {};
@@ -68,11 +68,15 @@ export class DocumentExtractionService {
         const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
 
         // Build extraction prompt with field descriptions
-        const fieldDescriptions = configuration.fields.map((field) => `- ${field.name} (${field.type}): ${field.description}`).join("\n");
+        const fieldDescriptions = configuration.fields
+            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
+            .join("\n");
 
         const tableDescriptions = configuration.tables
             .map((table) => {
-                const columnDescs = table.columns.map((col) => `    - ${col.name} (${col.type}): ${col.description}`).join("\n");
+                const columnDescs = table.columns
+                    .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
+                    .join("\n");
                 return `- ${table.name}: ${table.description}\n${columnDescs}`;
             })
             .join("\n");
@@ -111,7 +115,7 @@ Instructions:
                             },
                         ],
                     },
-                ]
+                ],
             });
 
             // Transform the result to match our extraction result schema
@@ -128,9 +132,7 @@ Instructions:
                 })),
             };
 
-            logger.info(
-                "Data extraction completed successfully",
-            );
+            logger.info("Data extraction completed successfully");
 
             return extractionResult;
         } catch (error) {
@@ -138,7 +140,11 @@ Instructions:
         }
     }
 
-    async processExecutionFile(presignedUrl: string, config: WorkflowConfiguration, metadata?: Record<string, unknown>): Promise<ExtractionResult> {
+    async processExecutionFile(
+        presignedUrl: string,
+        config: WorkflowConfiguration,
+        metadata?: Record<string, unknown>,
+    ): Promise<ExtractionResult> {
         logger.info(
             {
                 fieldsCount: config.fields.length,
@@ -201,11 +207,15 @@ Instructions:
 
         const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
 
-        const fieldDescriptions = config.fields.map((field) => `- ${field.name} (${field.type}): ${field.description}`).join("\n");
+        const fieldDescriptions = config.fields
+            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
+            .join("\n");
 
         const tableDescriptions = config.tables
             .map((table) => {
-                const columnDescs = table.columns.map((col) => `    - ${col.name} (${col.type}): ${col.description}`).join("\n");
+                const columnDescs = table.columns
+                    .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
+                    .join("\n");
                 return `- ${table.name}: ${table.description}\n${columnDescs}`;
             })
             .join("\n");

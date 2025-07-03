@@ -21,7 +21,13 @@ export interface WorkflowExecutionServiceDeps {
 export class WorkflowExecutionService {
     constructor(private deps: WorkflowExecutionServiceDeps) {}
 
-    async executeWorkflow(workflowId: string, workflowName: string, config: WorkflowConfiguration, userId: string, uploadedFile: File) {
+    async executeWorkflow(
+        workflowId: string,
+        workflowName: string,
+        config: WorkflowConfiguration,
+        userId: string,
+        uploadedFile: File,
+    ) {
         logger.info(
             {
                 workflowId,

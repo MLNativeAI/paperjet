@@ -23,9 +23,7 @@ export default function WorkflowUploadSection() {
     return (
         <div>
             <h2 className="text-xl font-semibold mb-4 border-t pt-8">Create a custom workflow...</h2>
-            <p className="text-muted-foreground mb-6">
-                Upload any document and we'll analyze it to suggest extraction fields
-            </p>
+            <p className="text-muted-foreground mb-6">Upload any document and we'll analyze it to suggest extraction fields</p>
 
             <FileUploadArea onFileSelect={handleFileSelect} />
         </div>

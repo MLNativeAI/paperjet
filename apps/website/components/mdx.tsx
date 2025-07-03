@@ -11,14 +11,20 @@ interface TableData {
 
 function Table({ data }: { data: TableData }) {
     const headers = data.headers.map((header: string, index: number) => (
-        <th key={index} className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600">
+        <th
+            key={index}
+            className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600"
+        >
             {header}
         </th>
     ));
     const rows = data.rows.map((row: string[], index: number) => (
         <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
             {row.map((cell: string, cellIndex: number) => (
-                <td key={cellIndex} className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                <td
+                    key={cellIndex}
+                    className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600"
+                >
                     {cell}
                 </td>
             ))}
@@ -132,7 +138,9 @@ function Quote({ children, author, title }: { children: React.ReactNode; author?
                     >
                         <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
                     </svg>
-                    <div className="text-lg text-gray-700 dark:text-gray-300 italic leading-relaxed pl-6">{children}</div>
+                    <div className="text-lg text-gray-700 dark:text-gray-300 italic leading-relaxed pl-6">
+                        {children}
+                    </div>
                     {(author || title) && (
                         <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 font-medium pl-6">
                             — {author}
@@ -157,9 +165,16 @@ function Highlight({ children }: { children: React.ReactNode }) {
                         viewBox="0 0 24 24"
                         aria-hidden="true"
                     >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                     </svg>
-                    <div className="text-base text-gray-800 dark:text-gray-200 font-medium leading-relaxed pl-6">{children}</div>
+                    <div className="text-base text-gray-800 dark:text-gray-200 font-medium leading-relaxed pl-6">
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>
@@ -191,10 +206,15 @@ const components = {
             <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600" {...props} />
         </div>
     ),
-    thead: (props: React.HTMLAttributes<HTMLTableSectionElement>) => <thead className="bg-gray-50 dark:bg-gray-800" {...props} />,
+    thead: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
+        <thead className="bg-gray-50 dark:bg-gray-800" {...props} />
+    ),
     tbody: (props: React.HTMLAttributes<HTMLTableSectionElement>) => <tbody {...props} />,
     tr: (props: React.HTMLAttributes<HTMLTableRowElement>) => (
-        <tr className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50" {...props} />
+        <tr
+            className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+            {...props}
+        />
     ),
     th: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
         <th
@@ -203,7 +223,10 @@ const components = {
         />
     ),
     td: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
-        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 last:border-r-0" {...props} />
+        <td
+            className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 last:border-r-0"
+            {...props}
+        />
     ),
     YouTube,
     Quote,

@@ -83,7 +83,9 @@ const router = app
             }
 
             // Create individual executions for each file
-            const results = await Promise.all(uploadedFiles.map((file) => workflowService.executeWorkflow(workflowId, user.id, file)));
+            const results = await Promise.all(
+                uploadedFiles.map((file) => workflowService.executeWorkflow(workflowId, user.id, file)),
+            );
 
             return c.json({ executions: results });
         } catch (error) {

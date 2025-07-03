@@ -14,7 +14,9 @@ export const MagicLinkEmail = ({ email, url, token }: MagicLinkEmailProps) => {
             <Body style={main}>
                 <Container style={container}>
                     <Heading style={h1}>Sign in to PaperJet</Heading>
-                    <Text style={text}>Click the button below to sign in to your PaperJet account. This link will expire in 10 minutes.</Text>
+                    <Text style={text}>
+                        Click the button below to sign in to your PaperJet account. This link will expire in 10 minutes.
+                    </Text>
                     <Section style={buttonContainer}>
                         <Button style={button} href={url}>
                             Sign in to PaperJet

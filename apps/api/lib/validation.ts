@@ -2,7 +2,12 @@ import { z } from "zod";
 
 // Prefixed ID validation schemas
 export const prefixedIdSchema = (prefix: string) =>
-    z.string().regex(new RegExp(`^${prefix}_[a-f0-9]{12}$`), `Must be a valid ${prefix}-prefixed ID (e.g., ${prefix}_abc123def456)`);
+    z
+        .string()
+        .regex(
+            new RegExp(`^${prefix}_[a-f0-9]{12}$`),
+            `Must be a valid ${prefix}-prefixed ID (e.g., ${prefix}_abc123def456)`,
+        );
 
 export const workflowIdSchema = prefixedIdSchema("wkf");
 export const fileIdSchema = prefixedIdSchema("fil");

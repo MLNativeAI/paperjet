@@ -33,16 +33,7 @@ const formatValue = (value: unknown, type: string) => {
     }
 };
 
-export function FieldConfigurationItem({
-    field,
-    fieldIndex,
-    extractionResult,
-    isEditing,
-    onStartEdit,
-    onSaveEdit,
-    onCancelEdit,
-    onUpdateField,
-}: FieldConfigurationItemProps) {
+export function FieldConfigurationItem({ field, fieldIndex, extractionResult, isEditing, onStartEdit, onSaveEdit, onCancelEdit, onUpdateField }: FieldConfigurationItemProps) {
     return (
         <div key={field.name} className="border rounded-lg p-4">
             <div className="flex items-start justify-between mb-2">
@@ -88,12 +79,7 @@ export function FieldConfigurationItem({
             {extractionResult && (
                 <div className="mt-3 p-3 bg-muted rounded border-l-4 border-l-blue-500">
                     <Label className="text-xs font-medium text-muted-foreground">EXTRACTED VALUE</Label>
-                    <div className="mt-1 text-sm font-medium">
-                        {formatValue(
-                            extractionResult.fields.find((f) => f.fieldName === field.name)?.value,
-                            field.type,
-                        )}
-                    </div>
+                    <div className="mt-1 text-sm font-medium">{formatValue(extractionResult.fields.find((f) => f.fieldName === field.name)?.value, field.type)}</div>
                 </div>
             )}
         </div>

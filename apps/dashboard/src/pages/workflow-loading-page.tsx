@@ -59,12 +59,7 @@ export default function WorkflowLoadingPage() {
                 title: "Review and finalize",
                 description: "Review, customize and save your workflow",
                 icon: Settings,
-                status:
-                    status === "configuring"
-                        ? "in-progress"
-                        : status === "analyzing" || status === "extracting"
-                          ? "pending"
-                          : "completed",
+                status: status === "configuring" ? "in-progress" : status === "analyzing" || status === "extracting" ? "pending" : "completed",
             },
         ];
     };
@@ -109,9 +104,7 @@ export default function WorkflowLoadingPage() {
                 {/* Header */}
                 <div className="text-center">
                     <h1 className="text-3xl font-bold mb-4">Processing Your Workflow</h1>
-                    <p className="text-muted-foreground mb-6">
-                        We're analyzing your document and setting up your workflow. This usually takes a few moments.
-                    </p>
+                    <p className="text-muted-foreground mb-6">We're analyzing your document and setting up your workflow. This usually takes a few moments.</p>
 
                     {/* Progress Bar */}
                     <div className="w-full max-w-md mx-auto mb-8">
@@ -136,30 +129,16 @@ export default function WorkflowLoadingPage() {
                                 {/* Step Content */}
                                 <div className="flex-grow">
                                     <div className="flex items-center justify-between mb-1">
-                                        <h3
-                                            className={`font-medium ${
-                                                step.status === "completed"
-                                                    ? "text-green-700"
-                                                    : step.status === "in-progress"
-                                                      ? "text-blue-700"
-                                                      : "text-gray-500"
-                                            }`}
-                                        >
+                                        <h3 className={`font-medium ${step.status === "completed" ? "text-green-700" : step.status === "in-progress" ? "text-blue-700" : "text-gray-500"}`}>
                                             {step.title}
                                         </h3>
                                         {getStepBadge(step)}
                                     </div>
-                                    <p
-                                        className={`text-sm ${step.status === "pending" ? "text-gray-400" : "text-muted-foreground"}`}
-                                    >
-                                        {step.description}
-                                    </p>
+                                    <p className={`text-sm ${step.status === "pending" ? "text-gray-400" : "text-muted-foreground"}`}>{step.description}</p>
                                 </div>
 
                                 {/* Connector Line */}
-                                {index < steps.length - 1 && (
-                                    <div className="absolute left-6 mt-8 w-0.5 h-6 bg-gray-200" />
-                                )}
+                                {index < steps.length - 1 && <div className="absolute left-6 mt-8 w-0.5 h-6 bg-gray-200" />}
                             </div>
                         ))}
                     </CardContent>

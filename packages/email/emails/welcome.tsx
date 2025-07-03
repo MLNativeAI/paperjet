@@ -1,4 +1,18 @@
-import { Body, Button, Container, Head, Heading, Hr, Html, Img, Link, Preview, Section, Tailwind, Text } from "@react-email/components";
+import {
+    Body,
+    Button,
+    Container,
+    Head,
+    Heading,
+    Hr,
+    Html,
+    Img,
+    Link,
+    Preview,
+    Section,
+    Tailwind,
+    Text,
+} from "@react-email/components";
 import * as React from "react";
 
 export interface WelcomeEmailProps {
@@ -34,8 +48,9 @@ export const WelcomeEmail = ({ email }: WelcomeEmailProps) => {
                         </Text>
 
                         <Text className="text-black text-[14px] leading-[24px]">
-                            PaperJet is a <strong>privacy-first document processing platform</strong> that helps you securely extract data from any document
-                            while keeping your data completely private and self-hostable.
+                            PaperJet is a <strong>privacy-first document processing platform</strong> that helps you
+                            securely extract data from any document while keeping your data completely private and
+                            self-hostable.
                         </Text>
 
                         <Section className="bg-[#f6f9fc] rounded-lg p-[16px] my-[24px]">
@@ -51,7 +66,8 @@ export const WelcomeEmail = ({ email }: WelcomeEmailProps) => {
                         </Section>
 
                         <Text className="text-black text-[14px] leading-[24px]">
-                            We'll notify you as soon as we launch. Get ready to revolutionize your document processing workflow!
+                            We'll notify you as soon as we launch. Get ready to revolutionize your document processing
+                            workflow!
                         </Text>
 
                         <Section className="text-center mt-[32px] mb-[32px]">
@@ -66,7 +82,8 @@ export const WelcomeEmail = ({ email }: WelcomeEmailProps) => {
                         <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
 
                         <Text className="text-[#666666] text-[12px] leading-[24px]">
-                            This email was sent to <span className="text-black">{email}</span> because you signed up for PaperJet launch notifications.
+                            This email was sent to <span className="text-black">{email}</span> because you signed up for
+                            PaperJet launch notifications.
                         </Text>
 
                         <Text className="text-[#666666] text-[12px] leading-[24px]">
@@ -77,7 +94,9 @@ export const WelcomeEmail = ({ email }: WelcomeEmailProps) => {
                         </Text>
 
                         <Section className="text-center mt-[24px]">
-                            <Text className="text-[#999999] text-[10px] leading-[16px]">PaperJet - Privacy-first document processing</Text>
+                            <Text className="text-[#999999] text-[10px] leading-[16px]">
+                                PaperJet - Privacy-first document processing
+                            </Text>
                         </Section>
                     </Container>
                 </Body>

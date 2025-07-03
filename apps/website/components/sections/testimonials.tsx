@@ -58,9 +58,12 @@ export function Testimonials() {
                     <Badge className="rounded-full px-4 py-1.5 text-sm font-medium" variant="secondary">
                         Testimonials
                     </Badge>
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Trusted by Privacy-Conscious Organizations</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+                        Trusted by Privacy-Conscious Organizations
+                    </h2>
                     <p className="max-w-[800px] text-muted-foreground md:text-lg">
-                        See how organizations are using PaperJet to process sensitive documents while maintaining complete control over their data.
+                        See how organizations are using PaperJet to process sensitive documents while maintaining
+                        complete control over their data.
                     </p>
                 </motion.div>
 

@@ -6,13 +6,6 @@
         "lineWidth": 200
     },
     "files": {
-        "includes": [
-            "src/**/*.ts",
-            "src/**/*.tsx",
-            "!**/src/components/ui/*.tsx",
-            "!**/dist/**",
-            "!**/routeTree.gen.ts",
-            "!**/node_modules/**"
-        ]
+        "includes": ["src/**/*.ts", "src/**/*.tsx", "!**/src/components/ui/*.tsx", "!**/dist/**", "!**/routeTree.gen.ts", "!**/node_modules/**"]
     }
 }

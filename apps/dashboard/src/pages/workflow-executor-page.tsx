@@ -50,9 +50,7 @@ export default function WorkflowExecutorPage() {
                     // Update uploaded files with results from individual executions
                     setUploadedFiles((prev) =>
                         prev.map((f) => {
-                            const execution = executions.find(
-                                (ex: { filename: string }) => ex.filename === f.file.name,
-                            );
+                            const execution = executions.find((ex: { filename: string }) => ex.filename === f.file.name);
                             if (execution) {
                                 return {
                                     ...f,

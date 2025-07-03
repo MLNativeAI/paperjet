@@ -2,12 +2,7 @@ import type { ExtractionField, ExtractionResult, ExtractionTable, ValidWorkflow 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import {
-    extractData as extractDataApi,
-    getAnalysisStatus as getAnalysisStatusApi,
-    getWorkflow,
-    updateWorkflow as updateWorkflowApi,
-} from "@/lib/api";
+import { extractData as extractDataApi, getAnalysisStatus as getAnalysisStatusApi, getWorkflow, updateWorkflow as updateWorkflowApi } from "@/lib/api";
 
 export function useWorkflow(workflowId: string) {
     const navigate = useNavigate();
@@ -27,8 +22,7 @@ export function useWorkflow(workflowId: string) {
     });
 
     const updateWorkflow = useMutation({
-        mutationFn: (data: { name: string; fields: ExtractionField[]; description?: string; isPublic?: boolean }) =>
-            updateWorkflowApi(workflowId, data),
+        mutationFn: (data: { name: string; fields: ExtractionField[]; description?: string; isPublic?: boolean }) => updateWorkflowApi(workflowId, data),
         onSuccess: () => {
             toast.success("Workflow updated successfully!");
             navigate({ to: "/" });
@@ -39,8 +33,7 @@ export function useWorkflow(workflowId: string) {
     });
 
     const extractData = useMutation({
-        mutationFn: (data: { fileId: string; fields?: ExtractionField[]; tables?: ExtractionTable[] }) =>
-            extractDataApi(workflowId, data),
+        mutationFn: (data: { fileId: string; fields?: ExtractionField[]; tables?: ExtractionTable[] }) => extractDataApi(workflowId, data),
         onError: () => {
             toast.error("Failed to extract data from document");
         },

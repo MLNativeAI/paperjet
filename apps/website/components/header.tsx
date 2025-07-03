@@ -47,7 +47,11 @@ export const Header = () => {
                 </a>
                 <nav className="hidden md:flex gap-8">
                     {navigationLinks.map((link) => (
-                        <Link key={link.href} href={link.href} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        >
                             {link.label}
                         </Link>
                     ))}

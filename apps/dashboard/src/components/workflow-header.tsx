@@ -9,13 +9,7 @@ interface WorkflowHeaderProps {
     onViewHistory: () => void;
 }
 
-export function WorkflowHeader({
-    workflowName,
-    showActions,
-    onBack,
-    onExportResults,
-    onViewHistory,
-}: WorkflowHeaderProps) {
+export function WorkflowHeader({ workflowName, showActions, onBack, onExportResults, onViewHistory }: WorkflowHeaderProps) {
     return (
         <div className="flex items-center justify-between">
             <div>

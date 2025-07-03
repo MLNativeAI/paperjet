@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { file, workflowExecution, workflow,  } from "./schema";
+import type { file, workflowExecution, workflow } from "./schema";
 
 export type FileData = typeof file.$inferSelect;
 
@@ -35,7 +35,6 @@ export const extractionTableSchema = z.object({
     columns: z.array(extractionFieldSchema),
 });
 
-
 export const workflowConfigurationWithSampleSchema = z.object({
     fields: z.array(extractionFieldWithSampleSchema),
     tables: z.array(extractionTableSchema),
@@ -53,7 +52,6 @@ export const documentAnalysisSchema = z.object({
     suggestedFields: z.array(extractionFieldSchema),
     suggestedTables: z.array(extractionTableSchema),
 });
-
 
 export const categorySchema = z.object({
     slug: z.string(),
@@ -93,7 +91,6 @@ export const extractionResultSchema = z.object({
 export type ExtractedValue = z.infer<typeof extractedValueSchema>;
 export type ExtractedTable = z.infer<typeof extractedTableSchema>;
 export type ExtractionResult = z.infer<typeof extractionResultSchema>;
-
 
 // Workflow execution types
 export type WorkflowExecutionData = typeof workflowExecution.$inferSelect;
