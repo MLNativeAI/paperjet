@@ -74,9 +74,10 @@ export interface WorkflowExecutionResult {
     files: ExecutionFileResult[];
 }
 
-export type Workflow = Omit<DbWorkflow, "configuration" | "sampleData"> & {
+export type Workflow = Omit<DbWorkflow, "configuration" | "sampleData" | "categories"> & {
     configuration: WorkflowConfiguration;
-    sample?: ExtractionResult;
+    categories: CategoriesConfiguration;
+    sampleData?: ExtractionResult | null;
 };
 
 export type FileDataWithPresignedUrl = FileData & {

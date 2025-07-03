@@ -7,7 +7,7 @@ import { generateId, ID_PREFIXES } from "../utils/id";
 import { performCompleteAnalysis } from "./document-analysis-service";
 import type { DocumentExtractionService } from "./document-extraction-service";
 import type { WorkflowExecutionService } from "./workflow-execution-service";
-import { workflowConfigurationSchema, type Workflow, type WorkflowConfiguration } from "../types";
+import { workflowConfigurationSchema, type Workflow, type WorkflowConfiguration, type CategoriesConfiguration } from "../types";
 import type { ExtractionResult } from "@paperjet/db/types";
 
 export interface WorkflowServiceDeps {
@@ -232,6 +232,8 @@ export class WorkflowService {
                 return {
                     ...w,
                     configuration: parsedConfig,
+                    categories: JSON.parse(w.categories) as CategoriesConfiguration,
+                    sampleData: w.sampleData ? JSON.parse(w.sampleData) as ExtractionResult : null,
                 };
             }),
         );
@@ -251,6 +253,8 @@ export class WorkflowService {
         return {
             ...workflowData,
             configuration: parsedConfig,
+            categories: JSON.parse(workflowData.categories) as CategoriesConfiguration,
+            sampleData: workflowData.sampleData ? JSON.parse(workflowData.sampleData) as ExtractionResult : null,
         };
     }
 

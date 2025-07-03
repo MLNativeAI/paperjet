@@ -36,19 +36,12 @@ export async function performCompleteAnalysis(presignedUrl: string): Promise<Ana
             })),
         );
 
-        // Step 2: Extract fields for each category in parallel
-        const categoryFieldPromises = categories.map((category) =>
-            extractFieldsForCategory(presignedUrl, category.categoryId, category.displayName),
-        );
+        // Step 2: Extract ALL fields at once with category assignments
+        const allFieldsWithCategories = await extractAllFieldsWithCategories(presignedUrl, categories);
 
         // Step 3: Extract table fields for each table in parallel
         const tableFieldPromises = allTables.map((table) => extractFieldsForTable(presignedUrl, table));
-
-        // Execute all field and table extractions in parallel
-        const [categoryFieldResults, tableFieldResults] = await Promise.all([
-            Promise.all(categoryFieldPromises),
-            Promise.all(tableFieldPromises),
-        ]);
+        const tableFieldResults = await Promise.all(tableFieldPromises);
 
         logger.info("Complete document analysis finished");
 
@@ -63,7 +56,7 @@ export async function performCompleteAnalysis(presignedUrl: string): Promise<Ana
                     ordinal: cat.ordinal,
                 };
             }),
-            fields: categoryFieldResults.flat(),
+            fields: allFieldsWithCategories,
             tables: tableFieldResults.flat(),
         };
     } catch (error) {
@@ -188,50 +181,59 @@ Important: Categories should be listed in the order they appear in the document,
     }
 }
 
-// Schema for single category field extraction
-const categoryFieldExtractionSchema = z.object({
-    suggestedFields: z.array(
+// Schema for extracting all fields at once with category assignments
+const allFieldsExtractionSchema = z.object({
+    fields: z.array(
         z.object({
             name: z.string(),
             description: z.string(),
             type: z.enum(["text", "number", "date", "currency", "boolean"]),
+            categoryId: z.string(),
         }),
     ),
 });
 
-async function extractFieldsForCategory(presignedUrl: string, categoryId: string, categoryName: string) {
+async function extractAllFieldsWithCategories(
+    presignedUrl: string,
+    categories: Array<{ categoryId: string; displayName: string; slug: string; ordinal: number }>,
+): Promise<FieldsConfiguration> {
     logger.info(
         {
-            categoryId,
-            categoryName,
+            categoriesCount: categories.length,
         },
-        "Starting field extraction for category",
+        "Starting unified field extraction for all categories",
     );
 
-    const prompt = `Extract singular fields (NOT tables or lists) from this document that belong specifically to the "${categoryName}" category.
+    const categoriesDescription = categories
+        .map((cat) => `- ${cat.categoryId}: "${cat.displayName}" (${cat.slug})`)
+        .join("\n");
 
-For each field found in this category, provide:
-- A clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
-- The expected data type (text, number, date, currency, boolean)
-- A detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
+    const prompt = `Extract ALL singular fields (NOT tables or lists) from this document and assign each field to exactly ONE of the following categories:
 
-Focus on extracting fields that logically belong to the "${categoryName}" section of the document:
-1. **Identification fields**: Document numbers, IDs, reference codes
-2. **Key entities**: Names, addresses, contact information
-3. **Important dates**: Creation dates, due dates, effective dates
-4. **Financial information**: Amounts, taxes, totals, currency values
-5. **Status indicators**: Approval status, document state, flags
+${categoriesDescription}
+
+For each field found in the document:
+1. Provide a clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
+2. Determine the expected data type (text, number, date, currency, boolean)
+3. Write a detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
+4. Assign it to the MOST APPROPRIATE category ID based on where it logically belongs
+
+Important rules:
+- Each field should appear ONLY ONCE in the entire list
+- Assign each field to the category where it most logically belongs
+- If a field could belong to multiple categories, choose the most specific/primary one
+- Common fields like invoice_number, dates, and totals should be assigned to their primary category (usually the header or summary)
 
 Examples of good field descriptions:
 - "invoice_number": "The unique identifier for this invoice, often labeled as 'Invoice #', 'Invoice Number', 'Document Number', or similar, typically alphanumeric"
 - "total_amount": "The final total amount due, usually labeled as 'Total', 'Amount Due', 'Grand Total', or 'Total Amount', excluding currency symbols"
 - "invoice_date": "The date when the invoice was created or issued, typically labeled as 'Invoice Date', 'Date', or 'Issued' in MM/DD/YYYY or similar format"
 
-Only return fields that clearly belong to the "${categoryName}" category. If no fields are found for this category, return an empty array.`;
+Extract all fields from the document, ensuring no duplicates.`;
 
     const { object } = await generateObject({
         model: aiSdkModel(),
-        schema: categoryFieldExtractionSchema,
+        schema: allFieldsExtractionSchema,
         messages: [
             {
                 role: "user",
@@ -249,11 +251,19 @@ Only return fields that clearly belong to the "${categoryName}" category. If no 
         ],
     });
 
-    logger.info("Field extraction for category completed");
+    logger.info(
+        {
+            totalFields: object.fields.length,
+            fieldsByCategory: categories.map((cat) => ({
+                category: cat.displayName,
+                count: object.fields.filter((f) => f.categoryId === cat.categoryId).length,
+            })),
+        },
+        "Unified field extraction completed",
+    );
 
-    return object.suggestedFields.map((field) => ({
+    return object.fields.map((field) => ({
         ...field,
-        categoryId,
         required: true,
     }));
 }
