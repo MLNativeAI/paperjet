@@ -1,5 +1,5 @@
 import type { ApiRoutes } from "@api/index";
-import type { ExtractedValue, ExtractedTable } from "@paperjet/engine/types";
+import type { ExtractedTable, ExtractedValue } from "@paperjet/engine/types";
 import { hc } from "hono/client";
 
 const client = hc<ApiRoutes>("/");

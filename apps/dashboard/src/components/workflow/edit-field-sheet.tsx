@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import type { FieldsConfiguration } from "@paperjet/engine/types";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
-import { Textarea } from "@/components/ui/textarea";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
-import type { FieldsConfiguration } from "@paperjet/engine/types";
+import { Textarea } from "@/components/ui/textarea";
 
 interface EditFieldSheetProps {
     field: FieldsConfiguration[number] | null;
@@ -37,30 +37,20 @@ export default function EditFieldSheet({ field, isOpen, onClose, onSave }: EditF
             <SheetContent>
                 <SheetHeader>
                     <SheetTitle>Edit field</SheetTitle>
-                    <SheetDescription>
-                        Make changes to the field configuration. Click save when you're done.
-                    </SheetDescription>
+                    <SheetDescription>Make changes to the field configuration. Click save when you're done.</SheetDescription>
                 </SheetHeader>
-                
+
                 <div className="grid flex-1 auto-rows-min gap-6 px-4">
                     {/* Field Name */}
                     <div className="grid gap-3">
                         <Label htmlFor="edit-field-name">Field Name</Label>
-                        <Input
-                            id="edit-field-name"
-                            value={editedField.name}
-                            onChange={(e) => setEditedField({ ...editedField, name: e.target.value })}
-                            placeholder="e.g., invoice_number"
-                        />
+                        <Input id="edit-field-name" value={editedField.name} onChange={(e) => setEditedField({ ...editedField, name: e.target.value })} placeholder="e.g., invoice_number" />
                     </div>
 
                     {/* Field Type */}
                     <div className="grid gap-3">
                         <Label htmlFor="edit-field-type">Field Type</Label>
-                        <Select
-                            value={editedField.type}
-                            onValueChange={(value) => setEditedField({ ...editedField, type: value as any })}
-                        >
+                        <Select value={editedField.type} onValueChange={(value) => setEditedField({ ...editedField, type: value as any })}>
                             <SelectTrigger id="edit-field-type">
                                 <SelectValue />
                             </SelectTrigger>
@@ -88,11 +78,7 @@ export default function EditFieldSheet({ field, isOpen, onClose, onSave }: EditF
 
                     {/* Required Toggle */}
                     <div className="flex items-center gap-3">
-                        <Switch
-                            id="edit-field-required"
-                            checked={editedField.required}
-                            onCheckedChange={(checked) => setEditedField({ ...editedField, required: checked })}
-                        />
+                        <Switch id="edit-field-required" checked={editedField.required} onCheckedChange={(checked) => setEditedField({ ...editedField, required: checked })} />
                         <Label htmlFor="edit-field-required" className="cursor-pointer">
                             Required field
                         </Label>

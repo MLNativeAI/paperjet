@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getWorkflow } from "@/lib/api";
 
 export function useWorkflow(workflowId: string) {
-
     const { data: workflow, isLoading } = useQuery({
         queryKey: ["workflow", workflowId],
         queryFn: () => getWorkflow(workflowId) as Promise<Workflow>,

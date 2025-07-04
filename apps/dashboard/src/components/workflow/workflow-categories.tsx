@@ -1,6 +1,6 @@
-import type { Workflow, FieldsConfiguration, TableConfiguration } from "@paperjet/engine/types";
-import WorkflowTables from "./workflow-tables";
+import type { FieldsConfiguration, TableConfiguration, Workflow } from "@paperjet/engine/types";
 import WorkflowFields from "./workflow-fields";
+import WorkflowTables from "./workflow-tables";
 
 export interface CategoryGroup {
     categoryId: string;

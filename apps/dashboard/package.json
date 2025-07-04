@@ -6,7 +6,8 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "lint": "biome check --write"
+        "lint": "biome check --write",
+        "format": "biome format --write"
     },
     "dependencies": {
         "@dnd-kit/core": "^6.3.1",

@@ -1,20 +1,15 @@
-import { useParams } from "@tanstack/react-router";
-import React, { useRef, useState } from "react";
-import BasicWorkflowDataForm, { type BasicWorkflowDataFormRef } from "@/components/workflow/basic-workflow-data-form";
-import WorkflowCategories from "@/components/workflow/workflow-categories";
-import ConfigureSectionsSheet from "@/components/workflow/configure-sections-sheet";
-import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Plus, FileText, Table } from "lucide-react";
-import { useWorkflow } from "@/hooks/useWorkflow";
-import { useUpdateWorkflowBasicData } from "@/hooks/use-update-workflow-basic-data";
-import { getDocument } from "@/lib/api";
 import type { CategoriesConfiguration } from "@paperjet/engine/types";
+import { useParams } from "@tanstack/react-router";
+import { FileText, Plus, Table } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import BasicWorkflowDataForm, { type BasicWorkflowDataFormRef } from "@/components/workflow/basic-workflow-data-form";
+import ConfigureSectionsSheet from "@/components/workflow/configure-sections-sheet";
+import WorkflowCategories from "@/components/workflow/workflow-categories";
+import { useUpdateWorkflowBasicData } from "@/hooks/use-update-workflow-basic-data";
+import { useWorkflow } from "@/hooks/useWorkflow";
+import { getDocument } from "@/lib/api";
 
 export default function WorkflowFinalizePage() {
     const { workflowId } = useParams({
@@ -30,11 +25,13 @@ export default function WorkflowFinalizePage() {
     // Fetch document URL when workflow is loaded
     React.useEffect(() => {
         if (workflow?.fileId) {
-            getDocument(workflow.fileId).then((doc) => {
-                setDocumentUrl(doc.presignedUrl);
-            }).catch((error) => {
-                console.error("Failed to load document:", error);
-            });
+            getDocument(workflow.fileId)
+                .then((doc) => {
+                    setDocumentUrl(doc.presignedUrl);
+                })
+                .catch((error) => {
+                    console.error("Failed to load document:", error);
+                });
         }
     }, [workflow?.fileId]);
 
@@ -77,9 +74,7 @@ export default function WorkflowFinalizePage() {
             </div>
 
             {/* Workflow Basic Info Form */}
-            <div className="pt-8 border-t">
-                {workflow && <BasicWorkflowDataForm ref={formRef} workflow={workflow} />}
-            </div>
+            <div className="pt-8 border-t">{workflow && <BasicWorkflowDataForm ref={formRef} workflow={workflow} />}</div>
 
             {/* Split View */}
             {workflow && (
@@ -89,11 +84,7 @@ export default function WorkflowFinalizePage() {
                         <div className="space-y-6">
                             <h2 className="text-xl font-semibold">Document Preview</h2>
                             {documentUrl ? (
-                                <iframe
-                                    src={documentUrl}
-                                    className="w-full h-[800px] border rounded"
-                                    title="Document Preview"
-                                />
+                                <iframe src={documentUrl} className="w-full h-[800px] border rounded" title="Document Preview" />
                             ) : (
                                 <div className="flex items-center justify-center h-[800px] bg-muted rounded">
                                     <p className="text-muted-foreground">Loading document...</p>
@@ -124,11 +115,7 @@ export default function WorkflowFinalizePage() {
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setIsConfigureSectionsOpen(true)}
-                                    >
+                                    <Button variant="outline" size="sm" onClick={() => setIsConfigureSectionsOpen(true)}>
                                         Configure sections
                                     </Button>
                                 </div>
@@ -144,25 +131,14 @@ export default function WorkflowFinalizePage() {
             {/* Action Row */}
             {workflow && (
                 <div className="flex items-center justify-end pt-8 border-t">
-                    <Button
-                        size="lg"
-                        onClick={handleSaveWorkflow}
-                        disabled={isPending}
-                    >
+                    <Button size="lg" onClick={handleSaveWorkflow} disabled={isPending}>
                         {isPending ? "Saving..." : "Save Workflow"}
                     </Button>
                 </div>
             )}
 
             {/* Configure Sections Sheet */}
-            {workflow && (
-                <ConfigureSectionsSheet
-                    categories={workflow.categories}
-                    isOpen={isConfigureSectionsOpen}
-                    onClose={() => setIsConfigureSectionsOpen(false)}
-                    onSave={handleSaveCategories}
-                />
-            )}
+            {workflow && <ConfigureSectionsSheet categories={workflow.categories} isOpen={isConfigureSectionsOpen} onClose={() => setIsConfigureSectionsOpen(false)} onSave={handleSaveCategories} />}
         </div>
     );
 }
