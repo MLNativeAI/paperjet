@@ -41,10 +41,17 @@ app.get("/api/health", async (c) => {
 export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions);
 
 if (process.env.NODE_ENV === "production") {
-    // Serve static files
+    // Serve static files first (JS, CSS, images, etc.)
     logger.info("Production mode: serving static files from ./public");
     app.get("*", serveStatic({ root: "./public" }));
-    app.get("*", serveStatic({ path: "./public/index.html" }));
+    // Only serve index.html for non-API routes that don't match static files
+    app.get("*", async (c) => {
+        const path = c.req.path;
+        if (!path.startsWith("/api/")) {
+            return c.html(await Bun.file("./public/index.html").text());
+        }
+        return c.notFound();
+    });
 } else {
     app.get("*", (c) => {
         return c.redirect(envVars.BASE_URL);
