@@ -30,6 +30,7 @@ export const fieldsConfigurationSchema = z.array(
         type: z.enum(["text", "number", "date", "currency", "boolean"]),
         required: z.boolean(),
         categoryId: z.string(),
+        lastModified: z.string().datetime().optional().transform((val) => val ? new Date(val) : undefined),
     }),
 );
 
@@ -49,6 +50,7 @@ export const tableConfigurationSchema = z.array(
         name: z.string(),
         description: z.string(),
         categoryId: z.string(),
+        lastModified: z.string().datetime().optional().transform((val) => val ? new Date(val) : undefined),
     }),
 );
 
@@ -80,6 +82,7 @@ export type Workflow = Omit<DbWorkflow, "configuration" | "sampleData" | "catego
     configuration: WorkflowConfiguration;
     categories: CategoriesConfiguration;
     sampleData?: ExtractionResult | null;
+    sampleDataExtractedAt?: Date | null;
 };
 
 export type FileDataWithPresignedUrl = FileData & {

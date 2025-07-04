@@ -92,15 +92,15 @@ export default function EditFieldSheet({ field, workflowId, isOpen, onClose, onS
 
     return (
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent>
+            <SheetContent className="">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <SheetHeader>
                             <SheetTitle>Edit field</SheetTitle>
-                            <SheetDescription>Make changes to the field configuration. Click save when you're done.</SheetDescription>
+                            <SheetDescription>Make changes to the field configuration. Click save when you're done. Run the extraction to see the changes.</SheetDescription>
                         </SheetHeader>
 
-                        <div className="grid gap-6">
+                        <div className="grid gap-6 px-4">
                             {/* Field Name */}
                             <FormField
                                 control={form.control}

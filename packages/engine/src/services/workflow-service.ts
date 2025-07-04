@@ -199,6 +199,7 @@ export class WorkflowService {
             .update(workflow)
             .set({
                 sampleData: JSON.stringify(extractionResult),
+                sampleDataExtractedAt: new Date(),
                 updatedAt: new Date(),
             })
             .where(eq(workflow.id, workflowId));
@@ -239,6 +240,7 @@ export class WorkflowService {
                     configuration: parsedConfig,
                     categories: JSON.parse(w.categories) as CategoriesConfiguration,
                     sampleData: w.sampleData ? (JSON.parse(w.sampleData) as ExtractionResult) : null,
+                    sampleDataExtractedAt: w.sampleDataExtractedAt,
                 };
             }),
         );
@@ -260,6 +262,7 @@ export class WorkflowService {
             configuration: parsedConfig,
             categories: JSON.parse(workflowData.categories) as CategoriesConfiguration,
             sampleData: workflowData.sampleData ? (JSON.parse(workflowData.sampleData) as ExtractionResult) : null,
+            sampleDataExtractedAt: workflowData.sampleDataExtractedAt,
         };
     }
 
@@ -418,13 +421,14 @@ export class WorkflowService {
             throw new Error("Field not found");
         }
 
-        const updatedField: z.infer<typeof workflowConfigurationSchema.shape.fields.element> = {
+        const updatedField = {
             id: fieldId,
             name: updates.name ?? currentField.name,
             description: updates.description ?? currentField.description,
             type: updates.type ?? currentField.type,
             required: updates.required ?? currentField.required,
             categoryId: updates.categoryId ?? currentField.categoryId,
+            lastModified: new Date().toISOString(),
         };
 
         // Update the configuration
@@ -432,14 +436,18 @@ export class WorkflowService {
             ...workflowData.configuration,
             fields: [
                 ...workflowData.configuration.fields.slice(0, fieldIndex),
-                updatedField,
+                updatedField as any, // Type assertion needed due to string/Date transformation
                 ...workflowData.configuration.fields.slice(fieldIndex + 1),
             ],
         };
 
         await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
 
-        return updatedField;
+        // Return with Date object for consistency
+        return {
+            ...updatedField,
+            lastModified: new Date(updatedField.lastModified),
+        };
     }
 
     async updateWorkflowTable(
@@ -474,12 +482,13 @@ export class WorkflowService {
             }));
         }
 
-        const updatedTable: z.infer<typeof workflowConfigurationSchema.shape.tables.element> = {
+        const updatedTable = {
             id: tableId,
             name: updates.name ?? currentTable.name,
             description: updates.description ?? currentTable.description,
             columns: updatedColumns,
             categoryId: updates.categoryId ?? currentTable.categoryId,
+            lastModified: new Date().toISOString(),
         };
 
         // Update the configuration
@@ -487,13 +496,17 @@ export class WorkflowService {
             ...workflowData.configuration,
             tables: [
                 ...workflowData.configuration.tables.slice(0, tableIndex),
-                updatedTable,
+                updatedTable as any, // Type assertion needed due to string/Date transformation
                 ...workflowData.configuration.tables.slice(tableIndex + 1),
             ],
         };
 
         await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
 
-        return updatedTable;
+        // Return with Date object for consistency
+        return {
+            ...updatedTable,
+            lastModified: new Date(updatedTable.lastModified),
+        };
     }
 }

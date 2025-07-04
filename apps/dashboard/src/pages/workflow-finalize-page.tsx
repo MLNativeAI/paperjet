@@ -1,7 +1,9 @@
 import type { CategoriesConfiguration } from "@paperjet/engine/types";
+import { getOutdatedFieldCount, getOutdatedTableCount, isWorkflowOutdated } from "@paperjet/engine/utils/outdated-check";
 import { Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft, BookOpen, FileText, Plus, Table } from "lucide-react";
+import { AlertCircle, ArrowLeft, BookOpen, FileText, Plus, RefreshCw, Table } from "lucide-react";
 import React, { useRef, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
@@ -88,6 +90,7 @@ export default function WorkflowFinalizePage() {
                 </div>
             </div>
 
+
             {/* Workflow Basic Info Form */}
             <div className="pt-8 border-t">{workflow && <BasicWorkflowDataForm ref={formRef} workflow={workflow} />}</div>
 
@@ -156,10 +159,19 @@ export default function WorkflowFinalizePage() {
                         <Button variant="outline" size="lg">
                             Cancel
                         </Button>
-                        <p className="text-sm text-muted-foreground">Note: You've modified one or more fields. Run extraction again to see the updated values</p>
+                        {isWorkflowOutdated(workflow) && (
+                            <p className="text-sm text-muted-foreground">
+                                <AlertCircle className="inline h-3 w-3 mr-1" />
+                                <strong>Note:</strong> {getOutdatedFieldCount(workflow)} field(s) and {getOutdatedTableCount(workflow)} table(s) have been modified. Run extraction again to see the updated values.
+                            </p>
+                        )}
                     </div>
                     <div className="flex items-center gap-4">
-                        <Button variant="outline" size="lg">
+                        <Button 
+                            variant={isWorkflowOutdated(workflow) ? "default" : "outline"} 
+                            size="lg"
+                        >
+                            <RefreshCw className="h-4 w-4 mr-2" />
                             Run extraction
                         </Button>
                         <Button size="lg" onClick={handleSaveWorkflow} disabled={isPending}>

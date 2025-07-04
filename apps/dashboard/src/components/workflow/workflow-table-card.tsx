@@ -1,21 +1,25 @@
 import type { TableConfiguration, TableSampleData } from "@paperjet/engine/types";
-import { Table2 } from "lucide-react";
+import { isTableOutdated } from "@paperjet/engine/utils/outdated-check";
+import { AlertCircle, Table2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface WorkflowTableCardProps {
     table: TableConfiguration[number];
     sampleData: TableSampleData | null;
+    sampleDataExtractedAt?: Date | null;
     onEdit: (table: TableConfiguration[number]) => void;
 }
 
-export default function WorkflowTableCard({ table, sampleData, onEdit }: WorkflowTableCardProps) {
+export default function WorkflowTableCard({ table, sampleData, sampleDataExtractedAt, onEdit }: WorkflowTableCardProps) {
     const rowCount = sampleData?.rows.length || 0;
     const columnCount = table.columns.length;
+    const isOutdated = isTableOutdated(table, sampleDataExtractedAt);
 
     return (
-        <Card>
+        <Card className={cn(isOutdated && "opacity-50")}>
             <CardHeader>
                 <CardTitle className="text-md">{table.name}</CardTitle>
                 <CardDescription>
@@ -67,6 +71,12 @@ export default function WorkflowTableCard({ table, sampleData, onEdit }: Workflo
                         <Table2 className="h-3 w-3 mr-1" />
                         Table
                     </Badge>
+                    {isOutdated && (
+                        <Badge variant="destructive" className="h-5 text-xs">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Outdated
+                        </Badge>
+                    )}
                 </div>
             </CardContent>
         </Card>

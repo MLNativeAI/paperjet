@@ -73,6 +73,7 @@ export const workflow = pgTable("workflow", {
         .notNull()
         .references(() => file.id, { onDelete: "cascade" }),
     sampleData: text("sample_data").notNull(), // JSON string
+    sampleDataExtractedAt: timestamp("sample_data_extracted_at"), // When sample data was last extracted
     createdAt: timestamp("created_at").notNull(),
     updatedAt: timestamp("updated_at").notNull(),
 });

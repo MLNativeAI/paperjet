@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1751624070386,
+      "tag": "0000_nappy_namor",
+      "breakpoints": true
+    }
+  ]
+}

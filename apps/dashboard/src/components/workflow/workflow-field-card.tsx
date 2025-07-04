@@ -1,16 +1,19 @@
 import type { FieldsConfiguration } from "@paperjet/engine/types";
-import { Calendar, FileText, Hash, ToggleLeft, Type } from "lucide-react";
+import { isFieldOutdated } from "@paperjet/engine/utils/outdated-check";
+import { AlertCircle, Calendar, FileText, Hash, ToggleLeft, Type } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface WorkflowFieldCardProps {
     field: FieldsConfiguration[number];
     sampleValue: string | number | boolean | Date | null | undefined;
+    sampleDataExtractedAt?: Date | null;
     onEdit: (field: FieldsConfiguration[number]) => void;
 }
 
-export default function WorkflowFieldCard({ field, sampleValue, onEdit }: WorkflowFieldCardProps) {
+export default function WorkflowFieldCard({ field, sampleValue, sampleDataExtractedAt, onEdit }: WorkflowFieldCardProps) {
     const getFieldTypeInfo = () => {
         const type = field.type.toLowerCase();
         switch (type) {
@@ -31,9 +34,10 @@ export default function WorkflowFieldCard({ field, sampleValue, onEdit }: Workfl
     };
 
     const typeInfo = getFieldTypeInfo();
+    const isOutdated = isFieldOutdated(field, sampleDataExtractedAt);
 
     return (
-        <Card className="">
+        <Card className={cn(isOutdated && "opacity-80")}>
             <CardHeader>
                 <CardTitle>{sampleValue ? String(sampleValue) : field.name}</CardTitle>
                 <CardDescription>{field.name}</CardDescription>
@@ -50,6 +54,12 @@ export default function WorkflowFieldCard({ field, sampleValue, onEdit }: Workfl
                         <typeInfo.icon className="h-3 w-3 mr-1" />
                         {typeInfo.label}
                     </Badge>
+                    {isOutdated && (
+                        <Badge variant="outline" className="h-5 text-xs">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Outdated
+                        </Badge>
+                    )}
                 </div>
             </CardContent>
         </Card>
