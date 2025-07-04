@@ -5,8 +5,6 @@ export { WorkflowExecutionService } from "./src/services/workflow-execution-serv
 export { WorkflowService } from "./src/services/workflow-service";
 export type {
     EngineServiceDeps,
-    FileDataWithPresignedUrl,
     WorkflowConfiguration,
-    WorkflowExecutionResult,
 } from "./src/types";
 export { generateId, ID_PREFIXES } from "./src/utils/id";
