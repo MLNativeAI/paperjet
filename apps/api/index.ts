@@ -41,10 +41,11 @@ app.get("/api/health", async (c) => {
 export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions);
 
 if (process.env.NODE_ENV === "production") {
-    // Serve static files
-    logger.info("Production mode: serving static files from ./public");
-    app.get("*", serveStatic({ root: "./public" }));
-    app.get("*", serveStatic({ path: "./public/index.html" }));
+    // Serve all static files from the dist directory
+    app.use("*", serveStatic({ root: "./dist" }));
+
+    // Serve index.html for all other routes (SPA fallback)
+    app.get("*", serveStatic({ path: "./dist/index.html" }));
 } else {
     app.get("*", (c) => {
         return c.redirect(envVars.BASE_URL);
