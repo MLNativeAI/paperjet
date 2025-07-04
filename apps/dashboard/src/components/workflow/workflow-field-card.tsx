@@ -39,7 +39,7 @@ export default function WorkflowFieldCard({ field, sampleValue, sampleDataExtrac
     return (
         <Card className={cn(isOutdated && "opacity-80")}>
             <CardHeader>
-                <CardTitle>{sampleValue ? String(sampleValue) : field.name}</CardTitle>
+                <CardTitle>{isOutdated ? "" : (sampleValue ? String(sampleValue) : field.name)}</CardTitle>
                 <CardDescription>{field.name}</CardDescription>
                 <CardAction>
                     <Button variant="link" onClick={() => onEdit(field)}>
@@ -55,7 +55,7 @@ export default function WorkflowFieldCard({ field, sampleValue, sampleDataExtrac
                         {typeInfo.label}
                     </Badge>
                     {isOutdated && (
-                        <Badge variant="outline" className="h-5 text-xs">
+                        <Badge variant="outline" className="h-5 text-xs" title="This field value is outdated. Run the extraction again to see the new value.">
                             <AlertCircle className="h-3 w-3 mr-1" />
                             Outdated
                         </Badge>

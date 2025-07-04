@@ -17,7 +17,7 @@ export function isFieldOutdated(
         return false;
     }
 
-    return field.lastModified > sampleDataExtractedAt;
+    return new Date(field.lastModified) > new Date(sampleDataExtractedAt);
 }
 
 /**
@@ -37,7 +37,7 @@ export function isTableOutdated(
         return false;
     }
 
-    return table.lastModified > sampleDataExtractedAt;
+    return new Date(table.lastModified) > new Date(sampleDataExtractedAt);
 }
 
 /**
@@ -68,7 +68,7 @@ export function isWorkflowOutdated(workflow: Workflow): boolean {
  */
 export function getOutdatedFieldCount(workflow: Workflow): number {
     const { configuration, sampleDataExtractedAt } = workflow;
-    
+
     return configuration.fields.filter((field) =>
         isFieldOutdated(field, sampleDataExtractedAt),
     ).length;
@@ -79,7 +79,7 @@ export function getOutdatedFieldCount(workflow: Workflow): number {
  */
 export function getOutdatedTableCount(workflow: Workflow): number {
     const { configuration, sampleDataExtractedAt } = workflow;
-    
+
     return configuration.tables.filter((table) =>
         isTableOutdated(table, sampleDataExtractedAt),
     ).length;

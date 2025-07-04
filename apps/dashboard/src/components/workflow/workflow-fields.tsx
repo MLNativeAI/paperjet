@@ -20,31 +20,25 @@ export default function WorkflowFields({ category, workflow }: { category: Categ
         setIsEditSheetOpen(true);
     };
 
-    const handleSaveField = (updatedField: (typeof category.fields)[number]) => {
-        // TODO: Implement API call to save the field
-        console.log("Saving field:", updatedField);
-        setIsEditSheetOpen(false);
-    };
-
     return (
         <>
             {category.fields.length > 0 && (
                 <div className="grid grid-cols-2 gap-4">
                     {category.fields.map((field) => {
                         const sampleValue = getSampleValue(field.name);
-                        return <WorkflowFieldCard 
-                            key={field.id} 
-                            field={field} 
-                            sampleValue={sampleValue} 
+                        return <WorkflowFieldCard
+                            key={field.id}
+                            field={field}
+                            sampleValue={sampleValue}
                             sampleDataExtractedAt={workflow.sampleDataExtractedAt}
-                            onEdit={handleEditField} 
+                            onEdit={handleEditField}
                         />;
                     })}
                 </div>
             )}
 
             {/* Edit Field Sheet */}
-            <EditFieldSheet field={editingField} workflowId={workflow.id} isOpen={isEditSheetOpen} onClose={() => setIsEditSheetOpen(false)} onSave={handleSaveField} />
+            <EditFieldSheet field={editingField} workflowId={workflow.id} isOpen={isEditSheetOpen} onClose={() => setIsEditSheetOpen(false)} />
         </>
     );
 }

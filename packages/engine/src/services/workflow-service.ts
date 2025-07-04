@@ -37,6 +37,7 @@ export class WorkflowService {
         return parsedConfig.data ?? { fields: [], tables: [] };
     }
 
+
     async createWorkflow(
         fileParam: File,
         userId: string,
@@ -422,12 +423,9 @@ export class WorkflowService {
         }
 
         const updatedField = {
-            id: fieldId,
-            name: updates.name ?? currentField.name,
-            description: updates.description ?? currentField.description,
-            type: updates.type ?? currentField.type,
-            required: updates.required ?? currentField.required,
-            categoryId: updates.categoryId ?? currentField.categoryId,
+            ...currentField,
+            ...updates,
+            id: fieldId, // Ensure ID is never changed
             lastModified: new Date().toISOString(),
         };
 
@@ -436,18 +434,14 @@ export class WorkflowService {
             ...workflowData.configuration,
             fields: [
                 ...workflowData.configuration.fields.slice(0, fieldIndex),
-                updatedField as any, // Type assertion needed due to string/Date transformation
+                updatedField,
                 ...workflowData.configuration.fields.slice(fieldIndex + 1),
             ],
         };
 
         await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
 
-        // Return with Date object for consistency
-        return {
-            ...updatedField,
-            lastModified: new Date(updatedField.lastModified),
-        };
+        return updatedField;
     }
 
     async updateWorkflowTable(
@@ -483,11 +477,10 @@ export class WorkflowService {
         }
 
         const updatedTable = {
-            id: tableId,
-            name: updates.name ?? currentTable.name,
-            description: updates.description ?? currentTable.description,
+            ...currentTable,
+            ...updates,
+            id: tableId, // Ensure ID is never changed
             columns: updatedColumns,
-            categoryId: updates.categoryId ?? currentTable.categoryId,
             lastModified: new Date().toISOString(),
         };
 
@@ -496,17 +489,13 @@ export class WorkflowService {
             ...workflowData.configuration,
             tables: [
                 ...workflowData.configuration.tables.slice(0, tableIndex),
-                updatedTable as any, // Type assertion needed due to string/Date transformation
+                updatedTable,
                 ...workflowData.configuration.tables.slice(tableIndex + 1),
             ],
         };
 
         await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
 
-        // Return with Date object for consistency
-        return {
-            ...updatedTable,
-            lastModified: new Date(updatedTable.lastModified),
-        };
+        return updatedTable;
     }
 }

@@ -293,7 +293,32 @@ const router = app
                 return c.json({ error: "Internal server error" }, 500);
             }
         },
-    );
+    )
+    .post("/:id/re-extract", zValidator("param", paramIdSchema), async (c) => {
+        try {
+            const user = await getUser(c);
+            const { id: workflowId } = c.req.valid("param");
+
+            // Get the workflow
+            const workflowData = await workflowService.getWorkflow(workflowId, user.id);
+
+            // Re-extract data from the sample document
+            await workflowService.extractDataFromDocument(
+                workflowId,
+                workflowData.fileId,
+                user.id,
+                workflowData.configuration,
+            );
+
+            return c.json({ message: "Data extraction started successfully" });
+        } catch (error) {
+            logger.error(error, "Re-extract data error:");
+            if (error instanceof Error && error.message === "Workflow not found") {
+                return c.json({ error: "Workflow not found" }, 404);
+            }
+            return c.json({ error: "Internal server error" }, 500);
+        }
+    });
 
 export default router;
 

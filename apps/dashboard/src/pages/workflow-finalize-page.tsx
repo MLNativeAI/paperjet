@@ -10,9 +10,11 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import BasicWorkflowDataForm, { type BasicWorkflowDataFormRef } from "@/components/workflow/basic-workflow-data-form";
 import ConfigureSectionsSheet from "@/components/workflow/configure-sections-sheet";
 import WorkflowCategories from "@/components/workflow/workflow-categories";
+import { useReExtractData } from "@/hooks/use-re-extract-data";
 import { useUpdateWorkflowBasicData } from "@/hooks/use-update-workflow-basic-data";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { getDocument } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 export default function WorkflowFinalizePage() {
     const { workflowId } = useParams({
@@ -21,6 +23,7 @@ export default function WorkflowFinalizePage() {
 
     const { workflow } = useWorkflow(workflowId);
     const { mutate: updateWorkflow, isPending } = useUpdateWorkflowBasicData();
+    const { mutate: reExtractData, isPending: isExtracting } = useReExtractData();
     const formRef = useRef<BasicWorkflowDataFormRef>(null);
     const [documentUrl, setDocumentUrl] = useState<string | null>(null);
     const [isConfigureSectionsOpen, setIsConfigureSectionsOpen] = useState(false);
@@ -64,6 +67,12 @@ export default function WorkflowFinalizePage() {
     const handleAddTable = () => {
         // TODO: Implement add table functionality
         console.log("Add table clicked");
+    };
+
+    const handleReExtract = () => {
+        if (workflow) {
+            reExtractData(workflow.id);
+        }
     };
 
     return (
@@ -170,9 +179,11 @@ export default function WorkflowFinalizePage() {
                         <Button 
                             variant={isWorkflowOutdated(workflow) ? "default" : "outline"} 
                             size="lg"
+                            onClick={handleReExtract}
+                            disabled={isExtracting || workflow?.status === "extracting"}
                         >
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Run extraction
+                            <RefreshCw className={cn("h-4 w-4 mr-2", (isExtracting || workflow?.status === "extracting") && "animate-spin")} />
+                            {isExtracting || workflow?.status === "extracting" ? "Extracting..." : "Run extraction"}
                         </Button>
                         <Button size="lg" onClick={handleSaveWorkflow} disabled={isPending}>
                             {isPending ? "Saving..." : "Save Workflow"}

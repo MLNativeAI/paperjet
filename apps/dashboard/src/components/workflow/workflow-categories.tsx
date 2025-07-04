@@ -44,8 +44,6 @@ export default function WorkflowCategories({ workflow }: { workflow: Workflow })
     // Sort categories by ordinal
     const sortedCategories = Array.from(categoriesMap.values()).sort((a, b) => a.ordinal - b.ordinal);
 
-    console.log(sortedCategories);
-
     if (sortedCategories.length === 0) {
         return (
             <div className="text-center py-8">
