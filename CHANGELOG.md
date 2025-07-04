@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/MLNativeAI/PaperJet/compare/v1.1.0...v1.1.1) (2025-07-04)
+
+
+### Bug Fixes
+
+* remove old types ([b3c89e7](https://github.com/MLNativeAI/PaperJet/commit/b3c89e7ecb014c371aa2aed11194446b06931c00))
+
 # [1.1.0](https://github.com/MLNativeAI/PaperJet/compare/v1.0.0...v1.1.0) (2025-07-02)
 
 
