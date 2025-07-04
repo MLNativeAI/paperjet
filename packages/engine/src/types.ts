@@ -24,6 +24,7 @@ export type CategoriesConfiguration = z.infer<typeof categoriesConfigurationSche
 
 export const fieldsConfigurationSchema = z.array(
     z.object({
+        id: z.string(),
         name: z.string(),
         description: z.string(),
         type: z.enum(["text", "number", "date", "currency", "boolean"]),
@@ -36,8 +37,10 @@ export type FieldsConfiguration = z.infer<typeof fieldsConfigurationSchema>;
 
 export const tableConfigurationSchema = z.array(
     z.object({
+        id: z.string(),
         columns: z.array(
             z.object({
+                id: z.string(),
                 name: z.string(),
                 description: z.string(),
                 type: z.enum(["text", "number", "date", "currency", "boolean"]),
@@ -82,7 +85,6 @@ export type Workflow = Omit<DbWorkflow, "configuration" | "sampleData" | "catego
 export type FileDataWithPresignedUrl = FileData & {
     presignedUrl: string;
 };
-
 
 // Data extraction schemas
 export const extractedValueSchema = z.object({

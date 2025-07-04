@@ -2,7 +2,8 @@ import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { aiSdkModel } from "../lib/model";
-import { type CategoriesConfiguration, type FieldsConfiguration, type TableConfiguration } from "../types";
+import type { CategoriesConfiguration, FieldsConfiguration, TableConfiguration } from "../types";
+import { generateId, ID_PREFIXES } from "../utils/id";
 
 export type AnalysisResult = {
     workflowName: string;
@@ -253,12 +254,11 @@ Extract all fields from the document, ensuring no duplicates.`;
     });
 
     // Create a map from slug to categoryId for conversion
-    const slugToCategoryId = new Map(
-        categories.map((cat) => [cat.slug, cat.categoryId])
-    );
+    const slugToCategoryId = new Map(categories.map((cat) => [cat.slug, cat.categoryId]));
 
-    // Convert slugs to categoryIds in the extracted fields
+    // Convert slugs to categoryIds in the extracted fields and add IDs
     const fieldsWithCorrectCategoryIds = object.fields.map((field) => ({
+        id: generateId(ID_PREFIXES.field),
         ...field,
         categoryId: slugToCategoryId.get(field.categoryId) || field.categoryId, // Use the mapped categoryId or keep original if not found
         required: true,
@@ -337,9 +337,13 @@ If the table "${table.name}" is not found or has no actual tabular data in the d
     logger.info("Field extraction for table completed");
 
     return {
+        id: generateId(ID_PREFIXES.table),
         name: table.name,
         description: table.description,
-        columns: object.columns,
+        columns: object.columns.map((column) => ({
+            id: generateId(ID_PREFIXES.column),
+            ...column,
+        })),
         categoryId: table.categoryId,
     };
 }

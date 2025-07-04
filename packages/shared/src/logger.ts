@@ -37,6 +37,6 @@ const createLogger = () => {
         env: process.env.ENVIRONMENT,
         baseUrl: process.env.BASE_URL,
     });
-}
+};
 
 export const logger = createLogger();

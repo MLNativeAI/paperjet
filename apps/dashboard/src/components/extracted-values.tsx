@@ -70,7 +70,7 @@ export function ExtractedValues({ extractionResult, fields, tables, isLoading = 
                         <div className="space-y-2">
                             {fields.map((field, index) => (
                                 <FieldValue
-                                    key={`field-${field.name}-${index}`}
+                                    key={field.id}
                                     field={field}
                                     fieldIndex={index}
                                     extractionResult={extractionResult}
@@ -101,7 +101,7 @@ export function ExtractedValues({ extractionResult, fields, tables, isLoading = 
                     <CardContent>
                         <div className="space-y-6">
                             {tables.map((table, tableIndex) => (
-                                <ExtractedTable key={`table-${table.name}-${tableIndex}`} table={table} tableIndex={tableIndex} extractionResult={extractionResult} />
+                                <ExtractedTable key={table.id || `table-${tableIndex}`} table={table} tableIndex={tableIndex} extractionResult={extractionResult} />
                             ))}
                         </div>
                     </CardContent>

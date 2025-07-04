@@ -32,7 +32,7 @@ export default function WorkflowFields({ category, workflow }: { category: Categ
                 <div className="grid grid-cols-2 gap-4">
                     {category.fields.map((field) => {
                         const sampleValue = getSampleValue(field.name);
-                        return <WorkflowFieldCard key={field.name} field={field} sampleValue={sampleValue} onEdit={handleEditField} />;
+                        return <WorkflowFieldCard key={field.id} field={field} sampleValue={sampleValue} onEdit={handleEditField} />;
                     })}
                 </div>
             )}

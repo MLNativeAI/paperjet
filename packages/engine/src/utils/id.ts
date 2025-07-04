@@ -14,4 +14,7 @@ export const ID_PREFIXES = {
     session: "ses",
     account: "acc",
     verification: "ver",
+    field: "fld",
+    table: "tbl",
+    column: "col",
 } as const;

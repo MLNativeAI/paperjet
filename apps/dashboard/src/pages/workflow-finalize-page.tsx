@@ -4,7 +4,7 @@ import { ArrowLeft, BookOpen, FileText, Plus, Table } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import BasicWorkflowDataForm, { type BasicWorkflowDataFormRef } from "@/components/workflow/basic-workflow-data-form";
 import ConfigureSectionsSheet from "@/components/workflow/configure-sections-sheet";
 import WorkflowCategories from "@/components/workflow/workflow-categories";
@@ -79,16 +79,8 @@ export default function WorkflowFinalizePage() {
                             Back to workflows
                         </Link>
                     </Button>
-                    <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                    >
-                        <a
-                            href="https://docs.getpaperjet.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                    <Button asChild variant="outline" size="sm">
+                        <a href="https://docs.getpaperjet.com/" target="_blank" rel="noopener noreferrer">
                             <BookOpen className="h-3 w-3 mr-1" />
                             Documentation
                         </a>
@@ -164,9 +156,7 @@ export default function WorkflowFinalizePage() {
                         <Button variant="outline" size="lg">
                             Cancel
                         </Button>
-                        <p className="text-sm text-muted-foreground">
-                            Note: You've modified one or more fields. Run extraction again to see the updated values
-                        </p>
+                        <p className="text-sm text-muted-foreground">Note: You've modified one or more fields. Run extraction again to see the updated values</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <Button variant="outline" size="lg">

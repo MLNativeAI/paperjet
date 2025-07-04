@@ -3,8 +3,8 @@ import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
-import { type ExtractionResult, type WorkflowConfiguration } from "../types";
 import { aiSdkModel } from "../lib/model";
+import type { ExtractionResult, WorkflowConfiguration } from "../types";
 
 export interface DocumentExtractionServiceDeps {
     langfuse: Langfuse;

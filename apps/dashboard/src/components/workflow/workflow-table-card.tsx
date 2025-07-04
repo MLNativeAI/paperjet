@@ -55,11 +55,7 @@ export default function WorkflowTableCard({ table, sampleData, onEdit }: Workflo
                                 </tbody>
                             </table>
                         </div>
-                        {rowCount > 3 && (
-                            <p className="text-xs text-muted-foreground text-center">
-                                +{rowCount - 3} more rows
-                            </p>
-                        )}
+                        {rowCount > 3 && <p className="text-xs text-muted-foreground text-center">+{rowCount - 3} more rows</p>}
                     </div>
                 ) : (
                     <p className="text-sm text-muted-foreground">No sample data available</p>

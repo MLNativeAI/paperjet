@@ -2,12 +2,12 @@ import { db } from "@paperjet/db";
 import * as schema from "@paperjet/db/schema";
 import { MagicLinkEmail, render } from "@paperjet/email";
 import { generateId, ID_PREFIXES } from "@paperjet/engine";
+import { logger } from "@paperjet/shared";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
 import type { Context, Next } from "hono";
 import { Resend } from "resend";
-import { logger } from "@paperjet/shared";
 import { envVars } from "./env";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];

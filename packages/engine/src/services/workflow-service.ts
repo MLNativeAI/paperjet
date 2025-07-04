@@ -3,12 +3,17 @@ import { file, workflow } from "@paperjet/db/schema";
 import { logger } from "@paperjet/shared";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import {
+    type CategoriesConfiguration,
+    type ExtractionResult,
+    type Workflow,
+    type WorkflowConfiguration,
+    workflowConfigurationSchema,
+} from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
 import { performCompleteAnalysis } from "./document-analysis-service";
 import type { DocumentExtractionService } from "./document-extraction-service";
 import type { WorkflowExecutionService } from "./workflow-execution-service";
-import { workflowConfigurationSchema, type Workflow, type WorkflowConfiguration, type CategoriesConfiguration } from "../types";
-import type { ExtractionResult } from "@paperjet/db/types";
 
 export interface WorkflowServiceDeps {
     documentExtractionService: DocumentExtractionService;
@@ -233,7 +238,7 @@ export class WorkflowService {
                     ...w,
                     configuration: parsedConfig,
                     categories: JSON.parse(w.categories) as CategoriesConfiguration,
-                    sampleData: w.sampleData ? JSON.parse(w.sampleData) as ExtractionResult : null,
+                    sampleData: w.sampleData ? (JSON.parse(w.sampleData) as ExtractionResult) : null,
                 };
             }),
         );
@@ -254,7 +259,7 @@ export class WorkflowService {
             ...workflowData,
             configuration: parsedConfig,
             categories: JSON.parse(workflowData.categories) as CategoriesConfiguration,
-            sampleData: workflowData.sampleData ? JSON.parse(workflowData.sampleData) as ExtractionResult : null,
+            sampleData: workflowData.sampleData ? (JSON.parse(workflowData.sampleData) as ExtractionResult) : null,
         };
     }
 

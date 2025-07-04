@@ -32,7 +32,7 @@ export function FieldConfiguration({ fields, extractionResult, editingField, isE
                 <div className="space-y-4">
                     {fields.map((field, index) => (
                         <FieldConfigurationItem
-                            key={field.name}
+                            key={field.id}
                             field={field}
                             fieldIndex={index}
                             extractionResult={extractionResult}

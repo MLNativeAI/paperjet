@@ -1,8 +1,8 @@
 import type { Workflow } from "@paperjet/engine/types";
 import { useState } from "react";
+import EditTableSheet from "./edit-table-sheet";
 import type { CategoryGroup } from "./workflow-categories";
 import WorkflowTableCard from "./workflow-table-card";
-import EditTableSheet from "./edit-table-sheet";
 
 export default function WorkflowTables({ category, workflow }: { category: CategoryGroup; workflow: Workflow }) {
     const [editingTable, setEditingTable] = useState<(typeof category.tables)[number] | null>(null);
@@ -32,14 +32,7 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
                 <div className="space-y-4">
                     {category.tables.map((table) => {
                         const sampleData = getTableSampleData(table.name);
-                        return (
-                            <WorkflowTableCard
-                                key={table.name}
-                                table={table}
-                                sampleData={sampleData}
-                                onEdit={handleEditTable}
-                            />
-                        );
+                        return <WorkflowTableCard key={table.name} table={table} sampleData={sampleData} onEdit={handleEditTable} />;
                     })}
                 </div>
             )}

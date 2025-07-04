@@ -64,7 +64,7 @@ export function CategorySection({ categoryName, fields, extractionResult, onFiel
                             const globalFieldIndex = startingFieldIndex + index;
                             return (
                                 <FieldValue
-                                    key={`field-${field.name}-${globalFieldIndex}`}
+                                    key={field.id}
                                     field={field}
                                     fieldIndex={globalFieldIndex}
                                     extractionResult={extractionResult}
