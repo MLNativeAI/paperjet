@@ -42,6 +42,7 @@ export const apiRoutes = app.basePath("/api").route("/workflows", workflows).rou
 
 if (process.env.NODE_ENV === "production") {
     // Serve static files
+    logger.info("Production mode: serving static files from ./public");
     app.get("*", serveStatic({ root: "./public" }));
     app.get("*", serveStatic({ path: "./public/index.html" }));
 } else {
