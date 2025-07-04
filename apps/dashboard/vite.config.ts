@@ -7,7 +7,6 @@ import { defineConfig } from "vite";
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [TanStackRouterVite({ target: "react", autoCodeSplitting: true }), react(), tailwindcss()],
-    base: "./",
     resolve: {
         alias: {
             //https://github.com/tabler/tabler-icons/issues/1233#issuecomment-2428245119
@@ -16,10 +15,6 @@ export default defineConfig({
             "@api/*": path.resolve(__dirname, "../api/*"),
             "@paperjet/engine": path.resolve(__dirname, "../../packages/engine/src"),
         },
-    },
-    build: {
-        // generate .vite/manifest.json in outDir
-        manifest: true,
     },
     server: {
         proxy: {
