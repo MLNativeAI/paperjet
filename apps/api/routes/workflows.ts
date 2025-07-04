@@ -318,6 +318,69 @@ const router = app
             }
             return c.json({ error: "Internal server error" }, 500);
         }
+    })
+    .post(
+        "/:id/fields",
+        zValidator("param", paramIdSchema),
+        zValidator(
+            "json",
+            z.object({
+                name: z.string().min(1).regex(/^[a-z][a-z0-9_]*$/, {
+                    message: "Field name must be in snake_case format (lowercase, starts with letter, only letters/numbers/underscores)",
+                }),
+                description: z.string(),
+                type: z.enum(["text", "number", "date", "currency", "boolean"]),
+                required: z.boolean(),
+                categoryId: z.string(),
+            }),
+        ),
+        async (c) => {
+            try {
+                const user = await getUser(c);
+                const { id: workflowId } = c.req.valid("param");
+                const fieldData = c.req.valid("json");
+
+                const newField = await workflowService.createWorkflowField(workflowId, user.id, fieldData);
+
+                return c.json({ field: newField, message: "Field created successfully" }, 201);
+            } catch (error) {
+                logger.error(error, "Create workflow field error:");
+                if (error instanceof z.ZodError) {
+                    return c.json(
+                        {
+                            error: "Invalid field data",
+                            details: error.errors.map((e) => ({
+                                field: e.path.join("."),
+                                message: e.message,
+                            })),
+                        },
+                        400,
+                    );
+                }
+                if (error instanceof Error && error.message === "Workflow not found") {
+                    return c.json({ error: "Workflow not found" }, 404);
+                }
+                return c.json({ error: "Failed to create field" }, 500);
+            }
+        },
+    )
+    .delete("/:id/fields/:fieldId", zValidator("param", fieldParamSchema), async (c) => {
+        try {
+            const user = await getUser(c);
+            const { id: workflowId, fieldId } = c.req.valid("param");
+
+            await workflowService.deleteWorkflowField(workflowId, fieldId, user.id);
+
+            return c.json({ message: "Field deleted successfully" });
+        } catch (error) {
+            logger.error(error, "Delete workflow field error:");
+            if (error instanceof Error) {
+                if (error.message === "Workflow not found" || error.message === "Field not found") {
+                    return c.json({ error: error.message }, 404);
+                }
+            }
+            return c.json({ error: "Failed to delete field" }, 500);
+        }
     });
 
 export default router;

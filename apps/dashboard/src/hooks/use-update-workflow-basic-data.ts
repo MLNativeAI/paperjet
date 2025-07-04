@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { updateWorkflowBasicData } from "@/lib/api";
 
 interface UpdateWorkflowBasicDataParams {
     workflowId: string;
@@ -13,17 +13,7 @@ export function useUpdateWorkflowBasicData() {
 
     return useMutation({
         mutationFn: async ({ workflowId, name, description }: UpdateWorkflowBasicDataParams) => {
-            const response = await api.workflows[":id"]["basic-data"].$patch({
-                param: { id: workflowId },
-                json: { name, description },
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || "Failed to update workflow");
-            }
-
-            return response.json();
+            return updateWorkflowBasicData(workflowId, { name, description });
         },
         onSuccess: (_, { workflowId }) => {
             // Invalidate the workflow query to refresh the data

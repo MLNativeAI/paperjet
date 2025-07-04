@@ -41,7 +41,7 @@ export default function WorkflowFieldCard({ field, sampleValue, sampleDataExtrac
             <CardHeader>
                 <CardTitle>{isOutdated ? "" : (sampleValue ? String(sampleValue) : field.name)}</CardTitle>
                 <CardDescription>{field.name}</CardDescription>
-                <CardAction>
+                <CardAction className="mt-[-10px]">
                     <Button variant="link" onClick={() => onEdit(field)}>
                         Edit
                     </Button>

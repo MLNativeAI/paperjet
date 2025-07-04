@@ -498,4 +498,49 @@ export class WorkflowService {
 
         return updatedTable;
     }
+
+    async createWorkflowField(
+        workflowId: string,
+        userId: string,
+        field: Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id" | "lastModified">,
+    ) {
+        // Get the workflow
+        const workflowData = await this.getWorkflow(workflowId, userId);
+
+        // Create new field with generated ID
+        const newField = {
+            ...field,
+            id: generateId(ID_PREFIXES.field),
+            lastModified: new Date().toISOString(),
+        };
+
+        // Update the configuration
+        const updatedConfiguration: WorkflowConfiguration = {
+            ...workflowData.configuration,
+            fields: [...workflowData.configuration.fields, newField],
+        };
+
+        await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
+
+        return newField;
+    }
+
+    async deleteWorkflowField(workflowId: string, fieldId: string, userId: string) {
+        // Get the workflow
+        const workflowData = await this.getWorkflow(workflowId, userId);
+
+        // Find the field
+        const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
+        if (fieldIndex === -1) {
+            throw new Error("Field not found");
+        }
+
+        // Update the configuration by removing the field
+        const updatedConfiguration: WorkflowConfiguration = {
+            ...workflowData.configuration,
+            fields: workflowData.configuration.fields.filter((f) => f.id !== fieldId),
+        };
+
+        await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
+    }
 }

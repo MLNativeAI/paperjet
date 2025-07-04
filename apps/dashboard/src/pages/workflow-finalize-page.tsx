@@ -1,6 +1,6 @@
 import type { CategoriesConfiguration } from "@paperjet/engine/types";
 import { getOutdatedFieldCount, getOutdatedTableCount, isWorkflowOutdated } from "@paperjet/engine/utils/outdated-check";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, BookOpen, FileText, Plus, RefreshCw, Table } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import BasicWorkflowDataForm, { type BasicWorkflowDataFormRef } from "@/components/workflow/basic-workflow-data-form";
 import ConfigureSectionsSheet from "@/components/workflow/configure-sections-sheet";
+import EditFieldSheet from "@/components/workflow/edit-field-sheet";
 import WorkflowCategories from "@/components/workflow/workflow-categories";
 import { useReExtractData } from "@/hooks/use-re-extract-data";
 import { useUpdateWorkflowBasicData } from "@/hooks/use-update-workflow-basic-data";
@@ -21,12 +22,14 @@ export default function WorkflowFinalizePage() {
         from: "/_app/workflows/$workflowId/finalize",
     });
 
+    const navigate = useNavigate();
     const { workflow } = useWorkflow(workflowId);
     const { mutate: updateWorkflow, isPending } = useUpdateWorkflowBasicData();
     const { mutate: reExtractData, isPending: isExtracting } = useReExtractData();
     const formRef = useRef<BasicWorkflowDataFormRef>(null);
     const [documentUrl, setDocumentUrl] = useState<string | null>(null);
     const [isConfigureSectionsOpen, setIsConfigureSectionsOpen] = useState(false);
+    const [isAddFieldSheetOpen, setIsAddFieldSheetOpen] = useState(false);
 
     // Fetch document URL when workflow is loaded
     React.useEffect(() => {
@@ -46,11 +49,18 @@ export default function WorkflowFinalizePage() {
 
         const formData = await formRef.current.submit();
         if (formData) {
-            updateWorkflow({
-                workflowId: workflow.id,
-                name: formData.name,
-                description: formData.description,
-            });
+            updateWorkflow(
+                {
+                    workflowId: workflow.id,
+                    name: formData.name,
+                    description: formData.description,
+                },
+                {
+                    onSuccess: () => {
+                        navigate({ to: "/" });
+                    },
+                }
+            );
         }
     };
 
@@ -60,8 +70,7 @@ export default function WorkflowFinalizePage() {
     };
 
     const handleAddField = () => {
-        // TODO: Implement add field functionality
-        console.log("Add field clicked");
+        setIsAddFieldSheetOpen(true);
     };
 
     const handleAddTable = () => {
@@ -81,7 +90,7 @@ export default function WorkflowFinalizePage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold">Finalize Workflow</h1>
-                    <p className="text-muted-foreground mt-2">Review, customize and save your workflow</p>
+                    <p className="text-muted-foreground mt-2">Review, customize and save your workflow. You can test your configuration against the sample document.</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="sm" asChild>
@@ -176,8 +185,8 @@ export default function WorkflowFinalizePage() {
                         )}
                     </div>
                     <div className="flex items-center gap-4">
-                        <Button 
-                            variant={isWorkflowOutdated(workflow) ? "default" : "outline"} 
+                        <Button
+                            variant={isWorkflowOutdated(workflow) ? "default" : "outline"}
                             size="lg"
                             onClick={handleReExtract}
                             disabled={isExtracting || workflow?.status === "extracting"}
@@ -194,6 +203,18 @@ export default function WorkflowFinalizePage() {
 
             {/* Configure Sections Sheet */}
             {workflow && <ConfigureSectionsSheet categories={workflow.categories} isOpen={isConfigureSectionsOpen} onClose={() => setIsConfigureSectionsOpen(false)} onSave={handleSaveCategories} />}
+            
+            {/* Add Field Sheet */}
+            {workflow && (
+                <EditFieldSheet 
+                    field={null} 
+                    workflowId={workflow.id} 
+                    isOpen={isAddFieldSheetOpen} 
+                    onClose={() => setIsAddFieldSheetOpen(false)}
+                    mode="create"
+                    categories={workflow.categories}
+                />
+            )}
         </div>
     );
 }

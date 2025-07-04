@@ -274,7 +274,7 @@ export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTabl
                                             <IconHistory className="h-4 w-4 mr-2" />
                                             View History
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => navigate({ to: `/workflows/${row.original.id}/configure` })}>
+                                        <DropdownMenuItem onClick={() => navigate({ to: `/workflows/${row.original.id}/finalize` })}>
                                             <IconEdit className="h-4 w-4 mr-2" />
                                             Edit
                                         </DropdownMenuItem>
