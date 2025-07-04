@@ -43,8 +43,17 @@ export const apiRoutes = app.basePath("/api").route("/workflows", workflows).rou
 if (process.env.NODE_ENV === "production") {
     // Serve static files
     logger.info("Production mode: serving static files from ./public");
-    app.get("*", serveStatic({ root: "./public" }));
-    app.get("*", serveStatic({ path: "./public/index.html" }));
+
+    app.get('/static/*', serveStatic({ root: './public' }));
+    app.get('/assets/*', serveStatic({ root: './public' }))
+
+    app.get('/favicon.ico', serveStatic({ path: './public/favicon.ico' }));
+    app.get('/manifest.json', serveStatic({ path: './public/manifest.json' }));
+    // Add any other root assets here.
+
+    // 3. SPA Fallback: For any other GET request, serve the main index.html file.
+    // This will handle all your client-side routes like `/`, `/dashboard`, `/profile`.
+    app.get('*', serveStatic({ path: './public/index.html' }));
 } else {
     app.get("*", (c) => {
         return c.redirect(envVars.BASE_URL);
