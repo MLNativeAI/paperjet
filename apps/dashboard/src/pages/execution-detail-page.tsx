@@ -69,13 +69,15 @@ export default function ExecutionDetailPage() {
 
         switch (type) {
             case "currency":
-                return typeof value === "number" ? `$${value.toFixed(2)}` : value;
+                return typeof value === "number" ? `$${value.toFixed(2)}` : value?.toString();
             case "date":
-                return value;
+                return value instanceof Date ? value.toLocaleString() : value?.toString();
             case "boolean":
                 return value ? "Yes" : "No";
             default:
-                return value.toString();
+                if (value instanceof Date) return value.toLocaleString();
+                if (typeof value === "boolean") return value ? "Yes" : "No";
+                return value?.toString() ?? "";
         }
     };
 

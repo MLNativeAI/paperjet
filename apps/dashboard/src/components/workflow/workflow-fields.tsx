@@ -32,11 +32,11 @@ export default function WorkflowFields({ category, workflow }: { category: Categ
             {category.fields.length > 0 && (
                 <div className="space-y-3">
                     <h4 className="text-md font-medium">Fields</h4>
-                    <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                         {category.fields.map((field) => {
                             const sampleValue = getSampleValue(field.name);
                             return (
-                                <div key={field.name} className="group relative p-4 border rounded-lg">
+                                <div key={field.name} className="group relative p-4 border rounded-lg bg-card">
                                     {/* Edit Button */}
                                     <Button
                                         variant="ghost"
