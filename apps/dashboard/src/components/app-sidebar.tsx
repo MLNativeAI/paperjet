@@ -2,6 +2,7 @@ import type * as React from "react";
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail } from "@/components/ui/sidebar";
 import { NavUser } from "./nav-user";
+import { FileText, Play, Settings, BookOpen } from "lucide-react";
 
 // This is sample data.
 const data = {
@@ -9,14 +10,22 @@ const data = {
         {
             title: "Workflows",
             url: "/",
+            icon: FileText,
         },
         {
             title: "Runs",
             url: "/runs",
+            icon: Play,
         },
         {
             title: "Settings",
             url: "/settings",
+            icon: Settings,
+        },
+        {
+            title: "Documentation",
+            url: "https://docs.getpaperjet.com/",
+            icon: BookOpen,
         },
     ],
 };
@@ -37,7 +46,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             {data.navMain.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
-                                        <a href={item.url}>{item.title}</a>
+                                        <a
+                                            href={item.url}
+                                            target={item.url.startsWith("http") ? "_blank" : undefined}
+                                            rel={item.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                                        >
+                                            <item.icon className="h-4 w-4" />
+                                            {item.title}
+                                        </a>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}

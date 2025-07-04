@@ -1,8 +1,13 @@
 import type { Workflow } from "@paperjet/engine/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 import type { CategoryGroup } from "./workflow-categories";
+import WorkflowTableCard from "./workflow-table-card";
+import EditTableSheet from "./edit-table-sheet";
 
 export default function WorkflowTables({ category, workflow }: { category: CategoryGroup; workflow: Workflow }) {
+    const [editingTable, setEditingTable] = useState<(typeof category.tables)[number] | null>(null);
+    const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
+
     // Get sample data for tables
     const getTableSampleData = (tableName: string) => {
         if (!workflow.sampleData?.tables) return null;
@@ -10,54 +15,42 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
         return sampleTable;
     };
 
+    const handleEditTable = (table: (typeof category.tables)[number]) => {
+        setEditingTable(table);
+        setIsEditSheetOpen(true);
+    };
+
+    const handleSaveTable = (updatedTable: (typeof category.tables)[number]) => {
+        // TODO: Implement API call to save the table
+        console.log("Saving table:", updatedTable);
+        setIsEditSheetOpen(false);
+    };
+
     return (
-        category.tables.length > 0 && (
-            <div className="space-y-3">
-                <h4 className="text-md font-medium">Tables</h4>
+        <>
+            {category.tables.length > 0 && (
                 <div className="space-y-4">
                     {category.tables.map((table) => {
                         const sampleData = getTableSampleData(table.name);
                         return (
-                            <Card key={table.name}>
-                                <CardHeader>
-                                    <CardTitle className="text-md">{table.name}</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    {/* Sample Data */}
-                                    {sampleData && sampleData.rows.length > 0 ? (
-                                        <div className="overflow-x-auto">
-                                            <table className="min-w-full text-sm">
-                                                <thead>
-                                                    <tr className="border-b">
-                                                        {table.columns.map((col) => (
-                                                            <th key={col.name} className="text-left font-medium px-2 py-1">
-                                                                {col.name}
-                                                            </th>
-                                                        ))}
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {sampleData.rows.slice(0, 3).map((row, idx) => (
-                                                        <tr key={idx} className="border-b">
-                                                            {table.columns.map((col) => (
-                                                                <td key={col.name} className="px-2 py-1">
-                                                                    {String(row.values[col.name] || "-")}
-                                                                </td>
-                                                            ))}
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm text-muted-foreground">No sample data available</p>
-                                    )}
-                                </CardContent>
-                            </Card>
+                            <WorkflowTableCard
+                                key={table.name}
+                                table={table}
+                                sampleData={sampleData}
+                                onEdit={handleEditTable}
+                            />
                         );
                     })}
                 </div>
-            </div>
-        )
+            )}
+
+            {/* Edit Table Sheet - Commented out until EditTableSheet component is created */}
+            {/* <EditTableSheet
+                table={editingTable}
+                isOpen={isEditSheetOpen}
+                onClose={() => setIsEditSheetOpen(false)}
+                onSave={handleSaveTable}
+            /> */}
+        </>
     );
 }
