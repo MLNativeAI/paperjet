@@ -44,6 +44,7 @@ if (process.env.NODE_ENV === "production") {
     // Serve static files
     logger.info("Production mode: serving static files from ./public");
     app.get("*", serveStatic({ root: "./public" }));
+    app.get("*", serveStatic({ path: "./public/index.html" }));
 } else {
     app.get("*", (c) => {
         return c.redirect(envVars.BASE_URL);
