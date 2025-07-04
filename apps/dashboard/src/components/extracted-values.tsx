@@ -20,16 +20,7 @@ interface ExtractedValuesProps {
     onExtractData?: () => void;
 }
 
-export function ExtractedValues({
-    extractionResult,
-    fields,
-    tables,
-    isLoading = false,
-    onFieldUpdate,
-    onFieldAdd,
-    onFieldRemove,
-    onExtractData,
-}: ExtractedValuesProps) {
+export function ExtractedValues({ extractionResult, fields, tables, isLoading = false, onFieldUpdate, onFieldAdd, onFieldRemove, onExtractData }: ExtractedValuesProps) {
     const [expandedFields, setExpandedFields] = useState<Set<number>>(new Set());
     const [editingField, setEditingField] = useState<number | null>(null);
     const [isAddingField, setIsAddingField] = useState(false);
@@ -79,7 +70,7 @@ export function ExtractedValues({
                         <div className="space-y-2">
                             {fields.map((field, index) => (
                                 <FieldValue
-                                    key={`field-${field.name}-${index}`}
+                                    key={field.id}
                                     field={field}
                                     fieldIndex={index}
                                     extractionResult={extractionResult}
@@ -94,13 +85,7 @@ export function ExtractedValues({
                                 />
                             ))}
 
-                            {isAddingField && (
-                                <AddFieldForm
-                                    onFieldAdd={onFieldAdd}
-                                    onExtractData={onExtractData}
-                                    onCancel={() => setIsAddingField(false)}
-                                />
-                            )}
+                            {isAddingField && <AddFieldForm onFieldAdd={onFieldAdd} onExtractData={onExtractData} onCancel={() => setIsAddingField(false)} />}
                         </div>
                     )}
                 </CardContent>
@@ -116,12 +101,7 @@ export function ExtractedValues({
                     <CardContent>
                         <div className="space-y-6">
                             {tables.map((table, tableIndex) => (
-                                <ExtractedTable
-                                    key={`table-${table.name}-${tableIndex}`}
-                                    table={table}
-                                    tableIndex={tableIndex}
-                                    extractionResult={extractionResult}
-                                />
+                                <ExtractedTable key={table.id || `table-${tableIndex}`} table={table} tableIndex={tableIndex} extractionResult={extractionResult} />
                             ))}
                         </div>
                     </CardContent>

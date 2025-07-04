@@ -27,7 +27,7 @@ if (!rootElement.innerHTML) {
             <QueryClientProvider client={queryClient}>
                 <RouterProvider router={router} />
             </QueryClientProvider>
-            <Toaster />
+            <Toaster position="top-right" />
         </StrictMode>,
     );
 }

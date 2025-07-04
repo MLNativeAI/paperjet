@@ -38,47 +38,21 @@ const formatValue = (value: unknown, type: string) => {
     }
 };
 
-export function FieldValue({
-    field,
-    fieldIndex,
-    extractionResult,
-    isExpanded,
-    isEditing,
-    onToggleExpansion,
-    onStartEdit,
-    onFieldUpdate,
-    onFieldRemove,
-    onExtractData,
-    onCancelEdit,
-}: FieldValueProps) {
+export function FieldValue({ field, fieldIndex, extractionResult, isExpanded, isEditing, onToggleExpansion, onStartEdit, onFieldUpdate, onFieldRemove, onExtractData, onCancelEdit }: FieldValueProps) {
     const extractedValue = extractionResult?.fields?.find((f) => f.fieldName === field.name);
 
     return (
-        <Collapsible
-            key={`field-${field.name}-${fieldIndex}`}
-            open={isExpanded}
-            onOpenChange={() => onToggleExpansion(fieldIndex)}
-        >
+        <Collapsible key={`field-${field.name}-${fieldIndex}`} open={isExpanded} onOpenChange={() => onToggleExpansion(fieldIndex)}>
             <Card className="border">
                 <CollapsibleTrigger asChild>
                     <CardContent className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                    {isExpanded ? (
-                                        <ChevronDown className="h-4 w-4" />
-                                    ) : (
-                                        <ChevronRight className="h-4 w-4" />
-                                    )}
-                                </div>
+                                <div className="flex items-center gap-2">{isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</div>
 
                                 <div className="flex-1">
                                     <div className="text-base font-medium">
-                                        {extractionResult ? (
-                                            formatValue(extractedValue?.value, field.type)
-                                        ) : (
-                                            <span className="text-muted-foreground italic">No extraction run yet</span>
-                                        )}
+                                        {extractionResult ? formatValue(extractedValue?.value, field.type) : <span className="text-muted-foreground italic">No extraction run yet</span>}
                                     </div>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="text-sm text-muted-foreground">{field.name}</span>
@@ -109,33 +83,19 @@ export function FieldValue({
                                     </TableRow>
                                     <TableRow>
                                         <TableCell className="font-medium">Description</TableCell>
-                                        <TableCell className="text-sm text-muted-foreground">
-                                            {field.description}
-                                        </TableCell>
+                                        <TableCell className="text-sm text-muted-foreground">{field.description}</TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell className="font-medium">Extracted Value</TableCell>
                                         <TableCell>
-                                            {extractionResult ? (
-                                                formatValue(extractedValue?.value, field.type)
-                                            ) : (
-                                                <span className="text-muted-foreground italic">
-                                                    No extraction run yet
-                                                </span>
-                                            )}
+                                            {extractionResult ? formatValue(extractedValue?.value, field.type) : <span className="text-muted-foreground italic">No extraction run yet</span>}
                                         </TableCell>
                                     </TableRow>
                                     {isEditing ? (
                                         <TableRow>
                                             <TableCell className="font-medium">Edit</TableCell>
                                             <TableCell>
-                                                <FieldEditor
-                                                    field={field}
-                                                    fieldIndex={fieldIndex}
-                                                    onFieldUpdate={onFieldUpdate}
-                                                    onExtractData={onExtractData}
-                                                    onCancel={onCancelEdit}
-                                                />
+                                                <FieldEditor field={field} fieldIndex={fieldIndex} onFieldUpdate={onFieldUpdate} onExtractData={onExtractData} onCancel={onCancelEdit} />
                                             </TableCell>
                                         </TableRow>
                                     ) : (

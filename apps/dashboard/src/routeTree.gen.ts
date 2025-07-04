@@ -20,8 +20,9 @@ import { Route as AppRunsRouteImport } from './routes/_app.runs'
 import { Route as AppWorkflowsNewRouteImport } from './routes/_app.workflows.new'
 import { Route as AppExecutionsExecutionIdRouteImport } from './routes/_app.executions.$executionId'
 import { Route as AppWorkflowsWorkflowIdRunRouteImport } from './routes/_app.workflows.$workflowId.run'
+import { Route as AppWorkflowsWorkflowIdLoadingRouteImport } from './routes/_app.workflows.$workflowId.loading'
 import { Route as AppWorkflowsWorkflowIdHistoryRouteImport } from './routes/_app.workflows.$workflowId.history'
-import { Route as AppWorkflowsWorkflowIdConfigureRouteImport } from './routes/_app.workflows.$workflowId.configure'
+import { Route as AppWorkflowsWorkflowIdFinalizeRouteImport } from './routes/_app.workflows.$workflowId.finalize'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -79,16 +80,22 @@ const AppWorkflowsWorkflowIdRunRoute =
     path: '/workflows/$workflowId/run',
     getParentRoute: () => AppRoute,
   } as any)
+const AppWorkflowsWorkflowIdLoadingRoute =
+  AppWorkflowsWorkflowIdLoadingRouteImport.update({
+    id: '/workflows/$workflowId/loading',
+    path: '/workflows/$workflowId/loading',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppWorkflowsWorkflowIdHistoryRoute =
   AppWorkflowsWorkflowIdHistoryRouteImport.update({
     id: '/workflows/$workflowId/history',
     path: '/workflows/$workflowId/history',
     getParentRoute: () => AppRoute,
   } as any)
-const AppWorkflowsWorkflowIdConfigureRoute =
-  AppWorkflowsWorkflowIdConfigureRouteImport.update({
-    id: '/workflows/$workflowId/configure',
-    path: '/workflows/$workflowId/configure',
+const AppWorkflowsWorkflowIdFinalizeRoute =
+  AppWorkflowsWorkflowIdFinalizeRouteImport.update({
+    id: '/workflows/$workflowId/finalize',
+    path: '/workflows/$workflowId/finalize',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -102,8 +109,9 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/executions/$executionId': typeof AppExecutionsExecutionIdRoute
   '/workflows/new': typeof AppWorkflowsNewRoute
-  '/workflows/$workflowId/configure': typeof AppWorkflowsWorkflowIdConfigureRoute
+  '/workflows/$workflowId/finalize': typeof AppWorkflowsWorkflowIdFinalizeRoute
   '/workflows/$workflowId/history': typeof AppWorkflowsWorkflowIdHistoryRoute
+  '/workflows/$workflowId/loading': typeof AppWorkflowsWorkflowIdLoadingRoute
   '/workflows/$workflowId/run': typeof AppWorkflowsWorkflowIdRunRoute
 }
 export interface FileRoutesByTo {
@@ -116,8 +124,9 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/executions/$executionId': typeof AppExecutionsExecutionIdRoute
   '/workflows/new': typeof AppWorkflowsNewRoute
-  '/workflows/$workflowId/configure': typeof AppWorkflowsWorkflowIdConfigureRoute
+  '/workflows/$workflowId/finalize': typeof AppWorkflowsWorkflowIdFinalizeRoute
   '/workflows/$workflowId/history': typeof AppWorkflowsWorkflowIdHistoryRoute
+  '/workflows/$workflowId/loading': typeof AppWorkflowsWorkflowIdLoadingRoute
   '/workflows/$workflowId/run': typeof AppWorkflowsWorkflowIdRunRoute
 }
 export interface FileRoutesById {
@@ -132,8 +141,9 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/executions/$executionId': typeof AppExecutionsExecutionIdRoute
   '/_app/workflows/new': typeof AppWorkflowsNewRoute
-  '/_app/workflows/$workflowId/configure': typeof AppWorkflowsWorkflowIdConfigureRoute
+  '/_app/workflows/$workflowId/finalize': typeof AppWorkflowsWorkflowIdFinalizeRoute
   '/_app/workflows/$workflowId/history': typeof AppWorkflowsWorkflowIdHistoryRoute
+  '/_app/workflows/$workflowId/loading': typeof AppWorkflowsWorkflowIdLoadingRoute
   '/_app/workflows/$workflowId/run': typeof AppWorkflowsWorkflowIdRunRoute
 }
 export interface FileRouteTypes {
@@ -148,8 +158,9 @@ export interface FileRouteTypes {
     | '/'
     | '/executions/$executionId'
     | '/workflows/new'
-    | '/workflows/$workflowId/configure'
+    | '/workflows/$workflowId/finalize'
     | '/workflows/$workflowId/history'
+    | '/workflows/$workflowId/loading'
     | '/workflows/$workflowId/run'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -162,8 +173,9 @@ export interface FileRouteTypes {
     | '/'
     | '/executions/$executionId'
     | '/workflows/new'
-    | '/workflows/$workflowId/configure'
+    | '/workflows/$workflowId/finalize'
     | '/workflows/$workflowId/history'
+    | '/workflows/$workflowId/loading'
     | '/workflows/$workflowId/run'
   id:
     | '__root__'
@@ -177,8 +189,9 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/executions/$executionId'
     | '/_app/workflows/new'
-    | '/_app/workflows/$workflowId/configure'
+    | '/_app/workflows/$workflowId/finalize'
     | '/_app/workflows/$workflowId/history'
+    | '/_app/workflows/$workflowId/loading'
     | '/_app/workflows/$workflowId/run'
   fileRoutesById: FileRoutesById
 }
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkflowsWorkflowIdRunRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/workflows/$workflowId/loading': {
+      id: '/_app/workflows/$workflowId/loading'
+      path: '/workflows/$workflowId/loading'
+      fullPath: '/workflows/$workflowId/loading'
+      preLoaderRoute: typeof AppWorkflowsWorkflowIdLoadingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/workflows/$workflowId/history': {
       id: '/_app/workflows/$workflowId/history'
       path: '/workflows/$workflowId/history'
@@ -273,11 +293,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkflowsWorkflowIdHistoryRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/workflows/$workflowId/configure': {
-      id: '/_app/workflows/$workflowId/configure'
-      path: '/workflows/$workflowId/configure'
-      fullPath: '/workflows/$workflowId/configure'
-      preLoaderRoute: typeof AppWorkflowsWorkflowIdConfigureRouteImport
+    '/_app/workflows/$workflowId/finalize': {
+      id: '/_app/workflows/$workflowId/finalize'
+      path: '/workflows/$workflowId/finalize'
+      fullPath: '/workflows/$workflowId/finalize'
+      preLoaderRoute: typeof AppWorkflowsWorkflowIdFinalizeRouteImport
       parentRoute: typeof AppRoute
     }
   }
@@ -305,8 +325,9 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppExecutionsExecutionIdRoute: typeof AppExecutionsExecutionIdRoute
   AppWorkflowsNewRoute: typeof AppWorkflowsNewRoute
-  AppWorkflowsWorkflowIdConfigureRoute: typeof AppWorkflowsWorkflowIdConfigureRoute
+  AppWorkflowsWorkflowIdFinalizeRoute: typeof AppWorkflowsWorkflowIdFinalizeRoute
   AppWorkflowsWorkflowIdHistoryRoute: typeof AppWorkflowsWorkflowIdHistoryRoute
+  AppWorkflowsWorkflowIdLoadingRoute: typeof AppWorkflowsWorkflowIdLoadingRoute
   AppWorkflowsWorkflowIdRunRoute: typeof AppWorkflowsWorkflowIdRunRoute
 }
 
@@ -316,8 +337,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppExecutionsExecutionIdRoute: AppExecutionsExecutionIdRoute,
   AppWorkflowsNewRoute: AppWorkflowsNewRoute,
-  AppWorkflowsWorkflowIdConfigureRoute: AppWorkflowsWorkflowIdConfigureRoute,
+  AppWorkflowsWorkflowIdFinalizeRoute: AppWorkflowsWorkflowIdFinalizeRoute,
   AppWorkflowsWorkflowIdHistoryRoute: AppWorkflowsWorkflowIdHistoryRoute,
+  AppWorkflowsWorkflowIdLoadingRoute: AppWorkflowsWorkflowIdLoadingRoute,
   AppWorkflowsWorkflowIdRunRoute: AppWorkflowsWorkflowIdRunRoute,
 }
 

@@ -1,15 +1,12 @@
 import { zValidator } from "@hono/zod-validator";
-import { WorkflowService } from "@paperjet/engine";
+import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
-import { s3 } from "@/lib/s3";
+import { workflowService } from "@/lib/services";
 import { executionIdSchema, workflowIdSchema } from "@/lib/validation";
 
 const app = new Hono();
-
-// Initialize workflow service with dependencies
-const workflowService = new WorkflowService({ s3 });
 
 // Validation schemas
 const executionIdParamSchema = z.object({
@@ -27,7 +24,7 @@ const router = app
             const executions = await workflowService.getAllExecutions(user.id);
             return c.json(executions);
         } catch (error) {
-            console.error("Get all executions error:", error);
+            logger.error(error, "Get all executions error:");
             return c.json({ error: "Failed to get executions" }, 500);
         }
     })
@@ -38,7 +35,7 @@ const router = app
             const execution = await workflowService.getExecutionDetails(executionId, user.id);
             return c.json(execution);
         } catch (error) {
-            console.error("Get execution details error:", error);
+            logger.error(error, "Get execution details error:");
             if (error instanceof Error && error.message === "Execution not found") {
                 return c.json({ error: "Execution not found" }, 404);
             }
@@ -63,7 +60,7 @@ const router = app
             const result = await workflowService.executeWorkflow(workflowId, user.id, uploadedFile);
             return c.json(result);
         } catch (error) {
-            console.error("Execution error:", error);
+            logger.error(error, "Execution error:");
             if (error instanceof Error && error.message === "Workflow not found") {
                 return c.json({ error: "Workflow not found" }, 404);
             }
@@ -92,7 +89,7 @@ const router = app
 
             return c.json({ executions: results });
         } catch (error) {
-            console.error("Bulk execution error:", error);
+            logger.error(error, "Bulk execution error:");
             if (error instanceof Error && error.message === "Workflow not found") {
                 return c.json({ error: "Workflow not found" }, 404);
             }
@@ -106,7 +103,7 @@ const router = app
             const executions = await workflowService.getWorkflowExecutions(workflowId, user.id);
             return c.json(executions);
         } catch (error) {
-            console.error("Get executions error:", error);
+            logger.error(error, "Get executions error:");
             if (error instanceof Error && error.message === "Workflow not found") {
                 return c.json({ error: "Workflow not found" }, 404);
             }
@@ -120,7 +117,7 @@ const router = app
             await workflowService.deleteExecution(executionId, user.id);
             return c.json({ success: true });
         } catch (error) {
-            console.error("Delete execution error:", error);
+            logger.error(error, "Delete execution error:");
             if (error instanceof Error && error.message === "Execution not found") {
                 return c.json({ error: "Execution not found" }, 404);
             }

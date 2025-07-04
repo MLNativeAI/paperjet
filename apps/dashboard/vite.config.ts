@@ -13,6 +13,7 @@ export default defineConfig({
             "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
             "@": path.resolve(__dirname, "./src"),
             "@api/*": path.resolve(__dirname, "../api/*"),
+            "@paperjet/engine": path.resolve(__dirname, "../../packages/engine/src"),
         },
     },
     server: {

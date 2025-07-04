@@ -32,7 +32,7 @@ app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
 // Health check
 app.get("/api/health", async (c) => {
-    logger.info("health check", { endpoint: "/api/health", method: "GET" });
+    logger.info({ endpoint: "/api/health", method: "GET" }, "health check");
     return c.json({
         status: "ok",
     });
@@ -41,9 +41,11 @@ app.get("/api/health", async (c) => {
 export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions);
 
 if (process.env.NODE_ENV === "production") {
-    // Serve static files
-    app.get("*", serveStatic({ root: "./public" }));
-    app.get("*", serveStatic({ path: "./public/index.html" }));
+    // Serve all static files from the dist directory
+    app.use("*", serveStatic({ root: "./dist" }));
+
+    // Serve index.html for all other routes (SPA fallback)
+    app.get("*", serveStatic({ path: "./dist/index.html" }));
 } else {
     app.get("*", (c) => {
         return c.redirect(envVars.BASE_URL);
@@ -56,10 +58,13 @@ const server = Bun.serve({
     fetch: app.fetch,
 });
 
-logger.info(`🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`, {
-    port: server.port,
-    environment: envVars.ENVIRONMENT,
-    hostname: "0.0.0.0",
-});
+logger.info(
+    {
+        port: server.port,
+        environment: envVars.ENVIRONMENT,
+        hostname: "0.0.0.0",
+    },
+    `🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`,
+);
 
 export type ApiRoutes = typeof apiRoutes;

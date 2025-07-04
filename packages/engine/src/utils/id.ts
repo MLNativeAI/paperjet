@@ -9,8 +9,12 @@ export const ID_PREFIXES = {
     workflow: "wkf",
     workflowExecution: "run",
     workflowFile: "wfl",
+    WORKFLOW_SAMPLE: "wsp",
     user: "usr",
     session: "ses",
     account: "acc",
     verification: "ver",
+    field: "fld",
+    table: "tbl",
+    column: "col",
 } as const;

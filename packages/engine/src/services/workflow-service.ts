@@ -1,19 +1,24 @@
-import { google } from "@ai-sdk/google";
 import { db } from "@paperjet/db";
-import { file, workflow, workflowExecution, workflowFile } from "@paperjet/db/schema";
-import {
-    type DocumentAnalysis,
-    documentAnalysisSchema,
-    type ExtractionResult,
-    type WorkflowConfiguration,
-    workflowConfigurationSchema,
-} from "@paperjet/db/types";
-import { generateObject } from "ai";
-import { and, desc, eq } from "drizzle-orm";
+import { file, workflow } from "@paperjet/db/schema";
+import { logger } from "@paperjet/shared";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
+import {
+    type CategoriesConfiguration,
+    type ExtractionResult,
+    type Workflow,
+    type WorkflowConfiguration,
+    type WorkflowRun,
+    workflowConfigurationSchema,
+} from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
+import { performCompleteAnalysis } from "./document-analysis-service";
+import type { DocumentExtractionService } from "./document-extraction-service";
+import type { WorkflowExecutionService } from "./workflow-execution-service";
 
 export interface WorkflowServiceDeps {
+    documentExtractionService: DocumentExtractionService;
+    workflowExecutionService: WorkflowExecutionService;
     s3: {
         presign: (filename: string) => Promise<string>;
         file: (filename: string) => {
@@ -25,58 +30,240 @@ export interface WorkflowServiceDeps {
 export class WorkflowService {
     constructor(private deps: WorkflowServiceDeps) {}
 
+    async #parseWorkflowConfiguration(configuration: string): Promise<WorkflowConfiguration> {
+        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(configuration));
+        if (!parsedConfig.success) {
+            logger.warn(parsedConfig.error, `Invalid workflow configuration: ${configuration}`);
+        }
+        return parsedConfig.data ?? { fields: [], tables: [] };
+    }
+
+    async createWorkflow(
+        fileParam: File,
+        userId: string,
+    ): Promise<{
+        workflowId: string;
+        fileId: string;
+    }> {
+        logger.info(
+            {
+                userId,
+                fileName: fileParam.name,
+                fileSize: fileParam.size,
+                fileType: fileParam.type,
+            },
+            "Creating new workflow from file",
+        );
+
+        // Save file first
+        const fileId = generateId(ID_PREFIXES.file);
+        const filename = `workflow-samples/${fileId}-${fileParam.name}`;
+
+        await db.insert(file).values({
+            id: fileId,
+            filename,
+            createdAt: new Date(),
+            ownerId: userId,
+        });
+
+        const fileBuffer = await fileParam.arrayBuffer();
+        await this.deps.s3.file(filename).write(fileBuffer);
+
+        // Create workflow with empty configuration initially
+        const workflowId = generateId(ID_PREFIXES.workflow);
+        const workflowName = "New Workflow"; // Will be updated after analysis
+
+        const emptyConfiguration: WorkflowConfiguration = { fields: [], tables: [] };
+
+        const emptyResult: ExtractionResult = {
+            fields: [],
+            tables: [],
+        };
+
+        await db.insert(workflow).values({
+            id: workflowId,
+            name: workflowName,
+            description: "",
+            categories: "[]",
+            configuration: JSON.stringify(emptyConfiguration),
+            sampleData: JSON.stringify(emptyResult),
+            fileId,
+            status: "analyzing",
+            ownerId: userId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        });
+
+        logger.info(
+            {
+                workflowId,
+                fileId,
+                userId,
+                workflowName,
+            },
+            "Workflow created successfully from file",
+        );
+
+        return {
+            workflowId,
+            fileId,
+        };
+    }
+
+    async analyzeWorkflowDocument(workflowId: string, userId: string): Promise<void> {
+        logger.info({ workflowId, userId }, "Starting workflow document analysis");
+
+        // Get workflow and associated file
+        const [workflowData] = await db
+            .select({
+                workflowId: workflow.id,
+                workflowName: workflow.name,
+                fileId: workflow.fileId,
+                filename: file.filename,
+            })
+            .from(workflow)
+            .leftJoin(file, eq(workflow.fileId, file.id))
+            .where(eq(workflow.id, workflowId));
+
+        if (!workflowData) {
+            throw new Error("Workflow not found");
+        }
+
+        if (!workflowData.fileId || !workflowData.filename) {
+            throw new Error("No file associated with this workflow");
+        }
+
+        // Get presigned URL for the existing file
+        const presignedUrl = await this.deps.s3.presign(workflowData.filename);
+
+        // Use the document analysis service to perform complete analysis
+        const analysisResult = await performCompleteAnalysis(presignedUrl);
+
+        // Update workflow configuration with analysis results and set status to extracting
+        const configuration: WorkflowConfiguration = {
+            fields: analysisResult.fields,
+            tables: analysisResult.tables,
+        };
+
+        await db
+            .update(workflow)
+            .set({
+                name: analysisResult.workflowName,
+                description: analysisResult.description,
+                categories: JSON.stringify(analysisResult.categories),
+                configuration: JSON.stringify(configuration),
+                status: "extracting",
+                updatedAt: new Date(),
+            })
+            .where(eq(workflow.id, workflowId));
+
+        logger.info("Workflow document analysis completed, triggering data extraction");
+
+        await this.extractDataFromDocument(workflowId, workflowData.fileId, userId, configuration);
+    }
+
+    async extractDataFromDocument(
+        workflowId: string,
+        fileId: string,
+        userId: string,
+        configuration: WorkflowConfiguration,
+    ) {
+        logger.info("Starting data extraction from document");
+        // Get file from database
+        const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
+
+        if (!fileRecord || fileRecord.ownerId !== userId) {
+            throw new Error("File not found");
+        }
+
+        // Get presigned URL for the file
+        const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
+
+        // Use the document extraction service
+        const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(
+            presignedUrl,
+            configuration,
+        );
+
+        logger.info(
+            {
+                workflowId,
+                fileId,
+                extractedFieldsCount: extractionResult.fields.length,
+                extractedTablesCount: extractionResult.tables.length,
+            },
+            "Data extraction from document completed",
+        );
+
+        // Store sample data in workflow_sample table
+        await db
+            .update(workflow)
+            .set({
+                sampleData: JSON.stringify(extractionResult),
+                sampleDataExtractedAt: new Date(),
+                updatedAt: new Date(),
+            })
+            .where(eq(workflow.id, workflowId));
+
+        // Update workflow status to configuring after extraction
+        await db
+            .update(workflow)
+            .set({
+                status: "configuring",
+                updatedAt: new Date(),
+            })
+            .where(eq(workflow.id, workflowId));
+
+        logger.info(
+            {
+                workflowId,
+                fileId,
+                extractedFieldsCount: extractionResult.fields.length,
+                extractedTablesCount: extractionResult.tables.length,
+            },
+            "Sample data stored in workflow_sample table",
+        );
+
+        return {
+            fileId,
+            extractionResult,
+        };
+    }
+
     async getWorkflows(userId: string) {
         const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
 
-        return workflows.map((w) => {
-            const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(w.configuration));
-            if (!parsedConfig.success) {
-                console.warn(`Invalid workflow configuration for workflow ${w.id}:`, parsedConfig.error);
-                // Return a default configuration if parsing fails
+        const result = await Promise.all(
+            workflows.map(async (w) => {
+                const parsedConfig = await this.#parseWorkflowConfiguration(w.configuration);
                 return {
                     ...w,
-                    configuration: { fields: [], tables: [] },
+                    configuration: parsedConfig,
+                    categories: JSON.parse(w.categories) as CategoriesConfiguration,
+                    sampleData: w.sampleData ? (JSON.parse(w.sampleData) as ExtractionResult) : null,
+                    sampleDataExtractedAt: w.sampleDataExtractedAt,
                 };
-            }
-            return {
-                ...w,
-                configuration: parsedConfig.data,
-            };
-        });
+            }),
+        );
+
+        return result;
     }
 
-    async getWorkflow(workflowId: string, userId: string) {
-        const [workflowData] = await db
-            .select({
-                id: workflow.id,
-                name: workflow.name,
-                configuration: workflow.configuration,
-                ownerId: workflow.ownerId,
-                createdAt: workflow.createdAt,
-                updatedAt: workflow.updatedAt,
-                fileId: workflowFile.fileId,
-            })
-            .from(workflow)
-            .leftJoin(workflowFile, eq(workflow.id, workflowFile.workflowId))
-            .where(eq(workflow.id, workflowId));
+    async getWorkflow(workflowId: string, userId: string): Promise<Workflow> {
+        const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
         if (!workflowData || workflowData.ownerId !== userId) {
             throw new Error("Workflow not found");
         }
 
-        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
-        if (!parsedConfig.success) {
-            console.warn(`Invalid workflow configuration for workflow ${workflowId}:`, parsedConfig.error);
-            // Return a default configuration if parsing fails
-            return {
-                ...workflowData,
-                configuration: { fields: [], tables: [] },
-            };
-        }
+        const parsedConfig = await this.#parseWorkflowConfiguration(workflowData.configuration);
 
         return {
             ...workflowData,
-            configuration: parsedConfig.data,
+            configuration: parsedConfig,
+            categories: JSON.parse(workflowData.categories) as CategoriesConfiguration,
+            sampleData: workflowData.sampleData ? (JSON.parse(workflowData.sampleData) as ExtractionResult) : null,
+            sampleDataExtractedAt: workflowData.sampleDataExtractedAt,
         };
     }
 
@@ -109,6 +296,8 @@ export class WorkflowService {
 
         if (validatedData.name) {
             updateData.name = validatedData.name;
+            // When a name is provided, update status to active
+            updateData.status = "active";
         }
 
         if (validatedData.configuration) {
@@ -116,427 +305,6 @@ export class WorkflowService {
         }
 
         await db.update(workflow).set(updateData).where(eq(workflow.id, workflowId));
-    }
-
-    async getAnalysisStatus(workflowId: string, userId: string) {
-        const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-        if (!workflowData || workflowData.ownerId !== userId) {
-            throw new Error("Workflow not found");
-        }
-
-        // Check if analysis is complete by looking at configuration
-        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
-        if (!parsedConfig.success) {
-            console.warn(`Invalid workflow configuration for workflow ${workflowId}:`, parsedConfig.error);
-            // Return default values if parsing fails
-            return {
-                analysisComplete: false,
-                suggestedFields: [],
-                suggestedTables: [],
-                hasFields: false,
-                documentType: "Unknown",
-            };
-        }
-
-        const configuration = parsedConfig.data;
-        const hasFields = configuration.fields && configuration.fields.length > 0;
-        const isAnalysisComplete = hasFields;
-
-        return {
-            analysisComplete: isAnalysisComplete,
-            suggestedFields: configuration.fields || [],
-            suggestedTables: configuration.tables || [],
-            hasFields,
-            documentType: configuration.documentType || "Unknown",
-        };
-    }
-
-    async createWorkflow(
-        userId: string,
-        data: {
-            name: string;
-            configuration: WorkflowConfiguration;
-            fileId?: string;
-        },
-    ) {
-        const createWorkflowSchema = z.object({
-            name: z.string(),
-            configuration: workflowConfigurationSchema,
-            fileId: z.string().optional(),
-        });
-
-        const validatedData = createWorkflowSchema.parse(data);
-        const id = generateId(ID_PREFIXES.workflow);
-
-        await db.insert(workflow).values({
-            id,
-            name: validatedData.name,
-            configuration: JSON.stringify(validatedData.configuration),
-            ownerId: userId,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        });
-
-        // Link file to workflow if provided
-        if (validatedData.fileId) {
-            await db.insert(workflowFile).values({
-                id: generateId(ID_PREFIXES.workflowFile),
-                workflowId: id,
-                fileId: validatedData.fileId,
-                createdAt: new Date(),
-            });
-        }
-
-        return { id };
-    }
-
-    async analyzeWorkflowDocument(
-        workflowId: string,
-        userId: string,
-    ): Promise<{
-        analysis: DocumentAnalysis;
-    }> {
-        // Get workflow and associated file
-        const [workflowData] = await db
-            .select({
-                workflowId: workflow.id,
-                workflowName: workflow.name,
-                fileId: workflowFile.fileId,
-                filename: file.filename,
-            })
-            .from(workflow)
-            .leftJoin(workflowFile, eq(workflow.id, workflowFile.workflowId))
-            .leftJoin(file, eq(workflowFile.fileId, file.id))
-            .where(eq(workflow.id, workflowId));
-
-        if (!workflowData || workflowData.workflowId === null) {
-            throw new Error("Workflow not found");
-        }
-
-        if (!workflowData.fileId || !workflowData.filename) {
-            throw new Error("No file associated with this workflow");
-        }
-
-        // Get presigned URL for the existing file
-        const presignedUrl = await this.deps.s3.presign(workflowData.filename);
-
-        // Analyze document with Gemini Flash
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
-
-        const { object } = await generateObject({
-            model,
-            schema: documentAnalysisSchema,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: `Analyze this document and suggest relevant fields to extract.
-
-For each field, provide:
-- A clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
-- The expected data type (text, number, date, currency, boolean)
-- A detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
-
-Focus on extracting:
-1. **Identification fields**: Document numbers, IDs, reference codes
-2. **Key entities**: Names, addresses, contact information
-3. **Important dates**: Creation dates, due dates, effective dates
-4. **Financial information**: Amounts, taxes, totals, currency values
-5. **Status indicators**: Approval status, document state, flags
-6. **Structured data**: Tables, line items, product lists
-
-Examples of good field descriptions:
-- "invoice_number": "The unique identifier for this invoice, often labeled as 'Invoice #', 'Invoice Number', 'Document Number', or similar, typically alphanumeric"
-- "total_amount": "The final total amount due, usually labeled as 'Total', 'Amount Due', 'Grand Total', or 'Total Amount', excluding currency symbols"
-- "invoice_date": "The date when the invoice was created or issued, typically labeled as 'Invoice Date', 'Date', or 'Issued' in MM/DD/YYYY or similar format"
-
-Provide a structured analysis with practical, commonly needed information extraction focused on business processes.`,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
-
-        // Update workflow configuration with analysis results
-        const analysisResult = object as DocumentAnalysis;
-        const configuration = {
-            fields: analysisResult.suggestedFields || [],
-            tables: analysisResult.suggestedTables || [],
-            documentType: analysisResult.documentType || "Unknown",
-        };
-
-        await db
-            .update(workflow)
-            .set({
-                configuration: JSON.stringify(configuration),
-                updatedAt: new Date(),
-            })
-            .where(eq(workflow.id, workflowId));
-
-        return {
-            analysis: analysisResult,
-        };
-    }
-
-    async createWorkflowFromFile(
-        fileParam: File,
-        userId: string,
-    ): Promise<{
-        workflowId: string;
-        fileId: string;
-    }> {
-        // Save file first
-        const fileId = generateId(ID_PREFIXES.file);
-        const filename = `workflow-samples/${fileId}-${fileParam.name}`;
-
-        await db.insert(file).values({
-            id: fileId,
-            filename,
-            createdAt: new Date(),
-            ownerId: userId,
-        });
-
-        const fileBuffer = await fileParam.arrayBuffer();
-        await this.deps.s3.file(filename).write(fileBuffer);
-
-        // Create workflow with empty configuration initially
-        const workflowId = generateId(ID_PREFIXES.workflow);
-        const workflowName = "New Workflow"; // Will be updated after analysis
-
-        await db.insert(workflow).values({
-            id: workflowId,
-            name: workflowName,
-            configuration: JSON.stringify({
-                fields: [],
-                tables: [],
-            }),
-            ownerId: userId,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        });
-
-        // Link file to workflow
-        await db.insert(workflowFile).values({
-            id: generateId(ID_PREFIXES.workflowFile),
-            workflowId,
-            fileId,
-            createdAt: new Date(),
-        });
-
-        return {
-            workflowId,
-            fileId,
-        };
-    }
-
-    async extractDataFromDocument(
-        workflowId: string,
-        fileId: string,
-        userId: string,
-        extractionConfig: {
-            fields: Array<{
-                name: string;
-                description: string;
-                type: "text" | "number" | "date" | "currency" | "boolean";
-            }>;
-            tables: Array<{
-                name: string;
-                description: string;
-                columns: Array<{
-                    name: string;
-                    description: string;
-                    type: "text" | "number" | "date" | "currency" | "boolean";
-                }>;
-            }>;
-        },
-    ): Promise<{
-        fileId: string;
-        extractionResult: ExtractionResult;
-    }> {
-        const extractSchema = z.object({
-            fields: z.array(
-                z.object({
-                    name: z.string(),
-                    description: z.string(),
-                    type: z.enum(["text", "number", "date", "currency", "boolean"]),
-                }),
-            ),
-            tables: z.array(
-                z.object({
-                    name: z.string(),
-                    description: z.string(),
-                    columns: z.array(
-                        z.object({
-                            name: z.string(),
-                            description: z.string(),
-                            type: z.enum(["text", "number", "date", "currency", "boolean"]),
-                        }),
-                    ),
-                }),
-            ),
-        });
-
-        const validatedData = extractSchema.parse(extractionConfig);
-
-        // Get file from database
-        const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
-
-        if (!fileRecord || fileRecord.ownerId !== userId) {
-            throw new Error("File not found");
-        }
-
-        // Get presigned URL for the file
-        const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
-
-        // Create dynamic schema based on provided fields and tables
-        const fieldSchemas = validatedData.fields
-            .map((field) => {
-                let zodType: string;
-                switch (field.type) {
-                    case "number":
-                        zodType = "z.number().nullable()";
-                        break;
-                    case "date":
-                        zodType = "z.string().nullable()"; // Date as ISO string
-                        break;
-                    case "currency":
-                        zodType = "z.number().nullable()"; // Currency as number
-                        break;
-                    case "boolean":
-                        zodType = "z.boolean().nullable()";
-                        break;
-                    default:
-                        zodType = "z.string().nullable()";
-                }
-                return `${field.name}: ${zodType}`;
-            })
-            .join(",\n  ");
-
-        const tableSchemas = validatedData.tables
-            .map((table) => {
-                const columnSchemas = table.columns
-                    .map((col) => {
-                        let zodType: string;
-                        switch (col.type) {
-                            case "number":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "date":
-                                zodType = "z.string().nullable()";
-                                break;
-                            case "currency":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "boolean":
-                                zodType = "z.boolean().nullable()";
-                                break;
-                            default:
-                                zodType = "z.string().nullable()";
-                        }
-                        return `${col.name}: ${zodType}`;
-                    })
-                    .join(",\n    ");
-
-                return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
-            })
-            .join(",\n  ");
-
-        const fullSchema = `z.object({
-  ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
-})`;
-
-        // Build extraction prompt with field descriptions
-        const fieldDescriptions = validatedData.fields
-            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
-            .join("\n");
-
-        const tableDescriptions = validatedData.tables
-            .map((table) => {
-                const columnDescs = table.columns
-                    .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
-                    .join("\n");
-                return `- ${table.name}: ${table.description}\n${columnDescs}`;
-            })
-            .join("\n");
-
-        const prompt = `Extract the following information from this document:
-
-FIELDS TO EXTRACT:
-${fieldDescriptions}
-
-${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ""}
-
-Instructions:
-- Extract exact values as they appear in the document
-- For currency fields, extract as numbers (remove currency symbols)
-- For date fields, use ISO format (YYYY-MM-DD)
-- For boolean fields, return true/false based on presence or checkmarks
-- If a field is not found or unclear, return null
-- For tables, extract all rows found
-- Maintain data accuracy and completeness`;
-
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
-        }
-
-        const model = google("gemini-2.5-flash");
-
-        // Build dynamic schema object for generateObject
-        const schemaObj = eval(`(${fullSchema})`);
-
-        const { object } = await generateObject({
-            model,
-            schema: schemaObj,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: prompt,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
-
-        // Transform the result to match our extraction result schema
-        const extractionResult: ExtractionResult = {
-            fields: validatedData.fields.map((field) => ({
-                fieldName: field.name,
-                value: (object as any)[field.name],
-                confidence: 0.9, // Default confidence, could be enhanced
-            })),
-            tables: validatedData.tables.map((table) => ({
-                tableName: table.name,
-                rows: ((object as any)[table.name] || []).map((row: any) => ({
-                    values: row,
-                })),
-                confidence: 0.9,
-            })),
-        };
-
-        return {
-            fileId,
-            extractionResult,
-        };
     }
 
     async getDocumentForFile(fileId: string, userId: string) {
@@ -550,14 +318,27 @@ Instructions:
         // Get presigned URL for the file
         const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
 
-        return {
+        const result = {
             fileId,
             filename: fileRecord.filename,
             presignedUrl,
         };
+
+        return result;
     }
 
-async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
+    async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
+        logger.info(
+            {
+                workflowId,
+                userId,
+                fileName: uploadedFile.name,
+                fileSize: uploadedFile.size,
+                fileType: uploadedFile.type,
+            },
+            "Starting workflow execution",
+        );
+
         // Get workflow and verify ownership
         const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
@@ -566,187 +347,39 @@ async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
         }
 
         // Parse workflow configuration
-        const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(workflowData.configuration));
-        if (!parsedConfig.success) {
-            throw new Error(`Invalid workflow configuration: ${parsedConfig.error.message}`);
-        }
-        const config = parsedConfig.data;
+        const config = await this.#parseWorkflowConfiguration(workflowData.configuration);
 
-        // Create execution record for single file
-        const executionId = generateId(ID_PREFIXES.workflowExecution);
-        const fileId = generateId(ID_PREFIXES.file);
-        const filename = `executions/${executionId}/${uploadedFile.name}`;
+        // Use the workflow execution service
+        const result = await this.deps.workflowExecutionService.executeWorkflow(
+            workflowId,
+            workflowData.name,
+            config,
+            userId,
+            uploadedFile,
+        );
 
-        try {
-            // Save file to storage
-            await db.insert(file).values({
-                id: fileId,
-                filename,
-                createdAt: new Date(),
-                ownerId: userId,
-            });
-
-            const fileBuffer = await uploadedFile.arrayBuffer();
-            await this.deps.s3.file(filename).write(fileBuffer);
-
-            // Create execution record with file reference
-            await db.insert(workflowExecution).values({
-                id: executionId,
+        logger.info(
+            {
                 workflowId,
-                fileId,
-                status: "processing",
-                startedAt: new Date(),
-                createdAt: new Date(),
-                ownerId: userId,
-            });
+                executionId: result.executionId,
+                status: result.status,
+            },
+            "Workflow execution completed via service",
+        );
 
-            // Extract data using existing extraction logic
-            const extractionResult = await this.processExecutionFile(filename, config);
-
-            // Update execution with results
-            await db
-                .update(workflowExecution)
-                .set({
-                    extractionResult: JSON.stringify(extractionResult),
-                    status: "completed",
-                    completedAt: new Date(),
-                })
-                .where(eq(workflowExecution.id, executionId));
-
-            return {
-                executionId,
-                status: "completed",
-                fileId,
-                filename: uploadedFile.name,
-                extractionResult,
-            };
-        } catch (error) {
-            console.error("File processing error:", error);
-
-            // Update execution with error
-            await db
-                .update(workflowExecution)
-                .set({
-                    status: "failed",
-                    errorMessage: error instanceof Error ? error.message : "Unknown error",
-                    completedAt: new Date(),
-                })
-                .where(eq(workflowExecution.id, executionId));
-
-            return {
-                executionId,
-                status: "failed",
-                fileId,
-                filename: uploadedFile.name,
-                error: error instanceof Error ? error.message : "Unknown error",
-            };
-        }
+        return result;
     }
 
-    async getWorkflowExecutions(workflowId: string, userId: string) {
-        // Verify workflow ownership
-        const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-        if (!workflowData || workflowData.ownerId !== userId) {
-            throw new Error("Workflow not found");
-        }
-
-        // Get executions with file details
-        const executions = await db
-            .select({
-                id: workflowExecution.id,
-                workflowId: workflowExecution.workflowId,
-                fileId: workflowExecution.fileId,
-                status: workflowExecution.status,
-                extractionResult: workflowExecution.extractionResult,
-                errorMessage: workflowExecution.errorMessage,
-                startedAt: workflowExecution.startedAt,
-                completedAt: workflowExecution.completedAt,
-                createdAt: workflowExecution.createdAt,
-                filename: file.filename,
-            })
-            .from(workflowExecution)
-            .leftJoin(file, eq(workflowExecution.fileId, file.id))
-            .where(eq(workflowExecution.workflowId, workflowId))
-            .orderBy(desc(workflowExecution.createdAt));
-
-        return executions.map((execution) => ({
-            ...execution,
-            filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
-        }));
+    async getWorkflowExecutions(workflowId: string, userId: string): Promise<WorkflowRun[]> {
+        return await this.deps.workflowExecutionService.getWorkflowExecutions(workflowId, userId);
     }
 
-    async getAllExecutions(userId: string) {
-        // Get all executions for user with workflow names and file details
-        const executions = await db
-            .select({
-                id: workflowExecution.id,
-                workflowId: workflowExecution.workflowId,
-                workflowName: workflow.name,
-                fileId: workflowExecution.fileId,
-                status: workflowExecution.status,
-                extractionResult: workflowExecution.extractionResult,
-                errorMessage: workflowExecution.errorMessage,
-                startedAt: workflowExecution.startedAt,
-                completedAt: workflowExecution.completedAt,
-                createdAt: workflowExecution.createdAt,
-                filename: file.filename,
-            })
-            .from(workflowExecution)
-            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
-            .leftJoin(file, eq(workflowExecution.fileId, file.id))
-            .where(eq(workflow.ownerId, userId))
-            .orderBy(desc(workflowExecution.createdAt));
-
-        return executions.map((execution) => ({
-            ...execution,
-            // Extract just the filename without the path
-            filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
-        }));
+    async getAllExecutions(userId: string): Promise<WorkflowRun[]> {
+        return await this.deps.workflowExecutionService.getAllExecutions(userId);
     }
 
-    async getExecutionDetails(executionId: string, userId: string) {
-        // Get the execution with workflow and file details
-        const [executionData] = await db
-            .select({
-                id: workflowExecution.id,
-                workflowId: workflowExecution.workflowId,
-                workflowName: workflow.name,
-                fileId: workflowExecution.fileId,
-                status: workflowExecution.status,
-                extractionResult: workflowExecution.extractionResult,
-                errorMessage: workflowExecution.errorMessage,
-                startedAt: workflowExecution.startedAt,
-                completedAt: workflowExecution.completedAt,
-                createdAt: workflowExecution.createdAt,
-                filename: file.filename,
-            })
-            .from(workflowExecution)
-            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
-            .leftJoin(file, eq(workflowExecution.fileId, file.id))
-            .where(eq(workflowExecution.id, executionId));
-
-        if (!executionData || executionData.workflowId === null) {
-            throw new Error("Execution not found");
-        }
-
-        // Verify the workflow belongs to the user
-        const [workflowData] = await db
-            .select({ ownerId: workflow.ownerId })
-            .from(workflow)
-            .where(eq(workflow.id, executionData.workflowId));
-
-        if (!workflowData || workflowData.ownerId !== userId) {
-            throw new Error("Execution not found");
-        }
-
-        return {
-            ...executionData,
-            // Extract just the filename without the path
-            filename: executionData.filename ? executionData.filename.split("/").pop() || "Unknown" : "Unknown",
-            // Parse extractionResult from JSON string to object
-            extractionResult: executionData.extractionResult ? JSON.parse(executionData.extractionResult) : null,
-        };
+    async getExecutionDetails(executionId: string, userId: string): Promise<WorkflowRun> {
+        return await this.deps.workflowExecutionService.getExecutionDetails(executionId, userId);
     }
 
     async deleteWorkflow(workflowId: string, userId: string) {
@@ -757,168 +390,157 @@ async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
             throw new Error("Workflow not found");
         }
 
-        // Delete workflow executions (cascade will handle file references)
-        await db.delete(workflowExecution).where(eq(workflowExecution.workflowId, workflowId));
-
         // Delete workflow files
-        await db.delete(workflowFile).where(eq(workflowFile.workflowId, workflowId));
+        await db.delete(file).where(eq(file.id, existingWorkflow.fileId));
 
         // Delete the workflow itself
         await db.delete(workflow).where(eq(workflow.id, workflowId));
     }
 
     async deleteExecution(executionId: string, userId: string) {
-        // Get execution and verify user owns the associated workflow
-        const [executionData] = await db
-            .select({
-                id: workflowExecution.id,
-                workflowId: workflowExecution.workflowId,
-                fileId: workflowExecution.fileId,
-            })
-            .from(workflowExecution)
-            .innerJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
-            .where(and(eq(workflowExecution.id, executionId), eq(workflow.ownerId, userId)));
-
-        if (!executionData) {
-            throw new Error("Execution not found");
-        }
-
-        // Delete the execution
-        await db.delete(workflowExecution).where(eq(workflowExecution.id, executionId));
+        return await this.deps.workflowExecutionService.deleteExecution(executionId, userId);
     }
 
-    private async processExecutionFile(filename: string, config: WorkflowConfiguration): Promise<ExtractionResult> {
-        const presignedUrl = await this.deps.s3.presign(filename);
+    async updateWorkflowField(
+        workflowId: string,
+        fieldId: string,
+        userId: string,
+        updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id">>,
+    ) {
+        // Get the workflow
+        const workflowData = await this.getWorkflow(workflowId, userId);
 
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Google API key not configured");
+        // Find and update the field
+        const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
+        if (fieldIndex === -1) {
+            throw new Error("Field not found");
         }
 
-        const model = google("gemini-2.5-flash");
+        // Update the field while preserving all required properties
+        const currentField = workflowData.configuration.fields[fieldIndex];
+        if (!currentField) {
+            throw new Error("Field not found");
+        }
 
-        // Build extraction schema
-        const fieldSchemas = config.fields
-            .map((field) => {
-                let zodType: string;
-                switch (field.type) {
-                    case "number":
-                        zodType = "z.number().nullable()";
-                        break;
-                    case "date":
-                        zodType = "z.string().nullable()";
-                        break;
-                    case "currency":
-                        zodType = "z.number().nullable()";
-                        break;
-                    case "boolean":
-                        zodType = "z.boolean().nullable()";
-                        break;
-                    default:
-                        zodType = "z.string().nullable()";
-                }
-                return `${field.name}: ${zodType}`;
-            })
-            .join(",\n  ");
-
-        const tableSchemas = config.tables
-            .map((table) => {
-                const columnSchemas = table.columns
-                    .map((col) => {
-                        let zodType: string;
-                        switch (col.type) {
-                            case "number":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "date":
-                                zodType = "z.string().nullable()";
-                                break;
-                            case "currency":
-                                zodType = "z.number().nullable()";
-                                break;
-                            case "boolean":
-                                zodType = "z.boolean().nullable()";
-                                break;
-                            default:
-                                zodType = "z.string().nullable()";
-                        }
-                        return `${col.name}: ${zodType}`;
-                    })
-                    .join(",\n    ");
-
-                return `${table.name}: z.array(z.object({\n    ${columnSchemas}\n  }))`;
-            })
-            .join(",\n  ");
-
-        const fullSchema = `z.object({
-  ${fieldSchemas}${fieldSchemas && tableSchemas ? ",\n  " : ""}${tableSchemas}
-})`;
-
-        const fieldDescriptions = config.fields
-            .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
-            .join("\n");
-
-        const tableDescriptions = config.tables
-            .map((table) => {
-                const columnDescs = table.columns
-                    .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
-                    .join("\n");
-                return `- ${table.name}: ${table.description}\n${columnDescs}`;
-            })
-            .join("\n");
-
-        const prompt = `Extract the following information from this document:
-
-FIELDS TO EXTRACT:
-${fieldDescriptions}
-
-${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ""}
-
-Instructions:
-- Extract exact values as they appear in the document
-- For currency fields, extract as numbers (remove currency symbols)
-- For date fields, use ISO format (YYYY-MM-DD)
-- For boolean fields, return true/false based on presence or checkmarks
-- If a field is not found or unclear, return null
-- For tables, extract all rows found
-- Maintain data accuracy and completeness`;
-
-        const schemaObj = eval(`(${fullSchema})`);
-
-        const { object } = await generateObject({
-            model,
-            schema: schemaObj,
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: prompt,
-                        },
-                        {
-                            type: "image",
-                            image: new URL(presignedUrl),
-                        },
-                    ],
-                },
-            ],
-        });
-
-        // Transform result to match our extraction result schema
-        return {
-            fields: config.fields.map((field) => ({
-                fieldName: field.name,
-                value: (object as any)[field.name],
-                confidence: 0.9,
-            })),
-            tables: config.tables.map((table) => ({
-                tableName: table.name,
-                rows: ((object as any)[table.name] || []).map((row: any) => ({
-                    values: row,
-                })),
-                confidence: 0.9,
-            })),
+        const updatedField = {
+            ...currentField,
+            ...updates,
+            id: fieldId, // Ensure ID is never changed
+            lastModified: new Date().toISOString(),
         };
+
+        // Update the configuration
+        const updatedConfiguration: WorkflowConfiguration = {
+            ...workflowData.configuration,
+            fields: [
+                ...workflowData.configuration.fields.slice(0, fieldIndex),
+                updatedField,
+                ...workflowData.configuration.fields.slice(fieldIndex + 1),
+            ],
+        };
+
+        await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
+
+        return updatedField;
+    }
+
+    async updateWorkflowTable(
+        workflowId: string,
+        tableId: string,
+        userId: string,
+        updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.tables.element>, "id">>,
+    ) {
+        // Get the workflow
+        const workflowData = await this.getWorkflow(workflowId, userId);
+
+        // Find and update the table
+        const tableIndex = workflowData.configuration.tables.findIndex((t) => t.id === tableId);
+        if (tableIndex === -1) {
+            throw new Error("Table not found");
+        }
+
+        // Update the table while preserving all required properties
+        const currentTable = workflowData.configuration.tables[tableIndex];
+        if (!currentTable) {
+            throw new Error("Table not found");
+        }
+
+        // Handle columns update
+        let updatedColumns = currentTable.columns;
+        if (updates.columns) {
+            updatedColumns = updates.columns.map((col, idx) => ({
+                id: col.id || currentTable.columns[idx]?.id || generateId(ID_PREFIXES.column),
+                name: col.name,
+                description: col.description,
+                type: col.type,
+            }));
+        }
+
+        const updatedTable = {
+            ...currentTable,
+            ...updates,
+            id: tableId, // Ensure ID is never changed
+            columns: updatedColumns,
+            lastModified: new Date().toISOString(),
+        };
+
+        // Update the configuration
+        const updatedConfiguration: WorkflowConfiguration = {
+            ...workflowData.configuration,
+            tables: [
+                ...workflowData.configuration.tables.slice(0, tableIndex),
+                updatedTable,
+                ...workflowData.configuration.tables.slice(tableIndex + 1),
+            ],
+        };
+
+        await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
+
+        return updatedTable;
+    }
+
+    async createWorkflowField(
+        workflowId: string,
+        userId: string,
+        field: Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id" | "lastModified">,
+    ) {
+        // Get the workflow
+        const workflowData = await this.getWorkflow(workflowId, userId);
+
+        // Create new field with generated ID
+        const newField = {
+            ...field,
+            id: generateId(ID_PREFIXES.field),
+            lastModified: new Date().toISOString(),
+        };
+
+        // Update the configuration
+        const updatedConfiguration: WorkflowConfiguration = {
+            ...workflowData.configuration,
+            fields: [...workflowData.configuration.fields, newField],
+        };
+
+        await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
+
+        return newField;
+    }
+
+    async deleteWorkflowField(workflowId: string, fieldId: string, userId: string) {
+        // Get the workflow
+        const workflowData = await this.getWorkflow(workflowId, userId);
+
+        // Find the field
+        const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
+        if (fieldIndex === -1) {
+            throw new Error("Field not found");
+        }
+
+        // Update the configuration by removing the field
+        const updatedConfiguration: WorkflowConfiguration = {
+            ...workflowData.configuration,
+            fields: workflowData.configuration.fields.filter((f) => f.id !== fieldId),
+        };
+
+        await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
     }
 }

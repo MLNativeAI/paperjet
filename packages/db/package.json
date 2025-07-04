@@ -8,7 +8,8 @@
     "scripts": {
         "db:migrate": "drizzle-kit migrate",
         "db:studio": "drizzle-kit studio",
-        "db:generate": "drizzle-kit generate"
+        "db:generate": "drizzle-kit generate",
+        "db:push": "drizzle-kit push"
     },
     "devDependencies": {
         "typescript": "~5.7.2"

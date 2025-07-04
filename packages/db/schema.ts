@@ -62,23 +62,20 @@ export const verification = pgTable("verification", {
 export const workflow = pgTable("workflow", {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
+    description: text("description").notNull().default(""),
+    categories: text("categories").notNull(), // JSON string
     configuration: text("configuration").notNull(), // JSON string
+    status: text("status").notNull().default("draft"), // 'draft' | 'analyzing' | 'extracting' | 'configuring' | 'active' | 'error'
     ownerId: text("owner_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").notNull(),
-    updatedAt: timestamp("updated_at").notNull(),
-});
-
-export const workflowFile = pgTable("workflow_file", {
-    id: text("id").primaryKey(),
-    workflowId: text("workflow_id")
-        .notNull()
-        .references(() => workflow.id, { onDelete: "cascade" }),
     fileId: text("file_id")
         .notNull()
         .references(() => file.id, { onDelete: "cascade" }),
+    sampleData: text("sample_data").notNull(), // JSON string
+    sampleDataExtractedAt: timestamp("sample_data_extracted_at"), // When sample data was last extracted
     createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const workflowExecution = pgTable("workflow_execution", {

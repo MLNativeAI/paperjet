@@ -1,34 +1,42 @@
 import pino from "pino";
 
-export interface LoggerConfig {
-    level?: string;
-    environment?: string;
-    baseUrl?: string;
-    axiomToken?: string;
-    axiomDataset?: string;
-}
+const createLogger = () => {
+    const transports = [];
 
-export function createLogger(config: LoggerConfig = {}) {
-    const { level = "info", environment, baseUrl, axiomToken, axiomDataset = "paperjet" } = config;
+    if (process.env.AXIOM_TOKEN && process.env.AXIOM_DATASET) {
+        transports.push({
+            target: "@axiomhq/pino",
+            options: {
+                dataset: process.env.AXIOM_DATASET,
+                token: process.env.AXIOM_TOKEN,
+            },
+        });
+    }
+
+    if (process.env.ENVIRONMENT === "dev") {
+        transports.push({
+            target: "pino-pretty",
+            options: {
+                colorize: true,
+                ignore: "pid,hostname",
+                translateTime: "HH:MM:ss",
+            },
+        });
+    }
 
     const rootLogger = pino(
-        { level },
-        axiomToken
+        { level: process.env.LOG_LEVEL || "debug" },
+        transports.length > 0
             ? pino.transport({
-                  target: "@axiomhq/pino",
-                  options: {
-                      dataset: axiomDataset,
-                      token: axiomToken,
-                  },
+                  targets: transports,
               })
             : undefined,
     );
 
     return rootLogger.child({
-        env: environment,
-        baseUrl,
+        env: process.env.ENVIRONMENT,
+        baseUrl: process.env.BASE_URL,
     });
-}
+};
 
-// Default logger instance (can be overridden by apps)
 export const logger = createLogger();

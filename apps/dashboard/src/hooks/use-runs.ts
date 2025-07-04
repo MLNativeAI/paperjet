@@ -1,22 +1,7 @@
+import type { WorkflowRun } from "@paperjet/engine/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { deleteExecution, getAllExecutions } from "@/lib/api";
-
-type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
-
-interface WorkflowRun {
-    id: string;
-    workflowId: string;
-    workflowName: string;
-    fileId: string;
-    status: ExecutionStatus;
-    extractionResult: string | null;
-    errorMessage: string | null;
-    startedAt: string;
-    completedAt: string | null;
-    createdAt: string;
-    filename: string;
-}
 
 export function useRuns() {
     const queryClient = useQueryClient();
