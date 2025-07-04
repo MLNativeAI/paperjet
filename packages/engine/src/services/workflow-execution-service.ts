@@ -1,9 +1,9 @@
 import { db } from "@paperjet/db";
-import { file, workflowExecution, workflow } from "@paperjet/db/schema";
+import { file, workflow, workflowExecution } from "@paperjet/db/schema";
 import { logger } from "@paperjet/shared";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { Langfuse } from "langfuse";
-import type { WorkflowConfiguration, WorkflowRun } from "../types";
+import type { CategoriesConfiguration, WorkflowConfiguration, WorkflowRun } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
 import type { DocumentExtractionService } from "./document-extraction-service";
 
@@ -108,17 +108,7 @@ export class WorkflowExecutionService {
         };
     }
 
-    async getWorkflowExecutions(workflowId: string, userId: string) {
-        // Create a trace for this query
-        const trace = this.deps.langfuse.trace({
-            name: "get-workflow-executions",
-            metadata: {
-                workflowId,
-                userId,
-                operation: "list_executions",
-            },
-        });
-
+    async getWorkflowExecutions(workflowId: string, userId: string): Promise<WorkflowRun[]> {
         // Get executions with file details
         const executions = await db
             .select({
@@ -132,22 +122,21 @@ export class WorkflowExecutionService {
                 completedAt: workflowExecution.completedAt,
                 createdAt: workflowExecution.createdAt,
                 filename: file.filename,
+                workflowName: workflow.name,
+                categories: workflow.categories,
             })
             .from(workflowExecution)
             .leftJoin(file, eq(workflowExecution.fileId, file.id))
+            .leftJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
             .where(eq(workflowExecution.workflowId, workflowId))
             .orderBy(desc(workflowExecution.createdAt));
 
         const result = executions.map((execution) => ({
             ...execution,
+            workflowName: execution.workflowName ?? "Unknown",
+            categories: JSON.parse(execution.categories ?? "[]") as CategoriesConfiguration,
             filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
         }));
-
-        trace.update({
-            output: {
-                executionsCount: result.length,
-            },
-        });
 
         return result;
     }
@@ -166,6 +155,7 @@ export class WorkflowExecutionService {
                 completedAt: workflowExecution.completedAt,
                 createdAt: workflowExecution.createdAt,
                 filename: file.filename,
+                workflowName: workflow.name,
                 categories: workflow.categories,
             })
             .from(workflowExecution)
@@ -176,6 +166,8 @@ export class WorkflowExecutionService {
 
         const result = executions.map((execution) => ({
             ...execution,
+            workflowName: execution.workflowName ?? "Unknown",
+            categories: JSON.parse(execution.categories ?? "[]") as CategoriesConfiguration,
             // Extract just the filename without the path
             filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
         }));
@@ -183,17 +175,7 @@ export class WorkflowExecutionService {
         return result;
     }
 
-    async getExecutionDetails(executionId: string, userId: string) {
-        // Create a trace for this query
-        const trace = this.deps.langfuse.trace({
-            name: "get-execution-details",
-            metadata: {
-                executionId,
-                userId,
-                operation: "get_execution_details",
-            },
-        });
-
+    async getExecutionDetails(executionId: string, userId: string): Promise<WorkflowRun> {
         // Get the execution with file details
         const [executionData] = await db
             .select({
@@ -207,10 +189,13 @@ export class WorkflowExecutionService {
                 completedAt: workflowExecution.completedAt,
                 createdAt: workflowExecution.createdAt,
                 filename: file.filename,
+                workflowName: workflow.name,
+                categories: workflow.categories,
             })
             .from(workflowExecution)
             .leftJoin(file, eq(workflowExecution.fileId, file.id))
-            .where(eq(workflowExecution.id, executionId));
+            .leftJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
+            .where(and(eq(workflowExecution.ownerId, userId), eq(workflowExecution.id, executionId)));
 
         if (!executionData) {
             throw new Error("Execution not found");
@@ -222,15 +207,9 @@ export class WorkflowExecutionService {
             filename: executionData.filename ? executionData.filename.split("/").pop() || "Unknown" : "Unknown",
             // Parse extractionResult from JSON string to object
             extractionResult: executionData.extractionResult ? JSON.parse(executionData.extractionResult) : null,
+            workflowName: executionData.workflowName ?? "Unknown",
+            categories: JSON.parse(executionData.categories ?? "[]") as CategoriesConfiguration,
         };
-
-        trace.update({
-            output: {
-                executionFound: true,
-                status: result.status,
-            },
-        });
-
         return result;
     }
 

@@ -1,3 +1,4 @@
+import type { WorkflowRun } from "@paperjet/engine/types";
 import { useNavigate } from "@tanstack/react-router";
 import { CheckCircle, FileText, Filter, Play, Search, XCircle } from "lucide-react";
 import { useState } from "react";
@@ -7,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useRuns } from "@/hooks/use-runs";
-import type { WorkflowRun } from "@paperjet/engine/types";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
@@ -36,8 +36,8 @@ export default function RunsPage() {
     }
 
     const totalRuns = runs.length;
-    const completedRuns = runs.filter((r) => r.status === "completed").length;
-    const failedRuns = runs.filter((r) => r.status === "failed").length;
+    const completedRuns = runs.filter((r: WorkflowRun) => r.status === "completed").length;
+    const failedRuns = runs.filter((r: WorkflowRun) => r.status === "failed").length;
     const totalFilesProcessed = runs.length; // Each run is now one file
 
     return (

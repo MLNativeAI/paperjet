@@ -96,6 +96,8 @@ export type ExtractionResult = z.infer<typeof extractionResultSchema>;
 
 // Workflow runs / execution types
 
-export type WorkflowRun = Omit<DbWorkflowExecution, 'ownerId'> & {
+export type WorkflowRun = Omit<DbWorkflowExecution, "ownerId"> & {
     filename: string;
+    workflowName: string;
+    categories: CategoriesConfiguration;
 };

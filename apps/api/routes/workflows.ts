@@ -49,7 +49,7 @@ const updateTableSchema = z.object({
     columns: z
         .array(
             z.object({
-                id: z.string().optional(),
+                id: z.string(),
                 name: z.string().regex(/^[a-z][a-z0-9_]*$/, {
                     message:
                         "Column name must be in snake_case format (lowercase letters, numbers, and underscores only, starting with a letter)",

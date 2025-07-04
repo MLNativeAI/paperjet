@@ -8,6 +8,7 @@ import {
     type ExtractionResult,
     type Workflow,
     type WorkflowConfiguration,
+    type WorkflowRun,
     workflowConfigurationSchema,
 } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
@@ -369,15 +370,15 @@ export class WorkflowService {
         return result;
     }
 
-    async getWorkflowExecutions(workflowId: string, userId: string) {
+    async getWorkflowExecutions(workflowId: string, userId: string): Promise<WorkflowRun[]> {
         return await this.deps.workflowExecutionService.getWorkflowExecutions(workflowId, userId);
     }
 
-    async getAllExecutions(userId: string) {
+    async getAllExecutions(userId: string): Promise<WorkflowRun[]> {
         return await this.deps.workflowExecutionService.getAllExecutions(userId);
     }
 
-    async getExecutionDetails(executionId: string, userId: string) {
+    async getExecutionDetails(executionId: string, userId: string): Promise<WorkflowRun> {
         return await this.deps.workflowExecutionService.getExecutionDetails(executionId, userId);
     }
 
