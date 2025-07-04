@@ -38,7 +38,7 @@ export default function WorkflowFields({ category, workflow }: { category: Categ
             )}
 
             {/* Edit Field Sheet */}
-            <EditFieldSheet field={editingField} isOpen={isEditSheetOpen} onClose={() => setIsEditSheetOpen(false)} onSave={handleSaveField} />
+            <EditFieldSheet field={editingField} workflowId={workflow.id} isOpen={isEditSheetOpen} onClose={() => setIsEditSheetOpen(false)} onSave={handleSaveField} />
         </>
     );
 }

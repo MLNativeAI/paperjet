@@ -21,6 +21,47 @@ const updateWorkflowBasicDataSchema = z.object({
     description: z.string().optional(),
 });
 
+const updateFieldSchema = z.object({
+    name: z
+        .string()
+        .min(1)
+        .regex(/^[a-z][a-z0-9_]*$/, {
+            message:
+                "Field name must be in snake_case format (lowercase letters, numbers, and underscores only, starting with a letter)",
+        })
+        .optional(),
+    description: z.string().optional(),
+    type: z.enum(["text", "number", "date", "currency", "boolean"]).optional(),
+    required: z.boolean().optional(),
+    categoryId: z.string().optional(),
+});
+
+const updateTableSchema = z.object({
+    name: z
+        .string()
+        .min(1)
+        .regex(/^[a-z][a-z0-9_]*$/, {
+            message:
+                "Table name must be in snake_case format (lowercase letters, numbers, and underscores only, starting with a letter)",
+        })
+        .optional(),
+    description: z.string().optional(),
+    columns: z
+        .array(
+            z.object({
+                id: z.string().optional(),
+                name: z.string().regex(/^[a-z][a-z0-9_]*$/, {
+                    message:
+                        "Column name must be in snake_case format (lowercase letters, numbers, and underscores only, starting with a letter)",
+                }),
+                description: z.string(),
+                type: z.enum(["text", "number", "date", "currency", "boolean"]),
+            }),
+        )
+        .optional(),
+    categoryId: z.string().optional(),
+});
+
 const createWorkflowFormSchema = z.object({
     file: z
         .instanceof(File)
@@ -37,6 +78,16 @@ const paramIdSchema = z.object({
 
 const fileIdParamSchema = z.object({
     fileId: fileIdSchema,
+});
+
+const fieldParamSchema = z.object({
+    id: workflowIdSchema,
+    fieldId: z.string().min(1),
+});
+
+const tableParamSchema = z.object({
+    id: workflowIdSchema,
+    tableId: z.string().min(1),
 });
 
 const router = app
@@ -170,7 +221,79 @@ const router = app
             }
             return c.json({ error: "Internal server error" }, 500);
         }
-    });
+    })
+    .patch(
+        "/:id/fields/:fieldId",
+        zValidator("param", fieldParamSchema),
+        zValidator("json", updateFieldSchema),
+        async (c) => {
+            try {
+                const user = await getUser(c);
+                const { id: workflowId, fieldId } = c.req.valid("param");
+                const updates = c.req.valid("json");
+
+                const updatedField = await workflowService.updateWorkflowField(workflowId, fieldId, user.id, updates);
+                return c.json({ field: updatedField, message: "Field updated successfully" });
+            } catch (error) {
+                logger.error(error, "Update workflow field error:");
+                if (error instanceof z.ZodError) {
+                    return c.json(
+                        {
+                            error: "Invalid field data",
+                            details: error.errors.map((e) => ({
+                                field: e.path.join("."),
+                                message: e.message,
+                            })),
+                        },
+                        400,
+                    );
+                }
+                if (error instanceof Error && error.message === "Workflow not found") {
+                    return c.json({ error: "Workflow not found" }, 404);
+                }
+                if (error instanceof Error && error.message === "Field not found") {
+                    return c.json({ error: "Field not found" }, 404);
+                }
+                return c.json({ error: "Internal server error" }, 500);
+            }
+        },
+    )
+    .patch(
+        "/:id/tables/:tableId",
+        zValidator("param", tableParamSchema),
+        zValidator("json", updateTableSchema),
+        async (c) => {
+            try {
+                const user = await getUser(c);
+                const { id: workflowId, tableId } = c.req.valid("param");
+                const updates = c.req.valid("json");
+
+                const updatedTable = await workflowService.updateWorkflowTable(workflowId, tableId, user.id, updates);
+                return c.json({ table: updatedTable, message: "Table updated successfully" });
+            } catch (error) {
+                logger.error(error, "Update workflow table error:");
+                if (error instanceof z.ZodError) {
+                    return c.json(
+                        {
+                            error: "Invalid table data",
+                            details: error.errors.map((e) => ({
+                                field: e.path.join("."),
+                                message: e.message,
+                            })),
+                        },
+                        400,
+                    );
+                }
+                if (error instanceof Error && error.message === "Workflow not found") {
+                    return c.json({ error: "Workflow not found" }, 404);
+                }
+                if (error instanceof Error && error.message === "Table not found") {
+                    return c.json({ error: "Table not found" }, 404);
+                }
+                return c.json({ error: "Internal server error" }, 500);
+            }
+        },
+    );
 
 export default router;
 

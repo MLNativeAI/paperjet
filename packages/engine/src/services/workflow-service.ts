@@ -396,4 +396,104 @@ export class WorkflowService {
     async deleteExecution(executionId: string, userId: string) {
         return await this.deps.workflowExecutionService.deleteExecution(executionId, userId);
     }
+
+    async updateWorkflowField(
+        workflowId: string,
+        fieldId: string,
+        userId: string,
+        updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id">>,
+    ) {
+        // Get the workflow
+        const workflowData = await this.getWorkflow(workflowId, userId);
+
+        // Find and update the field
+        const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
+        if (fieldIndex === -1) {
+            throw new Error("Field not found");
+        }
+
+        // Update the field while preserving all required properties
+        const currentField = workflowData.configuration.fields[fieldIndex];
+        if (!currentField) {
+            throw new Error("Field not found");
+        }
+
+        const updatedField: z.infer<typeof workflowConfigurationSchema.shape.fields.element> = {
+            id: fieldId,
+            name: updates.name ?? currentField.name,
+            description: updates.description ?? currentField.description,
+            type: updates.type ?? currentField.type,
+            required: updates.required ?? currentField.required,
+            categoryId: updates.categoryId ?? currentField.categoryId,
+        };
+
+        // Update the configuration
+        const updatedConfiguration: WorkflowConfiguration = {
+            ...workflowData.configuration,
+            fields: [
+                ...workflowData.configuration.fields.slice(0, fieldIndex),
+                updatedField,
+                ...workflowData.configuration.fields.slice(fieldIndex + 1),
+            ],
+        };
+
+        await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
+
+        return updatedField;
+    }
+
+    async updateWorkflowTable(
+        workflowId: string,
+        tableId: string,
+        userId: string,
+        updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.tables.element>, "id">>,
+    ) {
+        // Get the workflow
+        const workflowData = await this.getWorkflow(workflowId, userId);
+
+        // Find and update the table
+        const tableIndex = workflowData.configuration.tables.findIndex((t) => t.id === tableId);
+        if (tableIndex === -1) {
+            throw new Error("Table not found");
+        }
+
+        // Update the table while preserving all required properties
+        const currentTable = workflowData.configuration.tables[tableIndex];
+        if (!currentTable) {
+            throw new Error("Table not found");
+        }
+
+        // Handle columns update
+        let updatedColumns = currentTable.columns;
+        if (updates.columns) {
+            updatedColumns = updates.columns.map((col, idx) => ({
+                id: col.id || currentTable.columns[idx]?.id || generateId(ID_PREFIXES.column),
+                name: col.name,
+                description: col.description,
+                type: col.type,
+            }));
+        }
+
+        const updatedTable: z.infer<typeof workflowConfigurationSchema.shape.tables.element> = {
+            id: tableId,
+            name: updates.name ?? currentTable.name,
+            description: updates.description ?? currentTable.description,
+            columns: updatedColumns,
+            categoryId: updates.categoryId ?? currentTable.categoryId,
+        };
+
+        // Update the configuration
+        const updatedConfiguration: WorkflowConfiguration = {
+            ...workflowData.configuration,
+            tables: [
+                ...workflowData.configuration.tables.slice(0, tableIndex),
+                updatedTable,
+                ...workflowData.configuration.tables.slice(tableIndex + 1),
+            ],
+        };
+
+        await this.updateWorkflow(workflowId, userId, { configuration: updatedConfiguration });
+
+        return updatedTable;
+    }
 }
