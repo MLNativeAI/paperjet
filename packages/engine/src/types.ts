@@ -1,4 +1,4 @@
-import type { DbWorkflow, FileData } from "@paperjet/db/types";
+import type { DbWorkflow, DbWorkflowExecution, FileData } from "@paperjet/db/types";
 import z from "zod";
 
 // Engine-specific types
@@ -63,30 +63,11 @@ export const workflowConfigurationSchema = z.object({
 
 export type WorkflowConfiguration = z.infer<typeof workflowConfigurationSchema>;
 
-export interface ExecutionFileResult {
-    executionFileId: string;
-    fileId: string;
-    filename: string;
-    status: "completed" | "failed";
-    extractionResult?: ExtractionResult;
-    error?: string;
-}
-
-export interface WorkflowExecutionResult {
-    executionId: string;
-    status: string;
-    files: ExecutionFileResult[];
-}
-
 export type Workflow = Omit<DbWorkflow, "configuration" | "sampleData" | "categories"> & {
     configuration: WorkflowConfiguration;
     categories: CategoriesConfiguration;
     sampleData?: ExtractionResult | null;
     sampleDataExtractedAt?: Date | null;
-};
-
-export type FileDataWithPresignedUrl = FileData & {
-    presignedUrl: string;
 };
 
 // Data extraction schemas
@@ -112,3 +93,9 @@ export const extractionResultSchema = z.object({
 export type ExtractedValue = z.infer<typeof extractedValueSchema>;
 export type ExtractedTable = z.infer<typeof extractedTableSchema>;
 export type ExtractionResult = z.infer<typeof extractionResultSchema>;
+
+// Workflow runs / execution types
+
+export type WorkflowRun = Omit<DbWorkflowExecution, 'ownerId'> & {
+    filename: string;
+};

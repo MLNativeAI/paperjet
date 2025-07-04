@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useRuns } from "@/hooks/use-runs";
+import type { WorkflowRun } from "@paperjet/engine/types";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
@@ -17,8 +18,8 @@ export default function RunsPage() {
 
     const { runs, isLoading, exportRun, formatDuration, deleteRun } = useRuns();
 
-    const filteredRuns = runs.filter((run) => {
-        const matchesSearch = run.workflowName.toLowerCase().includes(searchQuery.toLowerCase()) || run.filename?.toLowerCase().includes(searchQuery.toLowerCase());
+    const filteredRuns = runs.filter((run: WorkflowRun) => {
+        const matchesSearch = run.workflowName.toLowerCase().includes(searchQuery.toLowerCase()) || (run.filename?.toLowerCase() ?? "").includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === "all" || run.status === statusFilter;
         return matchesSearch && matchesStatus;
     });

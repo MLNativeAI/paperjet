@@ -32,13 +32,7 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
                 <div className="space-y-4">
                     {category.tables.map((table) => {
                         const sampleData = getTableSampleData(table.name);
-                        return <WorkflowTableCard 
-                            key={table.id} 
-                            table={table} 
-                            sampleData={sampleData} 
-                            sampleDataExtractedAt={workflow.sampleDataExtractedAt}
-                            onEdit={handleEditTable} 
-                        />;
+                        return <WorkflowTableCard key={table.id} table={table} sampleData={sampleData} sampleDataExtractedAt={workflow.sampleDataExtractedAt} onEdit={handleEditTable} />;
                     })}
                 </div>
             )}

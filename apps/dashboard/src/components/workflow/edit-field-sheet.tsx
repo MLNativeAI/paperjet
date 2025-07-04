@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { CategoriesConfiguration, FieldsConfiguration } from "@paperjet/engine/types";
+import { Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2 } from "lucide-react";
 import { useCreateWorkflowField } from "@/hooks/use-create-workflow-field";
 import { useDeleteWorkflowField } from "@/hooks/use-delete-workflow-field";
 import { useUpdateWorkflowField } from "@/hooks/use-update-workflow-field";
@@ -163,7 +163,7 @@ export default function EditFieldSheet({ field, workflowId, isOpen, onClose, onS
                         <SheetHeader>
                             <SheetTitle>{mode === "create" ? "Add new field" : "Edit field"}</SheetTitle>
                             <SheetDescription>
-                                {mode === "create" 
+                                {mode === "create"
                                     ? "Create a new field for data extraction. Provide details to help the AI accurately extract this field."
                                     : "Make changes to the field configuration. Click save when you're done. Run the extraction to see the changes."}
                             </SheetDescription>
@@ -279,12 +279,7 @@ export default function EditFieldSheet({ field, workflowId, isOpen, onClose, onS
                         <SheetFooter className="flex sm:justify-between">
                             <div>
                                 {mode === "edit" && (
-                                    <Button 
-                                        type="button" 
-                                        variant="destructive"
-                                        onClick={handleDelete}
-                                        disabled={deleteFieldMutation.isPending}
-                                    >
+                                    <Button type="button" variant="destructive" onClick={handleDelete} disabled={deleteFieldMutation.isPending}>
                                         {deleteFieldMutation.isPending ? "Deleting..." : "Delete field"}
                                     </Button>
                                 )}
@@ -295,14 +290,8 @@ export default function EditFieldSheet({ field, workflowId, isOpen, onClose, onS
                                         Cancel
                                     </Button>
                                 </SheetClose>
-                                <Button 
-                                    type="submit" 
-                                    disabled={mode === "create" ? createFieldMutation.isPending : updateFieldMutation.isPending}
-                                >
-                                    {mode === "create" 
-                                        ? (createFieldMutation.isPending ? "Creating..." : "Create field")
-                                        : (updateFieldMutation.isPending ? "Saving..." : "Save changes")
-                                    }
+                                <Button type="submit" disabled={mode === "create" ? createFieldMutation.isPending : updateFieldMutation.isPending}>
+                                    {mode === "create" ? (createFieldMutation.isPending ? "Creating..." : "Create field") : updateFieldMutation.isPending ? "Saving..." : "Save changes"}
                                 </Button>
                             </div>
                         </SheetFooter>

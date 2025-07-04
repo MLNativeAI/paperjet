@@ -213,7 +213,7 @@ export const updateWorkflowField = async (
         type?: "text" | "number" | "date" | "currency" | "boolean";
         required?: boolean;
         categoryId?: string;
-    }
+    },
 ) => {
     const response = await api.workflows[":id"].fields[":fieldId"].$patch({
         param: { id: workflowId, fieldId },
@@ -236,7 +236,7 @@ export const createWorkflowField = async (
         type: "text" | "number" | "date" | "currency" | "boolean";
         required: boolean;
         categoryId: string;
-    }
+    },
 ) => {
     const response = await api.workflows[":id"].fields.$post({
         param: { id: workflowId },
@@ -284,7 +284,7 @@ export const updateWorkflowBasicData = async (
     data: {
         name: string;
         description?: string;
-    }
+    },
 ) => {
     const response = await api.workflows[":id"]["basic-data"].$patch({
         param: { id: workflowId },

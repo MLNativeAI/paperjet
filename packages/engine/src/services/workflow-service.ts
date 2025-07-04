@@ -37,7 +37,6 @@ export class WorkflowService {
         return parsedConfig.data ?? { fields: [], tables: [] };
     }
 
-
     async createWorkflow(
         fileParam: File,
         userId: string,

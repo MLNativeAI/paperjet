@@ -325,9 +325,13 @@ const router = app
         zValidator(
             "json",
             z.object({
-                name: z.string().min(1).regex(/^[a-z][a-z0-9_]*$/, {
-                    message: "Field name must be in snake_case format (lowercase, starts with letter, only letters/numbers/underscores)",
-                }),
+                name: z
+                    .string()
+                    .min(1)
+                    .regex(/^[a-z][a-z0-9_]*$/, {
+                        message:
+                            "Field name must be in snake_case format (lowercase, starts with letter, only letters/numbers/underscores)",
+                    }),
                 description: z.string(),
                 type: z.enum(["text", "number", "date", "currency", "boolean"]),
                 required: z.boolean(),

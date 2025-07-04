@@ -1,4 +1,5 @@
 import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
+import type { Workflow } from "@paperjet/engine/types";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, Copy, Download, FileText, XCircle } from "lucide-react";
@@ -6,12 +7,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { CategorizedExtractionResults } from "@/components/categorized-extraction-results";
 import { DocumentPreview } from "@/components/document-preview";
+import { ExecutionResultsByCategory } from "@/components/execution-results-by-category";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ViewToggle } from "@/components/view-toggle";
-import { getExecutionDetails } from "@/lib/api";
+import { getExecutionDetails, getWorkflow } from "@/lib/api";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 type ViewMode = "grid" | "split";
@@ -27,6 +29,12 @@ export default function ExecutionDetailPage() {
     const { data: execution, isLoading } = useQuery({
         queryKey: ["execution", executionId],
         queryFn: () => getExecutionDetails(executionId),
+    });
+
+    const { data: workflow } = useQuery({
+        queryKey: ["workflow", execution?.workflowId],
+        queryFn: () => (execution?.workflowId ? getWorkflow(execution.workflowId) : null),
+        enabled: !!execution?.workflowId,
     });
 
     const extractionResult = execution?.extractionResult as ExtractionResult | null;
@@ -372,7 +380,11 @@ export default function ExecutionDetailPage() {
                                 <CardTitle>Extracted Data</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <CategorizedExtractionResults extractionResult={extractionResult} />
+                                {workflow ? (
+                                    <ExecutionResultsByCategory extractionResult={extractionResult} workflow={workflow} />
+                                ) : (
+                                    <CategorizedExtractionResults extractionResult={extractionResult} />
+                                )}
                             </CardContent>
                         </Card>
                     </div>

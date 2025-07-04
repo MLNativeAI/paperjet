@@ -59,7 +59,7 @@ export default function WorkflowFinalizePage() {
                     onSuccess: () => {
                         navigate({ to: "/" });
                     },
-                }
+                },
             );
         }
     };
@@ -107,7 +107,6 @@ export default function WorkflowFinalizePage() {
                     </Button>
                 </div>
             </div>
-
 
             {/* Workflow Basic Info Form */}
             <div className="pt-8 border-t">{workflow && <BasicWorkflowDataForm ref={formRef} workflow={workflow} />}</div>
@@ -180,17 +179,13 @@ export default function WorkflowFinalizePage() {
                         {isWorkflowOutdated(workflow) && (
                             <p className="text-sm text-muted-foreground">
                                 <AlertCircle className="inline h-3 w-3 mr-1" />
-                                <strong>Note:</strong> {getOutdatedFieldCount(workflow)} field(s) and {getOutdatedTableCount(workflow)} table(s) have been modified. Run extraction again to see the updated values.
+                                <strong>Note:</strong> {getOutdatedFieldCount(workflow)} field(s) and {getOutdatedTableCount(workflow)} table(s) have been modified. Run extraction again to see the
+                                updated values.
                             </p>
                         )}
                     </div>
                     <div className="flex items-center gap-4">
-                        <Button
-                            variant={isWorkflowOutdated(workflow) ? "default" : "outline"}
-                            size="lg"
-                            onClick={handleReExtract}
-                            disabled={isExtracting || workflow?.status === "extracting"}
-                        >
+                        <Button variant={isWorkflowOutdated(workflow) ? "default" : "outline"} size="lg" onClick={handleReExtract} disabled={isExtracting || workflow?.status === "extracting"}>
                             <RefreshCw className={cn("h-4 w-4 mr-2", (isExtracting || workflow?.status === "extracting") && "animate-spin")} />
                             {isExtracting || workflow?.status === "extracting" ? "Extracting..." : "Run extraction"}
                         </Button>
@@ -203,17 +198,10 @@ export default function WorkflowFinalizePage() {
 
             {/* Configure Sections Sheet */}
             {workflow && <ConfigureSectionsSheet categories={workflow.categories} isOpen={isConfigureSectionsOpen} onClose={() => setIsConfigureSectionsOpen(false)} onSave={handleSaveCategories} />}
-            
+
             {/* Add Field Sheet */}
             {workflow && (
-                <EditFieldSheet 
-                    field={null} 
-                    workflowId={workflow.id} 
-                    isOpen={isAddFieldSheetOpen} 
-                    onClose={() => setIsAddFieldSheetOpen(false)}
-                    mode="create"
-                    categories={workflow.categories}
-                />
+                <EditFieldSheet field={null} workflowId={workflow.id} isOpen={isAddFieldSheetOpen} onClose={() => setIsAddFieldSheetOpen(false)} mode="create" categories={workflow.categories} />
             )}
         </div>
     );
