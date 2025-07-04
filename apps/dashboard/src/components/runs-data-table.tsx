@@ -41,15 +41,38 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
+// Local definition to avoid import issues
+interface ExtractedValue {
+    fieldName: string;
+    value: string | number | boolean | Date | null;
+    confidence: number;
+}
+
+interface ExtractedTable {
+    tableName: string;
+    rows: Array<{
+        values: Record<string, string | number | boolean | Date | null>;
+    }>;
+    confidence: number;
+}
+
+interface ExtractionResult {
+    fields: ExtractedValue[];
+    tables: ExtractedTable[];
+}
+
 interface RunData {
     id: string;
+    workflowId: string;
     workflowName: string;
-    filename: string | null;
+    fileId: string;
+    filename: string;
     status: ExecutionStatus;
     startedAt: string;
     completedAt: string | null;
-    errorMessage?: string;
-    extractionResult?: any;
+    createdAt: string;
+    errorMessage: string | null;
+    extractionResult: ExtractionResult | null;
 }
 
 interface RunsDataTableProps {
@@ -109,7 +132,7 @@ export function RunsDataTable({ data, onExportRun, onDeleteRun, formatDuration }
             cell: ({ row }) => (
                 <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-muted-foreground" />
-                    <span>{row.original.filename || "N/A"}</span>
+                    <span>{row.original.filename || "Unknown"}</span>
                 </div>
             ),
         },

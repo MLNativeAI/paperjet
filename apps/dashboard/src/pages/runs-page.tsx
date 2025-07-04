@@ -11,7 +11,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useRuns } from "@/hooks/use-runs";
+import { useRuns, type RunData } from "@/hooks/use-runs";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
@@ -22,10 +22,10 @@ export default function RunsPage() {
 
     const { runs, isLoading, exportRun, formatDuration, deleteRun } = useRuns();
 
-    const filteredRuns = runs.filter((run) => {
+    const filteredRuns = runs.filter((run: RunData) => {
         const matchesSearch =
             run.workflowName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            run.filename?.toLowerCase().includes(searchQuery.toLowerCase());
+            run.filename.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === "all" || run.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
