@@ -172,10 +172,7 @@ export const createWorkflowFromFile = async (file: File) => {
   return response.json();
 };
 
-export const executeWorkflowBulk = async (
-  workflowId: string,
-  files: File[],
-) => {
+export const executeWorkflowBulk = async (workflowId: string, files: File[]) => {
   const formData = new FormData();
   formData.append("workflowId", workflowId);
   files.forEach((file) => formData.append("files", file));
@@ -254,10 +251,7 @@ export const createWorkflowField = async (
   return response.json();
 };
 
-export const deleteWorkflowField = async (
-  workflowId: string,
-  fieldId: string,
-) => {
+export const deleteWorkflowField = async (workflowId: string, fieldId: string) => {
   const response = await api.workflows[":id"].fields[":fieldId"].$delete({
     param: { id: workflowId, fieldId },
   });

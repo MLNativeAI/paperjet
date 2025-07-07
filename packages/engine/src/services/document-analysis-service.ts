@@ -2,11 +2,7 @@ import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { aiSdkModel } from "../lib/model";
-import type {
-  CategoriesConfiguration,
-  FieldsConfiguration,
-  TableConfiguration,
-} from "../types";
+import type { CategoriesConfiguration, FieldsConfiguration, TableConfiguration } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
 
 export type AnalysisResult = {
@@ -17,9 +13,7 @@ export type AnalysisResult = {
   tables: TableConfiguration;
 };
 
-export async function performCompleteAnalysis(
-  presignedUrl: string,
-): Promise<AnalysisResult> {
+export async function performCompleteAnalysis(presignedUrl: string): Promise<AnalysisResult> {
   logger.info({ presignedUrl }, "Starting complete document analysis");
 
   try {
@@ -44,15 +38,10 @@ export async function performCompleteAnalysis(
     );
 
     // Step 2: Extract ALL fields at once with category assignments
-    const allFieldsWithCategories = await extractAllFieldsWithCategories(
-      presignedUrl,
-      categories,
-    );
+    const allFieldsWithCategories = await extractAllFieldsWithCategories(presignedUrl, categories);
 
     // Step 3: Extract table fields for each table in parallel
-    const tableFieldPromises = allTables.map((table) =>
-      extractFieldsForTable(presignedUrl, table),
-    );
+    const tableFieldPromises = allTables.map((table) => extractFieldsForTable(presignedUrl, table));
     const tableFieldResults = await Promise.all(tableFieldPromises);
 
     logger.info("Complete document analysis finished");
@@ -82,9 +71,7 @@ const documentTypeSchema = z.object({
   description: z.string(),
 });
 
-async function analyzeDocumentType(
-  presignedUrl: string,
-): Promise<z.infer<typeof documentTypeSchema>> {
+async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof documentTypeSchema>> {
   logger.info({ presignedUrl }, "Starting document type analysis");
 
   const prompt = `You're a document analysis expert. Analyze this document and provide:
@@ -138,9 +125,7 @@ const categoriesZodSchema = z.object({
   ),
 });
 
-async function identifyCategoriesAndTables(
-  presignedUrl: string,
-): Promise<z.infer<typeof categoriesZodSchema>> {
+async function identifyCategoriesAndTables(presignedUrl: string): Promise<z.infer<typeof categoriesZodSchema>> {
   logger.info({ presignedUrl }, "Starting categories and tables extraction");
 
   const prompt = `Analyze this document and extract information in a structured way:
@@ -185,10 +170,7 @@ Important: Categories should be listed in the order they appear in the document,
     logger.info(
       {
         categoriesCount: object.categories.length,
-        tablesCount: object.categories.reduce(
-          (total, cat) => total + cat.tables.length,
-          0,
-        ),
+        tablesCount: object.categories.reduce((total, cat) => total + cat.tables.length, 0),
         categories: object.categories.map((c) => c.displayName),
       },
       "Categories and tables extraction completed",
@@ -277,9 +259,7 @@ Extract all fields from the document, ensuring no duplicates.`;
   });
 
   // Create a map from slug to categoryId for conversion
-  const slugToCategoryId = new Map(
-    categories.map((cat) => [cat.slug, cat.categoryId]),
-  );
+  const slugToCategoryId = new Map(categories.map((cat) => [cat.slug, cat.categoryId]));
 
   // Convert slugs to categoryIds in the extracted fields and add IDs
   const fieldsWithCorrectCategoryIds = object.fields.map((field) => ({
@@ -294,9 +274,7 @@ Extract all fields from the document, ensuring no duplicates.`;
       totalFields: fieldsWithCorrectCategoryIds.length,
       fieldsByCategory: categories.map((cat) => ({
         category: cat.displayName,
-        count: fieldsWithCorrectCategoryIds.filter(
-          (f) => f.categoryId === cat.categoryId,
-        ).length,
+        count: fieldsWithCorrectCategoryIds.filter((f) => f.categoryId === cat.categoryId).length,
       })),
     },
     "Unified field extraction completed",

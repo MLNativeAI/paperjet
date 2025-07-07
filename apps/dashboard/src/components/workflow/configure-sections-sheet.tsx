@@ -21,14 +21,8 @@ interface ConfigureSectionsSheetProps {
   onSave: (categories: CategoriesConfiguration) => void;
 }
 
-export default function ConfigureSectionsSheet({
-  categories,
-  isOpen,
-  onClose,
-  onSave,
-}: ConfigureSectionsSheetProps) {
-  const [editedCategories, setEditedCategories] =
-    useState<CategoriesConfiguration>([]);
+export default function ConfigureSectionsSheet({ categories, isOpen, onClose, onSave }: ConfigureSectionsSheetProps) {
+  const [editedCategories, setEditedCategories] = useState<CategoriesConfiguration>([]);
 
   // Update local state when categories prop changes
   useEffect(() => {
@@ -46,9 +40,7 @@ export default function ConfigureSectionsSheet({
   };
 
   const handleRemoveSection = (categoryId: string) => {
-    const filtered = editedCategories.filter(
-      (cat) => cat.categoryId !== categoryId,
-    );
+    const filtered = editedCategories.filter((cat) => cat.categoryId !== categoryId);
     // Reorder ordinals
     const reordered = filtered.map((cat, index) => ({
       ...cat,
@@ -74,10 +66,7 @@ export default function ConfigureSectionsSheet({
   const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newCategories = [...editedCategories];
-    [newCategories[index], newCategories[index - 1]] = [
-      newCategories[index - 1],
-      newCategories[index],
-    ];
+    [newCategories[index], newCategories[index - 1]] = [newCategories[index - 1], newCategories[index]];
     // Update ordinals
     const reordered = newCategories.map((cat, idx) => ({
       ...cat,
@@ -89,10 +78,7 @@ export default function ConfigureSectionsSheet({
   const handleMoveDown = (index: number) => {
     if (index === editedCategories.length - 1) return;
     const newCategories = [...editedCategories];
-    [newCategories[index], newCategories[index + 1]] = [
-      newCategories[index + 1],
-      newCategories[index],
-    ];
+    [newCategories[index], newCategories[index + 1]] = [newCategories[index + 1], newCategories[index]];
     // Update ordinals
     const reordered = newCategories.map((cat, idx) => ({
       ...cat,
@@ -111,9 +97,7 @@ export default function ConfigureSectionsSheet({
       <SheetContent className="sm:max-w-[540px]">
         <SheetHeader>
           <SheetTitle>Configure sections</SheetTitle>
-          <SheetDescription>
-            Add, remove, or rename sections to organize your workflow fields.
-          </SheetDescription>
+          <SheetDescription>Add, remove, or rename sections to organize your workflow fields.</SheetDescription>
         </SheetHeader>
 
         <div className="grid flex-1 auto-rows-min gap-4 px-4 py-4">
@@ -121,12 +105,7 @@ export default function ConfigureSectionsSheet({
           <div className="grid gap-3">
             <div className="flex items-center justify-between">
               <Label>Sections</Label>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleAddSection}
-                className="h-8"
-              >
+              <Button size="sm" variant="outline" onClick={handleAddSection} className="h-8">
                 <Plus className="h-3 w-3 mr-1" />
                 Add Section
               </Button>
@@ -134,10 +113,7 @@ export default function ConfigureSectionsSheet({
 
             <div className="space-y-2">
               {editedCategories.map((category, index) => (
-                <div
-                  key={category.categoryId}
-                  className="flex items-center gap-2 p-2 border rounded-lg"
-                >
+                <div key={category.categoryId} className="flex items-center gap-2 p-2 border rounded-lg">
                   {/* Drag Handle */}
                   <div className="flex flex-col gap-1">
                     <Button
@@ -163,9 +139,7 @@ export default function ConfigureSectionsSheet({
                   {/* Section Name Input */}
                   <Input
                     value={category.displayName}
-                    onChange={(e) =>
-                      handleRenameSection(category.categoryId, e.target.value)
-                    }
+                    onChange={(e) => handleRenameSection(category.categoryId, e.target.value)}
                     className="flex-1"
                     placeholder="Section name"
                   />

@@ -1,14 +1,4 @@
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from "@react-email/components";
 
 export interface MagicLinkEmailProps {
   email: string;
@@ -25,28 +15,23 @@ export const MagicLinkEmail = ({ email, url, token }: MagicLinkEmailProps) => {
         <Container style={container}>
           <Heading style={h1}>Sign in to PaperJet</Heading>
           <Text style={text}>
-            Click the button below to sign in to your PaperJet account. This
-            link will expire in 10 minutes.
+            Click the button below to sign in to your PaperJet account. This link will expire in 10 minutes.
           </Text>
           <Section style={buttonContainer}>
             <Button style={button} href={url}>
               Sign in to PaperJet
             </Button>
           </Section>
-          <Text style={text}>
-            If you didn't request this email, you can safely ignore it.
-          </Text>
+          <Text style={text}>If you didn't request this email, you can safely ignore it.</Text>
           <Text style={footer}>
-            If the button doesn't work, copy and paste this link into your
-            browser:
+            If the button doesn't work, copy and paste this link into your browser:
             <br />
             {url}
           </Text>
           {token && (
             <Text style={footer}>
               <br />
-              Alternatively, you can use this one-time code:{" "}
-              <strong>{token}</strong>
+              Alternatively, you can use this one-time code: <strong>{token}</strong>
             </Text>
           )}
         </Container>

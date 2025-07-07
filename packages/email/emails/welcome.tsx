@@ -41,20 +41,15 @@ export const WelcomeEmail = ({ email }: WelcomeEmailProps) => {
               Welcome to <strong>PaperJet</strong>! 🚀
             </Heading>
 
+            <Text className="text-black text-[14px] leading-[24px]">Hi there,</Text>
+
             <Text className="text-black text-[14px] leading-[24px]">
-              Hi there,
+              Thank you for your interest in PaperJet! We're excited to have you on board.
             </Text>
 
             <Text className="text-black text-[14px] leading-[24px]">
-              Thank you for your interest in PaperJet! We're excited to have you
-              on board.
-            </Text>
-
-            <Text className="text-black text-[14px] leading-[24px]">
-              PaperJet is a{" "}
-              <strong>privacy-first document processing platform</strong> that
-              helps you securely extract data from any document while keeping
-              your data completely private and self-hostable.
+              PaperJet is a <strong>privacy-first document processing platform</strong> that helps you securely extract
+              data from any document while keeping your data completely private and self-hostable.
             </Text>
 
             <Section className="bg-[#f6f9fc] rounded-lg p-[16px] my-[24px]">
@@ -62,20 +57,15 @@ export const WelcomeEmail = ({ email }: WelcomeEmailProps) => {
                 <strong>What makes PaperJet special:</strong>
               </Text>
               <Text className="text-[#374151] text-[12px] leading-[18px] mt-[8px] mb-0">
-                ✅ <strong>Open source</strong> - Full transparency and
-                community-driven
-                <br />✅ <strong>Privacy-first</strong> - Your data never leaves
-                your control
-                <br />✅ <strong>Self-hostable</strong> - Deploy on your own
-                infrastructure
-                <br />✅ <strong>Custom workflows</strong> - Build exactly what
-                you need
+                ✅ <strong>Open source</strong> - Full transparency and community-driven
+                <br />✅ <strong>Privacy-first</strong> - Your data never leaves your control
+                <br />✅ <strong>Self-hostable</strong> - Deploy on your own infrastructure
+                <br />✅ <strong>Custom workflows</strong> - Build exactly what you need
               </Text>
             </Section>
 
             <Text className="text-black text-[14px] leading-[24px]">
-              We'll notify you as soon as we launch. Get ready to revolutionize
-              your document processing workflow!
+              We'll notify you as soon as we launch. Get ready to revolutionize your document processing workflow!
             </Text>
 
             <Section className="text-center mt-[32px] mb-[32px]">
@@ -90,16 +80,13 @@ export const WelcomeEmail = ({ email }: WelcomeEmailProps) => {
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
 
             <Text className="text-[#666666] text-[12px] leading-[24px]">
-              This email was sent to <span className="text-black">{email}</span>{" "}
-              because you signed up for PaperJet launch notifications.
+              This email was sent to <span className="text-black">{email}</span> because you signed up for PaperJet
+              launch notifications.
             </Text>
 
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               If you have any questions, feel free to reach out to us at{" "}
-              <Link
-                href="mailto:hello@getpaperjet.com"
-                className="text-blue-600 no-underline"
-              >
+              <Link href="mailto:hello@getpaperjet.com" className="text-blue-600 no-underline">
                 hello@getpaperjet.com
               </Link>
             </Text>

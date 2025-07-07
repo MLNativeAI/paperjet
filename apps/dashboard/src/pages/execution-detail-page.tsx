@@ -1,22 +1,8 @@
-import type {
-  ExtractedTable,
-  ExtractedValue,
-  ExtractionResult,
-} from "@paperjet/db/types";
+import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
 import type { Workflow } from "@paperjet/engine/types";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Calendar,
-  CheckCircle,
-  Clock,
-  Copy,
-  Download,
-  FileText,
-  XCircle,
-} from "lucide-react";
+import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, Copy, Download, FileText, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { CategorizedExtractionResults } from "@/components/categorized-extraction-results";
@@ -25,14 +11,7 @@ import { ExecutionResultsByCategory } from "@/components/execution-results-by-ca
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ViewToggle } from "@/components/view-toggle";
 import { getExecutionDetails, getWorkflow } from "@/lib/api";
 
@@ -54,13 +33,11 @@ export default function ExecutionDetailPage() {
 
   const { data: workflow } = useQuery({
     queryKey: ["workflow", execution?.workflowId],
-    queryFn: () =>
-      execution?.workflowId ? getWorkflow(execution.workflowId) : null,
+    queryFn: () => (execution?.workflowId ? getWorkflow(execution.workflowId) : null),
     enabled: !!execution?.workflowId,
   });
 
-  const extractionResult =
-    execution?.extractionResult as ExtractionResult | null;
+  const extractionResult = execution?.extractionResult as ExtractionResult | null;
 
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
@@ -72,9 +49,7 @@ export default function ExecutionDetailPage() {
       case "pending":
         return <Clock className="h-4 w-4 text-muted-foreground" />;
       case "processing":
-        return (
-          <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        );
+        return <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
       case "completed":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case "failed":
@@ -95,25 +70,16 @@ export default function ExecutionDetailPage() {
     }
   };
 
-  const formatValue = (
-    value: string | number | boolean | Date | null,
-    type: string,
-  ) => {
+  const formatValue = (value: string | number | boolean | Date | null, type: string) => {
     if (value === null || value === undefined) {
-      return (
-        <span className="text-muted-foreground italic">No data found</span>
-      );
+      return <span className="text-muted-foreground italic">No data found</span>;
     }
 
     switch (type) {
       case "currency":
-        return typeof value === "number"
-          ? `$${value.toFixed(2)}`
-          : value?.toString();
+        return typeof value === "number" ? `$${value.toFixed(2)}` : value?.toString();
       case "date":
-        return value instanceof Date
-          ? value.toLocaleString()
-          : value?.toString();
+        return value instanceof Date ? value.toLocaleString() : value?.toString();
       case "boolean":
         return value ? "Yes" : "No";
       default:
@@ -124,11 +90,7 @@ export default function ExecutionDetailPage() {
   };
 
   const exportResults = () => {
-    if (
-      !execution ||
-      execution.status !== "completed" ||
-      !execution.extractionResult
-    ) {
+    if (!execution || execution.status !== "completed" || !execution.extractionResult) {
       toast.error("No results to export");
       return;
     }
@@ -208,24 +170,16 @@ export default function ExecutionDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Button
-            variant="ghost"
-            onClick={() => navigate({ to: "/runs" })}
-            className="mb-4"
-          >
+          <Button variant="ghost" onClick={() => navigate({ to: "/runs" })} className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Runs
           </Button>
           <h1 className="text-3xl font-bold">Execution Details</h1>
           <div className="flex items-center gap-4 mt-2">
-            <span className="text-muted-foreground">
-              {execution.workflowName}
-            </span>
+            <span className="text-muted-foreground">{execution.workflowName}</span>
             <div className="flex items-center gap-2">
               {getStatusIcon(execution.status)}
-              <Badge variant={getStatusColor(execution.status)}>
-                {execution.status}
-              </Badge>
+              <Badge variant={getStatusColor(execution.status)}>{execution.status}</Badge>
             </div>
           </div>
         </div>
@@ -233,10 +187,7 @@ export default function ExecutionDetailPage() {
         <div className="flex items-center gap-4">
           {execution.status === "completed" && execution.extractionResult && (
             <>
-              <ViewToggle
-                viewMode={viewMode}
-                onViewModeChange={handleViewModeChange}
-              />
+              <ViewToggle viewMode={viewMode} onViewModeChange={handleViewModeChange} />
               <Button onClick={exportResults}>
                 <Download className="h-4 w-4 mr-2" />
                 Export Results
@@ -254,35 +205,23 @@ export default function ExecutionDetailPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Filename
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">Filename</p>
               <p className="text-lg font-medium">{execution.filename}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Status
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">Status</p>
               <div className="flex items-center gap-2">
                 {getStatusIcon(execution.status)}
-                <Badge variant={getStatusColor(execution.status)}>
-                  {execution.status}
-                </Badge>
+                <Badge variant={getStatusColor(execution.status)}>{execution.status}</Badge>
               </div>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Duration
-              </p>
-              <p className="text-lg">
-                {formatDuration(execution.startedAt, execution.completedAt)}
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">Duration</p>
+              <p className="text-lg">{formatDuration(execution.startedAt, execution.completedAt)}</p>
             </div>
             {execution.errorMessage && (
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Error Message
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Error Message</p>
                 <p className="text-sm text-red-600">{execution.errorMessage}</p>
               </div>
             )}
@@ -299,26 +238,16 @@ export default function ExecutionDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Execution ID
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Execution ID</p>
                 <div className="flex items-center gap-2">
-                  <code className="text-sm bg-muted px-2 py-1 rounded">
-                    {execution.id}
-                  </code>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(execution.id)}
-                  >
+                  <code className="text-sm bg-muted px-2 py-1 rounded">{execution.id}</code>
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(execution.id)}>
                     <Copy className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Started At
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Started At</p>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>{new Date(execution.startedAt).toLocaleString()}</span>
@@ -327,21 +256,15 @@ export default function ExecutionDetailPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Workflow
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Workflow</p>
                 <p>{execution.workflowName}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Completed At
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Completed At</p>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>
-                    {execution.completedAt
-                      ? new Date(execution.completedAt).toLocaleString()
-                      : "In progress"}
+                    {execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "In progress"}
                   </span>
                 </div>
               </div>
@@ -366,8 +289,7 @@ export default function ExecutionDetailPage() {
                       <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
                       <h4 className="font-semibold mb-2">Processing Failed</h4>
                       <p className="text-sm text-muted-foreground max-w-sm">
-                        {execution.errorMessage ||
-                          "An error occurred while processing this file"}
+                        {execution.errorMessage || "An error occurred while processing this file"}
                       </p>
                     </div>
                   </div>
@@ -385,124 +307,79 @@ export default function ExecutionDetailPage() {
               <CardContent>
                 <div className="space-y-4">
                   {/* Fields */}
-                  {extractionResult.fields &&
-                    extractionResult.fields.length > 0 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">Fields</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            {extractionResult.fields.map(
-                              (field: ExtractedValue, fieldIndex: number) => (
-                                <div
-                                  key={`field-${field.fieldName}-${fieldIndex}`}
-                                  className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
-                                >
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-medium text-sm">
-                                      {field.fieldName}
-                                    </span>
-                                  </div>
-                                  <div className="text-sm font-medium">
-                                    {formatValue(field.value, "text")}
-                                  </div>
-                                </div>
-                              ),
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
+                  {extractionResult.fields && extractionResult.fields.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Fields</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {extractionResult.fields.map((field: ExtractedValue, fieldIndex: number) => (
+                            <div
+                              key={`field-${field.fieldName}-${fieldIndex}`}
+                              className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
+                            >
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-medium text-sm">{field.fieldName}</span>
+                              </div>
+                              <div className="text-sm font-medium">{formatValue(field.value, "text")}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Tables */}
-                  {extractionResult.tables &&
-                    extractionResult.tables.length > 0 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-base">Tables</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          {extractionResult.tables.map(
-                            (table: ExtractedTable, tableIndex: number) => (
-                              <div
-                                key={`table-${table.tableName}-${tableIndex}`}
-                                className="space-y-2"
-                              >
-                                <h4 className="font-medium">
-                                  {table.tableName}
-                                </h4>
-                                {table.rows && table.rows.length > 0 ? (
-                                  <div className="overflow-x-auto">
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow>
-                                          {Object.keys(
-                                            table.rows[0].values,
-                                          ).map(
-                                            (
-                                              columnName: string,
-                                              colIndex: number,
-                                            ) => (
-                                              <TableHead key={colIndex}>
-                                                {columnName}
-                                              </TableHead>
+                  {extractionResult.tables && extractionResult.tables.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Tables</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {extractionResult.tables.map((table: ExtractedTable, tableIndex: number) => (
+                          <div key={`table-${table.tableName}-${tableIndex}`} className="space-y-2">
+                            <h4 className="font-medium">{table.tableName}</h4>
+                            {table.rows && table.rows.length > 0 ? (
+                              <div className="overflow-x-auto">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      {Object.keys(table.rows[0].values).map((columnName: string, colIndex: number) => (
+                                        <TableHead key={colIndex}>{columnName}</TableHead>
+                                      ))}
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {table.rows.map(
+                                      (
+                                        row: {
+                                          values: Record<string, string | number | boolean | Date | null>;
+                                        },
+                                        rowIndex: number,
+                                      ) => (
+                                        <TableRow key={`row-${tableIndex}-${rowIndex}`}>
+                                          {Object.values(row.values).map(
+                                            (value: string | number | boolean | Date | null, colIndex: number) => (
+                                              <TableCell key={`col-${tableIndex}-${rowIndex}-${colIndex}`}>
+                                                {formatValue(value, "text")}
+                                              </TableCell>
                                             ),
                                           )}
                                         </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {table.rows.map(
-                                          (
-                                            row: {
-                                              values: Record<
-                                                string,
-                                                | string
-                                                | number
-                                                | boolean
-                                                | Date
-                                                | null
-                                              >;
-                                            },
-                                            rowIndex: number,
-                                          ) => (
-                                            <TableRow
-                                              key={`row-${tableIndex}-${rowIndex}`}
-                                            >
-                                              {Object.values(row.values).map(
-                                                (
-                                                  value:
-                                                    | string
-                                                    | number
-                                                    | boolean
-                                                    | Date
-                                                    | null,
-                                                  colIndex: number,
-                                                ) => (
-                                                  <TableCell
-                                                    key={`col-${tableIndex}-${rowIndex}-${colIndex}`}
-                                                  >
-                                                    {formatValue(value, "text")}
-                                                  </TableCell>
-                                                ),
-                                              )}
-                                            </TableRow>
-                                          ),
-                                        )}
-                                      </TableBody>
-                                    </Table>
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-muted-foreground">
-                                    No table data found
-                                  </p>
-                                )}
+                                      ),
+                                    )}
+                                  </TableBody>
+                                </Table>
                               </div>
-                            ),
-                          )}
-                        </CardContent>
-                      </Card>
-                    )}
+                            ) : (
+                              <p className="text-sm text-muted-foreground">No table data found</p>
+                            )}
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -515,14 +392,9 @@ export default function ExecutionDetailPage() {
               </CardHeader>
               <CardContent>
                 {workflow ? (
-                  <ExecutionResultsByCategory
-                    extractionResult={extractionResult}
-                    workflow={workflow}
-                  />
+                  <ExecutionResultsByCategory extractionResult={extractionResult} workflow={workflow} />
                 ) : (
-                  <CategorizedExtractionResults
-                    extractionResult={extractionResult}
-                  />
+                  <CategorizedExtractionResults extractionResult={extractionResult} />
                 )}
               </CardContent>
             </Card>

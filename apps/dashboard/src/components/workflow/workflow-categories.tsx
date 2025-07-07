@@ -1,8 +1,4 @@
-import type {
-  FieldsConfiguration,
-  TableConfiguration,
-  Workflow,
-} from "@paperjet/engine/types";
+import type { FieldsConfiguration, TableConfiguration, Workflow } from "@paperjet/engine/types";
 import WorkflowFields from "./workflow-fields";
 import WorkflowTables from "./workflow-tables";
 
@@ -14,11 +10,7 @@ export interface CategoryGroup {
   tables: TableConfiguration[number][];
 }
 
-export default function WorkflowCategories({
-  workflow,
-}: {
-  workflow: Workflow;
-}) {
+export default function WorkflowCategories({ workflow }: { workflow: Workflow }) {
   // Group fields and tables by category
   const categoriesMap = new Map<string, CategoryGroup>();
 
@@ -50,9 +42,7 @@ export default function WorkflowCategories({
   });
 
   // Sort categories by ordinal
-  const sortedCategories = Array.from(categoriesMap.values()).sort(
-    (a, b) => a.ordinal - b.ordinal,
-  );
+  const sortedCategories = Array.from(categoriesMap.values()).sort((a, b) => a.ordinal - b.ordinal);
 
   if (sortedCategories.length === 0) {
     return (
@@ -66,9 +56,7 @@ export default function WorkflowCategories({
     <div className="space-y-8">
       {sortedCategories.map((category) => (
         <div key={category.categoryId} className="space-y-4">
-          <h3 className="text-lg font-semibold text-primary border-b pb-2">
-            {category.name}
-          </h3>
+          <h3 className="text-lg font-semibold text-primary border-b pb-2">{category.name}</h3>
           <WorkflowFields category={category} workflow={workflow} />
           <WorkflowTables category={category} workflow={workflow} />
         </div>

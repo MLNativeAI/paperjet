@@ -50,21 +50,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useWorkflowExecutions } from "@/hooks/useWorkflowExecutions";
 
 interface WorkflowData {
@@ -90,9 +77,7 @@ const getStatusIcon = (status: string) => {
     case "pending":
       return <Clock className="h-4 w-4 text-muted-foreground" />;
     case "processing":
-      return (
-        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      );
+      return <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
     case "completed":
       return <CheckCircle className="h-4 w-4 text-green-600" />;
     case "failed":
@@ -102,9 +87,7 @@ const getStatusIcon = (status: string) => {
   }
 };
 
-const getStatusColor = (
-  status: string,
-): "secondary" | "default" | "destructive" => {
+const getStatusColor = (status: string): "secondary" | "default" | "destructive" => {
   switch (status) {
     case "pending":
       return "secondary";
@@ -136,9 +119,7 @@ const getWorkflowStatusIcon = (status: WorkflowStatus) => {
   }
 };
 
-const getWorkflowStatusColor = (
-  status: WorkflowStatus,
-): "secondary" | "default" | "destructive" | "outline" => {
+const getWorkflowStatusColor = (status: WorkflowStatus): "secondary" | "default" | "destructive" | "outline" => {
   switch (status) {
     case "draft":
       return "secondary";
@@ -155,19 +136,14 @@ const getWorkflowStatusColor = (
 };
 
 function WorkflowExecutionRow({ workflowId }: { workflowId: string }) {
-  const { data: executions = [], isLoading } = useWorkflowExecutions(
-    workflowId,
-    true,
-  );
+  const { data: executions = [], isLoading } = useWorkflowExecutions(workflowId, true);
   const navigate = useNavigate();
 
   if (isLoading) {
     return (
       <div className="p-4 flex items-center justify-center">
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
-        <span className="ml-2 text-sm text-muted-foreground">
-          Loading executions...
-        </span>
+        <span className="ml-2 text-sm text-muted-foreground">Loading executions...</span>
       </div>
     );
   }
@@ -185,27 +161,17 @@ function WorkflowExecutionRow({ workflowId }: { workflowId: string }) {
       <h4 className="font-medium mb-3 text-sm">Recent Executions</h4>
       <div className="space-y-2">
         {executions.slice(0, 3).map((execution) => (
-          <div
-            key={execution.id}
-            className="flex items-center justify-between p-2 bg-background rounded border"
-          >
+          <div key={execution.id} className="flex items-center justify-between p-2 bg-background rounded border">
             <div className="flex items-center gap-3 flex-1">
               {getStatusIcon(execution.status)}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
-                    {new Date(execution.startedAt).toLocaleDateString()}
-                  </span>
-                  <Badge
-                    variant={getStatusColor(execution.status)}
-                    className="text-xs"
-                  >
+                  <span className="text-sm font-medium">{new Date(execution.startedAt).toLocaleDateString()}</span>
+                  <Badge variant={getStatusColor(execution.status)} className="text-xs">
                     {execution.status}
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {execution.filename || "No filename"}
-                </p>
+                <p className="text-xs text-muted-foreground">{execution.filename || "No filename"}</p>
               </div>
             </div>
             <Button
@@ -233,17 +199,11 @@ function WorkflowExecutionRow({ workflowId }: { workflowId: string }) {
   );
 }
 
-export function WorkflowsDataTable({
-  data,
-  onDeleteWorkflow,
-}: WorkflowsDataTableProps) {
+export function WorkflowsDataTable({ data, onDeleteWorkflow }: WorkflowsDataTableProps) {
   const navigate = useNavigate();
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [pagination, setPagination] = React.useState({
@@ -257,17 +217,8 @@ export function WorkflowsDataTable({
       header: () => null,
       cell: ({ row }) => {
         return (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => row.toggleExpanded()}
-          >
-            {row.getIsExpanded() ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => row.toggleExpanded()}>
+            {row.getIsExpanded() ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
         );
       },
@@ -296,10 +247,7 @@ export function WorkflowsDataTable({
         return (
           <div className="flex items-center gap-2">
             {getWorkflowStatusIcon(status)}
-            <Badge
-              variant={getWorkflowStatusColor(status)}
-              className="capitalize"
-            >
+            <Badge variant={getWorkflowStatusColor(status)} className="capitalize">
               {status}
             </Badge>
           </div>
@@ -342,13 +290,7 @@ export function WorkflowsDataTable({
         return (
           <div className="flex items-center gap-2">
             {isActive ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  navigate({ to: `/workflows/${row.original.id}/run` })
-                }
-              >
+              <Button variant="outline" size="sm" onClick={() => navigate({ to: `/workflows/${row.original.id}/run` })}>
                 <PlayIcon className="h-4 w-4 mr-2" />
                 Run
               </Button>
@@ -356,9 +298,7 @@ export function WorkflowsDataTable({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  navigate({ to: `/workflows/${row.original.id}/finalize` })
-                }
+                onClick={() => navigate({ to: `/workflows/${row.original.id}/finalize` })}
               >
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Processing
@@ -367,9 +307,7 @@ export function WorkflowsDataTable({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  navigate({ to: `/workflows/${row.original.id}/finalize` })
-                }
+                onClick={() => navigate({ to: `/workflows/${row.original.id}/finalize` })}
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Configure
@@ -414,9 +352,7 @@ export function WorkflowsDataTable({
                 )}
                 <DropdownMenuItem
                   variant="destructive"
-                  onClick={() =>
-                    onDeleteWorkflow(row.original.id, row.original.name)
-                  }
+                  onClick={() => onDeleteWorkflow(row.original.id, row.original.name)}
                 >
                   <IconTrash className="h-4 w-4 mr-2" />
                   Delete
@@ -469,12 +405,7 @@ export function WorkflowsDataTable({
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -485,17 +416,9 @@ export function WorkflowsDataTable({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <React.Fragment key={row.id}>
-                  <TableRow
-                    data-state={row.getIsSelected() && "selected"}
-                    className="hover:bg-muted/50"
-                  >
+                  <TableRow data-state={row.getIsSelected() && "selected"} className="hover:bg-muted/50">
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}
                   </TableRow>
                   {row.getIsExpanded() && (
@@ -509,10 +432,7 @@ export function WorkflowsDataTable({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -522,8 +442,8 @@ export function WorkflowsDataTable({
       </div>
       <div className="flex items-center justify-between px-4 py-4">
         <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
+          selected.
         </div>
         <div className="flex w-full items-center gap-8 lg:w-fit">
           <div className="hidden items-center gap-2 lg:flex">
@@ -537,9 +457,7 @@ export function WorkflowsDataTable({
               }}
             >
               <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
+                <SelectValue placeholder={table.getState().pagination.pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
                 {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -551,8 +469,7 @@ export function WorkflowsDataTable({
             </Select>
           </div>
           <div className="flex w-fit items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </div>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             <Button

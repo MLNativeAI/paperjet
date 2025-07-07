@@ -1,30 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import type {
-  CategoriesConfiguration,
-  FieldsConfiguration,
-} from "@paperjet/engine/types";
+import type { CategoriesConfiguration, FieldsConfiguration } from "@paperjet/engine/types";
 import { Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Sheet,
   SheetClose,
@@ -88,9 +71,7 @@ export default function EditFieldSheet({
   const deleteFieldMutation = useDeleteWorkflowField();
 
   const form = useForm<EditFieldFormValues | CreateFieldFormValues>({
-    resolver: zodResolver(
-      mode === "create" ? createFieldFormSchema : editFieldFormSchema,
-    ),
+    resolver: zodResolver(mode === "create" ? createFieldFormSchema : editFieldFormSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -121,9 +102,7 @@ export default function EditFieldSheet({
     }
   }, [field, form, mode, categories]);
 
-  const onSubmit = async (
-    values: EditFieldFormValues | CreateFieldFormValues,
-  ) => {
+  const onSubmit = async (values: EditFieldFormValues | CreateFieldFormValues) => {
     try {
       if (mode === "create") {
         if (!values.categoryId) {
@@ -149,11 +128,9 @@ export default function EditFieldSheet({
         // Only send the changed fields
         const updates: any = {};
         if (values.name !== field.name) updates.name = values.name;
-        if (values.description !== field.description)
-          updates.description = values.description;
+        if (values.description !== field.description) updates.description = values.description;
         if (values.type !== field.type) updates.type = values.type;
-        if (values.required !== field.required)
-          updates.required = values.required;
+        if (values.required !== field.required) updates.required = values.required;
 
         // Only update if there are changes
         if (Object.keys(updates).length > 0) {
@@ -177,9 +154,7 @@ export default function EditFieldSheet({
 
   const handleDelete = async () => {
     if (mode === "edit" && field) {
-      if (
-        confirm(`Are you sure you want to delete the field "${field.name}"?`)
-      ) {
+      if (confirm(`Are you sure you want to delete the field "${field.name}"?`)) {
         try {
           await deleteFieldMutation.mutateAsync({
             workflowId,
@@ -203,9 +178,7 @@ export default function EditFieldSheet({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <SheetHeader>
-              <SheetTitle>
-                {mode === "create" ? "Add new field" : "Edit field"}
-              </SheetTitle>
+              <SheetTitle>{mode === "create" ? "Add new field" : "Edit field"}</SheetTitle>
               <SheetDescription>
                 {mode === "create"
                   ? "Create a new field for data extraction. Provide details to help the AI accurately extract this field."
@@ -225,8 +198,7 @@ export default function EditFieldSheet({
                       <Input {...field} placeholder="e.g., invoice_number" />
                     </FormControl>
                     <FormDescription>
-                      Use snake_case format (lowercase letters, numbers, and
-                      underscores)
+                      Use snake_case format (lowercase letters, numbers, and underscores)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -241,10 +213,7 @@ export default function EditFieldSheet({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a category" />
@@ -252,18 +221,13 @@ export default function EditFieldSheet({
                         </FormControl>
                         <SelectContent>
                           {categories.map((category) => (
-                            <SelectItem
-                              key={category.categoryId}
-                              value={category.categoryId}
-                            >
+                            <SelectItem key={category.categoryId} value={category.categoryId}>
                               {category.displayName}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormDescription>
-                        Choose which section this field belongs to
-                      </FormDescription>
+                      <FormDescription>Choose which section this field belongs to</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -277,10 +241,7 @@ export default function EditFieldSheet({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Field Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a field type" />
@@ -294,9 +255,7 @@ export default function EditFieldSheet({
                         <SelectItem value="boolean">Boolean</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      Choose the data type that best matches the field content
-                    </FormDescription>
+                    <FormDescription>Choose the data type that best matches the field content</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -317,8 +276,7 @@ export default function EditFieldSheet({
                       />
                     </FormControl>
                     <FormDescription>
-                      Provide a detailed description to help the AI accurately
-                      extract this field
+                      Provide a detailed description to help the AI accurately extract this field
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -332,18 +290,11 @@ export default function EditFieldSheet({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Required field
-                      </FormLabel>
-                      <FormDescription>
-                        Mark this field as required in the extraction process
-                      </FormDescription>
+                      <FormLabel className="text-base">Required field</FormLabel>
+                      <FormDescription>Mark this field as required in the extraction process</FormDescription>
                     </div>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                   </FormItem>
                 )}
@@ -359,9 +310,7 @@ export default function EditFieldSheet({
                     onClick={handleDelete}
                     disabled={deleteFieldMutation.isPending}
                   >
-                    {deleteFieldMutation.isPending
-                      ? "Deleting..."
-                      : "Delete field"}
+                    {deleteFieldMutation.isPending ? "Deleting..." : "Delete field"}
                   </Button>
                 )}
               </div>
@@ -373,11 +322,7 @@ export default function EditFieldSheet({
                 </SheetClose>
                 <Button
                   type="submit"
-                  disabled={
-                    mode === "create"
-                      ? createFieldMutation.isPending
-                      : updateFieldMutation.isPending
-                  }
+                  disabled={mode === "create" ? createFieldMutation.isPending : updateFieldMutation.isPending}
                 >
                   {mode === "create"
                     ? createFieldMutation.isPending

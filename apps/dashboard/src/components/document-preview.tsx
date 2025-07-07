@@ -52,9 +52,7 @@ export function DocumentPreview({ fileId }: DocumentPreviewProps) {
         <CardContent className="flex items-center justify-center h-96">
           <div className="text-center">
             <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Failed to load document
-            </p>
+            <p className="text-sm text-muted-foreground">Failed to load document</p>
           </div>
         </CardContent>
       </Card>
@@ -66,19 +64,13 @@ export function DocumentPreview({ fileId }: DocumentPreviewProps) {
   }
 
   const isPdf = documentData.filename.toLowerCase().endsWith(".pdf");
-  const isImage = documentData.filename
-    .toLowerCase()
-    .match(/\.(jpg|jpeg|png|gif|webp)$/);
+  const isImage = documentData.filename.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
 
   return (
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {isPdf ? (
-            <FileText className="h-5 w-5" />
-          ) : (
-            <ImageIcon className="h-5 w-5" />
-          )}
+          {isPdf ? <FileText className="h-5 w-5" /> : <ImageIcon className="h-5 w-5" />}
           Document Preview
         </CardTitle>
       </CardHeader>
@@ -100,12 +92,8 @@ export function DocumentPreview({ fileId }: DocumentPreviewProps) {
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                  Preview not available for this file type
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {documentData.filename}
-                </p>
+                <p className="text-sm text-muted-foreground">Preview not available for this file type</p>
+                <p className="text-xs text-muted-foreground mt-1">{documentData.filename}</p>
               </div>
             </div>
           )}

@@ -1,14 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle,
-  Loader2,
-  Mail,
-  X,
-} from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle, Loader2, Mail, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,13 +15,7 @@ import {
 
 interface SignupModalProps {
   triggerText?: string;
-  triggerVariant?:
-    | "default"
-    | "outline"
-    | "ghost"
-    | "link"
-    | "destructive"
-    | "secondary";
+  triggerVariant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary";
   triggerSize?: "default" | "sm" | "lg" | "icon";
   triggerClassName?: string;
   showArrow?: boolean;
@@ -105,11 +92,7 @@ export function SignupModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button
-          variant={triggerVariant}
-          size={triggerSize}
-          className={`px-6 ${triggerClassName}`}
-        >
+        <Button variant={triggerVariant} size={triggerSize} className={`px-6 ${triggerClassName}`}>
           {triggerText}
           {showArrow && <ArrowRight className="ml-1 h-4 w-4" />}
         </Button>
@@ -121,8 +104,8 @@ export function SignupModal({
             Get Notified When We Launch
           </DialogTitle>
           <DialogDescription>
-            Be the first to experience privacy-first document processing. We'll
-            send you an email as soon as PaperJet is ready!
+            Be the first to experience privacy-first document processing. We'll send you an email as soon as PaperJet is
+            ready!
           </DialogDescription>
         </DialogHeader>
 
@@ -162,24 +145,11 @@ export function SignupModal({
           </div>
 
           <div className="flex gap-3">
-            <Button
-              type="submit"
-              disabled={isLoading || status === "success"}
-              className="flex-1"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Mail className="h-4 w-4 mr-2" />
-              )}
+            <Button type="submit" disabled={isLoading || status === "success"} className="flex-1">
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
               {isLoading ? "Subscribing..." : "Notify Me"}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={isLoading}
-            >
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
               Cancel
             </Button>
           </div>
@@ -187,8 +157,7 @@ export function SignupModal({
 
         <div className="text-xs text-muted-foreground text-center">
           <span className="block mt-2">
-            By signing up, you consent to receive product updates and launch
-            notifications from us.
+            By signing up, you consent to receive product updates and launch notifications from us.
           </span>
         </div>
       </DialogContent>

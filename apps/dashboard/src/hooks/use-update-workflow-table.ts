@@ -22,11 +22,7 @@ export function useUpdateWorkflowTable() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      workflowId,
-      tableId,
-      updates,
-    }: UpdateWorkflowTableParams) => {
+    mutationFn: async ({ workflowId, tableId, updates }: UpdateWorkflowTableParams) => {
       const response = await api.workflows[":id"].tables[":tableId"].$patch({
         param: { id: workflowId, tableId },
         json: updates,
@@ -36,9 +32,7 @@ export function useUpdateWorkflowTable() {
         const error = await response.json();
         if ("details" in error && Array.isArray(error.details)) {
           // Format validation errors
-          const messages = error.details
-            .map((d: any) => `${d.field}: ${d.message}`)
-            .join(", ");
+          const messages = error.details.map((d: any) => `${d.field}: ${d.message}`).join(", ");
           throw new Error(messages);
         }
         throw new Error(error.error || "Failed to update table");

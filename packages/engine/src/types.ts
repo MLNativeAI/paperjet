@@ -1,8 +1,4 @@
-import type {
-  DbWorkflow,
-  DbWorkflowExecution,
-  FileData,
-} from "@paperjet/db/types";
+import type { DbWorkflow, DbWorkflowExecution, FileData } from "@paperjet/db/types";
 import z from "zod";
 
 // Engine-specific types
@@ -24,9 +20,7 @@ export const categoriesConfigurationSchema = z.array(
   }),
 );
 
-export type CategoriesConfiguration = z.infer<
-  typeof categoriesConfigurationSchema
->;
+export type CategoriesConfiguration = z.infer<typeof categoriesConfigurationSchema>;
 
 export const fieldsConfigurationSchema = z.array(
   z.object({
@@ -69,10 +63,7 @@ export const workflowConfigurationSchema = z.object({
 
 export type WorkflowConfiguration = z.infer<typeof workflowConfigurationSchema>;
 
-export type Workflow = Omit<
-  DbWorkflow,
-  "configuration" | "sampleData" | "categories"
-> & {
+export type Workflow = Omit<DbWorkflow, "configuration" | "sampleData" | "categories"> & {
   configuration: WorkflowConfiguration;
   categories: CategoriesConfiguration;
   sampleData?: ExtractionResult | null;
@@ -86,10 +77,7 @@ export const extractedValueSchema = z.object({
 });
 
 export const extractedTableRowSchema = z.object({
-  values: z.record(
-    z.string(),
-    z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
-  ),
+  values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable()),
 });
 
 export const extractedTableSchema = z.object({

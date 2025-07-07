@@ -28,27 +28,20 @@ const router = app
       return c.json({ error: "Failed to get executions" }, 500);
     }
   })
-  .get(
-    "/:executionId",
-    zValidator("param", executionIdParamSchema),
-    async (c) => {
-      try {
-        const user = await getUser(c);
-        const { executionId } = c.req.valid("param");
-        const execution = await workflowService.getExecutionDetails(
-          executionId,
-          user.id,
-        );
-        return c.json(execution);
-      } catch (error) {
-        logger.error(error, "Get execution details error:");
-        if (error instanceof Error && error.message === "Execution not found") {
-          return c.json({ error: "Execution not found" }, 404);
-        }
-        return c.json({ error: "Failed to get execution details" }, 500);
+  .get("/:executionId", zValidator("param", executionIdParamSchema), async (c) => {
+    try {
+      const user = await getUser(c);
+      const { executionId } = c.req.valid("param");
+      const execution = await workflowService.getExecutionDetails(executionId, user.id);
+      return c.json(execution);
+    } catch (error) {
+      logger.error(error, "Get execution details error:");
+      if (error instanceof Error && error.message === "Execution not found") {
+        return c.json({ error: "Execution not found" }, 404);
       }
-    },
-  )
+      return c.json({ error: "Failed to get execution details" }, 500);
+    }
+  })
   .post("/", async (c) => {
     try {
       const user = await getUser(c);
@@ -64,11 +57,7 @@ const router = app
         return c.json({ error: "File is required" }, 400);
       }
 
-      const result = await workflowService.executeWorkflow(
-        workflowId,
-        user.id,
-        uploadedFile,
-      );
+      const result = await workflowService.executeWorkflow(workflowId, user.id, uploadedFile);
       return c.json(result);
     } catch (error) {
       logger.error(error, "Execution error:");
@@ -95,9 +84,7 @@ const router = app
 
       // Create individual executions for each file
       const results = await Promise.all(
-        uploadedFiles.map((file) =>
-          workflowService.executeWorkflow(workflowId, user.id, file),
-        ),
+        uploadedFiles.map((file) => workflowService.executeWorkflow(workflowId, user.id, file)),
       );
 
       return c.json({ executions: results });
@@ -109,45 +96,34 @@ const router = app
       return c.json({ error: "Failed to execute workflow" }, 500);
     }
   })
-  .get(
-    "/workflow/:workflowId",
-    zValidator("param", workflowIdParamSchema),
-    async (c) => {
-      try {
-        const user = await getUser(c);
-        const { workflowId } = c.req.valid("param");
-        const executions = await workflowService.getWorkflowExecutions(
-          workflowId,
-          user.id,
-        );
-        return c.json(executions);
-      } catch (error) {
-        logger.error(error, "Get executions error:");
-        if (error instanceof Error && error.message === "Workflow not found") {
-          return c.json({ error: "Workflow not found" }, 404);
-        }
-        return c.json({ error: "Failed to get executions" }, 500);
+  .get("/workflow/:workflowId", zValidator("param", workflowIdParamSchema), async (c) => {
+    try {
+      const user = await getUser(c);
+      const { workflowId } = c.req.valid("param");
+      const executions = await workflowService.getWorkflowExecutions(workflowId, user.id);
+      return c.json(executions);
+    } catch (error) {
+      logger.error(error, "Get executions error:");
+      if (error instanceof Error && error.message === "Workflow not found") {
+        return c.json({ error: "Workflow not found" }, 404);
       }
-    },
-  )
-  .delete(
-    "/:executionId",
-    zValidator("param", executionIdParamSchema),
-    async (c) => {
-      try {
-        const user = await getUser(c);
-        const { executionId } = c.req.valid("param");
-        await workflowService.deleteExecution(executionId, user.id);
-        return c.json({ success: true });
-      } catch (error) {
-        logger.error(error, "Delete execution error:");
-        if (error instanceof Error && error.message === "Execution not found") {
-          return c.json({ error: "Execution not found" }, 404);
-        }
-        return c.json({ error: "Failed to delete execution" }, 500);
+      return c.json({ error: "Failed to get executions" }, 500);
+    }
+  })
+  .delete("/:executionId", zValidator("param", executionIdParamSchema), async (c) => {
+    try {
+      const user = await getUser(c);
+      const { executionId } = c.req.valid("param");
+      await workflowService.deleteExecution(executionId, user.id);
+      return c.json({ success: true });
+    } catch (error) {
+      logger.error(error, "Delete execution error:");
+      if (error instanceof Error && error.message === "Execution not found") {
+        return c.json({ error: "Execution not found" }, 404);
       }
-    },
-  );
+      return c.json({ error: "Failed to delete execution" }, 500);
+    }
+  });
 
 export default router;
 

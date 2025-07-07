@@ -5,22 +5,12 @@ import type { ValidWorkflow } from "@paperjet/db/types";
 import { forwardRef, useImperativeHandle } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(100, "Name must be less than 100 characters"),
+  name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   description: z.string().optional(),
 });
 
@@ -31,10 +21,7 @@ export interface BasicWorkflowDataFormRef {
   getValues: () => FormData;
 }
 
-const BasicWorkflowDataForm = forwardRef<
-  BasicWorkflowDataFormRef,
-  { workflow: ValidWorkflow }
->(({ workflow }, ref) => {
+const BasicWorkflowDataForm = forwardRef<BasicWorkflowDataFormRef, { workflow: ValidWorkflow }>(({ workflow }, ref) => {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -78,11 +65,7 @@ const BasicWorkflowDataForm = forwardRef<
             <FormItem>
               <FormLabel>Description (optional)</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Describe what this workflow does"
-                  className="min-h-[100px]"
-                  {...field}
-                />
+                <Textarea placeholder="Describe what this workflow does" className="min-h-[100px]" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,12 +1,5 @@
 import type { ExtractionResult } from "@paperjet/db/types";
-import {
-  CheckCircle,
-  ChevronDown,
-  ChevronRight,
-  Clock,
-  Play,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle, ChevronDown, ChevronRight, Clock, Play, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,10 +24,7 @@ interface FileListProps {
   onRemoveFile: (fileId: string) => void;
   onStartExecution?: () => void;
   onToggleResultExpansion: (fileId: string) => void;
-  renderExtractionResults: (
-    result: ExtractionResult,
-    fileId: string,
-  ) => React.ReactNode;
+  renderExtractionResults: (result: ExtractionResult, fileId: string) => React.ReactNode;
 }
 
 const getStatusIcon = (status: UploadedFile["status"]) => {
@@ -42,9 +32,7 @@ const getStatusIcon = (status: UploadedFile["status"]) => {
     case "pending":
       return <Clock className="h-4 w-4 text-muted-foreground" />;
     case "processing":
-      return (
-        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      );
+      return <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
     case "completed":
       return <CheckCircle className="h-4 w-4 text-green-600" />;
     case "failed":
@@ -86,10 +74,7 @@ export function FileList({
         <CardTitle className="flex items-center justify-between">
           <span>Uploaded Files ({files.length})</span>
           {processingFiles === 0 && onStartExecution && (
-            <Button
-              onClick={onStartExecution}
-              disabled={isExecuting || files.length === 0}
-            >
+            <Button onClick={onStartExecution} disabled={isExecuting || files.length === 0}>
               <Play className="h-4 w-4 mr-2" />
               Execute Workflow
             </Button>
@@ -112,60 +97,41 @@ export function FileList({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Badge variant={getStatusColor(uploadedFile.status)}>
-                    {uploadedFile.status}
-                  </Badge>
+                  <Badge variant={getStatusColor(uploadedFile.status)}>{uploadedFile.status}</Badge>
 
-                  {uploadedFile.status === "completed" &&
-                    uploadedFile.result && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onToggleResultExpansion(uploadedFile.id)}
-                      >
-                        {expandedResults.has(uploadedFile.id) ? (
-                          <>
-                            <ChevronDown className="h-4 w-4 mr-1" />
-                            Hide Results
-                          </>
-                        ) : (
-                          <>
-                            <ChevronRight className="h-4 w-4 mr-1" />
-                            View Results
-                          </>
-                        )}
-                      </Button>
-                    )}
+                  {uploadedFile.status === "completed" && uploadedFile.result && (
+                    <Button variant="ghost" size="sm" onClick={() => onToggleResultExpansion(uploadedFile.id)}>
+                      {expandedResults.has(uploadedFile.id) ? (
+                        <>
+                          <ChevronDown className="h-4 w-4 mr-1" />
+                          Hide Results
+                        </>
+                      ) : (
+                        <>
+                          <ChevronRight className="h-4 w-4 mr-1" />
+                          View Results
+                        </>
+                      )}
+                    </Button>
+                  )}
 
-                  {(uploadedFile.status === "completed" ||
-                    uploadedFile.status === "failed") && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onRemoveFile(uploadedFile.id)}
-                    >
+                  {(uploadedFile.status === "completed" || uploadedFile.status === "failed") && (
+                    <Button variant="ghost" size="sm" onClick={() => onRemoveFile(uploadedFile.id)}>
                       Remove
                     </Button>
                   )}
 
                   {uploadedFile.status === "failed" && uploadedFile.error && (
-                    <div className="text-sm text-red-600 max-w-xs truncate">
-                      {uploadedFile.error}
-                    </div>
+                    <div className="text-sm text-red-600 max-w-xs truncate">{uploadedFile.error}</div>
                   )}
                 </div>
               </div>
 
-              {uploadedFile.status === "completed" &&
-                uploadedFile.result &&
-                expandedResults.has(uploadedFile.id) && (
-                  <div className="border-t p-4 bg-muted/20">
-                    {renderExtractionResults(
-                      uploadedFile.result,
-                      uploadedFile.id,
-                    )}
-                  </div>
-                )}
+              {uploadedFile.status === "completed" && uploadedFile.result && expandedResults.has(uploadedFile.id) && (
+                <div className="border-t p-4 bg-muted/20">
+                  {renderExtractionResults(uploadedFile.result, uploadedFile.id)}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -178,10 +144,7 @@ export function FileList({
                 {completedFiles + failedFiles} of {files.length} completed
               </span>
             </div>
-            <Progress
-              value={((completedFiles + failedFiles) / files.length) * 100}
-              className="w-full"
-            />
+            <Progress value={((completedFiles + failedFiles) / files.length) * 100} className="w-full" />
           </div>
         )}
 
@@ -190,9 +153,7 @@ export function FileList({
             <h4 className="font-medium mb-2">Execution Summary</h4>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <span className="text-green-600 font-medium">
-                  {completedFiles}
-                </span>
+                <span className="text-green-600 font-medium">{completedFiles}</span>
                 <span className="text-muted-foreground"> successful</span>
               </div>
               <div>
@@ -200,9 +161,7 @@ export function FileList({
                 <span className="text-muted-foreground"> failed</span>
               </div>
               <div>
-                <span className="text-muted-foreground font-medium">
-                  {files.length}
-                </span>
+                <span className="text-muted-foreground font-medium">{files.length}</span>
                 <span className="text-muted-foreground"> total</span>
               </div>
             </div>

@@ -1,12 +1,5 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
-import {
-  CheckCircle,
-  Database,
-  FileSearch,
-  Loader2,
-  Settings,
-  Upload,
-} from "lucide-react";
+import { CheckCircle, Database, FileSearch, Loader2, Settings, Upload } from "lucide-react";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,12 +52,7 @@ export default function WorkflowLoadingPage() {
         title: "Data Extraction",
         description: "Extracting data based on identified patterns",
         icon: Database,
-        status:
-          status === "extracting"
-            ? "in-progress"
-            : status === "analyzing"
-              ? "pending"
-              : "completed",
+        status: status === "extracting" ? "in-progress" : status === "analyzing" ? "pending" : "completed",
       },
       {
         id: "configure",
@@ -82,9 +70,7 @@ export default function WorkflowLoadingPage() {
   };
 
   const steps = getWorkflowSteps(workflow?.status);
-  const completedSteps = steps.filter(
-    (step) => step.status === "completed",
-  ).length;
+  const completedSteps = steps.filter((step) => step.status === "completed").length;
   const progressPercentage = (completedSteps / steps.length) * 100;
 
   const getStepIcon = (step: WorkflowStep) => {
@@ -102,20 +88,14 @@ export default function WorkflowLoadingPage() {
   const getStepBadge = (step: WorkflowStep) => {
     if (step.status === "completed") {
       return (
-        <Badge
-          variant="default"
-          className="bg-green-100 text-green-800 border-green-200"
-        >
+        <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
           Completed
         </Badge>
       );
     }
     if (step.status === "in-progress") {
       return (
-        <Badge
-          variant="default"
-          className="bg-blue-100 text-blue-800 border-blue-200"
-        >
+        <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">
           In Progress
         </Badge>
       );
@@ -130,8 +110,7 @@ export default function WorkflowLoadingPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Processing Your Workflow</h1>
           <p className="text-muted-foreground mb-6">
-            We're analyzing your document and setting up your workflow. This
-            usually takes a few moments.
+            We're analyzing your document and setting up your workflow. This usually takes a few moments.
           </p>
 
           {/* Progress Bar */}
@@ -164,17 +143,13 @@ export default function WorkflowLoadingPage() {
                     </h3>
                     {getStepBadge(step)}
                   </div>
-                  <p
-                    className={`text-sm ${step.status === "pending" ? "text-gray-400" : "text-muted-foreground"}`}
-                  >
+                  <p className={`text-sm ${step.status === "pending" ? "text-gray-400" : "text-muted-foreground"}`}>
                     {step.description}
                   </p>
                 </div>
 
                 {/* Connector Line */}
-                {index < steps.length - 1 && (
-                  <div className="absolute left-6 mt-8 w-0.5 h-6 bg-gray-200" />
-                )}
+                {index < steps.length - 1 && <div className="absolute left-6 mt-8 w-0.5 h-6 bg-gray-200" />}
               </div>
             ))}
           </CardContent>

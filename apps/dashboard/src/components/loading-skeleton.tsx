@@ -12,10 +12,7 @@ export function LoadingSkeleton() {
       <CardContent>
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={`skeleton-field-${index}`}
-              className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3"
-            >
+            <div key={`skeleton-field-${index}`} className="border-l-4 border-l-blue-500 bg-muted/50 rounded p-3">
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-4 w-24 bg-gray-300 rounded animate-pulse" />
                 <div className="h-5 w-12 bg-gray-200 rounded-full animate-pulse" />
@@ -29,12 +26,8 @@ export function LoadingSkeleton() {
               <div className="h-8 w-8 rounded-full border-4 border-blue-200 mx-auto animate-pulse" />
               <div className="absolute inset-0 h-8 w-8 rounded-full border-4 border-blue-500 border-t-transparent mx-auto animate-spin" />
             </div>
-            <p className="text-sm text-blue-600 font-medium">
-              Extracting data...
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              AI is processing your document
-            </p>
+            <p className="text-sm text-blue-600 font-medium">Extracting data...</p>
+            <p className="text-xs text-muted-foreground mt-1">AI is processing your document</p>
           </div>
         </div>
       </CardContent>

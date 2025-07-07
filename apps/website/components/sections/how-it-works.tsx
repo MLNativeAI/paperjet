@@ -37,18 +37,12 @@ export function HowItWorks() {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center justify-center space-y-4 text-center mb-16"
         >
-          <Badge
-            className="rounded-full px-4 py-1.5 text-sm font-medium"
-            variant="secondary"
-          >
+          <Badge className="rounded-full px-4 py-1.5 text-sm font-medium" variant="secondary">
             How It Works
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Simple Setup, Powerful Results
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Simple Setup, Powerful Results</h2>
           <p className="max-w-[800px] text-muted-foreground md:text-lg">
-            Get started with PaperJet in minutes and begin processing documents
-            securely on your own terms.
+            Get started with PaperJet in minutes and begin processing documents securely on your own terms.
           </p>
         </motion.div>
 

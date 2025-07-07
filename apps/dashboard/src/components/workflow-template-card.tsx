@@ -1,10 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface WorkflowTemplate {
   id: string;
@@ -19,10 +14,7 @@ interface WorkflowTemplateCardProps {
   onClick: (templateId: string) => void;
 }
 
-export function WorkflowTemplateCard({
-  template,
-  onClick,
-}: WorkflowTemplateCardProps) {
+export function WorkflowTemplateCard({ template, onClick }: WorkflowTemplateCardProps) {
   const Icon = template.icon;
 
   return (
@@ -37,9 +29,7 @@ export function WorkflowTemplateCard({
           </div>
           <div className="flex-1">
             <CardTitle className="text-lg">{template.name}</CardTitle>
-            <CardDescription className="mt-1">
-              {template.description}
-            </CardDescription>
+            <CardDescription className="mt-1">{template.description}</CardDescription>
           </div>
         </div>
       </CardHeader>

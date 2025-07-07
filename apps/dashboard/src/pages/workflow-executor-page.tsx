@@ -25,9 +25,7 @@ export default function WorkflowExecutorPage() {
   const navigate = useNavigate();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [executionId, setExecutionId] = useState<string | null>(null);
-  const [expandedResults, setExpandedResults] = useState<Set<string>>(
-    new Set(),
-  );
+  const [expandedResults, setExpandedResults] = useState<Set<string>>(new Set());
 
   const { workflow, isLoading: workflowLoading } = useWorkflow(workflowId);
   const { executeWorkflow, exportResults } = useWorkflowExecution(workflowId);
@@ -52,9 +50,7 @@ export default function WorkflowExecutorPage() {
           // Update uploaded files with results from individual executions
           setUploadedFiles((prev) =>
             prev.map((f) => {
-              const execution = executions.find(
-                (ex: { filename: string }) => ex.filename === f.file.name,
-              );
+              const execution = executions.find((ex: { filename: string }) => ex.filename === f.file.name);
               if (execution) {
                 return {
                   ...f,
@@ -114,12 +110,9 @@ export default function WorkflowExecutorPage() {
     });
   }, []);
 
-  const renderExtractionResults = useCallback(
-    (result: ExtractionResult, _fileId: string) => {
-      return <WorkflowExtractionResults result={result} />;
-    },
-    [],
-  );
+  const renderExtractionResults = useCallback((result: ExtractionResult, _fileId: string) => {
+    return <WorkflowExtractionResults result={result} />;
+  }, []);
 
   const handleExportResults = useCallback(() => {
     exportResults(uploadedFiles, executionId);
@@ -151,13 +144,9 @@ export default function WorkflowExecutorPage() {
   }
 
   const config = workflow.configuration;
-  const completedFiles = uploadedFiles.filter(
-    (f) => f.status === "completed",
-  ).length;
+  const completedFiles = uploadedFiles.filter((f) => f.status === "completed").length;
   const failedFiles = uploadedFiles.filter((f) => f.status === "failed").length;
-  const processingFiles = uploadedFiles.filter(
-    (f) => f.status === "processing",
-  ).length;
+  const processingFiles = uploadedFiles.filter((f) => f.status === "processing").length;
   const allCompleted = uploadedFiles.length > 0 && processingFiles === 0;
 
   return (
@@ -167,9 +156,7 @@ export default function WorkflowExecutorPage() {
         showActions={allCompleted && completedFiles > 0}
         onBack={() => navigate({ to: "/" })}
         onExportResults={handleExportResults}
-        onViewHistory={() =>
-          navigate({ to: `/workflows/${workflowId}/history` })
-        }
+        onViewHistory={() => navigate({ to: `/workflows/${workflowId}/history` })}
       />
 
       <WorkflowInfo configuration={config} />

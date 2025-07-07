@@ -30,17 +30,10 @@ export interface WorkflowServiceDeps {
 export class WorkflowService {
   constructor(private deps: WorkflowServiceDeps) {}
 
-  async #parseWorkflowConfiguration(
-    configuration: string,
-  ): Promise<WorkflowConfiguration> {
-    const parsedConfig = workflowConfigurationSchema.safeParse(
-      JSON.parse(configuration),
-    );
+  async #parseWorkflowConfiguration(configuration: string): Promise<WorkflowConfiguration> {
+    const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(configuration));
     if (!parsedConfig.success) {
-      logger.warn(
-        parsedConfig.error,
-        `Invalid workflow configuration: ${configuration}`,
-      );
+      logger.warn(parsedConfig.error, `Invalid workflow configuration: ${configuration}`);
     }
     return parsedConfig.data ?? { fields: [], tables: [] };
   }
@@ -120,10 +113,7 @@ export class WorkflowService {
     };
   }
 
-  async analyzeWorkflowDocument(
-    workflowId: string,
-    userId: string,
-  ): Promise<void> {
+  async analyzeWorkflowDocument(workflowId: string, userId: string): Promise<void> {
     logger.info({ workflowId, userId }, "Starting workflow document analysis");
 
     // Get workflow and associated file
@@ -170,16 +160,9 @@ export class WorkflowService {
       })
       .where(eq(workflow.id, workflowId));
 
-    logger.info(
-      "Workflow document analysis completed, triggering data extraction",
-    );
+    logger.info("Workflow document analysis completed, triggering data extraction");
 
-    await this.extractDataFromDocument(
-      workflowId,
-      workflowData.fileId,
-      userId,
-      configuration,
-    );
+    await this.extractDataFromDocument(workflowId, workflowData.fileId, userId, configuration);
   }
 
   async extractDataFromDocument(
@@ -190,10 +173,7 @@ export class WorkflowService {
   ) {
     logger.info("Starting data extraction from document");
     // Get file from database
-    const [fileRecord] = await db
-      .select()
-      .from(file)
-      .where(eq(file.id, fileId));
+    const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
 
     if (!fileRecord || fileRecord.ownerId !== userId) {
       throw new Error("File not found");
@@ -203,11 +183,10 @@ export class WorkflowService {
     const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
 
     // Use the document extraction service
-    const extractionResult =
-      await this.deps.documentExtractionService.extractDataFromDocument(
-        presignedUrl,
-        configuration,
-      );
+    const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(
+      presignedUrl,
+      configuration,
+    );
 
     logger.info(
       {
@@ -255,23 +234,16 @@ export class WorkflowService {
   }
 
   async getWorkflows(userId: string) {
-    const workflows = await db
-      .select()
-      .from(workflow)
-      .where(eq(workflow.ownerId, userId));
+    const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
 
     const result = await Promise.all(
       workflows.map(async (w) => {
-        const parsedConfig = await this.#parseWorkflowConfiguration(
-          w.configuration,
-        );
+        const parsedConfig = await this.#parseWorkflowConfiguration(w.configuration);
         return {
           ...w,
           configuration: parsedConfig,
           categories: JSON.parse(w.categories) as CategoriesConfiguration,
-          sampleData: w.sampleData
-            ? (JSON.parse(w.sampleData) as ExtractionResult)
-            : null,
+          sampleData: w.sampleData ? (JSON.parse(w.sampleData) as ExtractionResult) : null,
           sampleDataExtractedAt: w.sampleDataExtractedAt,
         };
       }),
@@ -281,28 +253,19 @@ export class WorkflowService {
   }
 
   async getWorkflow(workflowId: string, userId: string): Promise<Workflow> {
-    const [workflowData] = await db
-      .select()
-      .from(workflow)
-      .where(eq(workflow.id, workflowId));
+    const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
     if (!workflowData || workflowData.ownerId !== userId) {
       throw new Error("Workflow not found");
     }
 
-    const parsedConfig = await this.#parseWorkflowConfiguration(
-      workflowData.configuration,
-    );
+    const parsedConfig = await this.#parseWorkflowConfiguration(workflowData.configuration);
 
     return {
       ...workflowData,
       configuration: parsedConfig,
-      categories: JSON.parse(
-        workflowData.categories,
-      ) as CategoriesConfiguration,
-      sampleData: workflowData.sampleData
-        ? (JSON.parse(workflowData.sampleData) as ExtractionResult)
-        : null,
+      categories: JSON.parse(workflowData.categories) as CategoriesConfiguration,
+      sampleData: workflowData.sampleData ? (JSON.parse(workflowData.sampleData) as ExtractionResult) : null,
       sampleDataExtractedAt: workflowData.sampleDataExtractedAt,
     };
   }
@@ -323,10 +286,7 @@ export class WorkflowService {
     const validatedData = updateWorkflowSchema.parse(updates);
 
     // Check if workflow exists and user owns it
-    const [existingWorkflow] = await db
-      .select()
-      .from(workflow)
-      .where(eq(workflow.id, workflowId));
+    const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
     if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
       throw new Error("Workflow not found");
@@ -347,18 +307,12 @@ export class WorkflowService {
       updateData.configuration = JSON.stringify(validatedData.configuration);
     }
 
-    await db
-      .update(workflow)
-      .set(updateData)
-      .where(eq(workflow.id, workflowId));
+    await db.update(workflow).set(updateData).where(eq(workflow.id, workflowId));
   }
 
   async getDocumentForFile(fileId: string, userId: string) {
     // Get file from database
-    const [fileRecord] = await db
-      .select()
-      .from(file)
-      .where(eq(file.id, fileId));
+    const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
 
     if (!fileRecord || fileRecord.ownerId !== userId) {
       throw new Error("File not found");
@@ -376,11 +330,7 @@ export class WorkflowService {
     return result;
   }
 
-  async executeWorkflow(
-    workflowId: string,
-    userId: string,
-    uploadedFile: File,
-  ) {
+  async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
     logger.info(
       {
         workflowId,
@@ -393,19 +343,14 @@ export class WorkflowService {
     );
 
     // Get workflow and verify ownership
-    const [workflowData] = await db
-      .select()
-      .from(workflow)
-      .where(eq(workflow.id, workflowId));
+    const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
     if (!workflowData || workflowData.ownerId !== userId) {
       throw new Error("Workflow not found");
     }
 
     // Parse workflow configuration
-    const config = await this.#parseWorkflowConfiguration(
-      workflowData.configuration,
-    );
+    const config = await this.#parseWorkflowConfiguration(workflowData.configuration);
 
     // Use the workflow execution service
     const result = await this.deps.workflowExecutionService.executeWorkflow(
@@ -428,36 +373,21 @@ export class WorkflowService {
     return result;
   }
 
-  async getWorkflowExecutions(
-    workflowId: string,
-    userId: string,
-  ): Promise<WorkflowRun[]> {
-    return await this.deps.workflowExecutionService.getWorkflowExecutions(
-      workflowId,
-      userId,
-    );
+  async getWorkflowExecutions(workflowId: string, userId: string): Promise<WorkflowRun[]> {
+    return await this.deps.workflowExecutionService.getWorkflowExecutions(workflowId, userId);
   }
 
   async getAllExecutions(userId: string): Promise<WorkflowRun[]> {
     return await this.deps.workflowExecutionService.getAllExecutions(userId);
   }
 
-  async getExecutionDetails(
-    executionId: string,
-    userId: string,
-  ): Promise<WorkflowRun> {
-    return await this.deps.workflowExecutionService.getExecutionDetails(
-      executionId,
-      userId,
-    );
+  async getExecutionDetails(executionId: string, userId: string): Promise<WorkflowRun> {
+    return await this.deps.workflowExecutionService.getExecutionDetails(executionId, userId);
   }
 
   async deleteWorkflow(workflowId: string, userId: string) {
     // Check if workflow exists and user owns it
-    const [existingWorkflow] = await db
-      .select()
-      .from(workflow)
-      .where(eq(workflow.id, workflowId));
+    const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
     if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
       throw new Error("Workflow not found");
@@ -471,30 +401,20 @@ export class WorkflowService {
   }
 
   async deleteExecution(executionId: string, userId: string) {
-    return await this.deps.workflowExecutionService.deleteExecution(
-      executionId,
-      userId,
-    );
+    return await this.deps.workflowExecutionService.deleteExecution(executionId, userId);
   }
 
   async updateWorkflowField(
     workflowId: string,
     fieldId: string,
     userId: string,
-    updates: Partial<
-      Omit<
-        z.infer<typeof workflowConfigurationSchema.shape.fields.element>,
-        "id"
-      >
-    >,
+    updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id">>,
   ) {
     // Get the workflow
     const workflowData = await this.getWorkflow(workflowId, userId);
 
     // Find and update the field
-    const fieldIndex = workflowData.configuration.fields.findIndex(
-      (f) => f.id === fieldId,
-    );
+    const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
     if (fieldIndex === -1) {
       throw new Error("Field not found");
     }
@@ -533,20 +453,13 @@ export class WorkflowService {
     workflowId: string,
     tableId: string,
     userId: string,
-    updates: Partial<
-      Omit<
-        z.infer<typeof workflowConfigurationSchema.shape.tables.element>,
-        "id"
-      >
-    >,
+    updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.tables.element>, "id">>,
   ) {
     // Get the workflow
     const workflowData = await this.getWorkflow(workflowId, userId);
 
     // Find and update the table
-    const tableIndex = workflowData.configuration.tables.findIndex(
-      (t) => t.id === tableId,
-    );
+    const tableIndex = workflowData.configuration.tables.findIndex((t) => t.id === tableId);
     if (tableIndex === -1) {
       throw new Error("Table not found");
     }
@@ -561,10 +474,7 @@ export class WorkflowService {
     let updatedColumns = currentTable.columns;
     if (updates.columns) {
       updatedColumns = updates.columns.map((col, idx) => ({
-        id:
-          col.id ||
-          currentTable.columns[idx]?.id ||
-          generateId(ID_PREFIXES.column),
+        id: col.id || currentTable.columns[idx]?.id || generateId(ID_PREFIXES.column),
         name: col.name,
         description: col.description,
         type: col.type,
@@ -599,10 +509,7 @@ export class WorkflowService {
   async createWorkflowField(
     workflowId: string,
     userId: string,
-    field: Omit<
-      z.infer<typeof workflowConfigurationSchema.shape.fields.element>,
-      "id" | "lastModified"
-    >,
+    field: Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id" | "lastModified">,
   ) {
     // Get the workflow
     const workflowData = await this.getWorkflow(workflowId, userId);
@@ -627,18 +534,12 @@ export class WorkflowService {
     return newField;
   }
 
-  async deleteWorkflowField(
-    workflowId: string,
-    fieldId: string,
-    userId: string,
-  ) {
+  async deleteWorkflowField(workflowId: string, fieldId: string, userId: string) {
     // Get the workflow
     const workflowData = await this.getWorkflow(workflowId, userId);
 
     // Find the field
-    const fieldIndex = workflowData.configuration.fields.findIndex(
-      (f) => f.id === fieldId,
-    );
+    const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
     if (fieldIndex === -1) {
       throw new Error("Field not found");
     }

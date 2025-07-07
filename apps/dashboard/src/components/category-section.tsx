@@ -61,11 +61,7 @@ export function CategorySection({
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-2 p-0 h-auto font-semibold text-base hover:bg-transparent"
           >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
+            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             {categoryName}
           </Button>
           <span className="text-sm font-normal text-muted-foreground">

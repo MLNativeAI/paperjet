@@ -4,24 +4,14 @@ import EditFieldSheet from "./edit-field-sheet";
 import type { CategoryGroup } from "./workflow-categories";
 import WorkflowFieldCard from "./workflow-field-card";
 
-export default function WorkflowFields({
-  category,
-  workflow,
-}: {
-  category: CategoryGroup;
-  workflow: Workflow;
-}) {
-  const [editingField, setEditingField] = useState<
-    (typeof category.fields)[number] | null
-  >(null);
+export default function WorkflowFields({ category, workflow }: { category: CategoryGroup; workflow: Workflow }) {
+  const [editingField, setEditingField] = useState<(typeof category.fields)[number] | null>(null);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
 
   // Get sample data for fields
   const getSampleValue = (fieldName: string) => {
     if (!workflow.sampleData?.fields) return null;
-    const sampleField = workflow.sampleData.fields.find(
-      (f) => f.fieldName === fieldName,
-    );
+    const sampleField = workflow.sampleData.fields.find((f) => f.fieldName === fieldName);
     return sampleField?.value;
   };
 

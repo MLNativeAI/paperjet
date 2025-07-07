@@ -19,11 +19,7 @@ export interface SignupNotificationEmailProps {
   userAgent?: string;
 }
 
-export const SignupNotificationEmail = ({
-  email,
-  timestamp,
-  userAgent = "Unknown",
-}: SignupNotificationEmailProps) => {
+export const SignupNotificationEmail = ({ email, timestamp, userAgent = "Unknown" }: SignupNotificationEmailProps) => {
   const previewText = `New PaperJet signup from ${email}`;
 
   return (
@@ -46,8 +42,7 @@ export const SignupNotificationEmail = ({
             </Heading>
 
             <Text className="text-black text-[14px] leading-[24px]">
-              Great news! Someone new has signed up for PaperJet launch
-              notifications.
+              Great news! Someone new has signed up for PaperJet launch notifications.
             </Text>
 
             <Section className="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg p-[16px] my-[24px]">
@@ -57,27 +52,17 @@ export const SignupNotificationEmail = ({
 
               <div className="space-y-2">
                 <div className="flex">
-                  <Text className="text-[#6b7280] text-[12px] leading-[18px] m-0 w-[80px] font-medium">
-                    Email:
-                  </Text>
-                  <Text className="text-[#1f2937] text-[12px] leading-[18px] m-0 font-mono">
-                    {email}
-                  </Text>
+                  <Text className="text-[#6b7280] text-[12px] leading-[18px] m-0 w-[80px] font-medium">Email:</Text>
+                  <Text className="text-[#1f2937] text-[12px] leading-[18px] m-0 font-mono">{email}</Text>
                 </div>
 
                 <div className="flex">
-                  <Text className="text-[#6b7280] text-[12px] leading-[18px] m-0 w-[80px] font-medium">
-                    Time:
-                  </Text>
-                  <Text className="text-[#1f2937] text-[12px] leading-[18px] m-0">
-                    {timestamp}
-                  </Text>
+                  <Text className="text-[#6b7280] text-[12px] leading-[18px] m-0 w-[80px] font-medium">Time:</Text>
+                  <Text className="text-[#1f2937] text-[12px] leading-[18px] m-0">{timestamp}</Text>
                 </div>
 
                 <div className="flex">
-                  <Text className="text-[#6b7280] text-[12px] leading-[18px] m-0 w-[80px] font-medium">
-                    Browser:
-                  </Text>
+                  <Text className="text-[#6b7280] text-[12px] leading-[18px] m-0 w-[80px] font-medium">Browser:</Text>
                   <Text className="text-[#1f2937] text-[12px] leading-[18px] m-0 font-mono text-[10px]">
                     {userAgent}
                   </Text>
@@ -86,21 +71,18 @@ export const SignupNotificationEmail = ({
             </Section>
 
             <Text className="text-black text-[14px] leading-[24px]">
-              The user has been automatically sent a welcome email and added to
-              the launch notifications list.
+              The user has been automatically sent a welcome email and added to the launch notifications list.
             </Text>
 
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
 
             <Text className="text-[#666666] text-[12px] leading-[24px]">
-              This notification was sent from the PaperJet website signup form.
-              To manage notification settings, contact your development team.
+              This notification was sent from the PaperJet website signup form. To manage notification settings, contact
+              your development team.
             </Text>
 
             <Section className="text-center mt-[24px]">
-              <Text className="text-[#999999] text-[10px] leading-[16px]">
-                PaperJet Internal Notification System
-              </Text>
+              <Text className="text-[#999999] text-[10px] leading-[16px]">PaperJet Internal Notification System</Text>
             </Section>
           </Container>
         </Body>

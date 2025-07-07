@@ -73,11 +73,7 @@ export function useRuns() {
   };
 
   const deleteRun = (run: WorkflowRun) => {
-    if (
-      confirm(
-        `Are you sure you want to delete this run for "${run.workflowName}"?`,
-      )
-    ) {
+    if (confirm(`Are you sure you want to delete this run for "${run.workflowName}"?`)) {
       deleteMutation.mutate(run.id);
     }
   };

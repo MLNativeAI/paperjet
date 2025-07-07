@@ -41,13 +41,7 @@ export const Header = () => {
       <div className="mx-auto max-w-7xl flex h-16 items-center justify-between px-4 md:px-6">
         <a href="https://getpaperjet.com">
           <div className="flex items-center gap-2 font-bold">
-            <Image
-              src="/logo.png"
-              alt="PaperJet Logo"
-              width={32}
-              height={32}
-              className="size-8"
-            />
+            <Image src="/logo.png" alt="PaperJet Logo" width={32} height={32} className="size-8" />
             <span>PaperJet</span>
           </div>
         </a>
@@ -78,15 +72,8 @@ export const Header = () => {
         </div>
 
         {/* Mobile menu button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden"
-        >
-          {mobileMenuOpen ? (
-            <X className="size-6" />
-          ) : (
-            <Menu className="size-6" />
-          )}
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden">
+          {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
       </div>
 

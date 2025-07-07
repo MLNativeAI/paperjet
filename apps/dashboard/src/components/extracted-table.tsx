@@ -24,20 +24,11 @@ const formatValue = (value: unknown, type: string) => {
   }
 };
 
-export function ExtractedTable({
-  table,
-  tableIndex,
-  extractionResult,
-}: ExtractedTableProps) {
-  const extractedTable = extractionResult?.tables?.find(
-    (t) => t.tableName === table.name,
-  );
+export function ExtractedTable({ table, tableIndex, extractionResult }: ExtractedTableProps) {
+  const extractedTable = extractionResult?.tables?.find((t) => t.tableName === table.name);
 
   return (
-    <div
-      key={`table-${table.name}-${tableIndex}`}
-      className="border rounded-lg p-4"
-    >
+    <div key={`table-${table.name}-${tableIndex}`} className="border rounded-lg p-4">
       <div className="mb-3">
         <h4 className="font-medium">{table.name}</h4>
         <p className="text-sm text-muted-foreground">{table.description}</p>
@@ -49,10 +40,7 @@ export function ExtractedTable({
             <thead>
               <tr className="bg-muted">
                 {table.columns.map((column, colIndex) => (
-                  <th
-                    key={colIndex}
-                    className="border border-gray-200 px-3 py-2 text-left font-medium"
-                  >
+                  <th key={colIndex} className="border border-gray-200 px-3 py-2 text-left font-medium">
                     {column.name}
                     <Badge variant="outline" className="ml-1 text-xs">
                       {column.type}
@@ -65,10 +53,7 @@ export function ExtractedTable({
               {extractedTable.rows.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-muted/50">
                   {table.columns.map((column, colIndex) => (
-                    <td
-                      key={colIndex}
-                      className="border border-gray-200 px-3 py-2"
-                    >
+                    <td key={colIndex} className="border border-gray-200 px-3 py-2">
                       {formatValue(row.values[column.name], column.type)}
                     </td>
                   ))}
@@ -79,9 +64,7 @@ export function ExtractedTable({
         </div>
       ) : (
         <div className="text-center py-4 text-muted-foreground">
-          {extractionResult
-            ? "No table data extracted"
-            : "No extraction run yet"}
+          {extractionResult ? "No table data extracted" : "No extraction run yet"}
         </div>
       )}
     </div>

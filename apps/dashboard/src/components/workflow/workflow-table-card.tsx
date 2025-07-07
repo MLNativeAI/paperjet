@@ -1,19 +1,9 @@
-import type {
-  TableConfiguration,
-  TableSampleData,
-} from "@paperjet/engine/types";
+import type { TableConfiguration, TableSampleData } from "@paperjet/engine/types";
 import { isTableOutdated } from "@paperjet/engine/utils/outdated-check";
 import { AlertCircle, Table2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface WorkflowTableCardProps {
@@ -55,10 +45,7 @@ export default function WorkflowTableCard({
                 <thead>
                   <tr className="border-b">
                     {table.columns.map((col) => (
-                      <th
-                        key={col.name}
-                        className="text-left font-medium px-2 py-1.5 text-xs text-muted-foreground"
-                      >
+                      <th key={col.name} className="text-left font-medium px-2 py-1.5 text-xs text-muted-foreground">
                         {col.name}
                       </th>
                     ))}
@@ -77,16 +64,10 @@ export default function WorkflowTableCard({
                 </tbody>
               </table>
             </div>
-            {rowCount > 3 && (
-              <p className="text-xs text-muted-foreground text-center">
-                +{rowCount - 3} more rows
-              </p>
-            )}
+            {rowCount > 3 && <p className="text-xs text-muted-foreground text-center">+{rowCount - 3} more rows</p>}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            No sample data available
-          </p>
+          <p className="text-sm text-muted-foreground">No sample data available</p>
         )}
 
         {/* Table Type Badge */}

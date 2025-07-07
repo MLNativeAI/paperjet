@@ -24,14 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useExecutions } from "@/hooks/useExecutions";
 import { useWorkflow } from "@/hooks/useWorkflow";
 
@@ -43,24 +36,14 @@ export default function WorkflowHistoryPage() {
   });
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ExecutionStatus | "all">(
-    "all",
-  );
+  const [statusFilter, setStatusFilter] = useState<ExecutionStatus | "all">("all");
 
   const { workflow, isLoading: workflowLoading } = useWorkflow(workflowId);
-  const {
-    executions,
-    isLoading: executionsLoading,
-    exportExecution,
-    formatDuration,
-  } = useExecutions(workflowId);
+  const { executions, isLoading: executionsLoading, exportExecution, formatDuration } = useExecutions(workflowId);
 
   const filteredExecutions = executions.filter((execution) => {
-    const matchesSearch = execution.filename
-      ?.toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || execution.status === statusFilter;
+    const matchesSearch = execution.filename?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || execution.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -69,9 +52,7 @@ export default function WorkflowHistoryPage() {
       case "pending":
         return <Clock className="h-4 w-4 text-muted-foreground" />;
       case "processing":
-        return (
-          <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        );
+        return <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
       case "completed":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case "failed":
@@ -118,12 +99,8 @@ export default function WorkflowHistoryPage() {
   }
 
   const totalExecutions = executions.length;
-  const completedExecutions = executions.filter(
-    (e) => e.status === "completed",
-  ).length;
-  const failedExecutions = executions.filter(
-    (e) => e.status === "failed",
-  ).length;
+  const completedExecutions = executions.filter((e) => e.status === "completed").length;
+  const failedExecutions = executions.filter((e) => e.status === "failed").length;
   const totalFilesProcessed = executions.length; // Each execution is now one file
 
   return (
@@ -131,11 +108,7 @@ export default function WorkflowHistoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Button
-            variant="ghost"
-            onClick={() => navigate({ to: "/" })}
-            className="mb-4"
-          >
+          <Button variant="ghost" onClick={() => navigate({ to: "/" })} className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Workflows
           </Button>
@@ -145,9 +118,7 @@ export default function WorkflowHistoryPage() {
           </div>
         </div>
 
-        <Button
-          onClick={() => navigate({ to: `/workflows/${workflowId}/run` })}
-        >
+        <Button onClick={() => navigate({ to: `/workflows/${workflowId}/run` })}>
           <Play className="h-4 w-4 mr-2" />
           Execute Workflow
         </Button>
@@ -160,9 +131,7 @@ export default function WorkflowHistoryPage() {
             <div className="flex items-center">
               <div>
                 <p className="text-2xl font-bold">{totalExecutions}</p>
-                <p className="text-xs text-muted-foreground">
-                  Total Executions
-                </p>
+                <p className="text-xs text-muted-foreground">Total Executions</p>
               </div>
               <Play className="h-4 w-4 text-muted-foreground ml-auto" />
             </div>
@@ -173,9 +142,7 @@ export default function WorkflowHistoryPage() {
           <CardContent className="p-6">
             <div className="flex items-center">
               <div>
-                <p className="text-2xl font-bold text-green-600">
-                  {completedExecutions}
-                </p>
+                <p className="text-2xl font-bold text-green-600">{completedExecutions}</p>
                 <p className="text-xs text-muted-foreground">Successful</p>
               </div>
               <CheckCircle className="h-4 w-4 text-green-600 ml-auto" />
@@ -187,9 +154,7 @@ export default function WorkflowHistoryPage() {
           <CardContent className="p-6">
             <div className="flex items-center">
               <div>
-                <p className="text-2xl font-bold text-red-600">
-                  {failedExecutions}
-                </p>
+                <p className="text-2xl font-bold text-red-600">{failedExecutions}</p>
                 <p className="text-xs text-muted-foreground">Failed</p>
               </div>
               <XCircle className="h-4 w-4 text-red-600 ml-auto" />
@@ -235,21 +200,11 @@ export default function WorkflowHistoryPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setStatusFilter("all")}>
-                  All Statuses
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("completed")}>
-                  Completed
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("failed")}>
-                  Failed
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("processing")}>
-                  Processing
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("pending")}>
-                  Pending
-                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("all")}>All Statuses</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("completed")}>Completed</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("failed")}>Failed</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("processing")}>Processing</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("pending")}>Pending</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -257,20 +212,14 @@ export default function WorkflowHistoryPage() {
           {filteredExecutions.length === 0 ? (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
-                No executions found
-              </h3>
+              <h3 className="text-lg font-semibold mb-2">No executions found</h3>
               <p className="text-muted-foreground mb-4">
                 {executions.length === 0
                   ? "No executions have been run for this workflow yet."
                   : "No executions match your current filters."}
               </p>
               {executions.length === 0 && (
-                <Button
-                  onClick={() =>
-                    navigate({ to: `/workflows/${workflowId}/run` })
-                  }
-                >
+                <Button onClick={() => navigate({ to: `/workflows/${workflowId}/run` })}>
                   <Play className="h-4 w-4 mr-2" />
                   Run First Execution
                 </Button>
@@ -294,25 +243,19 @@ export default function WorkflowHistoryPage() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {getStatusIcon(execution.status)}
-                          <Badge variant={getStatusColor(execution.status)}>
-                            {execution.status}
-                          </Badge>
+                          <Badge variant={getStatusColor(execution.status)}>{execution.status}</Badge>
                         </div>
                       </TableCell>
 
                       <TableCell>
                         <div className="text-sm">
                           <p className="font-medium">{execution.filename}</p>
-                          {execution.status === "completed" &&
-                            execution.extractionResult && (
-                              <p className="text-green-600">Extracted</p>
-                            )}
-                          {execution.status === "failed" &&
-                            execution.errorMessage && (
-                              <p className="text-red-600 truncate max-w-xs">
-                                {execution.errorMessage}
-                              </p>
-                            )}
+                          {execution.status === "completed" && execution.extractionResult && (
+                            <p className="text-green-600">Extracted</p>
+                          )}
+                          {execution.status === "failed" && execution.errorMessage && (
+                            <p className="text-red-600 truncate max-w-xs">{execution.errorMessage}</p>
+                          )}
                         </div>
                       </TableCell>
 
@@ -324,41 +267,27 @@ export default function WorkflowHistoryPage() {
                       </TableCell>
 
                       <TableCell className="text-sm">
-                        {formatDuration(
-                          execution.startedAt,
-                          execution.completedAt,
-                        )}
+                        {formatDuration(execution.startedAt, execution.completedAt)}
                       </TableCell>
 
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                            >
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                navigate({ to: `/executions/${execution.id}` })
-                              }
-                            >
+                            <DropdownMenuItem onClick={() => navigate({ to: `/executions/${execution.id}` })}>
                               <Eye className="h-4 w-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
-                            {execution.status === "completed" &&
-                              execution.extractionResult && (
-                                <DropdownMenuItem
-                                  onClick={() => exportExecution(execution)}
-                                >
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Export Results
-                                </DropdownMenuItem>
-                              )}
+                            {execution.status === "completed" && execution.extractionResult && (
+                              <DropdownMenuItem onClick={() => exportExecution(execution)}>
+                                <Download className="h-4 w-4 mr-2" />
+                                Export Results
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

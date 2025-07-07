@@ -26,15 +26,9 @@ export default function WorkflowListPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">My Workflows</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your document processing workflows
-          </p>
+          <p className="text-muted-foreground mt-2">Manage your document processing workflows</p>
         </div>
-        <Button
-          size="lg"
-          className="gap-2"
-          onClick={() => navigate({ to: "/workflows/new" })}
-        >
+        <Button size="lg" className="gap-2" onClick={() => navigate({ to: "/workflows/new" })}>
           <Plus className="h-5 w-5" />
           Create New Workflow
         </Button>
@@ -51,8 +45,7 @@ export default function WorkflowListPage() {
             <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No workflows yet</h3>
             <p className="text-muted-foreground mb-4">
-              You haven't created any workflows yet. Start by creating your
-              first workflow.
+              You haven't created any workflows yet. Start by creating your first workflow.
             </p>
             <Button onClick={() => navigate({ to: "/workflows/new" })}>
               <Plus className="h-4 w-4 mr-2" />
@@ -60,10 +53,7 @@ export default function WorkflowListPage() {
             </Button>
           </div>
         ) : (
-          <WorkflowsDataTable
-            data={workflows}
-            onDeleteWorkflow={handleDeleteWorkflow}
-          />
+          <WorkflowsDataTable data={workflows} onDeleteWorkflow={handleDeleteWorkflow} />
         )}
       </div>
     </div>

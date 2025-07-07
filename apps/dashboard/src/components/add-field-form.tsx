@@ -5,13 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 interface AddFieldFormProps {
@@ -20,11 +14,7 @@ interface AddFieldFormProps {
   onCancel: () => void;
 }
 
-export function AddFieldForm({
-  onFieldAdd,
-  onExtractData,
-  onCancel,
-}: AddFieldFormProps) {
+export function AddFieldForm({ onFieldAdd, onExtractData, onCancel }: AddFieldFormProps) {
   const [newField, setNewField] = useState<ExtractionField>({
     name: "",
     description: "",
@@ -67,21 +57,14 @@ export function AddFieldForm({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-sm">Add New Field</h3>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleCancel}
-              className="h-6 w-6 p-0"
-            >
+            <Button size="sm" variant="ghost" onClick={handleCancel} className="h-6 w-6 p-0">
               ×
             </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label className="text-xs font-medium mb-1 block">
-                Field Name
-              </Label>
+              <Label className="text-xs font-medium mb-1 block">Field Name</Label>
               <Input
                 value={newField.name}
                 onChange={(e) =>
@@ -134,9 +117,7 @@ export function AddFieldForm({
           </div>
 
           <div>
-            <Label className="text-xs font-medium mb-1 block">
-              Description
-            </Label>
+            <Label className="text-xs font-medium mb-1 block">Description</Label>
             <Textarea
               value={newField.description}
               onChange={(e) =>
@@ -151,11 +132,7 @@ export function AddFieldForm({
           </div>
 
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={handleAdd}
-              disabled={!newField.name || !newField.description}
-            >
+            <Button size="sm" onClick={handleAdd} disabled={!newField.name || !newField.description}>
               <Plus className="h-3 w-3 mr-1" />
               Add Field
             </Button>

@@ -68,36 +68,31 @@ const AppWorkflowsNewRoute = AppWorkflowsNewRouteImport.update({
   path: "/workflows/new",
   getParentRoute: () => AppRoute,
 } as any);
-const AppExecutionsExecutionIdRoute =
-  AppExecutionsExecutionIdRouteImport.update({
-    id: "/executions/$executionId",
-    path: "/executions/$executionId",
-    getParentRoute: () => AppRoute,
-  } as any);
-const AppWorkflowsWorkflowIdRunRoute =
-  AppWorkflowsWorkflowIdRunRouteImport.update({
-    id: "/workflows/$workflowId/run",
-    path: "/workflows/$workflowId/run",
-    getParentRoute: () => AppRoute,
-  } as any);
-const AppWorkflowsWorkflowIdLoadingRoute =
-  AppWorkflowsWorkflowIdLoadingRouteImport.update({
-    id: "/workflows/$workflowId/loading",
-    path: "/workflows/$workflowId/loading",
-    getParentRoute: () => AppRoute,
-  } as any);
-const AppWorkflowsWorkflowIdHistoryRoute =
-  AppWorkflowsWorkflowIdHistoryRouteImport.update({
-    id: "/workflows/$workflowId/history",
-    path: "/workflows/$workflowId/history",
-    getParentRoute: () => AppRoute,
-  } as any);
-const AppWorkflowsWorkflowIdFinalizeRoute =
-  AppWorkflowsWorkflowIdFinalizeRouteImport.update({
-    id: "/workflows/$workflowId/finalize",
-    path: "/workflows/$workflowId/finalize",
-    getParentRoute: () => AppRoute,
-  } as any);
+const AppExecutionsExecutionIdRoute = AppExecutionsExecutionIdRouteImport.update({
+  id: "/executions/$executionId",
+  path: "/executions/$executionId",
+  getParentRoute: () => AppRoute,
+} as any);
+const AppWorkflowsWorkflowIdRunRoute = AppWorkflowsWorkflowIdRunRouteImport.update({
+  id: "/workflows/$workflowId/run",
+  path: "/workflows/$workflowId/run",
+  getParentRoute: () => AppRoute,
+} as any);
+const AppWorkflowsWorkflowIdLoadingRoute = AppWorkflowsWorkflowIdLoadingRouteImport.update({
+  id: "/workflows/$workflowId/loading",
+  path: "/workflows/$workflowId/loading",
+  getParentRoute: () => AppRoute,
+} as any);
+const AppWorkflowsWorkflowIdHistoryRoute = AppWorkflowsWorkflowIdHistoryRouteImport.update({
+  id: "/workflows/$workflowId/history",
+  path: "/workflows/$workflowId/history",
+  getParentRoute: () => AppRoute,
+} as any);
+const AppWorkflowsWorkflowIdFinalizeRoute = AppWorkflowsWorkflowIdFinalizeRouteImport.update({
+  id: "/workflows/$workflowId/finalize",
+  path: "/workflows/$workflowId/finalize",
+  getParentRoute: () => AppRoute,
+} as any);
 
 export interface FileRoutesByFullPath {
   "/auth": typeof AuthRouteRouteWithChildren;
@@ -315,9 +310,7 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthVerifyMagicLinkRoute: AuthVerifyMagicLinkRoute,
 };
 
-const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
-  AuthRouteRouteChildren,
-);
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(AuthRouteRouteChildren);
 
 interface AppRouteChildren {
   AppRunsRoute: typeof AppRunsRoute;
@@ -349,6 +342,4 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   AppRoute: AppRouteWithChildren,
 };
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>();

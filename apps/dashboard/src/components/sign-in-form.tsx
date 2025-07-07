@@ -3,25 +3,14 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const GoogleIcon = () => (
-  <svg
-    className="h-4 w-4"
-    viewBox="0 0 24 24"
-    role="img"
-    aria-label="Google logo"
-  >
+  <svg className="h-4 w-4" viewBox="0 0 24 24" role="img" aria-label="Google logo">
     <path
       fill="currentColor"
       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -42,12 +31,7 @@ const GoogleIcon = () => (
 );
 
 const MicrosoftIcon = () => (
-  <svg
-    className="h-4 w-4"
-    viewBox="0 0 24 24"
-    role="img"
-    aria-label="Microsoft logo"
-  >
+  <svg className="h-4 w-4" viewBox="0 0 24 24" role="img" aria-label="Microsoft logo">
     <path fill="#f25022" d="M1 1h10v10H1z" />
     <path fill="#00a4ef" d="M13 1h10v10H13z" />
     <path fill="#7fba00" d="M1 13h10v10H1z" />
@@ -55,15 +39,10 @@ const MicrosoftIcon = () => (
   </svg>
 );
 
-export function SignInForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function SignInForm({ className, ...props }: React.ComponentProps<"div">) {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [authMethod, setAuthMethod] = useState<"social" | "magiclink">(
-    "social",
-  );
+  const [authMethod, setAuthMethod] = useState<"social" | "magiclink">("social");
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const _navigate = useNavigate();
 
@@ -116,9 +95,7 @@ export function SignInForm({
       <Card>
         <CardHeader>
           <CardTitle>Sign in to your account</CardTitle>
-          <CardDescription>
-            Choose your preferred sign-in method
-          </CardDescription>
+          <CardDescription>Choose your preferred sign-in method</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4">
@@ -132,11 +109,7 @@ export function SignInForm({
                     disabled={isLoading}
                     onClick={() => handleSocialSignIn("google")}
                   >
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <GoogleIcon />
-                    )}
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
                     <span className="ml-2">Continue with Google</span>
                   </Button>
                   <Button
@@ -146,11 +119,7 @@ export function SignInForm({
                     disabled={isLoading}
                     onClick={() => handleSocialSignIn("microsoft")}
                   >
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <MicrosoftIcon />
-                    )}
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MicrosoftIcon />}
                     <span className="ml-2">Continue with Microsoft</span>
                   </Button>
                 </div>
@@ -160,18 +129,11 @@ export function SignInForm({
                     <span className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or
-                    </span>
+                    <span className="bg-background px-2 text-muted-foreground">Or</span>
                   </div>
                 </div>
 
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setAuthMethod("magiclink")}
-                >
+                <Button type="button" variant="ghost" className="w-full" onClick={() => setAuthMethod("magiclink")}>
                   Sign in with magic link
                 </Button>
               </>
@@ -193,14 +155,8 @@ export function SignInForm({
                           disabled={isLoading}
                         />
                       </div>
-                      <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={isLoading}
-                      >
-                        {isLoading && (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Send magic link
                       </Button>
                       <Button
@@ -219,8 +175,7 @@ export function SignInForm({
                 ) : (
                   <div className="text-center space-y-3">
                     <div className="text-sm text-muted-foreground">
-                      Magic link sent! Check your email and click the link to
-                      sign in.
+                      Magic link sent! Check your email and click the link to sign in.
                     </div>
                     <Button
                       type="button"
@@ -255,11 +210,7 @@ export function SignInForm({
 
           <div className="mt-6 text-center text-sm">
             Don&apos;t have an account?{" "}
-            <Link
-              from="/auth/sign-in"
-              to="/auth/sign-up"
-              className="underline underline-offset-4"
-            >
+            <Link from="/auth/sign-in" to="/auth/sign-up" className="underline underline-offset-4">
               Sign up
             </Link>
           </div>

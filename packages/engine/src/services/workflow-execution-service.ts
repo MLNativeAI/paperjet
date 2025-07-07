@@ -3,11 +3,7 @@ import { file, workflow, workflowExecution } from "@paperjet/db/schema";
 import { logger } from "@paperjet/shared";
 import { and, desc, eq } from "drizzle-orm";
 import type { Langfuse } from "langfuse";
-import type {
-  CategoriesConfiguration,
-  WorkflowConfiguration,
-  WorkflowRun,
-} from "../types";
+import type { CategoriesConfiguration, WorkflowConfiguration, WorkflowRun } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
 import type { DocumentExtractionService } from "./document-extraction-service";
 
@@ -75,21 +71,13 @@ export class WorkflowExecutionService {
     });
 
     // Extract data using extraction service
-    logger.info(
-      { executionId, workflowId },
-      "Starting data extraction for workflow execution",
-    );
+    logger.info({ executionId, workflowId }, "Starting data extraction for workflow execution");
     const presignedUrl = await this.deps.s3.presign(filename);
-    const extractionResult =
-      await this.deps.extractionService.processExecutionFile(
-        presignedUrl,
-        config,
-        {
-          executionId,
-          workflowId,
-          userId,
-        },
-      );
+    const extractionResult = await this.deps.extractionService.processExecutionFile(presignedUrl, config, {
+      executionId,
+      workflowId,
+      userId,
+    });
 
     // Update execution with results
     await db
@@ -120,10 +108,7 @@ export class WorkflowExecutionService {
     };
   }
 
-  async getWorkflowExecutions(
-    workflowId: string,
-    userId: string,
-  ): Promise<WorkflowRun[]> {
+  async getWorkflowExecutions(workflowId: string, userId: string): Promise<WorkflowRun[]> {
     // Get executions with file details
     const executions = await db
       .select({
@@ -149,12 +134,8 @@ export class WorkflowExecutionService {
     const result = executions.map((execution) => ({
       ...execution,
       workflowName: execution.workflowName ?? "Unknown",
-      categories: JSON.parse(
-        execution.categories ?? "[]",
-      ) as CategoriesConfiguration,
-      filename: execution.filename
-        ? execution.filename.split("/").pop() || "Unknown"
-        : "Unknown",
+      categories: JSON.parse(execution.categories ?? "[]") as CategoriesConfiguration,
+      filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
     }));
 
     return result;
@@ -186,22 +167,15 @@ export class WorkflowExecutionService {
     const result = executions.map((execution) => ({
       ...execution,
       workflowName: execution.workflowName ?? "Unknown",
-      categories: JSON.parse(
-        execution.categories ?? "[]",
-      ) as CategoriesConfiguration,
+      categories: JSON.parse(execution.categories ?? "[]") as CategoriesConfiguration,
       // Extract just the filename without the path
-      filename: execution.filename
-        ? execution.filename.split("/").pop() || "Unknown"
-        : "Unknown",
+      filename: execution.filename ? execution.filename.split("/").pop() || "Unknown" : "Unknown",
     }));
 
     return result;
   }
 
-  async getExecutionDetails(
-    executionId: string,
-    userId: string,
-  ): Promise<WorkflowRun> {
+  async getExecutionDetails(executionId: string, userId: string): Promise<WorkflowRun> {
     // Get the execution with file details
     const [executionData] = await db
       .select({
@@ -221,12 +195,7 @@ export class WorkflowExecutionService {
       .from(workflowExecution)
       .leftJoin(file, eq(workflowExecution.fileId, file.id))
       .leftJoin(workflow, eq(workflowExecution.workflowId, workflow.id))
-      .where(
-        and(
-          eq(workflowExecution.ownerId, userId),
-          eq(workflowExecution.id, executionId),
-        ),
-      );
+      .where(and(eq(workflowExecution.ownerId, userId), eq(workflowExecution.id, executionId)));
 
     if (!executionData) {
       throw new Error("Execution not found");
@@ -235,17 +204,11 @@ export class WorkflowExecutionService {
     const result = {
       ...executionData,
       // Extract just the filename without the path
-      filename: executionData.filename
-        ? executionData.filename.split("/").pop() || "Unknown"
-        : "Unknown",
+      filename: executionData.filename ? executionData.filename.split("/").pop() || "Unknown" : "Unknown",
       // Parse extractionResult from JSON string to object
-      extractionResult: executionData.extractionResult
-        ? JSON.parse(executionData.extractionResult)
-        : null,
+      extractionResult: executionData.extractionResult ? JSON.parse(executionData.extractionResult) : null,
       workflowName: executionData.workflowName ?? "Unknown",
-      categories: JSON.parse(
-        executionData.categories ?? "[]",
-      ) as CategoriesConfiguration,
+      categories: JSON.parse(executionData.categories ?? "[]") as CategoriesConfiguration,
     };
     return result;
   }
@@ -265,8 +228,6 @@ export class WorkflowExecutionService {
     }
 
     // Delete the execution
-    await db
-      .delete(workflowExecution)
-      .where(eq(workflowExecution.id, executionId));
+    await db.delete(workflowExecution).where(eq(workflowExecution.id, executionId));
   }
 }

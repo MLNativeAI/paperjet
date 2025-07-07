@@ -8,16 +8,7 @@ import Blog from "@/components/blog";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { SignupModal } from "@/components/signup-modal";
-import {
-  CTA,
-  FAQ,
-  Features,
-  Hero,
-  HowItWorks,
-  Logos,
-  Pricing,
-  Testimonials,
-} from "../components/sections";
+import { CTA, FAQ, Features, Hero, HowItWorks, Logos, Pricing, Testimonials } from "../components/sections";
 
 export default function LandingPage() {
   return (

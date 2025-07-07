@@ -10,19 +10,13 @@ export function BlogPosts() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {allBlogs
         .sort((a, b) => {
-          if (
-            new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)
-          ) {
+          if (new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)) {
             return -1;
           }
           return 1;
         })
         .map((post) => (
-          <Link
-            key={post.slug}
-            href={`/blog/${post.slug}`}
-            className="group block"
-          >
+          <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
             <article className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               {post.metadata.image && (
                 <div className="aspect-video w-full overflow-hidden">
@@ -49,9 +43,7 @@ export function BlogPosts() {
                   {post.metadata.title}
                 </h3>
                 {post.metadata.summary && (
-                  <p className="mt-3 text-gray-500 dark:text-gray-400 text-sm line-clamp-2">
-                    {post.metadata.summary}
-                  </p>
+                  <p className="mt-3 text-gray-500 dark:text-gray-400 text-sm line-clamp-2">{post.metadata.summary}</p>
                 )}
                 <div className="mt-4 flex items-center text-gray-600 dark:text-gray-400 text-sm font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   Read more
@@ -61,12 +53,7 @@ export function BlogPosts() {
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </div>

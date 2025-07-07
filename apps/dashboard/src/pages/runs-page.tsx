@@ -1,13 +1,6 @@
 import type { WorkflowRun } from "@paperjet/engine/types";
 import { useNavigate } from "@tanstack/react-router";
-import {
-  CheckCircle,
-  FileText,
-  Filter,
-  Play,
-  Search,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle, FileText, Filter, Play, Search, XCircle } from "lucide-react";
 import { useState } from "react";
 import { RunsDataTable } from "@/components/runs-data-table";
 import { Button } from "@/components/ui/button";
@@ -26,9 +19,7 @@ type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 export default function RunsPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ExecutionStatus | "all">(
-    "all",
-  );
+  const [statusFilter, setStatusFilter] = useState<ExecutionStatus | "all">("all");
 
   const { runs, isLoading, exportRun, formatDuration, deleteRun } = useRuns();
 
@@ -52,12 +43,8 @@ export default function RunsPage() {
   }
 
   const totalRuns = runs.length;
-  const completedRuns = runs.filter(
-    (r: WorkflowRun) => r.status === "completed",
-  ).length;
-  const failedRuns = runs.filter(
-    (r: WorkflowRun) => r.status === "failed",
-  ).length;
+  const completedRuns = runs.filter((r: WorkflowRun) => r.status === "completed").length;
+  const failedRuns = runs.filter((r: WorkflowRun) => r.status === "failed").length;
   const totalFilesProcessed = runs.length; // Each run is now one file
 
   return (
@@ -66,9 +53,7 @@ export default function RunsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Runs</h1>
-          <p className="text-muted-foreground mt-2">
-            Recent workflow executions across all workflows
-          </p>
+          <p className="text-muted-foreground mt-2">Recent workflow executions across all workflows</p>
         </div>
       </div>
 
@@ -90,9 +75,7 @@ export default function RunsPage() {
           <CardContent className="p-6">
             <div className="flex items-center">
               <div>
-                <p className="text-2xl font-bold text-green-600">
-                  {completedRuns}
-                </p>
+                <p className="text-2xl font-bold text-green-600">{completedRuns}</p>
                 <p className="text-xs text-muted-foreground">Successful</p>
               </div>
               <CheckCircle className="h-4 w-4 text-green-600 ml-auto" />
@@ -150,21 +133,11 @@ export default function RunsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setStatusFilter("all")}>
-                All Statuses
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("completed")}>
-                Completed
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("failed")}>
-                Failed
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("processing")}>
-                Processing
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("pending")}>
-                Pending
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("all")}>All Statuses</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("completed")}>Completed</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("failed")}>Failed</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("processing")}>Processing</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("pending")}>Pending</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -174,9 +147,7 @@ export default function RunsPage() {
             <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No runs found</h3>
             <p className="text-muted-foreground mb-4">
-              {runs.length === 0
-                ? "No workflow runs have been executed yet."
-                : "No runs match your current filters."}
+              {runs.length === 0 ? "No workflow runs have been executed yet." : "No runs match your current filters."}
             </p>
             {runs.length === 0 && (
               <Button onClick={() => navigate({ to: "/" })}>

@@ -12,23 +12,14 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = getBlogPosts().find((post) => post.slug === slug);
   if (!post) {
     return;
   }
 
-  const {
-    title,
-    publishedAt: publishedTime,
-    summary: description,
-    image,
-  } = post.metadata;
+  const { title, publishedAt: publishedTime, summary: description, image } = post.metadata;
 
   return {
     title,
@@ -50,11 +41,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function Blog({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function Blog({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = getBlogPosts().find((post) => post.slug === slug);
 
@@ -84,9 +71,7 @@ export default async function Blog({
           }),
         }}
       />
-      <h1 className="title font-semibold text-2xl tracking-tighter">
-        {post.metadata.title}
-      </h1>
+      <h1 className="title font-semibold text-2xl tracking-tighter">{post.metadata.title}</h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">
         <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
           {post.metadata.author && (
@@ -99,9 +84,7 @@ export default async function Blog({
         </div>
       </div>
       {post.metadata.summary && (
-        <p className="text-lg text-neutral-700 dark:text-neutral-300 mb-8 italic">
-          {post.metadata.summary}
-        </p>
+        <p className="text-lg text-neutral-700 dark:text-neutral-300 mb-8 italic">{post.metadata.summary}</p>
       )}
       {post.metadata.image && (
         <div className="mb-6">

@@ -27,18 +27,14 @@ export function FieldCategoryGrid({
   // Group fields by category
   const fieldsByCategory = fields.reduce(
     (acc, field, index) => {
-      const category =
-        field.category?.displayName || field.category || "General Information";
+      const category = field.category?.displayName || field.category || "General Information";
       if (!acc[category]) {
         acc[category] = [];
       }
       acc[category].push({ field, originalIndex: index });
       return acc;
     },
-    {} as Record<
-      string,
-      Array<{ field: ExtractionField; originalIndex: number }>
-    >,
+    {} as Record<string, Array<{ field: ExtractionField; originalIndex: number }>>,
   );
 
   const categories = Object.keys(fieldsByCategory).sort();
@@ -59,11 +55,7 @@ export function FieldCategoryGrid({
     <div className="space-y-6">
       {/* Add Field Button */}
       <div className="flex justify-end">
-        <Button
-          size="sm"
-          onClick={() => setIsAddingField(true)}
-          className="h-8"
-        >
+        <Button size="sm" onClick={() => setIsAddingField(true)} className="h-8">
           <Plus className="h-3 w-3 mr-1" />
           Add Field
         </Button>

@@ -1,8 +1,4 @@
-import {
-  DocumentExtractionService,
-  WorkflowExecutionService,
-  WorkflowService,
-} from "@paperjet/engine";
+import { DocumentExtractionService, WorkflowExecutionService, WorkflowService } from "@paperjet/engine";
 import { Langfuse } from "langfuse";
 import { envVars } from "./env";
 import { s3 } from "./s3";
@@ -70,7 +66,6 @@ class ServiceFactory {
 const serviceFactory = ServiceFactory.getInstance();
 
 export const langfuse = serviceFactory.langfuse;
-export const documentExtractionService =
-  serviceFactory.documentExtractionService;
+export const documentExtractionService = serviceFactory.documentExtractionService;
 export const workflowExecutionService = serviceFactory.workflowExecutionService;
 export const workflowService = serviceFactory.workflowService;

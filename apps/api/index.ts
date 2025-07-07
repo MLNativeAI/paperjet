@@ -38,10 +38,7 @@ app.get("/api/health", async (c) => {
   });
 });
 
-export const apiRoutes = app
-  .basePath("/api")
-  .route("/workflows", workflows)
-  .route("/executions", executions);
+export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions);
 
 if (process.env.NODE_ENV === "production") {
   // Serve all static files from the dist directory

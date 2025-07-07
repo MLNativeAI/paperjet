@@ -1,8 +1,4 @@
-import type {
-  ExtractionField,
-  ExtractionResult,
-  ExtractionTable,
-} from "@paperjet/db/types";
+import type { ExtractionField, ExtractionResult, ExtractionTable } from "@paperjet/db/types";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -70,11 +66,7 @@ export function ExtractedValues({
             <CardTitle className="flex items-center gap-2">
               <span>Extracted Values</span>
             </CardTitle>
-            <Button
-              size="sm"
-              onClick={() => setIsAddingField(true)}
-              className="h-8"
-            >
+            <Button size="sm" onClick={() => setIsAddingField(true)} className="h-8">
               <Plus className="h-3 w-3 mr-1" />
               Add Field
             </Button>
@@ -82,9 +74,7 @@ export function ExtractedValues({
         </CardHeader>
         <CardContent>
           {fields.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No fields configured
-            </div>
+            <div className="text-center py-8 text-muted-foreground">No fields configured</div>
           ) : (
             <div className="space-y-2">
               {fields.map((field, index) => (

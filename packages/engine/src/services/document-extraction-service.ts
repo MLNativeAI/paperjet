@@ -13,10 +13,7 @@ export interface DocumentExtractionServiceDeps {
 export class DocumentExtractionService {
   constructor(private deps: DocumentExtractionServiceDeps) {}
 
-  async extractDataFromDocument(
-    presignedUrl: string,
-    configuration: WorkflowConfiguration,
-  ): Promise<ExtractionResult> {
+  async extractDataFromDocument(presignedUrl: string, configuration: WorkflowConfiguration): Promise<ExtractionResult> {
     logger.info("Starting data extraction from document");
     // Build dynamic schema object based on provided fields and tables
     // TODO: for now, we will not extract fields per category, we will add that later

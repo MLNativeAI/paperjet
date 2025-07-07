@@ -1,23 +1,9 @@
 import type { FieldsConfiguration } from "@paperjet/engine/types";
 import { isFieldOutdated } from "@paperjet/engine/utils/outdated-check";
-import {
-  AlertCircle,
-  Calendar,
-  FileText,
-  Hash,
-  ToggleLeft,
-  Type,
-} from "lucide-react";
+import { AlertCircle, Calendar, FileText, Hash, ToggleLeft, Type } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface WorkflowFieldCardProps {
@@ -58,9 +44,7 @@ export default function WorkflowFieldCard({
   return (
     <Card className={cn(isOutdated && "opacity-80")}>
       <CardHeader>
-        <CardTitle>
-          {isOutdated ? "" : sampleValue ? String(sampleValue) : field.name}
-        </CardTitle>
+        <CardTitle>{isOutdated ? "" : sampleValue ? String(sampleValue) : field.name}</CardTitle>
         <CardDescription>{field.name}</CardDescription>
         <CardAction className="mt-[-10px]">
           <Button variant="link" onClick={() => onEdit(field)}>

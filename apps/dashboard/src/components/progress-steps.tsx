@@ -24,9 +24,7 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
         ) : (
           <CheckCircle className="h-5 w-5 text-green-500" />
         )}
-        <span
-          className={`text-sm font-medium ${isAnalyzing ? "text-blue-600" : ""}`}
-        >
+        <span className={`text-sm font-medium ${isAnalyzing ? "text-blue-600" : ""}`}>
           {isAnalyzing ? "Analyzing..." : "Analysis"}
         </span>
       </div>
@@ -42,9 +40,7 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
         ) : (
           <CheckCircle className="h-5 w-5 text-green-500" />
         )}
-        <span
-          className={`text-sm font-medium ${isExtracting ? "text-blue-600" : ""}`}
-        >
+        <span className={`text-sm font-medium ${isExtracting ? "text-blue-600" : ""}`}>
           {isExtracting ? "Extracting..." : "Extraction"}
         </span>
       </div>

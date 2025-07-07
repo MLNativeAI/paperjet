@@ -12,11 +12,7 @@ export function useUpdateWorkflowBasicData() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      workflowId,
-      name,
-      description,
-    }: UpdateWorkflowBasicDataParams) => {
+    mutationFn: async ({ workflowId, name, description }: UpdateWorkflowBasicDataParams) => {
       return updateWorkflowBasicData(workflowId, { name, description });
     },
     onSuccess: (_, { workflowId }) => {

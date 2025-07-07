@@ -7,18 +7,10 @@ export const Footer = () => (
       <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
         <div className="space-y-4">
           <div className="flex items-center gap-2 font-bold">
-            <Image
-              src="/logo.png"
-              alt="PaperJet Logo"
-              width={32}
-              height={32}
-              className="size-8"
-            />
+            <Image src="/logo.png" alt="PaperJet Logo" width={32} height={32} className="size-8" />
             <span>PaperJet</span>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Privacy-first document processing platform.
-          </p>
+          <p className="text-sm text-muted-foreground">Privacy-first document processing platform.</p>
           <div className="flex gap-4">
             <Link
               href="https://www.linkedin.com/company/getpaperjet"
@@ -71,10 +63,7 @@ export const Footer = () => (
           <h4 className="text-sm font-bold">Platform</h4>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link
-                href="#features"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
                 Features
               </Link>
             </li>
@@ -108,10 +97,7 @@ export const Footer = () => (
           <h4 className="text-sm font-bold">Resources</h4>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link
-                href="/blog"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
                 Blog
               </Link>
             </li>
@@ -171,10 +157,7 @@ export const Footer = () => (
               </Link>
             </li>
             <li>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 Terms of Service (coming soon)
               </Link>
             </li>

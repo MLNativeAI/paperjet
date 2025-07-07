@@ -40,8 +40,7 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
     );
 
     if (sectionRef.current) {
-      const animatedElements =
-        sectionRef.current.querySelectorAll(".animate-on-scroll");
+      const animatedElements = sectionRef.current.querySelectorAll(".animate-on-scroll");
       animatedElements.forEach((element) => observer.observe(element));
     }
 
@@ -58,12 +57,8 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center justify-center space-y-4 text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Blog
-          </h2>
-          <p className="max-w-[800px] text-muted-foreground md:text-lg">
-            Latest news
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Blog</h2>
+          <p className="max-w-[800px] text-muted-foreground md:text-lg">Latest news</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -112,12 +107,7 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
                 </div>

@@ -1,8 +1,4 @@
-import type {
-  FieldsConfiguration,
-  TableConfiguration,
-  Workflow,
-} from "../types";
+import type { FieldsConfiguration, TableConfiguration, Workflow } from "../types";
 
 /**
  * Check if a field was modified after the sample data was extracted
@@ -51,18 +47,14 @@ export function isWorkflowOutdated(workflow: Workflow): boolean {
   const { configuration, sampleDataExtractedAt } = workflow;
 
   // Check if any field is outdated
-  const hasOutdatedField = configuration.fields.some((field) =>
-    isFieldOutdated(field, sampleDataExtractedAt),
-  );
+  const hasOutdatedField = configuration.fields.some((field) => isFieldOutdated(field, sampleDataExtractedAt));
 
   if (hasOutdatedField) {
     return true;
   }
 
   // Check if any table is outdated
-  const hasOutdatedTable = configuration.tables.some((table) =>
-    isTableOutdated(table, sampleDataExtractedAt),
-  );
+  const hasOutdatedTable = configuration.tables.some((table) => isTableOutdated(table, sampleDataExtractedAt));
 
   return hasOutdatedTable;
 }
@@ -73,9 +65,7 @@ export function isWorkflowOutdated(workflow: Workflow): boolean {
 export function getOutdatedFieldCount(workflow: Workflow): number {
   const { configuration, sampleDataExtractedAt } = workflow;
 
-  return configuration.fields.filter((field) =>
-    isFieldOutdated(field, sampleDataExtractedAt),
-  ).length;
+  return configuration.fields.filter((field) => isFieldOutdated(field, sampleDataExtractedAt)).length;
 }
 
 /**
@@ -84,7 +74,5 @@ export function getOutdatedFieldCount(workflow: Workflow): number {
 export function getOutdatedTableCount(workflow: Workflow): number {
   const { configuration, sampleDataExtractedAt } = workflow;
 
-  return configuration.tables.filter((table) =>
-    isTableOutdated(table, sampleDataExtractedAt),
-  ).length;
+  return configuration.tables.filter((table) => isTableOutdated(table, sampleDataExtractedAt)).length;
 }

@@ -58,14 +58,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuButton asChild>
                     <a
                       href={item.url}
-                      target={
-                        item.url.startsWith("http") ? "_blank" : undefined
-                      }
-                      rel={
-                        item.url.startsWith("http")
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
+                      target={item.url.startsWith("http") ? "_blank" : undefined}
+                      rel={item.url.startsWith("http") ? "noopener noreferrer" : undefined}
                     >
                       <item.icon className="h-4 w-4" />
                       {item.title}

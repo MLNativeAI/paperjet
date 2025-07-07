@@ -23,14 +23,12 @@ const item = {
 const features = [
   {
     title: "Privacy-First Processing",
-    description:
-      "Keep your sensitive documents secure with local processing and no data leaving your infrastructure.",
+    description: "Keep your sensitive documents secure with local processing and no data leaving your infrastructure.",
     icon: <Shield className="size-5" />,
   },
   {
     title: "Custom Workflows",
-    description:
-      "Build tailored document processing workflows that match your specific business requirements.",
+    description: "Build tailored document processing workflows that match your specific business requirements.",
     icon: <Layers className="size-5" />,
   },
   {
@@ -41,8 +39,7 @@ const features = [
   },
   {
     title: "Open Source Flexibility",
-    description:
-      "Full access to source code means complete control and the ability to customize for your needs.",
+    description: "Full access to source code means complete control and the ability to customize for your needs.",
     icon: <Zap className="size-5" />,
   },
   {
@@ -53,8 +50,7 @@ const features = [
   },
   {
     title: "Enterprise Ready",
-    description:
-      "Self-hosted deployment options with enterprise-grade security and compliance features.",
+    description: "Self-hosted deployment options with enterprise-grade security and compliance features.",
     icon: <Users className="size-5" />,
   },
 ];
@@ -70,19 +66,13 @@ export function Features() {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center justify-center space-y-4 text-center mb-12"
         >
-          <Badge
-            className="rounded-full px-4 py-1.5 text-sm font-medium"
-            variant="secondary"
-          >
+          <Badge className="rounded-full px-4 py-1.5 text-sm font-medium" variant="secondary">
             Features
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Everything You Need for Document Processing
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Everything You Need for Document Processing</h2>
           <p className="max-w-[800px] text-muted-foreground md:text-lg">
-            Our comprehensive platform provides all the tools you need to
-            extract, process, and analyze documents while maintaining complete
-            privacy and control.
+            Our comprehensive platform provides all the tools you need to extract, process, and analyze documents while
+            maintaining complete privacy and control.
           </p>
         </motion.div>
 

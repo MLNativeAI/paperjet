@@ -25,10 +25,7 @@ export function useWorkflowExecution(workflowId: string) {
     },
   });
 
-  const exportResults = (
-    uploadedFiles: UploadedFile[],
-    executionId: string | null,
-  ) => {
+  const exportResults = (uploadedFiles: UploadedFile[], executionId: string | null) => {
     const results = uploadedFiles
       .filter((f) => f.status === "completed" && f.result)
       .map((f) => ({

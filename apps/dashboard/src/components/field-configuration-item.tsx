@@ -58,9 +58,7 @@ export function FieldConfigurationItem({
             <div className="space-y-2">
               <Textarea
                 value={field.description}
-                onChange={(e) =>
-                  onUpdateField(fieldIndex, { description: e.target.value })
-                }
+                onChange={(e) => onUpdateField(fieldIndex, { description: e.target.value })}
                 placeholder="Field description for AI extraction"
                 className="text-sm"
                 rows={2}
@@ -78,15 +76,8 @@ export function FieldConfigurationItem({
             </div>
           ) : (
             <div className="flex items-start justify-between">
-              <p className="text-sm text-muted-foreground">
-                {field.description}
-              </p>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onStartEdit(fieldIndex)}
-                className="ml-2"
-              >
+              <p className="text-sm text-muted-foreground">{field.description}</p>
+              <Button size="sm" variant="ghost" onClick={() => onStartEdit(fieldIndex)} className="ml-2">
                 <Edit3 className="h-3 w-3" />
               </Button>
             </div>
@@ -96,15 +87,9 @@ export function FieldConfigurationItem({
 
       {extractionResult && (
         <div className="mt-3 p-3 bg-muted rounded border-l-4 border-l-blue-500">
-          <Label className="text-xs font-medium text-muted-foreground">
-            EXTRACTED VALUE
-          </Label>
+          <Label className="text-xs font-medium text-muted-foreground">EXTRACTED VALUE</Label>
           <div className="mt-1 text-sm font-medium">
-            {formatValue(
-              extractionResult.fields.find((f) => f.fieldName === field.name)
-                ?.value,
-              field.type,
-            )}
+            {formatValue(extractionResult.fields.find((f) => f.fieldName === field.name)?.value, field.type)}
           </div>
         </div>
       )}

@@ -1,8 +1,4 @@
-import type {
-  ExtractionField,
-  ExtractionResult,
-  ExtractionTable,
-} from "@paperjet/db/types";
+import type { ExtractionField, ExtractionResult, ExtractionTable } from "@paperjet/db/types";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -11,10 +7,7 @@ interface CreateWorkflowButtonProps {
   tables: ExtractionTable[];
   extractionResult: ExtractionResult | null;
   isCreatingWorkflow: boolean;
-  onCreateWorkflow: (
-    fields: ExtractionField[],
-    tables: ExtractionTable[],
-  ) => void;
+  onCreateWorkflow: (fields: ExtractionField[], tables: ExtractionTable[]) => void;
 }
 
 export function CreateWorkflowButton({
@@ -28,9 +21,7 @@ export function CreateWorkflowButton({
     <div className="flex justify-end">
       <Button
         onClick={() => onCreateWorkflow(fields, tables)}
-        disabled={
-          isCreatingWorkflow || !extractionResult || fields.length === 0
-        }
+        disabled={isCreatingWorkflow || !extractionResult || fields.length === 0}
         size="lg"
       >
         {isCreatingWorkflow ? (

@@ -103,10 +103,7 @@ const annualPlans = [
 
 export function Pricing() {
   return (
-    <section
-      id="pricing"
-      className="w-full py-20 md:py-32 bg-muted/30 relative overflow-hidden"
-    >
+    <section id="pricing" className="w-full py-20 md:py-32 bg-muted/30 relative overflow-hidden">
       <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-black bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_40%,transparent_100%)]" />
 
       <div className="container px-4 md:px-6 relative">
@@ -117,18 +114,13 @@ export function Pricing() {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center justify-center space-y-4 text-center mb-12"
         >
-          <Badge
-            className="rounded-full px-4 py-1.5 text-sm font-medium"
-            variant="secondary"
-          >
+          <Badge className="rounded-full px-4 py-1.5 text-sm font-medium" variant="secondary">
             Pricing
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Simple, Transparent Pricing
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Simple, Transparent Pricing</h2>
           <p className="max-w-[800px] text-muted-foreground md:text-lg">
-            Choose the deployment option that's right for your organization. All
-            plans include the full PaperJet platform.
+            Choose the deployment option that's right for your organization. All plans include the full PaperJet
+            platform.
           </p>
         </motion.div>
 
@@ -165,18 +157,12 @@ export function Pricing() {
                       <CardContent className="p-6 flex flex-col h-full">
                         <h3 className="text-2xl font-bold">{plan.name}</h3>
                         <div className="flex items-baseline mt-4">
-                          <span className="text-4xl font-bold">
-                            {plan.price}
-                          </span>
+                          <span className="text-4xl font-bold">{plan.price}</span>
                           {plan.price !== "Free" && plan.price !== "Custom" && (
-                            <span className="text-muted-foreground ml-1">
-                              /month
-                            </span>
+                            <span className="text-muted-foreground ml-1">/month</span>
                           )}
                         </div>
-                        <p className="text-muted-foreground mt-2">
-                          {plan.description}
-                        </p>
+                        <p className="text-muted-foreground mt-2">{plan.description}</p>
                         <ul className="space-y-3 my-6 flex-grow">
                           {plan.features.map((feature, j) => (
                             <li key={j} className="flex items-center">
@@ -189,9 +175,7 @@ export function Pricing() {
                           className={`w-full mt-auto rounded-full cursor-pointer ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-muted hover:bg-muted/80"}`}
                           variant={plan.popular ? "default" : "outline"}
                         >
-                          <span className="flex items-center justify-center">
-                            {plan.cta}
-                          </span>
+                          <span className="flex items-center justify-center">{plan.cta}</span>
                         </Button>
                       </CardContent>
                     </Card>
@@ -220,18 +204,12 @@ export function Pricing() {
                       <CardContent className="p-6 flex flex-col h-full">
                         <h3 className="text-2xl font-bold">{plan.name}</h3>
                         <div className="flex items-baseline mt-4">
-                          <span className="text-4xl font-bold">
-                            {plan.price}
-                          </span>
+                          <span className="text-4xl font-bold">{plan.price}</span>
                           {plan.price !== "Free" && plan.price !== "Custom" && (
-                            <span className="text-muted-foreground ml-1">
-                              /month
-                            </span>
+                            <span className="text-muted-foreground ml-1">/month</span>
                           )}
                         </div>
-                        <p className="text-muted-foreground mt-2">
-                          {plan.description}
-                        </p>
+                        <p className="text-muted-foreground mt-2">{plan.description}</p>
                         <ul className="space-y-3 my-6 flex-grow">
                           {plan.features.map((feature, j) => (
                             <li key={j} className="flex items-center">
@@ -244,9 +222,7 @@ export function Pricing() {
                           className={`w-full mt-auto rounded-full cursor-pointer ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-muted hover:bg-muted/80"}`}
                           variant={plan.popular ? "default" : "outline"}
                         >
-                          <span className="flex items-center justify-center">
-                            {plan.cta}
-                          </span>
+                          <span className="flex items-center justify-center">{plan.cta}</span>
                         </Button>
                       </CardContent>
                     </Card>

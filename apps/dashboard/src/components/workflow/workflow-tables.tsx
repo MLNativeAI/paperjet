@@ -4,24 +4,14 @@ import EditTableSheet from "./edit-table-sheet";
 import type { CategoryGroup } from "./workflow-categories";
 import WorkflowTableCard from "./workflow-table-card";
 
-export default function WorkflowTables({
-  category,
-  workflow,
-}: {
-  category: CategoryGroup;
-  workflow: Workflow;
-}) {
-  const [editingTable, setEditingTable] = useState<
-    (typeof category.tables)[number] | null
-  >(null);
+export default function WorkflowTables({ category, workflow }: { category: CategoryGroup; workflow: Workflow }) {
+  const [editingTable, setEditingTable] = useState<(typeof category.tables)[number] | null>(null);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
 
   // Get sample data for tables
   const getTableSampleData = (tableName: string) => {
     if (!workflow.sampleData?.tables) return null;
-    const sampleTable = workflow.sampleData.tables.find(
-      (t) => t.tableName === tableName,
-    );
+    const sampleTable = workflow.sampleData.tables.find((t) => t.tableName === tableName);
     return sampleTable;
   };
 

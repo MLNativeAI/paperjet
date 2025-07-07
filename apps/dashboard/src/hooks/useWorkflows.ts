@@ -1,9 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  deleteWorkflow as deleteWorkflowApi,
-  getAllWorkflows,
-} from "@/lib/api";
+import { deleteWorkflow as deleteWorkflowApi, getAllWorkflows } from "@/lib/api";
 
 export function useWorkflows() {
   const queryClient = useQueryClient();
@@ -18,8 +15,7 @@ export function useWorkflows() {
   });
 
   const deleteWorkflow = useMutation({
-    mutationFn: ({ workflowId }: { workflowId: string }) =>
-      deleteWorkflowApi(workflowId),
+    mutationFn: ({ workflowId }: { workflowId: string }) => deleteWorkflowApi(workflowId),
     onSuccess: () => {
       toast.success("Workflow deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["workflows"] });
@@ -29,15 +25,8 @@ export function useWorkflows() {
     },
   });
 
-  const handleDeleteWorkflow = async (
-    workflowId: string,
-    workflowName: string,
-  ) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${workflowName}"? This action cannot be undone.`,
-      )
-    ) {
+  const handleDeleteWorkflow = async (workflowId: string, workflowName: string) => {
+    if (!confirm(`Are you sure you want to delete "${workflowName}"? This action cannot be undone.`)) {
       return;
     }
 

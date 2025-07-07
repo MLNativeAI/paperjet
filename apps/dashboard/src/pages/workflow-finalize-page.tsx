@@ -5,15 +5,7 @@ import {
   isWorkflowOutdated,
 } from "@paperjet/engine/utils/outdated-check";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import {
-  AlertCircle,
-  ArrowLeft,
-  BookOpen,
-  FileText,
-  Plus,
-  RefreshCw,
-  Table,
-} from "lucide-react";
+import { AlertCircle, ArrowLeft, BookOpen, FileText, Plus, RefreshCw, Table } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -23,14 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import BasicWorkflowDataForm, {
-  type BasicWorkflowDataFormRef,
-} from "@/components/workflow/basic-workflow-data-form";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import BasicWorkflowDataForm, { type BasicWorkflowDataFormRef } from "@/components/workflow/basic-workflow-data-form";
 import ConfigureSectionsSheet from "@/components/workflow/configure-sections-sheet";
 import EditFieldSheet from "@/components/workflow/edit-field-sheet";
 import WorkflowCategories from "@/components/workflow/workflow-categories";
@@ -114,8 +100,7 @@ export default function WorkflowFinalizePage() {
         <div>
           <h1 className="text-3xl font-bold">Finalize Workflow</h1>
           <p className="text-muted-foreground mt-2">
-            Review, customize and save your workflow. You can test your
-            configuration against the sample document.
+            Review, customize and save your workflow. You can test your configuration against the sample document.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -126,11 +111,7 @@ export default function WorkflowFinalizePage() {
             </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <a
-              href="https://docs.getpaperjet.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="https://docs.getpaperjet.com/" target="_blank" rel="noopener noreferrer">
               <BookOpen className="h-3 w-3 mr-1" />
               Documentation
             </a>
@@ -139,11 +120,7 @@ export default function WorkflowFinalizePage() {
       </div>
 
       {/* Workflow Basic Info Form */}
-      <div className="pt-8 border-t">
-        {workflow && (
-          <BasicWorkflowDataForm ref={formRef} workflow={workflow} />
-        )}
-      </div>
+      <div className="pt-8 border-t">{workflow && <BasicWorkflowDataForm ref={formRef} workflow={workflow} />}</div>
 
       {/* Split View */}
       {workflow && (
@@ -154,11 +131,7 @@ export default function WorkflowFinalizePage() {
               <div className="h-full pr-3 space-y-6">
                 <h2 className="text-xl font-semibold">Document Preview</h2>
                 {documentUrl ? (
-                  <iframe
-                    src={documentUrl}
-                    className="w-full h-[800px] border rounded"
-                    title="Document Preview"
-                  />
+                  <iframe src={documentUrl} className="w-full h-[800px] border rounded" title="Document Preview" />
                 ) : (
                   <div className="flex items-center justify-center h-[800px] bg-muted rounded">
                     <p className="text-muted-foreground">Loading document...</p>
@@ -173,9 +146,7 @@ export default function WorkflowFinalizePage() {
             <ResizablePanel defaultSize={50} minSize={30}>
               <div className="h-full pl-3 space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold">
-                    Workflow Configuration
-                  </h2>
+                  <h2 className="text-xl font-semibold">Workflow Configuration</h2>
                   <div className="flex items-center gap-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -195,11 +166,7 @@ export default function WorkflowFinalizePage() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsConfigureSectionsOpen(true)}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setIsConfigureSectionsOpen(true)}>
                       Configure sections
                     </Button>
                   </div>
@@ -223,9 +190,8 @@ export default function WorkflowFinalizePage() {
             {isWorkflowOutdated(workflow) && (
               <p className="text-sm text-muted-foreground">
                 <AlertCircle className="inline h-3 w-3 mr-1" />
-                <strong>Note:</strong> {getOutdatedFieldCount(workflow)}{" "}
-                field(s) and {getOutdatedTableCount(workflow)} table(s) have
-                been modified. Run extraction again to see the updated values.
+                <strong>Note:</strong> {getOutdatedFieldCount(workflow)} field(s) and {getOutdatedTableCount(workflow)}{" "}
+                table(s) have been modified. Run extraction again to see the updated values.
               </p>
             )}
           </div>
@@ -237,15 +203,9 @@ export default function WorkflowFinalizePage() {
               disabled={isExtracting || workflow?.status === "extracting"}
             >
               <RefreshCw
-                className={cn(
-                  "h-4 w-4 mr-2",
-                  (isExtracting || workflow?.status === "extracting") &&
-                    "animate-spin",
-                )}
+                className={cn("h-4 w-4 mr-2", (isExtracting || workflow?.status === "extracting") && "animate-spin")}
               />
-              {isExtracting || workflow?.status === "extracting"
-                ? "Extracting..."
-                : "Run extraction"}
+              {isExtracting || workflow?.status === "extracting" ? "Extracting..." : "Run extraction"}
             </Button>
             <Button size="lg" onClick={handleSaveWorkflow} disabled={isPending}>
               {isPending ? "Saving..." : "Save Workflow"}

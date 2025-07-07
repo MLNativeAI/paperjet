@@ -18,11 +18,7 @@ export function useUpdateWorkflowField() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      workflowId,
-      fieldId,
-      updates,
-    }: UpdateWorkflowFieldParams) => {
+    mutationFn: async ({ workflowId, fieldId, updates }: UpdateWorkflowFieldParams) => {
       return updateWorkflowField(workflowId, fieldId, updates);
     },
     onSuccess: (_, { workflowId }) => {

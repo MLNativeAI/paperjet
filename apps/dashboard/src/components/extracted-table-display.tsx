@@ -23,10 +23,7 @@ const formatValue = (value: unknown, type: string): React.ReactNode => {
   }
 };
 
-export function ExtractedTableDisplay({
-  tables,
-  extractionResult,
-}: ExtractedTableDisplayProps) {
+export function ExtractedTableDisplay({ tables, extractionResult }: ExtractedTableDisplayProps) {
   if (tables.length === 0 || !extractionResult) {
     return null;
   }
@@ -39,17 +36,13 @@ export function ExtractedTableDisplay({
       <CardContent>
         <div className="space-y-6">
           {tables.map((table) => {
-            const extractedTable = extractionResult.tables.find(
-              (t) => t.tableName === table.name,
-            );
+            const extractedTable = extractionResult.tables.find((t) => t.tableName === table.name);
             return (
               <div key={table.name} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <h4 className="font-medium">{table.name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {table.description}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{table.description}</p>
                   </div>
                 </div>
 
@@ -59,10 +52,7 @@ export function ExtractedTableDisplay({
                       <thead>
                         <tr className="bg-muted">
                           {table.columns.map((column) => (
-                            <th
-                              key={column.name}
-                              className="border border-gray-200 px-3 py-2 text-left font-medium"
-                            >
+                            <th key={column.name} className="border border-gray-200 px-3 py-2 text-left font-medium">
                               {column.name}
                             </th>
                           ))}
@@ -70,19 +60,13 @@ export function ExtractedTableDisplay({
                       </thead>
                       <tbody>
                         {extractedTable.rows.map((row, rowIndex) => (
-                          <tr
-                            key={`row-${rowIndex}-${table.name}`}
-                            className="hover:bg-muted/50"
-                          >
+                          <tr key={`row-${rowIndex}-${table.name}`} className="hover:bg-muted/50">
                             {table.columns.map((column, colIndex) => (
                               <td
                                 key={`${table.name}-${column.name}-${rowIndex}-${colIndex}`}
                                 className="border border-gray-200 px-3 py-2"
                               >
-                                {formatValue(
-                                  row.values[column.name],
-                                  column.type,
-                                )}
+                                {formatValue(row.values[column.name], column.type)}
                               </td>
                             ))}
                           </tr>
@@ -91,9 +75,7 @@ export function ExtractedTableDisplay({
                     </table>
                   </div>
                 ) : (
-                  <div className="text-center py-4 text-muted-foreground">
-                    No table data extracted
-                  </div>
+                  <div className="text-center py-4 text-muted-foreground">No table data extracted</div>
                 )}
               </div>
             );

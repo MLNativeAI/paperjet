@@ -36,21 +36,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
@@ -77,9 +64,7 @@ const getStatusIcon = (status: ExecutionStatus) => {
     case "pending":
       return <Clock className="h-4 w-4 text-muted-foreground" />;
     case "processing":
-      return (
-        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      );
+      return <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
     case "completed":
       return <CheckCircle className="h-4 w-4 text-green-600" />;
     case "failed":
@@ -87,9 +72,7 @@ const getStatusIcon = (status: ExecutionStatus) => {
   }
 };
 
-const getStatusColor = (
-  status: ExecutionStatus,
-): "secondary" | "default" | "destructive" => {
+const getStatusColor = (status: ExecutionStatus): "secondary" | "default" | "destructive" => {
   switch (status) {
     case "pending":
       return "secondary";
@@ -102,19 +85,11 @@ const getStatusColor = (
   }
 };
 
-export function RunsDataTable({
-  data,
-  onExportRun,
-  onDeleteRun,
-  formatDuration,
-}: RunsDataTableProps) {
+export function RunsDataTable({ data, onExportRun, onDeleteRun, formatDuration }: RunsDataTableProps) {
   const navigate = useNavigate();
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -125,9 +100,7 @@ export function RunsDataTable({
     {
       accessorKey: "workflowName",
       header: "Workflow Name",
-      cell: ({ row }) => (
-        <div className="font-medium">{row.original.workflowName}</div>
-      ),
+      cell: ({ row }) => <div className="font-medium">{row.original.workflowName}</div>,
       enableHiding: false,
     },
     {
@@ -146,9 +119,7 @@ export function RunsDataTable({
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           {getStatusIcon(row.original.status)}
-          <Badge variant={getStatusColor(row.original.status)}>
-            {row.original.status}
-          </Badge>
+          <Badge variant={getStatusColor(row.original.status)}>{row.original.status}</Badge>
         </div>
       ),
     },
@@ -166,9 +137,7 @@ export function RunsDataTable({
       accessorKey: "duration",
       header: "Duration",
       cell: ({ row }) => (
-        <div className="text-sm">
-          {formatDuration(row.original.startedAt, row.original.completedAt)}
-        </div>
+        <div className="text-sm">{formatDuration(row.original.startedAt, row.original.completedAt)}</div>
       ),
     },
     {
@@ -176,25 +145,16 @@ export function RunsDataTable({
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate({ to: `/executions/${row.original.id}` })}
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate({ to: `/executions/${row.original.id}` })}>
             <IconEye className="h-4 w-4 mr-2" />
             View
           </Button>
-          {row.original.status === "completed" &&
-            row.original.extractionResult && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onExportRun(row.original)}
-              >
-                <IconDownload className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            )}
+          {row.original.status === "completed" && row.original.extractionResult && (
+            <Button variant="outline" size="sm" onClick={() => onExportRun(row.original)}>
+              <IconDownload className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -207,26 +167,18 @@ export function RunsDataTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem
-                onClick={() =>
-                  navigate({ to: `/executions/${row.original.id}` })
-                }
-              >
+              <DropdownMenuItem onClick={() => navigate({ to: `/executions/${row.original.id}` })}>
                 <IconEye className="h-4 w-4 mr-2" />
                 View Details
               </DropdownMenuItem>
-              {row.original.status === "completed" &&
-                row.original.extractionResult && (
-                  <DropdownMenuItem onClick={() => onExportRun(row.original)}>
-                    <IconDownload className="h-4 w-4 mr-2" />
-                    Download Result
-                  </DropdownMenuItem>
-                )}
+              {row.original.status === "completed" && row.original.extractionResult && (
+                <DropdownMenuItem onClick={() => onExportRun(row.original)}>
+                  <IconDownload className="h-4 w-4 mr-2" />
+                  Download Result
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => onDeleteRun(row.original)}
-              >
+              <DropdownMenuItem variant="destructive" onClick={() => onDeleteRun(row.original)}>
                 <IconTrash className="h-4 w-4 mr-2" />
                 Delete
               </DropdownMenuItem>
@@ -272,12 +224,7 @@ export function RunsDataTable({
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -287,27 +234,15 @@ export function RunsDataTable({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-muted/50"
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className="hover:bg-muted/50">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -317,8 +252,8 @@ export function RunsDataTable({
       </div>
       <div className="flex items-center justify-between px-4 py-4">
         <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
+          selected.
         </div>
         <div className="flex w-full items-center gap-8 lg:w-fit">
           <div className="hidden items-center gap-2 lg:flex">
@@ -332,9 +267,7 @@ export function RunsDataTable({
               }}
             >
               <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
+                <SelectValue placeholder={table.getState().pagination.pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
                 {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -346,8 +279,7 @@ export function RunsDataTable({
             </Select>
           </div>
           <div className="flex w-fit items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </div>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             <Button

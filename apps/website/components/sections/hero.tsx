@@ -31,8 +31,8 @@ export function Hero() {
             Privacy-First Document Processing
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Open-source platform to securely extract data from any document.
-            Build custom workflows while keeping your data private.
+            Open-source platform to securely extract data from any document. Build custom workflows while keeping your
+            data private.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <SignupModal
@@ -42,17 +42,8 @@ export function Hero() {
               triggerClassName="rounded-full h-12 px-8 text-base cursor-pointer flex items-center"
               showArrow={true}
             />
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-full h-12 px-8 text-base cursor-pointer"
-              asChild
-            >
-              <Link
-                href="https://calendly.com/mlnative/chat"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+            <Button size="lg" variant="outline" className="rounded-full h-12 px-8 text-base cursor-pointer" asChild>
+              <Link href="https://calendly.com/mlnative/chat" target="_blank" rel="noopener noreferrer">
                 Book a Demo
               </Link>
             </Button>

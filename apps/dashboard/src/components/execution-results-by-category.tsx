@@ -1,38 +1,14 @@
-import type {
-  ExtractedTable,
-  ExtractedValue,
-  ExtractionResult,
-} from "@paperjet/db/types";
+import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
 import type {
   CategoriesConfiguration,
   FieldsConfiguration,
   TableConfiguration,
   Workflow,
 } from "@paperjet/engine/types";
-import {
-  AlertCircle,
-  Calendar,
-  FileText,
-  Hash,
-  ToggleLeft,
-  Type,
-} from "lucide-react";
+import { AlertCircle, Calendar, FileText, Hash, ToggleLeft, Type } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 interface ExecutionResultsByCategoryProps {
@@ -48,10 +24,7 @@ interface CategoryGroup {
   tables: TableConfiguration[number][];
 }
 
-export function ExecutionResultsByCategory({
-  extractionResult,
-  workflow,
-}: ExecutionResultsByCategoryProps) {
+export function ExecutionResultsByCategory({ extractionResult, workflow }: ExecutionResultsByCategoryProps) {
   // Group fields and tables by category
   const categoriesMap = new Map<string, CategoryGroup>();
 
@@ -83,9 +56,7 @@ export function ExecutionResultsByCategory({
   });
 
   // Sort categories by ordinal
-  const sortedCategories = Array.from(categoriesMap.values()).sort(
-    (a, b) => a.ordinal - b.ordinal,
-  );
+  const sortedCategories = Array.from(categoriesMap.values()).sort((a, b) => a.ordinal - b.ordinal);
 
   const getFieldTypeInfo = (type: string) => {
     switch (type.toLowerCase()) {
@@ -105,25 +76,16 @@ export function ExecutionResultsByCategory({
     }
   };
 
-  const formatValue = (
-    value: string | number | boolean | Date | null,
-    type: string,
-  ) => {
+  const formatValue = (value: string | number | boolean | Date | null, type: string) => {
     if (value === null || value === undefined) {
-      return (
-        <span className="text-muted-foreground italic">No data found</span>
-      );
+      return <span className="text-muted-foreground italic">No data found</span>;
     }
 
     switch (type) {
       case "currency":
-        return typeof value === "number"
-          ? `$${value.toFixed(2)}`
-          : value?.toString();
+        return typeof value === "number" ? `$${value.toFixed(2)}` : value?.toString();
       case "date":
-        return value instanceof Date
-          ? value.toLocaleString()
-          : value?.toString();
+        return value instanceof Date ? value.toLocaleString() : value?.toString();
       case "boolean":
         return value ? "Yes" : "No";
       default:
@@ -153,9 +115,7 @@ export function ExecutionResultsByCategory({
     <div className="space-y-8">
       {sortedCategories.map((category) => (
         <div key={category.categoryId} className="space-y-4">
-          <h3 className="text-lg font-semibold text-primary border-b pb-2">
-            {category.name}
-          </h3>
+          <h3 className="text-lg font-semibold text-primary border-b pb-2">{category.name}</h3>
 
           {/* Fields */}
           {category.fields.length > 0 && (
@@ -167,9 +127,7 @@ export function ExecutionResultsByCategory({
                   <Card key={field.id}>
                     <CardHeader>
                       <CardTitle>
-                        {extractedValue?.value
-                          ? formatValue(extractedValue.value, field.type)
-                          : field.name}
+                        {extractedValue?.value ? formatValue(extractedValue.value, field.type) : field.name}
                       </CardTitle>
                       <CardDescription>{field.name}</CardDescription>
                     </CardHeader>
@@ -205,9 +163,7 @@ export function ExecutionResultsByCategory({
                       <CardDescription>{table.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {extractedTable &&
-                      extractedTable.rows &&
-                      extractedTable.rows.length > 0 ? (
+                      {extractedTable && extractedTable.rows && extractedTable.rows.length > 0 ? (
                         <div className="overflow-x-auto">
                           <Table>
                             <TableHeader>
@@ -221,12 +177,7 @@ export function ExecutionResultsByCategory({
                               {extractedTable.rows.map((row, rowIndex) => (
                                 <TableRow key={rowIndex}>
                                   {table.columns.map((col) => (
-                                    <TableCell key={col.id}>
-                                      {formatValue(
-                                        row.values[col.name],
-                                        col.type,
-                                      )}
-                                    </TableCell>
+                                    <TableCell key={col.id}>{formatValue(row.values[col.name], col.type)}</TableCell>
                                   ))}
                                 </TableRow>
                               ))}
@@ -234,9 +185,7 @@ export function ExecutionResultsByCategory({
                           </Table>
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground">
-                          No table data found
-                        </p>
+                        <p className="text-sm text-muted-foreground">No table data found</p>
                       )}
                     </CardContent>
                   </Card>

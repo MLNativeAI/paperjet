@@ -48,11 +48,7 @@ interface CustomLinkProps {
   children: React.ReactNode;
 }
 
-function CustomLink({
-  href,
-  children,
-  ...props
-}: CustomLinkProps & Record<string, unknown>) {
+function CustomLink({ href, children, ...props }: CustomLinkProps & Record<string, unknown>) {
   if (href.startsWith("/")) {
     return (
       <Link href={href} {...props}>
@@ -129,15 +125,7 @@ function YouTube({ id }: { id: string }) {
   );
 }
 
-function Quote({
-  children,
-  author,
-  title,
-}: {
-  children: React.ReactNode;
-  author?: string;
-  title?: string;
-}) {
+function Quote({ children, author, title }: { children: React.ReactNode; author?: string; title?: string }) {
   return (
     <div className="my-8 relative">
       <div className="border-l-4 border-gray-300 pl-6 py-4 bg-gray-50 dark:bg-gray-800/50 dark:border-gray-600 rounded-r-lg">
@@ -150,9 +138,7 @@ function Quote({
           >
             <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
           </svg>
-          <div className="text-lg text-gray-700 dark:text-gray-300 italic leading-relaxed pl-6">
-            {children}
-          </div>
+          <div className="text-lg text-gray-700 dark:text-gray-300 italic leading-relaxed pl-6">{children}</div>
           {(author || title) && (
             <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 font-medium pl-6">
               — {author}
@@ -184,29 +170,19 @@ function Highlight({ children }: { children: React.ReactNode }) {
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <div className="text-base text-gray-800 dark:text-gray-200 font-medium leading-relaxed pl-6">
-            {children}
-          </div>
+          <div className="text-base text-gray-800 dark:text-gray-200 font-medium leading-relaxed pl-6">{children}</div>
         </div>
       </div>
     </div>
   );
 }
 
-function RoundedImage(props: {
-  src: string;
-  alt?: string;
-  [key: string]: unknown;
-}) {
+function RoundedImage(props: { src: string; alt?: string; [key: string]: unknown }) {
   return <Image {...props} alt={props.alt || ""} className="rounded-lg" />;
 }
 
 function Strong({ children }: { children: React.ReactNode }) {
-  return (
-    <strong className="font-bold text-gray-900 dark:text-gray-100">
-      {children}
-    </strong>
-  );
+  return <strong className="font-bold text-gray-900 dark:text-gray-100">{children}</strong>;
 }
 
 const components = {
@@ -223,18 +199,13 @@ const components = {
   Table,
   table: (props: React.HTMLAttributes<HTMLTableElement>) => (
     <div className="overflow-x-auto my-6">
-      <table
-        className="min-w-full border-collapse border border-gray-300 dark:border-gray-600"
-        {...props}
-      />
+      <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600" {...props} />
     </div>
   ),
   thead: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
     <thead className="bg-gray-50 dark:bg-gray-800" {...props} />
   ),
-  tbody: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
-    <tbody {...props} />
-  ),
+  tbody: (props: React.HTMLAttributes<HTMLTableSectionElement>) => <tbody {...props} />,
   tr: (props: React.HTMLAttributes<HTMLTableRowElement>) => (
     <tr
       className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50"
@@ -265,11 +236,5 @@ export function CustomMDX({
   source: string;
   components?: Record<string, React.ComponentType>;
 } & Record<string, unknown>) {
-  return (
-    <MDXRemote
-      source={source}
-      {...props}
-      components={{ ...components, ...(props.components || {}) }}
-    />
-  );
+  return <MDXRemote source={source} {...props} components={{ ...components, ...(props.components || {}) }} />;
 }

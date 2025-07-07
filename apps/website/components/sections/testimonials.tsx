@@ -61,18 +61,13 @@ export function Testimonials() {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center justify-center space-y-4 text-center mb-12"
         >
-          <Badge
-            className="rounded-full px-4 py-1.5 text-sm font-medium"
-            variant="secondary"
-          >
+          <Badge className="rounded-full px-4 py-1.5 text-sm font-medium" variant="secondary">
             Testimonials
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Trusted by Privacy-Conscious Organizations
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Trusted by Privacy-Conscious Organizations</h2>
           <p className="max-w-[800px] text-muted-foreground md:text-lg">
-            See how organizations are using PaperJet to process sensitive
-            documents while maintaining complete control over their data.
+            See how organizations are using PaperJet to process sensitive documents while maintaining complete control
+            over their data.
           </p>
         </motion.div>
 
@@ -91,10 +86,7 @@ export function Testimonials() {
                     {Array(testimonial.rating)
                       .fill(0)
                       .map((_, j) => (
-                        <Star
-                          key={j}
-                          className="size-4 text-yellow-500 fill-yellow-500"
-                        />
+                        <Star key={j} className="size-4 text-yellow-500 fill-yellow-500" />
                       ))}
                   </div>
                   <p className="text-lg mb-6 flex-grow">{testimonial.quote}</p>
@@ -104,9 +96,7 @@ export function Testimonials() {
                     </div>
                     <div>
                       <p className="font-medium">{testimonial.author}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {testimonial.role}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                     </div>
                   </div>
                 </CardContent>

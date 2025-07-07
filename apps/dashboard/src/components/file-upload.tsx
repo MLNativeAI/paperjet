@@ -46,8 +46,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
       <CardHeader>
         <CardTitle>Upload Documents</CardTitle>
         <p className="text-sm text-muted-foreground mt-1">
-          Upload documents to process with this workflow. Supports PDF and image
-          files.
+          Upload documents to process with this workflow. Supports PDF and image files.
         </p>
       </CardHeader>
       <CardContent className="p-0">
@@ -59,12 +58,8 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
           onDragLeave={handleDragLeave}
         >
           <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">
-            Drop your documents here or click to browse
-          </h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Supports PDF and image files (PNG, JPG, etc.)
-          </p>
+          <h3 className="text-lg font-semibold mb-2">Drop your documents here or click to browse</h3>
+          <p className="text-sm text-muted-foreground mb-4">Supports PDF and image files (PNG, JPG, etc.)</p>
           <input
             type="file"
             accept=".pdf,image/*"
