@@ -4,15 +4,15 @@ export const APP_NAME = "Hono React App";
 
 // Common interfaces
 export interface User {
-    id: string;
-    name: string;
-    email: string;
+  id: string;
+  name: string;
+  email: string;
 }
 
 export type ApiResponse<T> = {
-    success: boolean;
-    data?: T;
-    error?: string;
+  success: boolean;
+  data?: T;
+  error?: string;
 };
 
 export { type BunEnvModule, type EnvVars, envSchema } from "./env-schema";

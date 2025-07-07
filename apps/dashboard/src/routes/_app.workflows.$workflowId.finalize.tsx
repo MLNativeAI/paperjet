@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import WorkflowFinalizePage from "@/pages/workflow-finalize-page";
 
 export const Route = createFileRoute("/_app/workflows/$workflowId/finalize")({
-    component: WorkflowFinalizePage,
+  component: WorkflowFinalizePage,
 });
 
 // function WorkflowFinalizePage() {
