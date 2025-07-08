@@ -1,17 +1,53 @@
 {
   "fields": [
-    { "fieldName": "invoice_number", "value": "INV-2025-001" },
-    { "fieldName": "invoice_date", "value": "2025-07-08" },
-    { "fieldName": "due_date", "value": "2025-07-22" },
-    { "fieldName": "supplier_name", "value": "Tech Solutions Ltd." },
-    { "fieldName": "supplier_address", "value": "123 Business Street, Tech City, TC 12345" },
-    { "fieldName": "supplier_tax_id", "value": "VAT123456789" },
-    { "fieldName": "customer_name", "value": "ABC Corporation" },
-    { "fieldName": "customer_address", "value": "456 Corporate Ave, Business District, BD 67890" },
-    { "fieldName": "subtotal", "value": 1500.00 },
-    { "fieldName": "tax_amount", "value": 300.00 },
-    { "fieldName": "total_amount", "value": 1800.00 },
-    { "fieldName": "currency", "value": "USD" }
+    {
+      "fieldName": "invoice_number",
+      "value": "42399"
+    },
+    {
+      "fieldName": "invoice_date",
+      "value": "2024-01-22"
+    },
+    {
+      "fieldName": "due_date",
+      "value": null
+    },
+    {
+      "fieldName": "supplier_name",
+      "value": "Corwin, Walsh and Hermann"
+    },
+    {
+      "fieldName": "supplier_address",
+      "value": "Steuber Walks 460 72372-1035 Mullerhaven"
+    },
+    {
+      "fieldName": "supplier_tax_id",
+      "value": null
+    },
+    {
+      "fieldName": "customer_name",
+      "value": "White-Olson"
+    },
+    {
+      "fieldName": "customer_address",
+      "value": "Steve Passage 607 30617-2535 Tristonside Saint Martin"
+    },
+    {
+      "fieldName": "subtotal",
+      "value": 71929.36
+    },
+    {
+      "fieldName": "tax_amount",
+      "value": 12947.28
+    },
+    {
+      "fieldName": "total_amount",
+      "value": 84876.64
+    },
+    {
+      "fieldName": "currency",
+      "value": "EUR"
+    }
   ],
   "tables": [
     {
@@ -19,18 +55,26 @@
       "rows": [
         {
           "values": {
-            "Description": "Software Development Services",
-            "Quantity": 40,
-            "Unit Price": 25.00,
-            "Total": 1000.00
+            "Description": "Dolorem praesentium cumque quis.",
+            "Quantity": 87,
+            "Unit Price": 37.04,
+            "Total": 3222.48
           }
         },
         {
           "values": {
-            "Description": "Technical Consultation",
-            "Quantity": 10,
-            "Unit Price": 50.00,
-            "Total": 500.00
+            "Description": "Pariatur distinctio laborum.",
+            "Quantity": 95,
+            "Unit Price": 562.09,
+            "Total": 53398.55
+          }
+        },
+        {
+          "values": {
+            "Description": "Rem est qui iure.",
+            "Quantity": 17,
+            "Unit Price": 900.49,
+            "Total": 15308.33
           }
         }
       ]

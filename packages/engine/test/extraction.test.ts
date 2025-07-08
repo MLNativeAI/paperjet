@@ -16,12 +16,11 @@ const testCases: TestCase[] = [
     fixture: "bank_details_extractor",
     documentUrl: "https://i.ibb.co/2YNJLKCd/bank-statement.webp",
   },
-  // {
-  //   name: "Invoice - Standard Format",
-  //   fixture: "invoice_extractor",
-  //   documentUrl: "/home/lmyslinski/Documents/PaperJet/test-docs/bank_statement.pdf",
-  // },
-  // Add more test cases here as you create more fixtures
+  {
+    name: "Invoice",
+    fixture: "invoice_extractor",
+    documentUrl: "https://i.ibb.co/Z6LbVppT/Screenshot-From-2025-07-08-12-50-17.png",
+  },
 ];
 
 // 60 seconds
