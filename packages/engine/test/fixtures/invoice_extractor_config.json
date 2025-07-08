@@ -1,0 +1,138 @@
+{
+  "fields": [
+    {
+      "id": "fld_invoice_001",
+      "name": "invoice_number",
+      "description": "The unique identifier for the invoice, typically labeled as 'Invoice Number', 'Invoice #', or 'Nr faktury'",
+      "type": "text",
+      "categoryId": "cat_basic",
+      "required": true
+    },
+    {
+      "id": "fld_invoice_002",
+      "name": "invoice_date",
+      "description": "The date when the invoice was issued, in YYYY-MM-DD format",
+      "type": "date",
+      "categoryId": "cat_basic",
+      "required": true
+    },
+    {
+      "id": "fld_invoice_003",
+      "name": "due_date",
+      "description": "The payment due date for the invoice, in YYYY-MM-DD format",
+      "type": "date",
+      "categoryId": "cat_basic",
+      "required": true
+    },
+    {
+      "id": "fld_invoice_004",
+      "name": "supplier_name",
+      "description": "The name of the company or individual issuing the invoice",
+      "type": "text",
+      "categoryId": "cat_supplier",
+      "required": true
+    },
+    {
+      "id": "fld_invoice_005",
+      "name": "supplier_address",
+      "description": "The full address of the supplier",
+      "type": "text",
+      "categoryId": "cat_supplier",
+      "required": false
+    },
+    {
+      "id": "fld_invoice_006",
+      "name": "supplier_tax_id",
+      "description": "The tax identification number of the supplier (VAT number, NIP, etc.)",
+      "type": "text",
+      "categoryId": "cat_supplier",
+      "required": false
+    },
+    {
+      "id": "fld_invoice_007",
+      "name": "customer_name",
+      "description": "The name of the customer or company receiving the invoice",
+      "type": "text",
+      "categoryId": "cat_customer",
+      "required": true
+    },
+    {
+      "id": "fld_invoice_008",
+      "name": "customer_address",
+      "description": "The full address of the customer",
+      "type": "text",
+      "categoryId": "cat_customer",
+      "required": false
+    },
+    {
+      "id": "fld_invoice_009",
+      "name": "subtotal",
+      "description": "The total amount before taxes and discounts",
+      "type": "currency",
+      "categoryId": "cat_amounts",
+      "required": true
+    },
+    {
+      "id": "fld_invoice_010",
+      "name": "tax_amount",
+      "description": "The total tax amount (VAT, sales tax, etc.)",
+      "type": "currency",
+      "categoryId": "cat_amounts",
+      "required": true
+    },
+    {
+      "id": "fld_invoice_011",
+      "name": "total_amount",
+      "description": "The final total amount including all taxes and fees",
+      "type": "currency",
+      "categoryId": "cat_amounts",
+      "required": true
+    },
+    {
+      "id": "fld_invoice_012",
+      "name": "currency",
+      "description": "The currency code (USD, EUR, PLN, etc.)",
+      "type": "text",
+      "categoryId": "cat_amounts",
+      "required": true
+    }
+  ],
+  "tables": [
+    {
+      "id": "tbl_invoice_items",
+      "name": "Invoice Items",
+      "description": "Line items on the invoice with descriptions, quantities, prices, and amounts",
+      "columns": [
+        {
+          "id": "col_item_description",
+          "name": "Description",
+          "description": "Description of the product or service",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "col_item_quantity",
+          "name": "Quantity",
+          "description": "Number of units",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "col_item_unit_price",
+          "name": "Unit Price",
+          "description": "Price per unit",
+          "type": "currency",
+          "required": true
+        },
+        {
+          "id": "col_item_total",
+          "name": "Total",
+          "description": "Total amount for this line item",
+          "type": "currency",
+          "required": true
+        }
+      ],
+      "categoryId": "cat_items"
+    }
+  ]
+}

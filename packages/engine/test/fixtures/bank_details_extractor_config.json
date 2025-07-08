@@ -1,0 +1,238 @@
+{
+  "fields": [
+    {
+      "id": "fld_3091c0b537ac",
+      "name": "bank_website",
+      "description": "The official website address of the bank, typically found in the header or contact information.",
+      "type": "text",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_05b0e55db884",
+      "name": "bank_phone_number_1",
+      "description": "A contact phone number for the bank, often labeled as 'mLinia' or 'Phone'.",
+      "type": "text",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_9dbb1193207d",
+      "name": "bank_phone_number_2",
+      "description": "Another contact phone number for the bank, often labeled as 'mLinia' or 'Phone'.",
+      "type": "text",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_b426073bb51c",
+      "name": "statement_period_start_date",
+      "description": "The start date of the period covered by the statement, usually found near the document title, labeled as 'od' or 'from' in YYYY-MM-DD format.",
+      "type": "date",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_567a2c92a1e8",
+      "name": "statement_period_end_date",
+      "description": "The end date of the period covered by the statement, usually found near the document title, labeled as 'do' or 'to' in YYYY-MM-DD format.",
+      "type": "date",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_5238754c95dd",
+      "name": "account_type",
+      "description": "The type or name of the account, labeled as 'Rodzaj rachunku' or 'Account Type'.",
+      "type": "text",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_957b5a2ea155",
+      "name": "account_currency",
+      "description": "The currency in which the account is denominated, labeled as 'Waluta' or 'Currency'.",
+      "type": "text",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_7d7bcb360bd1",
+      "name": "account_number",
+      "description": "The unique identifier for the account, labeled as 'Nr rachunku' or 'Account Number', typically a long numeric string.",
+      "type": "text",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_7849cebcd142",
+      "name": "next_capitalization_date",
+      "description": "The date of the next interest capitalization, labeled as 'Data następnej kapitalizacji' in YYYY-MM-DD format.",
+      "type": "date",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_4a2c768e8082",
+      "name": "account_interest_rate",
+      "description": "The interest rate applied to the account, labeled as 'Oprocentowanie rachunku', typically a percentage value.",
+      "type": "text",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_93cd7f389623",
+      "name": "credit_limit",
+      "description": "The credit limit associated with the account, labeled as 'Limit kredytu', including currency symbols.",
+      "type": "currency",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_fddbcee66e15",
+      "name": "credit_interest_rate",
+      "description": "The interest rate applied to the credit, labeled as 'Oprocentowanie kredytu', typically a percentage value.",
+      "type": "text",
+      "categoryId": "cat_1",
+      "required": true
+    },
+    {
+      "id": "fld_972f154ba262",
+      "name": "credits_number_of_operations",
+      "description": "The total number of credit operations during the statement period, found under 'Podsumowanie obrotów na rachunku' and 'Liczba operacji' for 'Uznania'.",
+      "type": "number",
+      "categoryId": "cat_2",
+      "required": true
+    },
+    {
+      "id": "fld_c8354849db3f",
+      "name": "credits_value_of_operations",
+      "description": "The total value of credit operations during the statement period, found under 'Podsumowanie obrotów na rachunku' and 'Wartość operacji' for 'Uznania', excluding currency symbols.",
+      "type": "currency",
+      "categoryId": "cat_2",
+      "required": true
+    },
+    {
+      "id": "fld_efbd4de7ea9b",
+      "name": "debits_number_of_operations",
+      "description": "The total number of debit operations during the statement period, found under 'Podsumowanie obrotów na rachunku' and 'Liczba operacji' for 'Obciążenia'.",
+      "type": "number",
+      "categoryId": "cat_2",
+      "required": true
+    },
+    {
+      "id": "fld_da7a35bbfc72",
+      "name": "debits_value_of_operations",
+      "description": "The total value of debit operations during the statement period, found under 'Podsumowanie obrotów na rachunku' and 'Wartość operacji' for 'Obciążenia', excluding currency symbols.",
+      "type": "currency",
+      "categoryId": "cat_2",
+      "required": true
+    },
+    {
+      "id": "fld_a8f10e4d0475",
+      "name": "total_number_of_operations",
+      "description": "The grand total number of all operations (credits and debits) during the statement period, found under 'Podsumowanie obrotów na rachunku' and 'Liczba operacji' for 'Łącznie'.",
+      "type": "number",
+      "categoryId": "cat_2",
+      "required": true
+    },
+    {
+      "id": "fld_4e5fa4fc7388",
+      "name": "total_value_of_operations",
+      "description": "The grand total value of all operations (credits and debits) during the statement period, found under 'Podsumowanie obrotów na rachunku' and 'Wartość operacji' for 'Łącznie', excluding currency symbols.",
+      "type": "currency",
+      "categoryId": "cat_2",
+      "required": true
+    },
+    {
+      "id": "fld_5ded8598d002",
+      "name": "opening_balance",
+      "description": "The balance of the account at the beginning of the statement period, labeled as 'Saldo początkowe', excluding currency symbols.",
+      "type": "currency",
+      "categoryId": "cat_3",
+      "required": true
+    },
+    {
+      "id": "fld_ac3d571ea0a9",
+      "name": "closing_balance",
+      "description": "The balance of the account at the end of the statement period, labeled as 'Saldo końcowe', excluding currency symbols.",
+      "type": "currency",
+      "categoryId": "cat_3",
+      "required": true
+    }
+  ],
+  "tables": [
+    {
+      "id": "tbl_039c4747951c",
+      "name": "Account Turnover Summary",
+      "description": "A summary table showing total credits, debits, and the net balance for the account.",
+      "columns": [
+        {
+          "id": "col_68416d23b6e4",
+          "name": "Category",
+          "description": "The type of account turnover summary, such as credits, debits, or total.",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "col_a623dc4fbcf2",
+          "name": "Liczba operacji",
+          "description": "The total number of operations for the respective category (credits, debits, or total).",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "col_b3eb19ee5146",
+          "name": "Wartość operacji",
+          "description": "The total value of operations for the respective category (credits, debits, or total).",
+          "type": "currency",
+          "required": true
+        }
+      ],
+      "categoryId": "cat_2"
+    },
+    {
+      "id": "tbl_995340926785",
+      "name": "Transaction Details",
+      "description": "A detailed list of all financial transactions, including posting date, operation date, description, amount, and balance after each operation.",
+      "columns": [
+        {
+          "id": "col_32ab719e8cac",
+          "name": "Data księgowania",
+          "description": "The date on which the transaction was officially recorded or posted to the account.",
+          "type": "date",
+          "required": false
+        },
+        {
+          "id": "col_46aff0244651",
+          "name": "Data operacji",
+          "description": "The actual date when the financial operation or transaction occurred.",
+          "type": "date",
+          "required": false
+        },
+        {
+          "id": "col_e674f68ae088",
+          "name": "Opis operacji",
+          "description": "A detailed description of the financial transaction, including the type of operation (e.g., ZAKUP PRZY UŻYCIU KARTY - Card purchase, PRZELEW ZEWNĘTRZNY PRZYCHODZĄCY - Incoming external transfer), and often additional details like merchant names, transaction IDs, or payment descriptions.",
+          "type": "text",
+          "required": false
+        },
+        {
+          "id": "col_6b85cec5afaf",
+          "name": "Kwota",
+          "description": "The amount of money involved in the transaction. This can be a positive value for credits/incomes or a negative value for debits/expenses.",
+          "type": "currency",
+          "required": false
+        },
+        {
+          "id": "col_22166e225131",
+          "name": "Saldo po operacji",
+          "description": "The account balance immediately after the completion of the specific transaction.",
+          "type": "currency",
+          "required": false
+        }
+      ],
+      "categoryId": "cat_3"
+    }
+  ]
+}

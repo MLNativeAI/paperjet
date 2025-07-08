@@ -1,0 +1,131 @@
+{
+  "fields": [
+    { "fieldName": "bank_website", "value": "www.hsbc.co.uk" },
+    { "fieldName": "bank_phone_number_1", "value": "03457 125 563" },
+    { "fieldName": "bank_phone_number_2", "value": null },
+    { "fieldName": "statement_period_start_date", "value": "2023-11-25" },
+    { "fieldName": "statement_period_end_date", "value": "2023-12-02" },
+    { "fieldName": "account_type", "value": null },
+    { "fieldName": "account_currency", "value": null },
+    { "fieldName": "account_number", "value": "GB24HBUK408913829263" },
+    { "fieldName": "next_capitalization_date", "value": null },
+    { "fieldName": "account_interest_rate", "value": null },
+    { "fieldName": "credit_limit", "value": 0 },
+    { "fieldName": "credit_interest_rate", "value": null },
+    { "fieldName": "credits_number_of_operations", "value": null },
+    { "fieldName": "credits_value_of_operations", "value": 3142.37 },
+    { "fieldName": "debits_number_of_operations", "value": null },
+    { "fieldName": "debits_value_of_operations", "value": 1003.1 },
+    { "fieldName": "total_number_of_operations", "value": null },
+    { "fieldName": "total_value_of_operations", "value": null },
+    { "fieldName": "opening_balance", "value": 0.57 },
+    { "fieldName": "closing_balance", "value": 2139.27 }
+  ],
+  "tables": [
+    { "tableName": "Account Turnover Summary", "rows": [] },
+    {
+      "tableName": "Transaction Details",
+      "rows": [
+        {
+          "values": {
+            "Data księgowania": "2023-11-25",
+            "Data operacji": "2023-11-25",
+            "Opis operacji": "CR Transfer",
+            "Kwota": 2212.14,
+            "Saldo po operacji": 2212.71
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-11-26",
+            "Data operacji": "2023-11-26",
+            "Opis operacji": "BP Telephone Bill Payment",
+            "Kwota": -60,
+            "Saldo po operacji": 152.71
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-11-27",
+            "Data operacji": "2023-11-27",
+            "Opis operacji": "BP DHL delivery services",
+            "Kwota": -30.5,
+            "Saldo po operacji": 122.71
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-12-28",
+            "Data operacji": "2023-12-28",
+            "Opis operacji": "CR Cheque Deposit",
+            "Kwota": 425.23,
+            "Saldo po operacji": 27.76
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-11-29",
+            "Data operacji": "2023-11-29",
+            "Opis operacji": "CR Jessica George",
+            "Kwota": 500,
+            "Saldo po operacji": 27.76
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-11-29",
+            "Data operacji": "2023-11-29",
+            "Opis operacji": "BP Shell 2-4 NEW CROSS ROAD",
+            "Kwota": -202.34,
+            "Saldo po operacji": 27.76
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-11-29",
+            "Data operacji": "2023-11-29",
+            "Opis operacji": "BP Pizza Union Hoxton",
+            "Kwota": -15.13,
+            "Saldo po operacji": 27.76
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-12-30",
+            "Data operacji": "2023-12-30",
+            "Opis operacji": "BP Uber",
+            "Kwota": -28.9,
+            "Saldo po operacji": 1.53
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-12-01",
+            "Data operacji": "2023-12-01",
+            "Opis operacji": "BP British Gas Payment",
+            "Kwota": -659.23,
+            "Saldo po operacji": 17.27
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-12-01",
+            "Data operacji": "2023-12-01",
+            "Opis operacji": "BP MASTERCARD",
+            "Kwota": -60,
+            "Saldo po operacji": 122.71
+          }
+        },
+        {
+          "values": {
+            "Data księgowania": "2023-12-02",
+            "Data operacji": "2023-12-02",
+            "Opis operacji": "BP Costa Cofee",
+            "Kwota": -7,
+            "Saldo po operacji": 10.27
+          }
+        }
+      ]
+    }
+  ]
+}

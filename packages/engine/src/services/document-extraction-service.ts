@@ -1,18 +1,11 @@
 import { google } from "@ai-sdk/google";
 import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
-import type { Langfuse } from "langfuse";
 import { z } from "zod";
 import { aiSdkModel } from "../lib/model";
 import type { ExtractionResult, WorkflowConfiguration } from "../types";
 
-export interface DocumentExtractionServiceDeps {
-  langfuse: Langfuse;
-}
-
 export class DocumentExtractionService {
-  constructor(private deps: DocumentExtractionServiceDeps) {}
-
   async extractDataFromDocument(presignedUrl: string, configuration: WorkflowConfiguration): Promise<ExtractionResult> {
     logger.info("Starting data extraction from document");
     // Build dynamic schema object based on provided fields and tables
@@ -227,100 +220,52 @@ Instructions:
 - For tables, extract all rows found
 - Maintain data accuracy and completeness`;
 
-    // Create a trace for this execution
-    const trace = this.deps.langfuse.trace({
-      name: "workflow-execution-extraction",
-      metadata: {
-        operation: "workflow_execution",
-        model: "gemini-2.5-flash",
-        fieldsCount: config.fields.length,
-        tablesCount: config.tables.length,
-        ...metadata,
-      },
-    });
-
-    const generation = trace.generation({
-      name: "process-execution-file",
-      model: "gemini-2.5-flash",
-      input: {
-        prompt,
-        image_url: presignedUrl,
-        workflow_config: config,
-      },
-    });
-
-    try {
-      const { object } = await generateObject({
-        model,
-        schema: schemaObj,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: prompt,
-              },
-              {
-                type: "image",
-                image: new URL(presignedUrl),
-              },
-            ],
-          },
-        ],
-        experimental_telemetry: {
-          isEnabled: true,
-          metadata: {
-            langfuseTraceId: trace.id,
-          },
-        },
-      });
-
-      // Transform result to match our extraction result schema
-      const result: ExtractionResult = {
-        fields: config.fields.map((field) => ({
-          fieldName: field.name,
-          value: (object as any)[field.name],
-        })),
-        tables: config.tables.map((table) => ({
-          tableName: table.name,
-          rows: ((object as any)[table.name] || []).map((row: any) => ({
-            values: row,
-          })),
-        })),
-      };
-
-      generation.end({
-        output: result,
-      });
-
-      trace.update({
-        output: result,
-      });
-
-      logger.info(
+    const { object } = await generateObject({
+      model,
+      schema: schemaObj,
+      messages: [
         {
-          extractedFieldsCount: result.fields.length,
-          extractedTablesCount: result.tables.length,
-          fieldsExtracted: result.fields.map((f) => ({
-            name: f.fieldName,
-            hasValue: f.value !== null,
-          })),
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: prompt,
+            },
+            {
+              type: "image",
+              image: new URL(presignedUrl),
+            },
+          ],
         },
-        "Workflow execution file processing completed",
-      );
+      ],
+    });
 
-      return result;
-    } catch (error) {
-      generation.end({
-        output: error,
-      });
+    // Transform result to match our extraction result schema
+    const result: ExtractionResult = {
+      fields: config.fields.map((field) => ({
+        fieldName: field.name,
+        value: (object as any)[field.name],
+      })),
+      tables: config.tables.map((table) => ({
+        tableName: table.name,
+        rows: ((object as any)[table.name] || []).map((row: any) => ({
+          values: row,
+        })),
+      })),
+    };
 
-      trace.update({
-        output: error,
-      });
+    logger.info(
+      {
+        extractedFieldsCount: result.fields.length,
+        extractedTablesCount: result.tables.length,
+        fieldsExtracted: result.fields.map((f) => ({
+          name: f.fieldName,
+          hasValue: f.value !== null,
+        })),
+      },
+      "Workflow execution file processing completed",
+    );
 
-      throw error;
-    }
+    return result;
   }
 }

@@ -206,7 +206,7 @@ ${categoriesDescription}
 For each field found in the document:
 1. Provide a clear, descriptive name (e.g., "invoice_number", "total_amount", "customer_name")
 2. Determine the expected data type (text, number, date, currency, boolean)
-3. Write a detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns
+3. Write a detailed description that serves as instructions for AI extraction, including common label variations and formatting patterns.
 4. Assign it to the MOST APPROPRIATE category using the category slug (e.g., "invoice_header", "company_information", etc.)
 
 Important rules:

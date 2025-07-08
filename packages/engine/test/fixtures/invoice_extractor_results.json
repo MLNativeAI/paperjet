@@ -1,0 +1,39 @@
+{
+  "fields": [
+    { "fieldName": "invoice_number", "value": "INV-2025-001" },
+    { "fieldName": "invoice_date", "value": "2025-07-08" },
+    { "fieldName": "due_date", "value": "2025-07-22" },
+    { "fieldName": "supplier_name", "value": "Tech Solutions Ltd." },
+    { "fieldName": "supplier_address", "value": "123 Business Street, Tech City, TC 12345" },
+    { "fieldName": "supplier_tax_id", "value": "VAT123456789" },
+    { "fieldName": "customer_name", "value": "ABC Corporation" },
+    { "fieldName": "customer_address", "value": "456 Corporate Ave, Business District, BD 67890" },
+    { "fieldName": "subtotal", "value": 1500.00 },
+    { "fieldName": "tax_amount", "value": 300.00 },
+    { "fieldName": "total_amount", "value": 1800.00 },
+    { "fieldName": "currency", "value": "USD" }
+  ],
+  "tables": [
+    {
+      "tableName": "Invoice Items",
+      "rows": [
+        {
+          "values": {
+            "Description": "Software Development Services",
+            "Quantity": 40,
+            "Unit Price": 25.00,
+            "Total": 1000.00
+          }
+        },
+        {
+          "values": {
+            "Description": "Technical Consultation",
+            "Quantity": 10,
+            "Unit Price": 50.00,
+            "Total": 500.00
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -52,8 +52,8 @@ export class WorkflowExecutionService {
     await db.insert(file).values({
       id: fileId,
       filename,
-      createdAt: new Date(),
       ownerId: userId,
+      createdAt: new Date(),
     });
 
     const fileBuffer = await uploadedFile.arrayBuffer();
