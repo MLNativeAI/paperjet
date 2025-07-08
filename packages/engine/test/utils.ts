@@ -70,23 +70,15 @@ export const isCleanRun = process.argv.includes("--clean");
 export const fixturesDir = path.join(__dirname, "fixtures");
 
 export async function ensureCacheDir() {
-  try {
-    await mkdir(fixturesDir, { recursive: true });
-  } catch (error) {
-    // Directory already exists or other error
-  }
+  await mkdir(fixturesDir, { recursive: true });
 }
 
 export async function getCachedResult(testCase: TestCase): Promise<ExtractionResult | null> {
   if (isCleanRun) return null;
 
   const cacheFile = path.join(fixturesDir, `${testCase.fixture}_output_cache.json`);
-  try {
-    const cachedData = await readFile(cacheFile, "utf-8");
-    return JSON.parse(cachedData) as ExtractionResult;
-  } catch (error) {
-    return null;
-  }
+  const cachedData = await readFile(cacheFile, "utf-8");
+  return JSON.parse(cachedData) as ExtractionResult;
 }
 
 export async function saveCachedResult(testCase: TestCase, result: ExtractionResult): Promise<void> {

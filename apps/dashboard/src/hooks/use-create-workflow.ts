@@ -1,12 +1,23 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { analyzeWorkflow as analyzeWorkflowApi, createWorkflowFromFile as createWorkflowFromFileApi } from "@/lib/api";
+import {
+  analyzeWorkflow as analyzeWorkflowApi,
+  createWorkflowFromFile as createWorkflowFromFileApi,
+  createWorkflowFromTemplate as createWorkflowFromTemplateApi,
+} from "@/lib/api";
 
 export function useCreateWorkflow() {
   const createWorkflowFromFile = useMutation({
     mutationFn: createWorkflowFromFileApi,
     onError: () => {
       toast.error("Failed to create workflow from file");
+    },
+  });
+
+  const createWorkflowFromTemplate = useMutation({
+    mutationFn: createWorkflowFromTemplateApi,
+    onError: () => {
+      toast.error("Failed to create workflow from template");
     },
   });
 
@@ -19,6 +30,7 @@ export function useCreateWorkflow() {
 
   return {
     createWorkflowFromFile,
+    createWorkflowFromTemplate,
     analyzeWorkflow,
   };
 }

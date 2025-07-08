@@ -1,4 +1,4 @@
-import type { ExtractionField, ExtractionResult, ExtractionTable } from "@paperjet/db/types";
+import type { ExtractionResult } from "@paperjet/engine/types";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

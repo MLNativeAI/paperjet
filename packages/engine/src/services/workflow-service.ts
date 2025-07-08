@@ -554,4 +554,71 @@ export class WorkflowService {
       configuration: updatedConfiguration,
     });
   }
+
+  async createWorkflowFromTemplateData(
+    name: string,
+    description: string,
+    configuration: WorkflowConfiguration,
+    categories: CategoriesConfiguration,
+    sampleData: ExtractionResult,
+    templateFile: File,
+    userId: string,
+  ): Promise<{
+    workflowId: string;
+    fileId?: string;
+  }> {
+    logger.info(`Creating new workflow from template ${name}`);
+
+    // Handle template file upload
+    const fileId = generateId(ID_PREFIXES.file);
+    const filename = `workflow-samples/${fileId}-${templateFile.name}`;
+
+    await db.insert(file).values({
+      id: fileId,
+      filename,
+      createdAt: new Date(),
+      ownerId: userId,
+    });
+
+    const fileBuffer = await templateFile.arrayBuffer();
+    await this.deps.s3.file(filename).write(fileBuffer);
+
+    logger.info(
+      {
+        fileId,
+        filename,
+        fileSize: templateFile.size,
+      },
+      "Template file uploaded to S3",
+    );
+
+    // Generate new workflow ID
+    const workflowId = generateId(ID_PREFIXES.workflow);
+
+    // Prepare the new workflow data - skip analysis and go straight to active
+    const newWorkflowData = {
+      id: workflowId,
+      name: name,
+      description: description || "",
+      categories: JSON.stringify(categories),
+      configuration: JSON.stringify(configuration),
+      sampleData: JSON.stringify(sampleData),
+      sampleDataExtractedAt: sampleData ? new Date() : null,
+      fileId: fileId, // Reference uploaded template file
+      status: "active" as const, // Skip analysis and go straight to active
+      ownerId: userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    // Insert the new workflow
+    await db.insert(workflow).values(newWorkflowData);
+
+    logger.info("Workflow created successfully from template data");
+
+    return {
+      workflowId,
+      fileId,
+    };
+  }
 }

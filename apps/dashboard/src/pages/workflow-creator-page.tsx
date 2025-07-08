@@ -1,56 +1,36 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, DollarSign, FileSpreadsheet, FileText, Package, Receipt, ScrollText } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import WorkflowUploadSection from "@/components/workflow/workflow-upload-section";
 import { WorkflowTemplateCard } from "@/components/workflow-template-card";
-
-const workflowTemplates = [
-  {
-    id: "invoice",
-    name: "Invoice Processing",
-    description: "Extract vendor, amounts, line items, and payment details from invoices",
-    icon: FileText,
-    color: "text-blue-600",
-  },
-  {
-    id: "receipt",
-    name: "Receipt Scanning",
-    description: "Capture merchant, date, total, and itemized purchases from receipts",
-    icon: Receipt,
-    color: "text-green-600",
-  },
-  {
-    id: "purchase-order",
-    name: "Purchase Orders",
-    description: "Extract PO numbers, items, quantities, and delivery information",
-    icon: Package,
-    color: "text-purple-600",
-  },
-  {
-    id: "bank-statement",
-    name: "Bank Statements",
-    description: "Process transactions, balances, and account details from statements",
-    icon: DollarSign,
-    color: "text-orange-600",
-  },
-  {
-    id: "contract",
-    name: "Contracts & Agreements",
-    description: "Extract parties, terms, dates, and key clauses from legal documents",
-    icon: ScrollText,
-    color: "text-red-600",
-  },
-  {
-    id: "tax-form",
-    name: "Tax Forms",
-    description: "Process W-2s, 1099s, and other tax documents for key data points",
-    icon: FileSpreadsheet,
-    color: "text-indigo-600",
-  },
-];
+import { workflowTemplates } from "@/data/workflow-templates";
+import { useCreateWorkflow } from "@/hooks/use-create-workflow";
+import { prepareTemplateData, type WorkflowTemplate } from "@/lib/template-utils";
 
 export default function WorkflowCreatorPage() {
   const navigate = useNavigate();
+  const { createWorkflowFromTemplate } = useCreateWorkflow();
+
+  const handleTemplateSelect = async (template: WorkflowTemplate) => {
+    try {
+      const templateData = await prepareTemplateData(template);
+
+      createWorkflowFromTemplate.mutate(templateData, {
+        onSuccess: (data) => {
+          toast.success("Workflow created successfully!");
+          navigate({ to: `/workflows/${data.workflowId}/finalize` });
+        },
+        onError: (error) => {
+          console.error("Error creating workflow from template:", error);
+          toast.error("Failed to create workflow from template");
+        },
+      });
+    } catch (error) {
+      console.error("Error preparing template data:", error);
+      toast.error("Failed to prepare template data");
+    }
+  };
 
   return (
     <div className="w-full px-4 py-8">
@@ -72,7 +52,18 @@ export default function WorkflowCreatorPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {workflowTemplates.map((template) => (
-              <WorkflowTemplateCard key={template.id} template={template} onClick={() => {}} />
+              <WorkflowTemplateCard
+                key={template.id}
+                template={template}
+                onClick={(templateId) => {
+                  const selectedTemplate = workflowTemplates.find((t) => t.id === templateId);
+                  if (selectedTemplate) {
+                    handleTemplateSelect(selectedTemplate);
+                  }
+                }}
+                isLoading={createWorkflowFromTemplate.isPending}
+                disabled={createWorkflowFromTemplate.isPending}
+              />
             ))}
           </div>
         </div>

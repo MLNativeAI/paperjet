@@ -171,6 +171,35 @@ export const createWorkflowFromFile = async (file: File) => {
   return response.json();
 };
 
+export const createWorkflowFromTemplate = async (templateData: {
+  name: string;
+  description: string;
+  configuration: string;
+  categories: string;
+  sampleData: string;
+  templateFile: File;
+}) => {
+  const formData = new FormData();
+  formData.append("name", templateData.name);
+  formData.append("description", templateData.description);
+  formData.append("configuration", templateData.configuration);
+  formData.append("categories", templateData.categories);
+  formData.append("sampleData", templateData.sampleData);
+  formData.append("templateFile", templateData.templateFile);
+
+  const response = await fetch("/api/workflows/from-template", {
+    method: "POST",
+    body: formData,
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create workflow from template");
+  }
+
+  return response.json();
+};
+
 export const executeWorkflowBulk = async (workflowId: string, files: File[]) => {
   const formData = new FormData();
   formData.append("workflowId", workflowId);

@@ -1,4 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
+import type { WorkflowConfiguration } from "@paperjet/engine";
+import type { CategoriesConfiguration, ExtractionResult } from "@paperjet/engine/src/types";
 import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -67,6 +69,21 @@ const createWorkflowFormSchema = z.object({
     .instanceof(File)
     .refine((file) => file.size > 0, "File cannot be empty")
     .refine((file) => file.type === "application/pdf" || file.type.startsWith("image/"), "File must be a PDF or image"),
+});
+
+const createWorkflowFromTemplateSchema = z.object({
+  name: z.string().min(1, "Workflow name is required").default("New Workflow"),
+  description: z.string().default(""),
+  configuration: z.string(),
+  categories: z.string(),
+  sampleData: z.string(),
+  templateFile: z
+    .instanceof(File)
+    .refine((file) => file.size > 0, "Template file cannot be empty")
+    .refine(
+      (file) => file.type === "application/pdf" || file.type.startsWith("image/"),
+      "Template file must be a PDF or image",
+    ),
 });
 
 const paramIdSchema = z.object({
@@ -166,6 +183,29 @@ const router = app
       logger.error(error, "Create workflow error:");
       if (error instanceof z.ZodError) {
         return c.json({ error: "Invalid file data", details: error.errors }, 400);
+      }
+      return c.json({ error: "Internal server error" }, 500);
+    }
+  })
+  .post("/from-template", zValidator("form", createWorkflowFromTemplateSchema), async (c) => {
+    try {
+      const user = await getUser(c);
+      const validForm = c.req.valid("form");
+
+      const result = await workflowService.createWorkflowFromTemplateData(
+        validForm.name,
+        validForm.description,
+        JSON.parse(validForm.configuration) as WorkflowConfiguration,
+        JSON.parse(validForm.categories) as CategoriesConfiguration,
+        JSON.parse(validForm.sampleData) as ExtractionResult,
+        validForm.templateFile,
+        user.id,
+      );
+      return c.json({ ...result, message: "Workflow created from template successfully" }, 201);
+    } catch (error) {
+      logger.error(error, "Create workflow from template error:");
+      if (error instanceof z.ZodError) {
+        return c.json({ error: "Invalid template data", details: error.errors }, 400);
       }
       return c.json({ error: "Internal server error" }, 500);
     }
