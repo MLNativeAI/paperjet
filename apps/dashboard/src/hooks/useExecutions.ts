@@ -4,16 +4,6 @@ import { getWorkflowExecutions } from "@/lib/api";
 
 type ExecutionStatus = "pending" | "processing" | "completed" | "failed";
 
-interface ExecutionFile {
-  id: string;
-  fileId: string;
-  extractionResult: string | null;
-  status: ExecutionStatus;
-  errorMessage: string | null;
-  createdAt: string;
-  filename: string;
-}
-
 interface WorkflowExecution {
   id: string;
   workflowId: string;

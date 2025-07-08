@@ -140,7 +140,7 @@ export function Pricing() {
               <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
                 {monthlyPlans.map((plan, i) => (
                   <motion.div
-                    key={i}
+                    key={plan.name}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -164,8 +164,8 @@ export function Pricing() {
                         </div>
                         <p className="text-muted-foreground mt-2">{plan.description}</p>
                         <ul className="space-y-3 my-6 flex-grow">
-                          {plan.features.map((feature, j) => (
-                            <li key={j} className="flex items-center">
+                          {plan.features.map((feature) => (
+                            <li key={feature} className="flex items-center">
                               <Check className="mr-2 size-4 text-primary" />
                               <span>{feature}</span>
                             </li>
@@ -187,7 +187,7 @@ export function Pricing() {
               <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
                 {annualPlans.map((plan, i) => (
                   <motion.div
-                    key={i}
+                    key={plan.name}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -211,8 +211,8 @@ export function Pricing() {
                         </div>
                         <p className="text-muted-foreground mt-2">{plan.description}</p>
                         <ul className="space-y-3 my-6 flex-grow">
-                          {plan.features.map((feature, j) => (
-                            <li key={j} className="flex items-center">
+                          {plan.features.map((feature) => (
+                            <li key={feature} className="flex items-center">
                               <Check className="mr-2 size-4 text-primary" />
                               <span>{feature}</span>
                             </li>

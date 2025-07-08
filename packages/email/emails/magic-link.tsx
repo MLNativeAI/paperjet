@@ -1,12 +1,11 @@
 import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from "@react-email/components";
 
 export interface MagicLinkEmailProps {
-  email: string;
   url: string;
   token?: string;
 }
 
-export const MagicLinkEmail = ({ email, url, token }: MagicLinkEmailProps) => {
+export const MagicLinkEmail = ({ url, token }: MagicLinkEmailProps) => {
   return (
     <Html>
       <Head />

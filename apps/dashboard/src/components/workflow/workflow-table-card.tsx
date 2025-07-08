@@ -1,4 +1,4 @@
-import type { TableConfiguration, TableSampleData } from "@paperjet/engine/types";
+import type { TableConfiguration } from "@paperjet/engine/types";
 import { isTableOutdated } from "@paperjet/engine/utils/outdated-check";
 import { AlertCircle, Table2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +53,7 @@ export default function WorkflowTableCard({
                 </thead>
                 <tbody>
                   {sampleData.rows.slice(0, 3).map((row, idx) => (
-                    <tr key={idx} className="border-b last:border-0">
+                    <tr key={`${table.name}-row-${idx}`} className="border-b last:border-0">
                       {table.columns.map((col) => (
                         <td key={col.name} className="px-2 py-1.5">
                           {String(row.values[col.name] || "-")}

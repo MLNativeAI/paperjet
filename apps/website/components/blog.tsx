@@ -1,4 +1,3 @@
-import React from "react";
 import { BlogClient } from "@/components/blog-client";
 import { getBlogPosts } from "@/lib/blog-utils";
 

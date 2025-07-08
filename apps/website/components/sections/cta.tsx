@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import { SignupModal } from "@/components/signup-modal";
 import { Button } from "../ui/button";
 

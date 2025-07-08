@@ -1,4 +1,4 @@
-import { render, SignupNotificationEmail, WelcomeEmail } from "@paperjet/email";
+import { render, WelcomeEmail } from "@paperjet/email";
 import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 

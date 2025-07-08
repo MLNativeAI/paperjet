@@ -108,7 +108,7 @@ export class WorkflowExecutionService {
     };
   }
 
-  async getWorkflowExecutions(workflowId: string, userId: string): Promise<WorkflowRun[]> {
+  async getWorkflowExecutions(workflowId: string, _userId: string): Promise<WorkflowRun[]> {
     // Get executions with file details
     const executions = await db
       .select({
@@ -213,7 +213,7 @@ export class WorkflowExecutionService {
     return result;
   }
 
-  async deleteExecution(executionId: string, userId: string) {
+  async deleteExecution(executionId: string, _userId: string) {
     // Get execution and verify user owns it
     const [executionData] = await db
       .select({

@@ -39,8 +39,8 @@ export function ExtractedTable({ table, tableIndex, extractionResult }: Extracte
           <table className="w-full text-sm border-collapse border border-gray-200">
             <thead>
               <tr className="bg-muted">
-                {table.columns.map((column, colIndex) => (
-                  <th key={colIndex} className="border border-gray-200 px-3 py-2 text-left font-medium">
+                {table.columns.map((column) => (
+                  <th key={column.name} className="border border-gray-200 px-3 py-2 text-left font-medium">
                     {column.name}
                     <Badge variant="outline" className="ml-1 text-xs">
                       {column.type}
@@ -51,9 +51,9 @@ export function ExtractedTable({ table, tableIndex, extractionResult }: Extracte
             </thead>
             <tbody>
               {extractedTable.rows.map((row, rowIndex) => (
-                <tr key={rowIndex} className="hover:bg-muted/50">
-                  {table.columns.map((column, colIndex) => (
-                    <td key={colIndex} className="border border-gray-200 px-3 py-2">
+                <tr key={`${table.name}-row-${rowIndex}`} className="hover:bg-muted/50">
+                  {table.columns.map((column) => (
+                    <td key={column.name} className="border border-gray-200 px-3 py-2">
                       {formatValue(row.values[column.name], column.type)}
                     </td>
                   ))}

@@ -74,7 +74,7 @@ export function Testimonials() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial, i) => (
             <motion.div
-              key={i}
+              key={testimonial.author}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -86,7 +86,10 @@ export function Testimonials() {
                     {Array(testimonial.rating)
                       .fill(0)
                       .map((_, j) => (
-                        <Star key={j} className="size-4 text-yellow-500 fill-yellow-500" />
+                        <Star
+                          key={`star-${testimonial.author}-${j}`}
+                          className="size-4 text-yellow-500 fill-yellow-500"
+                        />
                       ))}
                   </div>
                   <p className="text-lg mb-6 flex-grow">{testimonial.quote}</p>

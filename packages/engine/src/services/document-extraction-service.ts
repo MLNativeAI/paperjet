@@ -92,48 +92,43 @@ Instructions:
 - If a field is not found or unclear, return null
 - For tables, extract all rows found
 - Maintain data accuracy and completeness`;
+    const { object } = await generateObject({
+      model: aiSdkModel(),
+      schema: schemaObj,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: prompt,
+            },
+            {
+              type: "image",
+              image: new URL(presignedUrl),
+            },
+          ],
+        },
+      ],
+    });
 
-    try {
-      const { object } = await generateObject({
-        model: aiSdkModel(),
-        schema: schemaObj,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: prompt,
-              },
-              {
-                type: "image",
-                image: new URL(presignedUrl),
-              },
-            ],
-          },
-        ],
-      });
-
-      // Transform the result to match our extraction result schema
-      const extractionResult: ExtractionResult = {
-        fields: configuration.fields.map((field) => ({
-          fieldName: field.name,
-          value: (object as any)[field.name],
+    // Transform the result to match our extraction result schema
+    const extractionResult: ExtractionResult = {
+      fields: configuration.fields.map((field) => ({
+        fieldName: field.name,
+        value: (object as any)[field.name],
+      })),
+      tables: configuration.tables.map((table) => ({
+        tableName: table.name,
+        rows: ((object as any)[table.name] || []).map((row: any) => ({
+          values: row,
         })),
-        tables: configuration.tables.map((table) => ({
-          tableName: table.name,
-          rows: ((object as any)[table.name] || []).map((row: any) => ({
-            values: row,
-          })),
-        })),
-      };
+      })),
+    };
 
-      logger.info("Data extraction completed successfully");
+    logger.info("Data extraction completed successfully");
 
-      return extractionResult;
-    } catch (error) {
-      throw error;
-    }
+    return extractionResult;
   }
 
   async processExecutionFile(

@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { CategoriesConfiguration, FieldsConfiguration } from "@paperjet/engine/types";
-import { Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -147,7 +146,7 @@ export default function EditFieldSheet({
 
       onClose();
       form.reset();
-    } catch (error) {
+    } catch (_error) {
       // Error is handled by the mutation hook
     }
   };
@@ -162,7 +161,7 @@ export default function EditFieldSheet({
           });
           onClose();
           form.reset();
-        } catch (error) {
+        } catch (_error) {
           // Error is handled by the mutation hook
         }
       }

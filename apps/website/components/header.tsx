@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -18,7 +18,7 @@ const navigationLinks = [
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [_mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -72,7 +72,7 @@ export const Header = () => {
         </div>
 
         {/* Mobile menu button */}
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden">
+        <button type="button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden">
           {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
       </div>

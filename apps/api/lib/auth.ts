@@ -85,7 +85,7 @@ export const auth = betterAuth({
 
         try {
           logger.info({ email, url }, `Sending magic link to ${email}: ${url}`);
-          const emailHtml = await render(MagicLinkEmail({ email, url, token }));
+          const emailHtml = await render(MagicLinkEmail({ url, token }));
 
           await resend.emails.send({
             from: envVars.FROM_EMAIL,

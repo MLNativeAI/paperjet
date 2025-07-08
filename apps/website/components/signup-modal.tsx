@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowRight, CheckCircle, Loader2, Mail, X } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle, Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,7 +70,7 @@ export function SignupModal({
         setStatus("error");
         setMessage(data.error || "Something went wrong. Please try again.");
       }
-    } catch (error) {
+    } catch (_error) {
       setStatus("error");
       setMessage("Network error. Please try again.");
     } finally {

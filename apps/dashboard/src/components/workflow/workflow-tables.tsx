@@ -1,12 +1,11 @@
 import type { Workflow } from "@paperjet/engine/types";
 import { useState } from "react";
-import EditTableSheet from "./edit-table-sheet";
 import type { CategoryGroup } from "./workflow-categories";
 import WorkflowTableCard from "./workflow-table-card";
 
 export default function WorkflowTables({ category, workflow }: { category: CategoryGroup; workflow: Workflow }) {
-  const [editingTable, setEditingTable] = useState<(typeof category.tables)[number] | null>(null);
-  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
+  const [_editingTable, setEditingTable] = useState<(typeof category.tables)[number] | null>(null);
+  const [_isEditSheetOpen, setIsEditSheetOpen] = useState(false);
 
   // Get sample data for tables
   const getTableSampleData = (tableName: string) => {
@@ -20,7 +19,7 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
     setIsEditSheetOpen(true);
   };
 
-  const handleSaveTable = (updatedTable: (typeof category.tables)[number]) => {
+  const _handleSaveTable = (updatedTable: (typeof category.tables)[number]) => {
     // TODO: Implement API call to save the table
     console.log("Saving table:", updatedTable);
     setIsEditSheetOpen(false);

@@ -98,16 +98,16 @@ export function CategorizedExtractionResults({ extractionResult }: CategorizedEx
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            {Object.keys(table.rows[0].values).map((columnName: string, colIndex: number) => (
-                              <TableHead key={colIndex}>{columnName}</TableHead>
+                            {Object.keys(table.rows[0].values).map((columnName: string) => (
+                              <TableHead key={columnName}>{columnName}</TableHead>
                             ))}
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {table.rows.map((row: any, rowIndex: number) => (
-                            <TableRow key={`row-${tableIndex}-${rowIndex}`}>
-                              {Object.values(row.values).map((value: any, colIndex: number) => (
-                                <TableCell key={`col-${tableIndex}-${rowIndex}-${colIndex}`}>
+                            <TableRow key={`${table.tableName}-row-${rowIndex}`}>
+                              {Object.entries(row.values).map(([columnName, value]: [string, any]) => (
+                                <TableCell key={`${table.tableName}-${columnName}-${rowIndex}`}>
                                   {formatValue(value, "text")}
                                 </TableCell>
                               ))}

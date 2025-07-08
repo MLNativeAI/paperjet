@@ -1,5 +1,4 @@
 import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
-import type { Workflow } from "@paperjet/engine/types";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, Copy, Download, FileText, XCircle } from "lucide-react";
@@ -345,8 +344,8 @@ export default function ExecutionDetailPage() {
                                 <Table>
                                   <TableHeader>
                                     <TableRow>
-                                      {Object.keys(table.rows[0].values).map((columnName: string, colIndex: number) => (
-                                        <TableHead key={colIndex}>{columnName}</TableHead>
+                                      {Object.keys(table.rows[0].values).map((columnName: string) => (
+                                        <TableHead key={columnName}>{columnName}</TableHead>
                                       ))}
                                     </TableRow>
                                   </TableHeader>
@@ -358,10 +357,13 @@ export default function ExecutionDetailPage() {
                                         },
                                         rowIndex: number,
                                       ) => (
-                                        <TableRow key={`row-${tableIndex}-${rowIndex}`}>
-                                          {Object.values(row.values).map(
-                                            (value: string | number | boolean | Date | null, colIndex: number) => (
-                                              <TableCell key={`col-${tableIndex}-${rowIndex}-${colIndex}`}>
+                                        <TableRow key={`${table.tableName}-row-${rowIndex}`}>
+                                          {Object.entries(row.values).map(
+                                            ([columnName, value]: [
+                                              string,
+                                              string | number | boolean | Date | null,
+                                            ]) => (
+                                              <TableCell key={`${table.tableName}-${columnName}-${rowIndex}`}>
                                                 {formatValue(value, "text")}
                                               </TableCell>
                                             ),

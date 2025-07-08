@@ -1,14 +1,7 @@
-import { Button } from "@paperjet/ui/button";
-import { motion } from "framer-motion";
-import { ChevronRight, Menu, Moon, Sun, X } from "lucide-react";
-import Link from "next/link";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import Blog from "@/components/blog";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { SignupModal } from "@/components/signup-modal";
-import { CTA, FAQ, Features, Hero, HowItWorks, Logos, Pricing, Testimonials } from "../components/sections";
+import { CTA, FAQ, Features, Hero, HowItWorks } from "../components/sections";
 
 export default function LandingPage() {
   return (

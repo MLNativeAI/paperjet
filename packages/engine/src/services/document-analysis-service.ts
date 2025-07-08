@@ -15,54 +15,49 @@ export type AnalysisResult = {
 
 export async function performCompleteAnalysis(presignedUrl: string): Promise<AnalysisResult> {
   logger.info({ presignedUrl }, "Starting complete document analysis");
+  // Step 1: Analyze document type and identify categories/tables
+  const [documentTypeAnalysis, categoriesAndTables] = await Promise.all([
+    analyzeDocumentType(presignedUrl),
+    identifyCategoriesAndTables(presignedUrl),
+  ]);
 
-  try {
-    // Step 1: Analyze document type and identify categories/tables
-    const [documentTypeAnalysis, categoriesAndTables] = await Promise.all([
-      analyzeDocumentType(presignedUrl),
-      identifyCategoriesAndTables(presignedUrl),
-    ]);
+  const categories = categoriesAndTables.categories.map((category, idx) => ({
+    ...category,
+    categoryId: `cat_${idx + 1}`,
+  }));
 
-    const categories = categoriesAndTables.categories.map((category, idx) => ({
-      ...category,
-      categoryId: `cat_${idx + 1}`,
-    }));
+  // Combine document type with categories for table processing
+  const allTables = categories.flatMap((category) =>
+    category.tables.map((table) => ({
+      ...table,
+      categoryId: category.categoryId,
+      categoryName: category.displayName,
+    })),
+  );
 
-    // Combine document type with categories for table processing
-    const allTables = categories.flatMap((category) =>
-      category.tables.map((table) => ({
-        ...table,
-        categoryId: category.categoryId,
-        categoryName: category.displayName,
-      })),
-    );
+  // Step 2: Extract ALL fields at once with category assignments
+  const allFieldsWithCategories = await extractAllFieldsWithCategories(presignedUrl, categories);
 
-    // Step 2: Extract ALL fields at once with category assignments
-    const allFieldsWithCategories = await extractAllFieldsWithCategories(presignedUrl, categories);
+  // Step 3: Extract table fields for each table in parallel
+  const tableFieldPromises = allTables.map((table) => extractFieldsForTable(presignedUrl, table));
+  const tableFieldResults = await Promise.all(tableFieldPromises);
 
-    // Step 3: Extract table fields for each table in parallel
-    const tableFieldPromises = allTables.map((table) => extractFieldsForTable(presignedUrl, table));
-    const tableFieldResults = await Promise.all(tableFieldPromises);
+  logger.info("Complete document analysis finished");
 
-    logger.info("Complete document analysis finished");
-
-    return {
-      workflowName: documentTypeAnalysis.workflowName,
-      description: documentTypeAnalysis.description,
-      categories: categories.map((cat) => {
-        return {
-          categoryId: cat.categoryId,
-          slug: cat.slug,
-          displayName: cat.displayName,
-          ordinal: cat.ordinal,
-        };
-      }),
-      fields: allFieldsWithCategories,
-      tables: tableFieldResults.flat(),
-    };
-  } catch (error) {
-    throw error;
-  }
+  return {
+    workflowName: documentTypeAnalysis.workflowName,
+    description: documentTypeAnalysis.description,
+    categories: categories.map((cat) => {
+      return {
+        categoryId: cat.categoryId,
+        slug: cat.slug,
+        displayName: cat.displayName,
+        ordinal: cat.ordinal,
+      };
+    }),
+    fields: allFieldsWithCategories,
+    tables: tableFieldResults.flat(),
+  };
 }
 
 const documentTypeSchema = z.object({
@@ -81,32 +76,27 @@ async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof
         Example: "Extracts invoice details, vendor information, billing information, line items and payment terms"
         3. A workflow name for the document type ex. Invoice processor
         `;
+  const { object } = await generateObject({
+    model: aiSdkModel(),
+    schema: documentTypeSchema,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: prompt,
+          },
+          {
+            type: "image",
+            image: new URL(presignedUrl),
+          },
+        ],
+      },
+    ],
+  });
 
-  try {
-    const { object } = await generateObject({
-      model: aiSdkModel(),
-      schema: documentTypeSchema,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: prompt,
-            },
-            {
-              type: "image",
-              image: new URL(presignedUrl),
-            },
-          ],
-        },
-      ],
-    });
-
-    return object;
-  } catch (error) {
-    throw error;
-  }
+  return object;
 }
 
 const categoriesZodSchema = z.object({
@@ -145,41 +135,36 @@ For each table within a category, provide:
 - description: What the table contains
 
 Important: Categories should be listed in the order they appear in the document, and tables should be nested within their respective categories. Focus on business-relevant data structures and logical information groupings.`;
-
-  try {
-    const { object } = await generateObject({
-      model: aiSdkModel(),
-      schema: categoriesZodSchema,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: prompt,
-            },
-            {
-              type: "image",
-              image: new URL(presignedUrl),
-            },
-          ],
-        },
-      ],
-    });
-
-    logger.info(
+  const { object } = await generateObject({
+    model: aiSdkModel(),
+    schema: categoriesZodSchema,
+    messages: [
       {
-        categoriesCount: object.categories.length,
-        tablesCount: object.categories.reduce((total, cat) => total + cat.tables.length, 0),
-        categories: object.categories.map((c) => c.displayName),
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: prompt,
+          },
+          {
+            type: "image",
+            image: new URL(presignedUrl),
+          },
+        ],
       },
-      "Categories and tables extraction completed",
-    );
+    ],
+  });
 
-    return object;
-  } catch (error) {
-    throw error;
-  }
+  logger.info(
+    {
+      categoriesCount: object.categories.length,
+      tablesCount: object.categories.reduce((total, cat) => total + cat.tables.length, 0),
+      categories: object.categories.map((c) => c.displayName),
+    },
+    "Categories and tables extraction completed",
+  );
+
+  return object;
 }
 
 // Schema for extracting all fields at once with category assignments

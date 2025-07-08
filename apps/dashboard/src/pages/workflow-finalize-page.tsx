@@ -7,7 +7,6 @@ import {
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, BookOpen, FileText, Plus, RefreshCw, Table } from "lucide-react";
 import React, { useRef, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

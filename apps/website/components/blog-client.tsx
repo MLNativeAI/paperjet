@@ -4,9 +4,8 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { formatDate } from "@/lib/utils";
-import { Badge } from "./ui/badge";
 
 type BlogPost = {
   metadata: {

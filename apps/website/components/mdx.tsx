@@ -10,19 +10,19 @@ interface TableData {
 }
 
 function Table({ data }: { data: TableData }) {
-  const headers = data.headers.map((header: string, index: number) => (
+  const headers = data.headers.map((header: string) => (
     <th
-      key={index}
+      key={header}
       className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600"
     >
       {header}
     </th>
   ));
-  const rows = data.rows.map((row: string[], index: number) => (
-    <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+  const rows = data.rows.map((row: string[], rowIndex: number) => (
+    <tr key={`row-${row.join("-").slice(0, 50)}-${rowIndex}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
       {row.map((cell: string, cellIndex: number) => (
         <td
-          key={cellIndex}
+          key={`${data.headers[cellIndex] || `col-${cellIndex}`}-${rowIndex}`}
           className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600"
         >
           {cell}
@@ -74,6 +74,7 @@ function CustomLink({ href, children, ...props }: CustomLinkProps & Record<strin
 
 function Code({ children, ...props }: { children: React.ReactNode }) {
   const codeHTML = highlight(children as string);
+  // biome-ignore lint/security/noDangerouslySetInnerHtml: We need this for mdx
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
 }
 

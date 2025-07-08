@@ -54,6 +54,7 @@ export default async function Blog({ params }: { params: Promise<{ slug: string 
       <script
         type="application/ld+json"
         suppressHydrationWarning
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: We need this for mdx
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",

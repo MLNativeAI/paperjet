@@ -1,4 +1,4 @@
-import type { DbWorkflow, DbWorkflowExecution, FileData } from "@paperjet/db/types";
+import type { DbWorkflow, DbWorkflowExecution } from "@paperjet/db/types";
 import z from "zod";
 
 // Engine-specific types

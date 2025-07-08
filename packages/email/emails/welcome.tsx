@@ -6,14 +6,12 @@ import {
   Heading,
   Hr,
   Html,
-  Img,
   Link,
   Preview,
   Section,
   Tailwind,
   Text,
 } from "@react-email/components";
-import * as React from "react";
 
 export interface WelcomeEmailProps {
   email: string;

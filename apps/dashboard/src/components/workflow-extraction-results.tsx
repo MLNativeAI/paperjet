@@ -67,7 +67,7 @@ export function WorkflowExtractionResults({ result }: WorkflowExtractionResultsP
                               },
                               rowIndex: number,
                             ) => (
-                              <TableRow key={`row-${tableIndex}-${rowIndex}`}>
+                              <TableRow key={`${table.tableName || `table-${tableIndex}`}-row-${rowIndex}`}>
                                 {Object.entries(row.values || row).map(
                                   ([key, value]: [string, string | number | boolean | Date | null]) => (
                                     <TableCell key={key} className="text-xs">

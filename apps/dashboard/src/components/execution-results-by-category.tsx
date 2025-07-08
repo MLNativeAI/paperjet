@@ -1,15 +1,9 @@
 import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
-import type {
-  CategoriesConfiguration,
-  FieldsConfiguration,
-  TableConfiguration,
-  Workflow,
-} from "@paperjet/engine/types";
+import type { FieldsConfiguration, TableConfiguration, Workflow } from "@paperjet/engine/types";
 import { AlertCircle, Calendar, FileText, Hash, ToggleLeft, Type } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 
 interface ExecutionResultsByCategoryProps {
   extractionResult: ExtractionResult;
@@ -163,7 +157,7 @@ export function ExecutionResultsByCategory({ extractionResult, workflow }: Execu
                       <CardDescription>{table.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {extractedTable && extractedTable.rows && extractedTable.rows.length > 0 ? (
+                      {extractedTable?.rows && extractedTable.rows.length > 0 ? (
                         <div className="overflow-x-auto">
                           <Table>
                             <TableHeader>
@@ -175,7 +169,7 @@ export function ExecutionResultsByCategory({ extractionResult, workflow }: Execu
                             </TableHeader>
                             <TableBody>
                               {extractedTable.rows.map((row, rowIndex) => (
-                                <TableRow key={rowIndex}>
+                                <TableRow key={`${table.id}-row-${rowIndex}`}>
                                   {table.columns.map((col) => (
                                     <TableCell key={col.id}>{formatValue(row.values[col.name], col.type)}</TableCell>
                                   ))}
