@@ -40,6 +40,7 @@ export default function WorkflowFinalizePage() {
     const [isConfigureSectionsOpen, setIsConfigureSectionsOpen] = useState(false);
     const [isAddFieldSheetOpen, setIsAddFieldSheetOpen] = useState(false);
     const [isAddTableSheetOpen, setIsAddTableSheetOpen] = useState(false);
+    const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
 
     // Fetch document URL when workflow is loaded
     React.useEffect(() => {
@@ -81,10 +82,12 @@ export default function WorkflowFinalizePage() {
 
     const handleAddField = () => {
         setIsAddFieldSheetOpen(true);
+        setIsAddDropdownOpen(false);
     };
 
     const handleAddTable = () => {
         setIsAddTableSheetOpen(true);
+        setIsAddDropdownOpen(false);
     };
 
     const handleReExtract = () => {
@@ -155,7 +158,7 @@ export default function WorkflowFinalizePage() {
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-xl font-semibold">Workflow Configuration</h2>
                                     <div className="flex items-center gap-2">
-                                        <DropdownMenu>
+                                        <DropdownMenu open={isAddDropdownOpen} onOpenChange={setIsAddDropdownOpen}>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="outline" size="sm">
                                                     <Plus className="h-3 w-3 mr-1" />

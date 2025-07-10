@@ -60,7 +60,7 @@ export default function WorkflowTableCard({
                                         <tr key={`${table.slug}-row-${idx}`} className="border-b last:border-0">
                                             {table.columns.map((col) => (
                                                 <td key={col.slug} className="px-2 py-1.5">
-                                                    {String(row.values[col.slug] || "-")}\
+                                                    {String(row.values[col.slug] || "-")}
                                                 </td>
                                             ))}
                                         </tr>

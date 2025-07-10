@@ -161,8 +161,15 @@ export default function EditFieldSheet({
     if (mode === "edit" && !field) return null;
     if (mode === "create" && !categories) return null;
 
+    const handleOpenChange = (open: boolean) => {
+        if (!open) {
+            form.reset();
+            onClose();
+        }
+    };
+
     return (
-        <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Sheet open={isOpen} onOpenChange={handleOpenChange}>
             <SheetContent className="">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
