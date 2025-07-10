@@ -20,7 +20,7 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
     setIsEditSheetOpen(true);
   };
 
-  const handleSaveTable = (updatedTable: (typeof category.tables)[number]) => {
+  const handleSaveTable = (_updatedTable: (typeof category.tables)[number]) => {
     // The EditTableSheet component handles the API call internally
     setIsEditSheetOpen(false);
   };

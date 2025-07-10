@@ -25,7 +25,7 @@ export type CategoriesConfiguration = z.infer<typeof categoriesConfigurationSche
 export const fieldsConfigurationSchema = z.array(
   z.object({
     id: z.string(),
-    name: z.string(),
+    slug: z.string(),
     description: z.string(),
     type: z.enum(["text", "number", "date", "currency", "boolean"]),
     required: z.boolean(),
@@ -42,7 +42,7 @@ export const tableConfigurationSchema = z.array(
     columns: z.array(
       z.object({
         id: z.string(),
-        name: z.string(),
+        slug: z.string(),
         description: z.string(),
         type: z.enum(["text", "number", "date", "currency", "boolean"]),
       }),

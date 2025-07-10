@@ -107,7 +107,7 @@ const categoriesZodSchema = z.object({
       ordinal: z.number(),
       tables: z.array(
         z.object({
-          name: z.string(),
+          slug: z.string(),
           description: z.string(),
         }),
       ),
@@ -171,7 +171,7 @@ Important: Categories should be listed in the order they appear in the document,
 const allFieldsExtractionSchema = z.object({
   fields: z.array(
     z.object({
-      name: z.string(),
+      slug: z.string(),
       description: z.string(),
       type: z.enum(["text", "number", "date", "currency", "boolean"]),
       categoryId: z.string(),
@@ -283,7 +283,7 @@ const singleTableExtractionSchema = z.object({
 async function extractFieldsForTable(
   presignedUrl: string,
   table: {
-    name: string;
+    slug: string;
     description: string;
     categoryName: string;
     categoryId: string;
@@ -291,23 +291,23 @@ async function extractFieldsForTable(
 ) {
   logger.info(
     {
-      tableName: table.name,
+      tableName: table.slug,
     },
     "Starting field extraction for table",
   );
 
-  const prompt = `Extract the column structure and field definitions for the table "${table.name}" in this document.
+  const prompt = `Extract the column structure and field definitions for the table "${table.slug}" in this document.
 
 Table description: ${table.description}
 Category: ${table.categoryName}
 
-Analyze the actual tabular data for "${table.name}" and provide:
+Analyze the actual tabular data for "${table.slug}" and provide:
 - Column definitions with names, types (text, number, date, currency, boolean), and descriptions
 - Focus on the actual fields/columns visible in the table data
 - Ensure column names match what's actually shown in the document
 - Provide detailed descriptions for AI extraction guidance
 
-If the table "${table.name}" is not found or has no actual tabular data in the document, return an empty columns array.`;
+If the table "${table.slug}" is not found or has no actual tabular data in the document, return an empty columns array.`;
 
   const { object } = await generateObject({
     model: aiSdkModel(),
@@ -333,14 +333,16 @@ If the table "${table.name}" is not found or has no actual tabular data in the d
 
   return {
     id: generateId(ID_PREFIXES.table),
-    slug: table.name
+    slug: table.slug
       .toLowerCase()
       .replace(/\s+/g, "_")
       .replace(/[^a-z0-9_]/g, ""),
     description: table.description,
     columns: object.columns.map((column) => ({
       id: generateId(ID_PREFIXES.column),
-      ...column,
+      slug: column.name,
+      type: column.type,
+      description: column.description,
     })),
     categoryId: table.categoryId,
   };

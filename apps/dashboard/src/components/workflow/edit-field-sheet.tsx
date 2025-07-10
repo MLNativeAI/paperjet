@@ -4,17 +4,16 @@ import { toDisplayName, toSlug } from "@paperjet/engine/utils/display-name";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import EditSheetFooter from "@/components/workflow/edit-sheet-footer";
 import { useCreateWorkflowField } from "@/hooks/use-create-workflow-field";
 import { useDeleteWorkflowField } from "@/hooks/use-delete-workflow-field";
 import { useUpdateWorkflowField } from "@/hooks/use-update-workflow-field";
-import EditSheetFooter from "@/components/workflow/edit-sheet-footer";
 
 const baseFieldFormSchema = z.object({
     displayName: z.string().min(1, "Field name is required"),
@@ -72,7 +71,7 @@ export default function EditFieldSheet({
     useEffect(() => {
         if (mode === "edit" && field) {
             form.reset({
-                displayName: toDisplayName(field.name),
+                displayName: toDisplayName(field.slug),
                 description: field.description,
                 type: field.type,
                 required: field.required,
@@ -100,7 +99,7 @@ export default function EditFieldSheet({
                 const result = await createFieldMutation.mutateAsync({
                     workflowId,
                     field: {
-                        name: toSlug(values.displayName),
+                        slug: toSlug(values.displayName),
                         description: values.description,
                         type: values.type,
                         required: values.required,

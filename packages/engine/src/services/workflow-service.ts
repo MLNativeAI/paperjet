@@ -31,7 +31,20 @@ export class WorkflowService {
   constructor(private deps: WorkflowServiceDeps) {}
 
   async #parseWorkflowConfiguration(configuration: string): Promise<WorkflowConfiguration> {
-    const parsedConfig = workflowConfigurationSchema.safeParse(JSON.parse(configuration));
+    const parsed = JSON.parse(configuration);
+
+    // Migration: Convert old 'name' field to 'slug' field for tables
+    if (parsed.tables) {
+      parsed.tables = parsed.tables.map((table: any) => {
+        if (table.name && !table.slug) {
+          // Convert old 'name' field to 'slug'
+          return { ...table, slug: table.name };
+        }
+        return table;
+      });
+    }
+
+    const parsedConfig = workflowConfigurationSchema.safeParse(parsed);
     if (!parsedConfig.success) {
       logger.warn(parsedConfig.error, `Invalid workflow configuration: ${configuration}`);
     }
@@ -85,7 +98,7 @@ export class WorkflowService {
 
     await db.insert(workflow).values({
       id: workflowId,
-      name: workflowName,
+      slug: workflowName,
       description: "",
       categories: "[]",
       configuration: JSON.stringify(emptyConfiguration),
@@ -120,7 +133,7 @@ export class WorkflowService {
     const [workflowData] = await db
       .select({
         workflowId: workflow.id,
-        workflowName: workflow.name,
+        workflowName: workflow.slug,
         fileId: workflow.fileId,
         filename: file.filename,
       })
@@ -151,7 +164,7 @@ export class WorkflowService {
     await db
       .update(workflow)
       .set({
-        name: analysisResult.workflowName,
+        slug: analysisResult.workflowName,
         description: analysisResult.description,
         categories: JSON.stringify(analysisResult.categories),
         configuration: JSON.stringify(configuration),
@@ -274,12 +287,12 @@ export class WorkflowService {
     workflowId: string,
     userId: string,
     updates: {
-      name?: string;
+      slug?: string;
       configuration?: WorkflowConfiguration;
     },
   ) {
     const updateWorkflowSchema = z.object({
-      name: z.string().optional(),
+      slug: z.string().optional(),
       configuration: workflowConfigurationSchema.optional(),
     });
 
@@ -297,8 +310,8 @@ export class WorkflowService {
       updatedAt: new Date(),
     };
 
-    if (validatedData.name) {
-      updateData.name = validatedData.name;
+    if (validatedData.slug) {
+      updateData.slug = validatedData.slug;
       // When a name is provided, update status to active
       updateData.status = "active";
     }
@@ -355,7 +368,7 @@ export class WorkflowService {
     // Use the workflow execution service
     const result = await this.deps.workflowExecutionService.executeWorkflow(
       workflowId,
-      workflowData.name,
+      workflowData.slug,
       config,
       userId,
       uploadedFile,
@@ -475,7 +488,7 @@ export class WorkflowService {
     if (updates.columns) {
       updatedColumns = updates.columns.map((col, idx) => ({
         id: col.id || currentTable.columns[idx]?.id || generateId(ID_PREFIXES.column),
-        name: col.name,
+        slug: col.slug,
         description: col.description,
         type: col.type,
       }));
@@ -556,7 +569,7 @@ export class WorkflowService {
   }
 
   async createWorkflowFromTemplateData(
-    name: string,
+    slug: string,
     description: string,
     configuration: WorkflowConfiguration,
     categories: CategoriesConfiguration,
@@ -567,7 +580,7 @@ export class WorkflowService {
     workflowId: string;
     fileId?: string;
   }> {
-    logger.info(`Creating new workflow from template ${name}`);
+    logger.info(`Creating new workflow from template ${slug}`);
 
     // Handle template file upload
     const fileId = generateId(ID_PREFIXES.file);
@@ -598,7 +611,7 @@ export class WorkflowService {
     // Prepare the new workflow data - skip analysis and go straight to active
     const newWorkflowData = {
       id: workflowId,
-      name: name,
+      slug: slug,
       description: description || "",
       categories: JSON.stringify(categories),
       configuration: JSON.stringify(configuration),

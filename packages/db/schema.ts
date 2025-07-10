@@ -61,7 +61,7 @@ export const verification = pgTable("verification", {
 
 export const workflow = pgTable("workflow", {
   id: text("id").primaryKey(),
-  name: text("name").notNull(),
+  slug: text("slug").notNull(),
   description: text("description").notNull().default(""),
   categories: text("categories").notNull(), // JSON string
   configuration: text("configuration").notNull(), // JSON string

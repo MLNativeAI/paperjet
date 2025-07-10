@@ -1,0 +1,1 @@
+ALTER TABLE "workflow" RENAME COLUMN "name" TO "slug";

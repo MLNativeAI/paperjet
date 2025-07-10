@@ -14,19 +14,19 @@ export class DocumentExtractionService {
     configuration.fields.forEach((field) => {
       switch (field.type) {
         case "number":
-          fieldSchemas[field.name] = z.number().nullable();
+          fieldSchemas[field.slug] = z.number().nullable();
           break;
         case "date":
-          fieldSchemas[field.name] = z.string().nullable(); // Date as ISO string
+          fieldSchemas[field.slug] = z.string().nullable(); // Date as ISO string
           break;
         case "currency":
-          fieldSchemas[field.name] = z.number().nullable(); // Currency as number
+          fieldSchemas[field.slug] = z.number().nullable(); // Currency as number
           break;
         case "boolean":
-          fieldSchemas[field.name] = z.boolean().nullable();
+          fieldSchemas[field.slug] = z.boolean().nullable();
           break;
         default:
-          fieldSchemas[field.name] = z.string().nullable();
+          fieldSchemas[field.slug] = z.string().nullable();
       }
     });
 
@@ -36,19 +36,19 @@ export class DocumentExtractionService {
       table.columns.forEach((col) => {
         switch (col.type) {
           case "number":
-            columnSchemas[col.name] = z.number().nullable();
+            columnSchemas[col.slug] = z.number().nullable();
             break;
           case "date":
-            columnSchemas[col.name] = z.string().nullable();
+            columnSchemas[col.slug] = z.string().nullable();
             break;
           case "currency":
-            columnSchemas[col.name] = z.number().nullable();
+            columnSchemas[col.slug] = z.number().nullable();
             break;
           case "boolean":
-            columnSchemas[col.name] = z.boolean().nullable();
+            columnSchemas[col.slug] = z.boolean().nullable();
             break;
           default:
-            columnSchemas[col.name] = z.string().nullable();
+            columnSchemas[col.slug] = z.string().nullable();
         }
       });
       tableSchemas[table.slug] = z.array(z.object(columnSchemas));
@@ -58,13 +58,13 @@ export class DocumentExtractionService {
 
     // Build extraction prompt with field descriptions
     const fieldDescriptions = configuration.fields
-      .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
+      .map((field) => `- ${field.slug} (${field.type}): ${field.description}`)
       .join("\n");
 
     const tableDescriptions = configuration.tables
       .map((table) => {
         const columnDescs = table.columns
-          .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
+          .map((col) => `    - ${col.slug} (${col.type}): ${col.description}`)
           .join("\n");
         return `- ${table.slug}: ${table.description}\n${columnDescs}`;
       })
@@ -108,8 +108,8 @@ Instructions:
     // Transform the result to match our extraction result schema
     const extractionResult: ExtractionResult = {
       fields: configuration.fields.map((field) => ({
-        fieldName: field.name,
-        value: (object as any)[field.name],
+        fieldName: field.slug,
+        value: (object as any)[field.slug],
       })),
       tables: configuration.tables.map((table) => ({
         tableName: table.slug,
@@ -149,19 +149,19 @@ Instructions:
     config.fields.forEach((field) => {
       switch (field.type) {
         case "number":
-          fieldSchemas[field.name] = z.number().nullable();
+          fieldSchemas[field.slug] = z.number().nullable();
           break;
         case "date":
-          fieldSchemas[field.name] = z.string().nullable();
+          fieldSchemas[field.slug] = z.string().nullable();
           break;
         case "currency":
-          fieldSchemas[field.name] = z.number().nullable();
+          fieldSchemas[field.slug] = z.number().nullable();
           break;
         case "boolean":
-          fieldSchemas[field.name] = z.boolean().nullable();
+          fieldSchemas[field.slug] = z.boolean().nullable();
           break;
         default:
-          fieldSchemas[field.name] = z.string().nullable();
+          fieldSchemas[field.slug] = z.string().nullable();
       }
     });
 
@@ -171,19 +171,19 @@ Instructions:
       table.columns.forEach((col) => {
         switch (col.type) {
           case "number":
-            columnSchemas[col.name] = z.number().nullable();
+            columnSchemas[col.slug] = z.number().nullable();
             break;
           case "date":
-            columnSchemas[col.name] = z.string().nullable();
+            columnSchemas[col.slug] = z.string().nullable();
             break;
           case "currency":
-            columnSchemas[col.name] = z.number().nullable();
+            columnSchemas[col.slug] = z.number().nullable();
             break;
           case "boolean":
-            columnSchemas[col.name] = z.boolean().nullable();
+            columnSchemas[col.slug] = z.boolean().nullable();
             break;
           default:
-            columnSchemas[col.name] = z.string().nullable();
+            columnSchemas[col.slug] = z.string().nullable();
         }
       });
       tableSchemas[table.slug] = z.array(z.object(columnSchemas));
@@ -192,13 +192,13 @@ Instructions:
     const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
 
     const fieldDescriptions = config.fields
-      .map((field) => `- ${field.name} (${field.type}): ${field.description}`)
+      .map((field) => `- ${field.slug} (${field.type}): ${field.description}`)
       .join("\n");
 
     const tableDescriptions = config.tables
       .map((table) => {
         const columnDescs = table.columns
-          .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
+          .map((col) => `    - ${col.slug} (${col.type}): ${col.description}`)
           .join("\n");
         return `- ${table.slug}: ${table.description}\n${columnDescs}`;
       })
@@ -243,8 +243,8 @@ Instructions:
     // Transform result to match our extraction result schema
     const result: ExtractionResult = {
       fields: config.fields.map((field) => ({
-        fieldName: field.name,
-        value: (object as any)[field.name],
+        fieldName: field.slug,
+        value: (object as any)[field.slug],
       })),
       tables: config.tables.map((table) => ({
         tableName: table.slug,
@@ -254,17 +254,7 @@ Instructions:
       })),
     };
 
-    logger.info(
-      {
-        extractedFieldsCount: result.fields.length,
-        extractedTablesCount: result.tables.length,
-        fieldsExtracted: result.fields.map((f) => ({
-          name: f.fieldName,
-          hasValue: f.value !== null,
-        })),
-      },
-      "Workflow execution file processing completed",
-    );
+    logger.info("Workflow execution file processing completed");
 
     return result;
   }
