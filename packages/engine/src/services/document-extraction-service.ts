@@ -4,9 +4,10 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { aiSdkModel } from "../lib/model";
 import type { ExtractionResult, WorkflowConfiguration } from "../types";
+import { trackUsage } from "../lib/usage";
 
 export class DocumentExtractionService {
-  async extractDataFromDocument(presignedUrl: string, configuration: WorkflowConfiguration): Promise<ExtractionResult> {
+  async extractDataFromDocument(presignedUrl: string, workflowId: string, userId: string, configuration: WorkflowConfiguration): Promise<ExtractionResult> {
     logger.info("Starting data extraction from document");
     // Build dynamic schema object based on provided fields and tables
     // TODO: for now, we will not extract fields per category, we will add that later
@@ -85,7 +86,7 @@ Instructions:
 - If a field is not found or unclear, return null
 - For tables, extract all rows found
 - Maintain data accuracy and completeness`;
-    const { object } = await generateObject({
+    const { object, usage } = await generateObject({
       model: aiSdkModel(),
       schema: schemaObj,
       messages: [
@@ -104,6 +105,8 @@ Instructions:
         },
       ],
     });
+
+    await trackUsage("document-extraction", aiSdkModel().modelId, usage, { userId, workflowId });
 
     // Transform the result to match our extraction result schema
     const extractionResult: ExtractionResult = {
@@ -126,6 +129,8 @@ Instructions:
 
   async processExecutionFile(
     presignedUrl: string,
+    workflowId: string,
+    userId: string,
     config: WorkflowConfiguration,
     metadata?: Record<string, unknown>,
   ): Promise<ExtractionResult> {
@@ -220,7 +225,7 @@ Instructions:
 - For tables, extract all rows found
 - Maintain data accuracy and completeness`;
 
-    const { object } = await generateObject({
+    const { object, usage } = await generateObject({
       model,
       schema: schemaObj,
       messages: [
@@ -239,6 +244,8 @@ Instructions:
         },
       ],
     });
+
+    await trackUsage(userId, workflowId, "document-extraction", aiSdkModel().modelId, usage);
 
     // Transform result to match our extraction result schema
     const result: ExtractionResult = {

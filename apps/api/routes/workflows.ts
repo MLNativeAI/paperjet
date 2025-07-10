@@ -1,10 +1,9 @@
 import { zValidator } from "@hono/zod-validator";
-import type { CategoriesConfiguration, ExtractionResult, WorkflowConfiguration } from "@paperjet/engine";
+import { WorkflowService, type CategoriesConfiguration, type ExtractionResult, type WorkflowConfiguration } from "@paperjet/engine";
 import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
-import { workflowService } from "@/lib/services";
 import { fileIdSchema, workflowIdSchema } from "@/lib/validation";
 
 const app = new Hono();
@@ -103,6 +102,7 @@ const router = app
     .get("/", async (c) => {
         try {
             const user = await getUser(c);
+            const workflowService = new WorkflowService()
             const workflows = await workflowService.getWorkflows(user.id);
             return c.json(workflows);
         } catch (error) {

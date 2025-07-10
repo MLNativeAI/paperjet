@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const file = pgTable("file", {
   id: text("id").primaryKey(),
@@ -95,4 +95,30 @@ export const workflowExecution = pgTable("workflow_execution", {
   ownerId: text("owner_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+});
+
+
+export const modelPrice = pgTable("model_price", {
+  id: text("id").primaryKey(),
+  model: text("model").notNull(),
+  price: numeric("price").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+
+export const usageData = pgTable("usage_data", {
+  id: text("id").primaryKey(),
+  idReference: text("id_reference").notNull(),
+  name: text("name").notNull(),
+  userId: text("user_id").notNull(),
+  model: text("model").notNull(),
+  inputTokens: integer("input_tokens"),
+  inputCost: numeric("input_cost"),
+  outputTokens: integer("output_tokens"),
+  outputCost: numeric("output_cost"),
+  totalTokens: integer("total_tokens"),
+  totalCost: numeric("total_cost", { precision: 10, scale: 4 }),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });

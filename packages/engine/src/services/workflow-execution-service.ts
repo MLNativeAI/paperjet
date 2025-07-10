@@ -73,7 +73,7 @@ export class WorkflowExecutionService {
     // Extract data using extraction service
     logger.info({ executionId, workflowId }, "Starting data extraction for workflow execution");
     const presignedUrl = await this.deps.s3.presign(filename);
-    const extractionResult = await this.deps.extractionService.processExecutionFile(presignedUrl, config, {
+    const extractionResult = await this.deps.extractionService.processExecutionFile(presignedUrl, workflowId, userId, config, {
       executionId,
       workflowId,
       userId,

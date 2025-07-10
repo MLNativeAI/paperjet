@@ -4,6 +4,7 @@ import { z } from "zod";
 import { aiSdkModel } from "../lib/model";
 import type { CategoriesConfiguration, FieldsConfiguration, TableConfiguration } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
+import { trackUsage } from "../lib/usage";
 
 export type AnalysisResult = {
   workflowName: string;
@@ -13,11 +14,11 @@ export type AnalysisResult = {
   tables: TableConfiguration;
 };
 
-export async function performCompleteAnalysis(presignedUrl: string): Promise<AnalysisResult> {
+export async function performCompleteAnalysis(presignedUrl: string, workflowId: string, userId: string): Promise<AnalysisResult> {
   logger.info({ presignedUrl }, "Starting complete document analysis");
   // Step 1: Analyze document type and identify categories/tables
   const [documentTypeAnalysis, categoriesAndTables] = await Promise.all([
-    analyzeDocumentType(presignedUrl),
+    analyzeDocumentType(presignedUrl, workflowId, userId),
     identifyCategoriesAndTables(presignedUrl),
   ]);
 
@@ -66,7 +67,7 @@ const documentTypeSchema = z.object({
   description: z.string(),
 });
 
-async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof documentTypeSchema>> {
+async function analyzeDocumentType(presignedUrl: string, workflowId: string, userId: string): Promise<z.infer<typeof documentTypeSchema>> {
   logger.info({ presignedUrl }, "Starting document type analysis");
 
   const prompt = `You're a document analysis expert. Analyze this document and provide:
@@ -76,7 +77,7 @@ async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof
         Example: "Extracts invoice details, vendor information, billing information, line items and payment terms"
         3. A workflow name for the document type ex. Invoice processor
         `;
-  const { object } = await generateObject({
+  const { object, usage } = await generateObject({
     model: aiSdkModel(),
     schema: documentTypeSchema,
     messages: [
@@ -95,6 +96,8 @@ async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof
       },
     ],
   });
+
+  await trackUsage("document-analysis", aiSdkModel().modelId, usage, { userId, workflowId });
 
   return object;
 }

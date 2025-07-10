@@ -153,7 +153,7 @@ export class WorkflowService {
     const presignedUrl = await this.deps.s3.presign(workflowData.filename);
 
     // Use the document analysis service to perform complete analysis
-    const analysisResult = await performCompleteAnalysis(presignedUrl);
+    const analysisResult = await performCompleteAnalysis(presignedUrl, workflowId, userId);
 
     // Update workflow configuration with analysis results and set status to extracting
     const configuration: WorkflowConfiguration = {
@@ -198,6 +198,8 @@ export class WorkflowService {
     // Use the document extraction service
     const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(
       presignedUrl,
+      workflowId,
+      userId,
       configuration,
     );
 
