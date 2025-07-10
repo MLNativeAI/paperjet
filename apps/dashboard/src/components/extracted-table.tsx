@@ -1,9 +1,9 @@
-import type { ExtractionResult, ExtractionTable } from "@paperjet/db/types";
+import type { ExtractionResult, TableConfiguration } from "@paperjet/engine/types";
 import { toDisplayName } from "@paperjet/engine/utils/display-name";
 import { Badge } from "@/components/ui/badge";
 
 interface ExtractedTableProps {
-  table: ExtractionTable;
+  table: TableConfiguration[number];
   tableIndex: number;
   extractionResult: ExtractionResult | null;
 }
@@ -26,7 +26,7 @@ const formatValue = (value: unknown, type: string) => {
 };
 
 export function ExtractedTable({ table, tableIndex, extractionResult }: ExtractedTableProps) {
-  const extractedTable = extractionResult?.tables?.find((t) => t.tableName === table.slug);
+  const extractedTable = extractionResult?.tables?.find((t) => t.slug === table.slug);
 
   return (
     <div key={`table-${table.slug}-${tableIndex}`} className="border rounded-lg p-4">
@@ -41,8 +41,8 @@ export function ExtractedTable({ table, tableIndex, extractionResult }: Extracte
             <thead>
               <tr className="bg-muted">
                 {table.columns.map((column) => (
-                  <th key={column.name} className="border border-gray-200 px-3 py-2 text-left font-medium">
-                    {column.name}
+                  <th key={column.slug} className="border border-gray-200 px-3 py-2 text-left font-medium">
+                    {toDisplayName(column.slug)}
                     <Badge variant="outline" className="ml-1 text-xs">
                       {column.type}
                     </Badge>
@@ -52,10 +52,10 @@ export function ExtractedTable({ table, tableIndex, extractionResult }: Extracte
             </thead>
             <tbody>
               {extractedTable.rows.map((row, rowIndex) => (
-                <tr key={`${table.name}-row-${rowIndex}`} className="hover:bg-muted/50">
+                <tr key={`${table.slug}-row-${rowIndex}`} className="hover:bg-muted/50">
                   {table.columns.map((column) => (
-                    <td key={column.name} className="border border-gray-200 px-3 py-2">
-                      {formatValue(row.values[column.name], column.type)}
+                    <td key={column.slug} className="border border-gray-200 px-3 py-2">
+                      {formatValue(row[column.slug], column.type)}
                     </td>
                   ))}
                 </tr>

@@ -1,4 +1,5 @@
-import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
+import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/engine/types";
+import { toDisplayName } from "@paperjet/engine/utils/display-name";
 import { FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -91,23 +92,23 @@ export function CategorizedExtractionResults({ extractionResult }: CategorizedEx
           <CardContent>
             <div className="space-y-6">
               {extractionResult.tables.map((table: ExtractedTable, tableIndex: number) => (
-                <div key={`table-${table.tableName}-${tableIndex}`} className="space-y-2">
-                  <h4 className="font-medium">{table.tableName}</h4>
+                <div key={`table-${table.slug}-${tableIndex}`} className="space-y-2">
+                  <h4 className="font-medium">{toDisplayName(table.slug)}</h4>
                   {table.rows && table.rows.length > 0 ? (
                     <div className="overflow-x-auto">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            {Object.keys(table.rows[0].values).map((columnName: string) => (
+                            {Object.keys(table.rows[0]).map((columnName: string) => (
                               <TableHead key={columnName}>{columnName}</TableHead>
                             ))}
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {table.rows.map((row: any, rowIndex: number) => (
-                            <TableRow key={`${table.tableName}-row-${rowIndex}`}>
-                              {Object.entries(row.values).map(([columnName, value]: [string, any]) => (
-                                <TableCell key={`${table.tableName}-${columnName}-${rowIndex}`}>
+                            <TableRow key={`${table.slug}-row-${rowIndex}`}>
+                              {Object.entries(row).map(([columnName, value]: [string, any]) => (
+                                <TableCell key={`${table.slug}-${columnName}-${rowIndex}`}>
                                   {formatValue(value, "text")}
                                 </TableCell>
                               ))}

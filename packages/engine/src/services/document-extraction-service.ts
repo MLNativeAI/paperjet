@@ -112,7 +112,7 @@ Instructions:
         value: (object as any)[field.slug],
       })),
       tables: configuration.tables.map((table) => ({
-        tableName: table.slug,
+        slug: table.slug,
         rows: ((object as any)[table.slug] || []).map((row: any) => ({
           values: row,
         })),
@@ -247,7 +247,7 @@ Instructions:
         value: (object as any)[field.slug],
       })),
       tables: config.tables.map((table) => ({
-        tableName: table.slug,
+        slug: table.slug,
         rows: ((object as any)[table.slug] || []).map((row: any) => ({
           values: row,
         })),

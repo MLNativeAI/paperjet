@@ -1,4 +1,5 @@
-import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
+import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/engine/types";
+import { toDisplayName } from "@paperjet/engine/utils/display-name";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface WorkflowExtractionResultsProps {
@@ -42,9 +43,9 @@ export function WorkflowExtractionResults({ result }: WorkflowExtractionResultsP
             <h4 className="font-medium mb-2">Extracted Tables</h4>
             <div className="space-y-4">
               {tables.map((table: ExtractedTable, tableIndex: number) => (
-                <div key={`table-${table.tableName || `table-${tableIndex}`}`} className="border rounded-lg">
+                <div key={`table-${table.slug || `table-${tableIndex}`}`} className="border rounded-lg">
                   <div className="p-3 border-b bg-muted/50">
-                    <h5 className="font-medium">{table.tableName}</h5>
+                    <h5 className="font-medium">{toDisplayName(table.slug)}</h5>
                     <p className="text-sm text-muted-foreground">{table.rows?.length || 0} rows</p>
                   </div>
                   {table.rows && table.rows.length > 0 && (
@@ -67,7 +68,7 @@ export function WorkflowExtractionResults({ result }: WorkflowExtractionResultsP
                               },
                               rowIndex: number,
                             ) => (
-                              <TableRow key={`${table.tableName || `table-${tableIndex}`}-row-${rowIndex}`}>
+                              <TableRow key={`${table.slug || `table-${tableIndex}`}-row-${rowIndex}`}>
                                 {Object.entries(row.values || row).map(
                                   ([key, value]: [string, string | number | boolean | Date | null]) => (
                                     <TableCell key={key} className="text-xs">

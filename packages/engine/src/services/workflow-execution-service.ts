@@ -122,7 +122,7 @@ export class WorkflowExecutionService {
         completedAt: workflowExecution.completedAt,
         createdAt: workflowExecution.createdAt,
         filename: file.filename,
-        workflowName: workflow.name,
+        workflowName: workflow.slug,
         categories: workflow.categories,
       })
       .from(workflowExecution)
@@ -155,7 +155,7 @@ export class WorkflowExecutionService {
         completedAt: workflowExecution.completedAt,
         createdAt: workflowExecution.createdAt,
         filename: file.filename,
-        workflowName: workflow.name,
+        workflowName: workflow.slug,
         categories: workflow.categories,
       })
       .from(workflowExecution)
@@ -189,7 +189,7 @@ export class WorkflowExecutionService {
         completedAt: workflowExecution.completedAt,
         createdAt: workflowExecution.createdAt,
         filename: file.filename,
-        workflowName: workflow.name,
+        workflowName: workflow.slug,
         categories: workflow.categories,
       })
       .from(workflowExecution)

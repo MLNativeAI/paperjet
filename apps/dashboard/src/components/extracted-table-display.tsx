@@ -37,7 +37,7 @@ export function ExtractedTableDisplay({ tables, extractionResult }: ExtractedTab
       <CardContent>
         <div className="space-y-6">
           {tables.map((table) => {
-            const extractedTable = extractionResult.tables.find((t) => t.tableName === table.slug);
+            const extractedTable = extractionResult.tables.find((t) => t.slug === table.slug);
             return (
               <div key={table.slug} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">

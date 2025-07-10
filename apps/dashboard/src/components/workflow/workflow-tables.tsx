@@ -11,7 +11,7 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
   // Get sample data for tables
   const getTableSampleData = (tableSlug: string) => {
     if (!workflow.sampleData?.tables) return null;
-    const sampleTable = workflow.sampleData.tables.find((t) => t.tableName === tableSlug);
+    const sampleTable = workflow.sampleData.tables.find((t) => t.slug === tableSlug);
     return sampleTable;
   };
 

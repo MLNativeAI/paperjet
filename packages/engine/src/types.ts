@@ -76,12 +76,13 @@ export const extractedValueSchema = z.object({
   value: z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
 });
 
-export const extractedTableRowSchema = z.object({
-  values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable()),
-});
+export const extractedTableRowSchema = z.record(
+  z.string(),
+  z.union([z.string(), z.number(), z.boolean(), z.date()]).nullable(),
+);
 
 export const extractedTableSchema = z.object({
-  tableName: z.string(),
+  slug: z.string(),
   rows: z.array(extractedTableRowSchema),
 });
 

@@ -1,6 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import type { WorkflowConfiguration } from "@paperjet/engine";
-import type { CategoriesConfiguration, ExtractionResult } from "@paperjet/engine/src/types";
+import type { CategoriesConfiguration, ExtractionResult, WorkflowConfiguration } from "@paperjet/engine";
 import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -364,7 +363,7 @@ const router = app
         zValidator(
             "json",
             z.object({
-                name: z.string().min(1),
+                slug: z.string().min(1),
                 description: z.string(),
                 type: z.enum(["text", "number", "date", "currency", "boolean"]),
                 required: z.boolean(),
