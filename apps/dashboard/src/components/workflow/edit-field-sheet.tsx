@@ -116,7 +116,7 @@ export default function EditFieldSheet({
 
                 // Only send the changed fields
                 const updates: any = {};
-                if (newSlug !== field.name) updates.name = newSlug;
+                if (newSlug !== field.slug) updates.slug = newSlug;
                 if (values.description !== field.description) updates.description = values.description;
                 if (values.type !== field.type) updates.type = values.type;
                 if (values.required !== field.required) updates.required = values.required;
@@ -143,7 +143,7 @@ export default function EditFieldSheet({
 
     const handleDelete = async () => {
         if (mode === "edit" && field) {
-            if (confirm(`Are you sure you want to delete the field "${field.name}"?`)) {
+            if (confirm(`Are you sure you want to delete the field "${field.slug}"?`)) {
                 try {
                     await deleteFieldMutation.mutateAsync({
                         workflowId,

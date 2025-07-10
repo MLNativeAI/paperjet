@@ -246,7 +246,7 @@ export class WorkflowService {
     };
   }
 
-  async getWorkflows(userId: string) {
+  async getWorkflows(userId: string): Promise<Workflow[]> {
     const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
 
     const result = await Promise.all(
@@ -561,6 +561,59 @@ export class WorkflowService {
     const updatedConfiguration: WorkflowConfiguration = {
       ...workflowData.configuration,
       fields: workflowData.configuration.fields.filter((f) => f.id !== fieldId),
+    };
+
+    await this.updateWorkflow(workflowId, userId, {
+      configuration: updatedConfiguration,
+    });
+  }
+
+  async createWorkflowTable(
+    workflowId: string,
+    userId: string,
+    table: Omit<z.infer<typeof workflowConfigurationSchema.shape.tables.element>, "id" | "lastModified">,
+  ) {
+    // Get the workflow
+    const workflowData = await this.getWorkflow(workflowId, userId);
+
+    // Create new table with generated ID
+    const newTable = {
+      ...table,
+      id: generateId(ID_PREFIXES.table),
+      lastModified: new Date().toISOString(),
+      columns: table.columns.map((col) => ({
+        ...col,
+        id: generateId(ID_PREFIXES.column),
+      })),
+    };
+
+    // Update the configuration
+    const updatedConfiguration: WorkflowConfiguration = {
+      ...workflowData.configuration,
+      tables: [...workflowData.configuration.tables, newTable],
+    };
+
+    await this.updateWorkflow(workflowId, userId, {
+      configuration: updatedConfiguration,
+    });
+
+    return newTable;
+  }
+
+  async deleteWorkflowTable(workflowId: string, tableId: string, userId: string) {
+    // Get the workflow
+    const workflowData = await this.getWorkflow(workflowId, userId);
+
+    // Find the table
+    const tableIndex = workflowData.configuration.tables.findIndex((t) => t.id === tableId);
+    if (tableIndex === -1) {
+      throw new Error("Table not found");
+    }
+
+    // Update the configuration by removing the table
+    const updatedConfiguration: WorkflowConfiguration = {
+      ...workflowData.configuration,
+      tables: workflowData.configuration.tables.filter((t) => t.id !== tableId),
     };
 
     await this.updateWorkflow(workflowId, userId, {

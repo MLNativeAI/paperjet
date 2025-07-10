@@ -307,6 +307,32 @@ export const reExtractWorkflowData = async (workflowId: string) => {
 };
 
 // Table API functions
+export const createWorkflowTable = async (
+    workflowId: string,
+    table: {
+        slug: string;
+        description: string;
+        categoryId: string;
+        columns: Array<{
+            slug: string;
+            description: string;
+            type: "text" | "number" | "date" | "currency" | "boolean";
+        }>;
+    },
+) => {
+    const response = await api.workflows[":id"].tables.$post({
+        param: { id: workflowId },
+        json: table,
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create table");
+    }
+
+    return response.json();
+};
+
 export const updateWorkflowTable = async (
     workflowId: string,
     tableId: string,
@@ -330,6 +356,19 @@ export const updateWorkflowTable = async (
     if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || "Failed to update table");
+    }
+
+    return response.json();
+};
+
+export const deleteWorkflowTable = async (workflowId: string, tableId: string) => {
+    const response = await api.workflows[":id"].tables[":tableId"].$delete({
+        param: { id: workflowId, tableId },
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to delete table");
     }
 
     return response.json();

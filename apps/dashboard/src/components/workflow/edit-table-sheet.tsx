@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import EditSheetFooter from "@/components/workflow/edit-sheet-footer";
+import { useCreateWorkflowTable } from "@/hooks/use-create-workflow-table";
+import { useDeleteWorkflowTable } from "@/hooks/use-delete-workflow-table";
 import { useUpdateWorkflowTable } from "@/hooks/use-update-workflow-table";
 
 const columnSchema = z.object({
@@ -21,13 +23,21 @@ const columnSchema = z.object({
   type: z.enum(["text", "number", "date", "currency", "boolean"]),
 });
 
-const editTableFormSchema = z.object({
+const baseTableFormSchema = z.object({
   displayName: z.string().min(1, "Table name is required"),
   description: z.string().min(1, "Description is required"),
   columns: z.array(columnSchema).min(1, "At least one column is required"),
+});
+
+const createTableFormSchema = baseTableFormSchema.extend({
+  categoryId: z.string().min(1, "Category is required"),
+});
+
+const editTableFormSchema = baseTableFormSchema.extend({
   categoryId: z.string().optional(),
 });
 
+type CreateTableFormValues = z.infer<typeof createTableFormSchema>;
 type EditTableFormValues = z.infer<typeof editTableFormSchema>;
 
 interface EditTableSheetProps {
@@ -49,14 +59,17 @@ export default function EditTableSheet({
   mode = "edit",
   categories,
 }: EditTableSheetProps) {
+  const createTableMutation = useCreateWorkflowTable();
   const updateTableMutation = useUpdateWorkflowTable();
+  const deleteTableMutation = useDeleteWorkflowTable();
 
-  const form = useForm<EditTableFormValues>({
-    resolver: zodResolver(editTableFormSchema),
+  const form = useForm<EditTableFormValues | CreateTableFormValues>({
+    resolver: zodResolver(mode === "create" ? createTableFormSchema : editTableFormSchema),
     defaultValues: {
       displayName: "",
       description: "",
       columns: [{ displayName: "", description: "", type: "text" }],
+      categoryId: "",
     },
   });
 
@@ -73,7 +86,7 @@ export default function EditTableSheet({
         description: table.description,
         columns: table.columns.map((col) => ({
           id: col.id,
-          displayName: toDisplayName(col.name),
+          displayName: toDisplayName(col.slug),
           description: col.description,
           type: col.type,
         })),
@@ -88,18 +101,31 @@ export default function EditTableSheet({
     }
   }, [table, form, mode]);
 
-  const onSubmit = async (values: EditTableFormValues) => {
+  const onSubmit = async (values: EditTableFormValues | CreateTableFormValues) => {
     try {
       if (mode === "create") {
-        // TODO: Implement table creation when API endpoint is available
-        alert(`Table creation is not yet implemented at the API level. 
-        
-Would create table:
-- Name: ${values.displayName} (slug: ${toSlug(values.displayName)})
-- Description: ${values.description}
-- Columns: ${values.columns.length} columns
+        if (!("categoryId" in values) || !values.categoryId) {
+          console.error("Category ID is required for creating a table");
+          return;
+        }
 
-Please implement the POST /:id/tables API endpoint and createWorkflowTable service method.`);
+        const result = await createTableMutation.mutateAsync({
+          workflowId,
+          table: {
+            slug: toSlug(values.displayName),
+            description: values.description,
+            categoryId: values.categoryId,
+            columns: values.columns.map((col) => ({
+              slug: toSlug(col.displayName),
+              description: col.description,
+              type: col.type,
+            })),
+          },
+        });
+
+        if (result?.table) {
+          onSave?.(result.table);
+        }
 
         onClose();
         form.reset();
@@ -122,7 +148,7 @@ Please implement the POST /:id/tables API endpoint and createWorkflowTable servi
             const originalCol = table.columns[idx];
             return (
               !originalCol ||
-              toSlug(col.displayName) !== originalCol.name ||
+              toSlug(col.displayName) !== originalCol.slug ||
               col.description !== originalCol.description ||
               col.type !== originalCol.type
             );
@@ -131,7 +157,7 @@ Please implement the POST /:id/tables API endpoint and createWorkflowTable servi
         if (columnsChanged) {
           updates.columns = values.columns.map((col) => ({
             id: col.id,
-            name: toSlug(col.displayName),
+            slug: toSlug(col.displayName),
             description: col.description,
             type: col.type,
           }));
@@ -161,10 +187,34 @@ Please implement the POST /:id/tables API endpoint and createWorkflowTable servi
     append({ displayName: "", description: "", type: "text" });
   };
 
+  const handleDelete = async () => {
+    if (mode === "edit" && table) {
+      if (confirm(`Are you sure you want to delete the table "${table.slug}"?`)) {
+        try {
+          await deleteTableMutation.mutateAsync({
+            workflowId,
+            tableId: table.id,
+          });
+          onClose();
+          form.reset();
+        } catch (_error) {
+          // Error is handled by the mutation hook
+        }
+      }
+    }
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      form.reset();
+      onClose();
+    }
+  };
+
   if (mode === "edit" && !table) return null;
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent className="sm:max-w-xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -337,9 +387,11 @@ Please implement the POST /:id/tables API endpoint and createWorkflowTable servi
 
             <EditSheetFooter
               mode={mode}
-              isSubmitting={updateTableMutation.isPending}
-              onDelete={mode === "edit" ? () => console.log("delete") : undefined}
-              isDeleting={false}
+              isSubmitting={
+                mode === "create" ? createTableMutation.isPending : updateTableMutation.isPending
+              }
+              onDelete={mode === "edit" ? handleDelete : undefined}
+              isDeleting={deleteTableMutation.isPending}
               submitLabel={{
                 create: "Create table",
                 edit: "Save changes",

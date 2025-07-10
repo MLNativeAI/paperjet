@@ -417,6 +417,72 @@ const router = app
             }
             return c.json({ error: "Failed to delete field" }, 500);
         }
+    })
+    .post(
+        "/:id/tables",
+        zValidator("param", paramIdSchema),
+        zValidator(
+            "json",
+            z.object({
+                slug: z.string().min(1),
+                description: z.string(),
+                categoryId: z.string(),
+                columns: z.array(
+                    z.object({
+                        slug: z.string().min(1),
+                        description: z.string(),
+                        type: z.enum(["text", "number", "date", "currency", "boolean"]),
+                    })
+                ),
+            })
+        ),
+        async (c) => {
+            try {
+                const user = await getUser(c);
+                const { id: workflowId } = c.req.valid("param");
+                const tableData = c.req.valid("json");
+
+                const newTable = await workflowService.createWorkflowTable(workflowId, user.id, tableData);
+
+                return c.json({ table: newTable, message: "Table created successfully" }, 201);
+            } catch (error) {
+                logger.error(error, "Create workflow table error:");
+                if (error instanceof z.ZodError) {
+                    return c.json(
+                        {
+                            error: "Invalid table data",
+                            details: error.errors.map((e) => ({
+                                field: e.path.join("."),
+                                message: e.message,
+                            })),
+                        },
+                        400
+                    );
+                }
+                if (error instanceof Error && error.message === "Workflow not found") {
+                    return c.json({ error: "Workflow not found" }, 404);
+                }
+                return c.json({ error: "Failed to create table" }, 500);
+            }
+        }
+    )
+    .delete("/:id/tables/:tableId", zValidator("param", tableParamSchema), async (c) => {
+        try {
+            const user = await getUser(c);
+            const { id: workflowId, tableId } = c.req.valid("param");
+
+            await workflowService.deleteWorkflowTable(workflowId, tableId, user.id);
+
+            return c.json({ message: "Table deleted successfully" });
+        } catch (error) {
+            logger.error(error, "Delete workflow table error:");
+            if (error instanceof Error) {
+                if (error.message === "Workflow not found" || error.message === "Table not found") {
+                    return c.json({ error: error.message }, 404);
+                }
+            }
+            return c.json({ error: "Failed to delete table" }, 500);
+        }
     });
 
 export default router;
