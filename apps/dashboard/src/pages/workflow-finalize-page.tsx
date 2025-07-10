@@ -18,6 +18,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import BasicWorkflowDataForm, { type BasicWorkflowDataFormRef } from "@/components/workflow/basic-workflow-data-form";
 import ConfigureSectionsSheet from "@/components/workflow/configure-sections-sheet";
 import EditFieldSheet from "@/components/workflow/edit-field-sheet";
+import EditTableSheet from "@/components/workflow/edit-table-sheet";
 import WorkflowCategories from "@/components/workflow/workflow-categories";
 import { useReExtractData } from "@/hooks/use-re-extract-data";
 import { useUpdateWorkflowBasicData } from "@/hooks/use-update-workflow-basic-data";
@@ -38,6 +39,7 @@ export default function WorkflowFinalizePage() {
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   const [isConfigureSectionsOpen, setIsConfigureSectionsOpen] = useState(false);
   const [isAddFieldSheetOpen, setIsAddFieldSheetOpen] = useState(false);
+  const [isAddTableSheetOpen, setIsAddTableSheetOpen] = useState(false);
 
   // Fetch document URL when workflow is loaded
   React.useEffect(() => {
@@ -82,8 +84,7 @@ export default function WorkflowFinalizePage() {
   };
 
   const handleAddTable = () => {
-    // TODO: Implement add table functionality
-    console.log("Add table clicked");
+    setIsAddTableSheetOpen(true);
   };
 
   const handleReExtract = () => {
@@ -230,6 +231,18 @@ export default function WorkflowFinalizePage() {
           workflowId={workflow.id}
           isOpen={isAddFieldSheetOpen}
           onClose={() => setIsAddFieldSheetOpen(false)}
+          mode="create"
+          categories={workflow.categories}
+        />
+      )}
+
+      {/* Add Table Sheet */}
+      {workflow && (
+        <EditTableSheet
+          table={null}
+          workflowId={workflow.id}
+          isOpen={isAddTableSheetOpen}
+          onClose={() => setIsAddTableSheetOpen(false)}
           mode="create"
           categories={workflow.categories}
         />

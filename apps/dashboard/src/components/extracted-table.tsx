@@ -1,4 +1,5 @@
 import type { ExtractionResult, ExtractionTable } from "@paperjet/db/types";
+import { toDisplayName } from "@paperjet/engine/utils/display-name";
 import { Badge } from "@/components/ui/badge";
 
 interface ExtractedTableProps {
@@ -25,12 +26,12 @@ const formatValue = (value: unknown, type: string) => {
 };
 
 export function ExtractedTable({ table, tableIndex, extractionResult }: ExtractedTableProps) {
-  const extractedTable = extractionResult?.tables?.find((t) => t.tableName === table.name);
+  const extractedTable = extractionResult?.tables?.find((t) => t.tableName === table.slug);
 
   return (
-    <div key={`table-${table.name}-${tableIndex}`} className="border rounded-lg p-4">
+    <div key={`table-${table.slug}-${tableIndex}`} className="border rounded-lg p-4">
       <div className="mb-3">
-        <h4 className="font-medium">{table.name}</h4>
+        <h4 className="font-medium">{toDisplayName(table.slug)}</h4>
         <p className="text-sm text-muted-foreground">{table.description}</p>
       </div>
 

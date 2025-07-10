@@ -24,14 +24,7 @@ const updateWorkflowBasicDataSchema = z.object({
 });
 
 const updateFieldSchema = z.object({
-  name: z
-    .string()
-    .min(1)
-    .regex(/^[a-z][a-z0-9_]*$/, {
-      message:
-        "Field name must be in snake_case format (lowercase letters, numbers, and underscores only, starting with a letter)",
-    })
-    .optional(),
+  name: z.string().min(1).optional(),
   description: z.string().optional(),
   type: z.enum(["text", "number", "date", "currency", "boolean"]).optional(),
   required: z.boolean().optional(),
@@ -39,12 +32,12 @@ const updateFieldSchema = z.object({
 });
 
 const updateTableSchema = z.object({
-  name: z
+  slug: z
     .string()
     .min(1)
     .regex(/^[a-z][a-z0-9_]*$/, {
       message:
-        "Table name must be in snake_case format (lowercase letters, numbers, and underscores only, starting with a letter)",
+        "Table slug must be in snake_case format (lowercase letters, numbers, and underscores only, starting with a letter)",
     })
     .optional(),
   description: z.string().optional(),
@@ -368,13 +361,7 @@ const router = app
     zValidator(
       "json",
       z.object({
-        name: z
-          .string()
-          .min(1)
-          .regex(/^[a-z][a-z0-9_]*$/, {
-            message:
-              "Field name must be in snake_case format (lowercase, starts with letter, only letters/numbers/underscores)",
-          }),
+        name: z.string().min(1),
         description: z.string(),
         type: z.enum(["text", "number", "date", "currency", "boolean"]),
         required: z.boolean(),

@@ -1,5 +1,6 @@
 import type { ExtractedTable, ExtractedValue, ExtractionResult } from "@paperjet/db/types";
 import type { FieldsConfiguration, TableConfiguration, Workflow } from "@paperjet/engine/types";
+import { toDisplayName } from "@paperjet/engine/utils/display-name";
 import { AlertCircle, Calendar, FileText, Hash, ToggleLeft, Type } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -149,11 +150,11 @@ export function ExecutionResultsByCategory({ extractionResult, workflow }: Execu
           {category.tables.length > 0 && (
             <div className="space-y-4">
               {category.tables.map((table) => {
-                const extractedTable = getExtractedTable(table.name);
+                const extractedTable = getExtractedTable(table.slug);
                 return (
                   <Card key={table.id}>
                     <CardHeader>
-                      <CardTitle>{table.name}</CardTitle>
+                      <CardTitle>{toDisplayName(table.slug)}</CardTitle>
                       <CardDescription>{table.description}</CardDescription>
                     </CardHeader>
                     <CardContent>

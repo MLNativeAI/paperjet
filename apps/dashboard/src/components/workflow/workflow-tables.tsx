@@ -1,16 +1,17 @@
 import type { Workflow } from "@paperjet/engine/types";
 import { useState } from "react";
+import EditTableSheet from "./edit-table-sheet";
 import type { CategoryGroup } from "./workflow-categories";
 import WorkflowTableCard from "./workflow-table-card";
 
 export default function WorkflowTables({ category, workflow }: { category: CategoryGroup; workflow: Workflow }) {
-  const [_editingTable, setEditingTable] = useState<(typeof category.tables)[number] | null>(null);
-  const [_isEditSheetOpen, setIsEditSheetOpen] = useState(false);
+  const [editingTable, setEditingTable] = useState<(typeof category.tables)[number] | null>(null);
+  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
 
   // Get sample data for tables
-  const getTableSampleData = (tableName: string) => {
+  const getTableSampleData = (tableSlug: string) => {
     if (!workflow.sampleData?.tables) return null;
-    const sampleTable = workflow.sampleData.tables.find((t) => t.tableName === tableName);
+    const sampleTable = workflow.sampleData.tables.find((t) => t.tableName === tableSlug);
     return sampleTable;
   };
 
@@ -19,9 +20,8 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
     setIsEditSheetOpen(true);
   };
 
-  const _handleSaveTable = (updatedTable: (typeof category.tables)[number]) => {
-    // TODO: Implement API call to save the table
-    console.log("Saving table:", updatedTable);
+  const handleSaveTable = (updatedTable: (typeof category.tables)[number]) => {
+    // The EditTableSheet component handles the API call internally
     setIsEditSheetOpen(false);
   };
 
@@ -30,7 +30,7 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
       {category.tables.length > 0 && (
         <div className="space-y-4">
           {category.tables.map((table) => {
-            const sampleData = getTableSampleData(table.name);
+            const sampleData = getTableSampleData(table.slug);
             return (
               <WorkflowTableCard
                 key={table.id}
@@ -44,13 +44,19 @@ export default function WorkflowTables({ category, workflow }: { category: Categ
         </div>
       )}
 
-      {/* Edit Table Sheet - Commented out until EditTableSheet component is created */}
-      {/* <EditTableSheet
-                table={editingTable}
-                isOpen={isEditSheetOpen}
-                onClose={() => setIsEditSheetOpen(false)}
-                onSave={handleSaveTable}
-            /> */}
+      {/* Edit Table Sheet */}
+      {editingTable && (
+        <EditTableSheet
+          table={editingTable}
+          workflowId={workflow.id}
+          isOpen={isEditSheetOpen}
+          onClose={() => {
+            setIsEditSheetOpen(false);
+            setEditingTable(null);
+          }}
+          onSave={handleSaveTable}
+        />
+      )}
     </>
   );
 }

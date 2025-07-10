@@ -51,7 +51,7 @@ export class DocumentExtractionService {
             columnSchemas[col.name] = z.string().nullable();
         }
       });
-      tableSchemas[table.name] = z.array(z.object(columnSchemas));
+      tableSchemas[table.slug] = z.array(z.object(columnSchemas));
     });
 
     const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
@@ -66,7 +66,7 @@ export class DocumentExtractionService {
         const columnDescs = table.columns
           .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
           .join("\n");
-        return `- ${table.name}: ${table.description}\n${columnDescs}`;
+        return `- ${table.slug}: ${table.description}\n${columnDescs}`;
       })
       .join("\n");
 
@@ -112,8 +112,8 @@ Instructions:
         value: (object as any)[field.name],
       })),
       tables: configuration.tables.map((table) => ({
-        tableName: table.name,
-        rows: ((object as any)[table.name] || []).map((row: any) => ({
+        tableName: table.slug,
+        rows: ((object as any)[table.slug] || []).map((row: any) => ({
           values: row,
         })),
       })),
@@ -186,7 +186,7 @@ Instructions:
             columnSchemas[col.name] = z.string().nullable();
         }
       });
-      tableSchemas[table.name] = z.array(z.object(columnSchemas));
+      tableSchemas[table.slug] = z.array(z.object(columnSchemas));
     });
 
     const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
@@ -200,7 +200,7 @@ Instructions:
         const columnDescs = table.columns
           .map((col) => `    - ${col.name} (${col.type}): ${col.description}`)
           .join("\n");
-        return `- ${table.name}: ${table.description}\n${columnDescs}`;
+        return `- ${table.slug}: ${table.description}\n${columnDescs}`;
       })
       .join("\n");
 
@@ -247,8 +247,8 @@ Instructions:
         value: (object as any)[field.name],
       })),
       tables: config.tables.map((table) => ({
-        tableName: table.name,
-        rows: ((object as any)[table.name] || []).map((row: any) => ({
+        tableName: table.slug,
+        rows: ((object as any)[table.slug] || []).map((row: any) => ({
           values: row,
         })),
       })),

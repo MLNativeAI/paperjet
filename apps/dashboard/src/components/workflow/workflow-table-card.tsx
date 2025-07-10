@@ -1,4 +1,5 @@
 import type { TableConfiguration } from "@paperjet/engine/types";
+import { toDisplayName } from "@paperjet/engine/utils/display-name";
 import { isTableOutdated } from "@paperjet/engine/utils/outdated-check";
 import { AlertCircle, Table2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +27,7 @@ export default function WorkflowTableCard({
   return (
     <Card className={cn(isOutdated && "opacity-50")}>
       <CardHeader>
-        <CardTitle className="text-md">{table.name}</CardTitle>
+        <CardTitle className="text-md">{toDisplayName(table.slug)}</CardTitle>
         <CardDescription>
           {rowCount} rows × {columnCount} columns
         </CardDescription>

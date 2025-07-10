@@ -47,7 +47,7 @@ export const tableConfigurationSchema = z.array(
         type: z.enum(["text", "number", "date", "currency", "boolean"]),
       }),
     ),
-    name: z.string(),
+    slug: z.string(),
     description: z.string(),
     categoryId: z.string(),
     lastModified: z.string().datetime().optional(),

@@ -333,7 +333,10 @@ If the table "${table.name}" is not found or has no actual tabular data in the d
 
   return {
     id: generateId(ID_PREFIXES.table),
-    name: table.name,
+    slug: table.name
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, ""),
     description: table.description,
     columns: object.columns.map((column) => ({
       id: generateId(ID_PREFIXES.column),
