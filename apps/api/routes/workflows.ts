@@ -1,10 +1,11 @@
 import { zValidator } from "@hono/zod-validator";
-import { WorkflowService, type CategoriesConfiguration, type ExtractionResult, type WorkflowConfiguration } from "@paperjet/engine";
 import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
 import { fileIdSchema, workflowIdSchema } from "@/lib/validation";
+import { getWorkflows, getWorkflow, updateWorkflow, createWorkflow, createWorkflowFromTemplateData, analyzeWorkflowDocument, getDocumentForFile, deleteWorkflow, updateWorkflowField, updateWorkflowTable, extractDataFromDocument, createWorkflowField, deleteWorkflowField, createWorkflowTable, deleteWorkflowTable } from "@paperjet/engine";
+import type { CategoriesConfiguration, ExtractionResult, WorkflowConfiguration } from "@paperjet/engine/types";
 
 const app = new Hono();
 
@@ -102,8 +103,7 @@ const router = app
     .get("/", async (c) => {
         try {
             const user = await getUser(c);
-            const workflowService = new WorkflowService()
-            const workflows = await workflowService.getWorkflows(user.id);
+            const workflows = await getWorkflows(user.id);
             return c.json(workflows);
         } catch (error) {
             logger.error(error, "Get workflows error:");
@@ -114,7 +114,7 @@ const router = app
         try {
             const user = await getUser(c);
             const { id: workflowId } = c.req.valid("param");
-            const workflowData = await workflowService.getWorkflow(workflowId, user.id);
+            const workflowData = await getWorkflow(workflowId, user.id);
             return c.json(workflowData);
         } catch (error) {
             logger.error(error, "Get workflow error:");
@@ -130,7 +130,7 @@ const router = app
             const { id: workflowId } = c.req.valid("param");
             const body = c.req.valid("json");
 
-            await workflowService.updateWorkflow(workflowId, user.id, body);
+            await updateWorkflow(workflowId, user.id, body);
             return c.json({ message: "Workflow updated successfully" });
         } catch (error) {
             logger.error(error, "Update workflow error:");
@@ -153,7 +153,7 @@ const router = app
                 const { id: workflowId } = c.req.valid("param");
                 const body = c.req.valid("json");
 
-                await workflowService.updateWorkflow(workflowId, user.id, body);
+                await updateWorkflow(workflowId, user.id, body);
                 return c.json({ message: "Workflow basic data updated successfully" });
             } catch (error) {
                 logger.error(error, "Update workflow basic data error:");
@@ -172,7 +172,7 @@ const router = app
             const user = await getUser(c);
             const { file } = c.req.valid("form");
 
-            const result = await workflowService.createWorkflow(file, user.id);
+            const result = await createWorkflow(file, user.id);
             return c.json({ ...result, message: "Workflow created successfully" }, 201);
         } catch (error) {
             logger.error(error, "Create workflow error:");
@@ -187,7 +187,7 @@ const router = app
             const user = await getUser(c);
             const validForm = c.req.valid("form");
 
-            const result = await workflowService.createWorkflowFromTemplateData(
+            const result = await createWorkflowFromTemplateData(
                 validForm.slug,
                 validForm.description,
                 JSON.parse(validForm.configuration) as WorkflowConfiguration,
@@ -211,7 +211,7 @@ const router = app
             const { id: workflowId } = c.req.valid("param");
 
             // Start analysis in background (don't await)
-            workflowService.analyzeWorkflowDocument(workflowId, user.id);
+            analyzeWorkflowDocument(workflowId);
 
             // Return immediately
             return c.json({ message: "Analysis started", workflowId });
@@ -230,7 +230,7 @@ const router = app
         try {
             const user = await getUser(c);
             const { fileId } = c.req.valid("param");
-            const document = await workflowService.getDocumentForFile(fileId, user.id);
+            const document = await getDocumentForFile(fileId, user.id);
             return c.json(document);
         } catch (error) {
             logger.error(error, "Get document error:");
@@ -244,7 +244,7 @@ const router = app
         try {
             const user = await getUser(c);
             const { id: workflowId } = c.req.valid("param");
-            await workflowService.deleteWorkflow(workflowId, user.id);
+            await deleteWorkflow(workflowId, user.id);
             return c.json({ message: "Workflow deleted successfully" });
         } catch (error) {
             logger.error(error, "Delete workflow error:");
@@ -264,7 +264,7 @@ const router = app
                 const { id: workflowId, fieldId } = c.req.valid("param");
                 const updates = c.req.valid("json");
 
-                const updatedField = await workflowService.updateWorkflowField(workflowId, fieldId, user.id, updates);
+                const updatedField = await updateWorkflowField(workflowId, fieldId, user.id, updates);
                 return c.json({
                     field: updatedField,
                     message: "Field updated successfully",
@@ -303,7 +303,7 @@ const router = app
                 const { id: workflowId, tableId } = c.req.valid("param");
                 const updates = c.req.valid("json");
 
-                const updatedTable = await workflowService.updateWorkflowTable(workflowId, tableId, user.id, updates);
+                const updatedTable = await updateWorkflowTable(workflowId, tableId, user.id, updates);
                 return c.json({
                     table: updatedTable,
                     message: "Table updated successfully",
@@ -338,10 +338,10 @@ const router = app
             const { id: workflowId } = c.req.valid("param");
 
             // Get the workflow
-            const workflowData = await workflowService.getWorkflow(workflowId, user.id);
+            const workflowData = await getWorkflow(workflowId, user.id);
 
             // Re-extract data from the sample document
-            await workflowService.extractDataFromDocument(
+            await extractDataFromDocument(
                 workflowId,
                 workflowData.fileId,
                 user.id,
@@ -376,7 +376,7 @@ const router = app
                 const { id: workflowId } = c.req.valid("param");
                 const fieldData = c.req.valid("json");
 
-                const newField = await workflowService.createWorkflowField(workflowId, user.id, fieldData);
+                const newField = await createWorkflowField(workflowId, user.id, fieldData);
 
                 return c.json({ field: newField, message: "Field created successfully" }, 201);
             } catch (error) {
@@ -405,7 +405,7 @@ const router = app
             const user = await getUser(c);
             const { id: workflowId, fieldId } = c.req.valid("param");
 
-            await workflowService.deleteWorkflowField(workflowId, fieldId, user.id);
+            await deleteWorkflowField(workflowId, fieldId, user.id);
 
             return c.json({ message: "Field deleted successfully" });
         } catch (error) {
@@ -442,7 +442,7 @@ const router = app
                 const { id: workflowId } = c.req.valid("param");
                 const tableData = c.req.valid("json");
 
-                const newTable = await workflowService.createWorkflowTable(workflowId, user.id, tableData);
+                const newTable = await createWorkflowTable(workflowId, user.id, tableData);
 
                 return c.json({ table: newTable, message: "Table created successfully" }, 201);
             } catch (error) {
@@ -471,7 +471,7 @@ const router = app
             const user = await getUser(c);
             const { id: workflowId, tableId } = c.req.valid("param");
 
-            await workflowService.deleteWorkflowTable(workflowId, tableId, user.id);
+            await deleteWorkflowTable(workflowId, tableId, user.id);
 
             return c.json({ message: "Table deleted successfully" });
         } catch (error) {

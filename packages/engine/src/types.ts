@@ -1,15 +1,11 @@
 import type { DbWorkflow, DbWorkflowExecution } from "@paperjet/db/types";
 import z from "zod";
 
-// Engine-specific types
-export interface EngineServiceDeps {
-  s3: {
-    presign: (filename: string) => Promise<string>;
-    file: (filename: string) => {
-      write: (data: ArrayBuffer) => Promise<void>;
-    };
-  };
-}
+export type IDReference = {
+  userId?: string;
+  workflowId?: string;
+  executionId?: string;
+};
 
 export const categoriesConfigurationSchema = z.array(
   z.object({

@@ -3,8 +3,8 @@ import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
-import { workflowService } from "@/lib/services";
 import { executionIdSchema, workflowIdSchema } from "@/lib/validation";
+import { deleteExecution, executeWorkflowFromConfig, getAllExecutions, getExecutionDetails, getWorkflowExecutions } from "@paperjet/engine";
 
 const app = new Hono();
 
@@ -21,7 +21,7 @@ const router = app
   .get("/", async (c) => {
     try {
       const user = await getUser(c);
-      const executions = await workflowService.getAllExecutions(user.id);
+      const executions = await getAllExecutions(user.id);
       return c.json(executions);
     } catch (error) {
       logger.error(error, "Get all executions error:");
@@ -32,7 +32,7 @@ const router = app
     try {
       const user = await getUser(c);
       const { executionId } = c.req.valid("param");
-      const execution = await workflowService.getExecutionDetails(executionId, user.id);
+      const execution = await getExecutionDetails(executionId, user.id);
       return c.json(execution);
     } catch (error) {
       logger.error(error, "Get execution details error:");
@@ -57,7 +57,7 @@ const router = app
         return c.json({ error: "File is required" }, 400);
       }
 
-      const result = await workflowService.executeWorkflow(workflowId, user.id, uploadedFile);
+      const result = await executeWorkflowFromConfig(workflowId, user.id, uploadedFile);
       return c.json(result);
     } catch (error) {
       logger.error(error, "Execution error:");
@@ -84,7 +84,7 @@ const router = app
 
       // Create individual executions for each file
       const results = await Promise.all(
-        uploadedFiles.map((file) => workflowService.executeWorkflow(workflowId, user.id, file)),
+        uploadedFiles.map((file) => executeWorkflowFromConfig(workflowId, user.id, file)),
       );
 
       return c.json({ executions: results });
@@ -100,7 +100,7 @@ const router = app
     try {
       const user = await getUser(c);
       const { workflowId } = c.req.valid("param");
-      const executions = await workflowService.getWorkflowExecutions(workflowId, user.id);
+      const executions = await getWorkflowExecutions(workflowId, user.id);
       return c.json(executions);
     } catch (error) {
       logger.error(error, "Get executions error:");
@@ -114,7 +114,7 @@ const router = app
     try {
       const user = await getUser(c);
       const { executionId } = c.req.valid("param");
-      await workflowService.deleteExecution(executionId, user.id);
+      await deleteExecution(executionId, user.id);
       return c.json({ success: true });
     } catch (error) {
       logger.error(error, "Delete execution error:");

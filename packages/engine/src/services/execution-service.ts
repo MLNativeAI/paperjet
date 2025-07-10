@@ -2,43 +2,20 @@ import { db } from "@paperjet/db";
 import { file, workflow, workflowExecution } from "@paperjet/db/schema";
 import { logger } from "@paperjet/shared";
 import { and, desc, eq } from "drizzle-orm";
-import type { Langfuse } from "langfuse";
+
 import type { CategoriesConfiguration, WorkflowConfiguration, WorkflowRun } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
-import type { DocumentExtractionService } from "./document-extraction-service";
+import { s3Client } from "../lib/s3";
+import { runDocumentExtraction } from "./document-extraction-service";
 
-export interface WorkflowExecutionServiceDeps {
-  langfuse: Langfuse;
-  extractionService: DocumentExtractionService;
-  s3: {
-    presign: (filename: string) => Promise<string>;
-    file: (filename: string) => {
-      write: (data: ArrayBuffer) => Promise<void>;
-    };
-  };
-}
 
-export class WorkflowExecutionService {
-  constructor(private deps: WorkflowExecutionServiceDeps) {}
-
-  async executeWorkflow(
+  export async function executeWorkflow(
     workflowId: string,
-    workflowName: string,
     config: WorkflowConfiguration,
     userId: string,
     uploadedFile: File,
   ) {
     logger.info(
-      {
-        workflowId,
-        workflowName,
-        userId,
-        fileName: uploadedFile.name,
-        fileSize: uploadedFile.size,
-        fileType: uploadedFile.type,
-        fieldsCount: config.fields.length,
-        tablesCount: config.tables.length,
-      },
       "Starting workflow execution",
     );
 
@@ -57,7 +34,7 @@ export class WorkflowExecutionService {
     });
 
     const fileBuffer = await uploadedFile.arrayBuffer();
-    await this.deps.s3.file(filename).write(fileBuffer);
+    await s3Client.file(filename).write(fileBuffer);
 
     // Create execution record with file reference
     await db.insert(workflowExecution).values({
@@ -72,12 +49,8 @@ export class WorkflowExecutionService {
 
     // Extract data using extraction service
     logger.info({ executionId, workflowId }, "Starting data extraction for workflow execution");
-    const presignedUrl = await this.deps.s3.presign(filename);
-    const extractionResult = await this.deps.extractionService.processExecutionFile(presignedUrl, workflowId, userId, config, {
-      executionId,
-      workflowId,
-      userId,
-    });
+    const presignedUrl = await s3Client.presign(filename);
+    const extractionResult = await runDocumentExtraction(presignedUrl, config);
 
     // Update execution with results
     await db
@@ -108,7 +81,7 @@ export class WorkflowExecutionService {
     };
   }
 
-  async getWorkflowExecutions(workflowId: string, _userId: string): Promise<WorkflowRun[]> {
+  export async function getWorkflowExecutions(workflowId: string, _userId: string): Promise<WorkflowRun[]> {
     // Get executions with file details
     const executions = await db
       .select({
@@ -141,7 +114,7 @@ export class WorkflowExecutionService {
     return result;
   }
 
-  async getAllExecutions(userId: string): Promise<WorkflowRun[]> {
+  export async function getAllExecutions(userId: string): Promise<WorkflowRun[]> {
     // Get all executions for user with workflow names and file details
     const executions = await db
       .select({
@@ -175,7 +148,7 @@ export class WorkflowExecutionService {
     return result;
   }
 
-  async getExecutionDetails(executionId: string, userId: string): Promise<WorkflowRun> {
+  export async function getExecutionDetails(executionId: string, userId: string): Promise<WorkflowRun> {
     // Get the execution with file details
     const [executionData] = await db
       .select({
@@ -213,7 +186,7 @@ export class WorkflowExecutionService {
     return result;
   }
 
-  async deleteExecution(executionId: string, _userId: string) {
+  export async function deleteExecution(executionId: string, _userId: string) {
     // Get execution and verify user owns it
     const [executionData] = await db
       .select({
@@ -230,4 +203,3 @@ export class WorkflowExecutionService {
     // Delete the execution
     await db.delete(workflowExecution).where(eq(workflowExecution.id, executionId));
   }
-}

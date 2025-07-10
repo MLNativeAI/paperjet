@@ -1,5 +1,5 @@
 import { describe, test } from "bun:test";
-import { DocumentExtractionService } from "../src/services/document-extraction-service";
+import { runDocumentExtraction } from "../src/services/document-extraction-service";
 import {
   compareExtractionResults,
   ensureCacheDir,
@@ -54,7 +54,7 @@ describe("test document extraction accuracy", () => {
           console.log(`Using cached result for ${testCase.name}`);
         } else {
           console.log(`Running extraction for ${testCase.name}`);
-          actualResult = await service.extractDataFromDocument(testCase.documentUrl, config);
+          actualResult = await runDocumentExtraction(testCase.documentUrl, config);
 
           // Save result to cache
           await saveCachedResult(testCase, actualResult);

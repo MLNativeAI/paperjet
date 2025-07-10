@@ -5,8 +5,7 @@
   "private": true,
   "exports": {
     ".": "./index.ts",
-    "./services/*": "./src/services/*",
-    "./types": "./src/types/index.ts"
+    "./types": "./src/types.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

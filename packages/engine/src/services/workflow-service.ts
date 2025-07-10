@@ -6,687 +6,546 @@ import { z } from "zod";
 import {
   type CategoriesConfiguration,
   type ExtractionResult,
+  type TableConfiguration,
   type Workflow,
   type WorkflowConfiguration,
   type WorkflowRun,
   workflowConfigurationSchema,
 } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
-import { performCompleteAnalysis } from "./document-analysis-service";
-import type { DocumentExtractionService } from "./document-extraction-service";
-import type { WorkflowExecutionService } from "./workflow-execution-service";
+import { s3Client } from "../lib/s3";
+import { executeWorkflow } from "./execution-service";
 
-export interface WorkflowServiceDeps {
-  documentExtractionService: DocumentExtractionService;
-  workflowExecutionService: WorkflowExecutionService;
-  s3: {
-    presign: (filename: string) => Promise<string>;
-    file: (filename: string) => {
-      write: (data: ArrayBuffer) => Promise<void>;
-    };
+
+async function parseWorkflowConfiguration(configuration: string): Promise<WorkflowConfiguration> {
+  const parsed = JSON.parse(configuration);
+
+  // Migration: Convert old 'name' field to 'slug' field for tables
+  if (parsed.tables) {
+    parsed.tables = parsed.tables.map((table: any) => {
+      if (table.name && !table.slug) {
+        // Convert old 'name' field to 'slug'
+        return { ...table, slug: table.name };
+      }
+      return table;
+    });
+  }
+
+  const parsedConfig = workflowConfigurationSchema.safeParse(parsed);
+  if (!parsedConfig.success) {
+    logger.warn(parsedConfig.error, `Invalid workflow configuration: ${configuration}`);
+  }
+  return parsedConfig.data ?? { fields: [], tables: [] };
+}
+
+export async function createWorkflow(
+  fileParam: File,
+  userId: string,
+): Promise<{
+  workflowId: string;
+  fileId: string;
+}> {
+  logger.info(
+    {
+      userId,
+      fileName: fileParam.name,
+      fileSize: fileParam.size,
+      fileType: fileParam.type,
+    },
+    "Creating new workflow from file",
+  );
+
+  // Save file first
+  const fileId = generateId(ID_PREFIXES.file);
+  const filename = `workflow-samples/${fileId}-${fileParam.name}`;
+
+  await db.insert(file).values({
+    id: fileId,
+    filename,
+    createdAt: new Date(),
+    ownerId: userId,
+  });
+
+  const fileBuffer = await fileParam.arrayBuffer();
+  await s3Client.file(filename).write(fileBuffer);
+
+  // Create workflow with empty configuration initially
+  const workflowId = generateId(ID_PREFIXES.workflow);
+  const workflowName = "New Workflow"; // Will be updated after analysis
+
+  const emptyConfiguration: WorkflowConfiguration = {
+    fields: [],
+    tables: [],
+  };
+
+  const emptyResult: ExtractionResult = {
+    fields: [],
+    tables: [],
+  };
+
+  await db.insert(workflow).values({
+    id: workflowId,
+    slug: workflowName,
+    description: "",
+    categories: "[]",
+    configuration: JSON.stringify(emptyConfiguration),
+    sampleData: JSON.stringify(emptyResult),
+    fileId,
+    status: "analyzing",
+    ownerId: userId,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  logger.info(
+    {
+      workflowId,
+      fileId,
+      userId,
+      workflowName,
+    },
+    "Workflow created successfully from file",
+  );
+
+  return {
+    workflowId,
+    fileId,
   };
 }
 
-export class WorkflowService {
-  constructor(private deps: WorkflowServiceDeps) {}
+export async function getWorkflows(userId: string): Promise<Workflow[]> {
+  const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
 
-  async #parseWorkflowConfiguration(configuration: string): Promise<WorkflowConfiguration> {
-    const parsed = JSON.parse(configuration);
+  const result = await Promise.all(
+    workflows.map(async (w) => {
+      const parsedConfig = await parseWorkflowConfiguration(w.configuration);
+      return {
+        ...w,
+        configuration: parsedConfig,
+        categories: JSON.parse(w.categories) as CategoriesConfiguration,
+        sampleData: w.sampleData ? (JSON.parse(w.sampleData) as ExtractionResult) : null,
+        sampleDataExtractedAt: w.sampleDataExtractedAt,
+      };
+    }),
+  );
 
-    // Migration: Convert old 'name' field to 'slug' field for tables
-    if (parsed.tables) {
-      parsed.tables = parsed.tables.map((table: any) => {
-        if (table.name && !table.slug) {
-          // Convert old 'name' field to 'slug'
-          return { ...table, slug: table.name };
-        }
-        return table;
-      });
-    }
+  return result;
+}
 
-    const parsedConfig = workflowConfigurationSchema.safeParse(parsed);
-    if (!parsedConfig.success) {
-      logger.warn(parsedConfig.error, `Invalid workflow configuration: ${configuration}`);
-    }
-    return parsedConfig.data ?? { fields: [], tables: [] };
+export async function getWorkflow(workflowId: string, userId: string): Promise<Workflow> {
+  const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
+
+  if (!workflowData || workflowData.ownerId !== userId) {
+    throw new Error("Workflow not found");
   }
 
-  async createWorkflow(
-    fileParam: File,
-    userId: string,
-  ): Promise<{
-    workflowId: string;
-    fileId: string;
-  }> {
-    logger.info(
-      {
-        userId,
-        fileName: fileParam.name,
-        fileSize: fileParam.size,
-        fileType: fileParam.type,
-      },
-      "Creating new workflow from file",
-    );
+  const parsedConfig = await parseWorkflowConfiguration(workflowData.configuration);
 
-    // Save file first
-    const fileId = generateId(ID_PREFIXES.file);
-    const filename = `workflow-samples/${fileId}-${fileParam.name}`;
+  return {
+    ...workflowData,
+    configuration: parsedConfig,
+    categories: JSON.parse(workflowData.categories) as CategoriesConfiguration,
+    sampleData: workflowData.sampleData ? (JSON.parse(workflowData.sampleData) as ExtractionResult) : null,
+    sampleDataExtractedAt: workflowData.sampleDataExtractedAt,
+  };
+}
 
-    await db.insert(file).values({
-      id: fileId,
-      filename,
-      createdAt: new Date(),
-      ownerId: userId,
-    });
+export async function updateWorkflow(
+  workflowId: string,
+  userId: string,
+  updates: {
+    slug?: string;
+    configuration?: WorkflowConfiguration;
+  },
+) {
+  const updateWorkflowSchema = z.object({
+    slug: z.string().optional(),
+    configuration: workflowConfigurationSchema.optional(),
+  });
 
-    const fileBuffer = await fileParam.arrayBuffer();
-    await this.deps.s3.file(filename).write(fileBuffer);
+  const validatedData = updateWorkflowSchema.parse(updates);
 
-    // Create workflow with empty configuration initially
-    const workflowId = generateId(ID_PREFIXES.workflow);
-    const workflowName = "New Workflow"; // Will be updated after analysis
+  // Check if workflow exists and user owns it
+  const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
-    const emptyConfiguration: WorkflowConfiguration = {
-      fields: [],
-      tables: [],
-    };
-
-    const emptyResult: ExtractionResult = {
-      fields: [],
-      tables: [],
-    };
-
-    await db.insert(workflow).values({
-      id: workflowId,
-      slug: workflowName,
-      description: "",
-      categories: "[]",
-      configuration: JSON.stringify(emptyConfiguration),
-      sampleData: JSON.stringify(emptyResult),
-      fileId,
-      status: "analyzing",
-      ownerId: userId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    logger.info(
-      {
-        workflowId,
-        fileId,
-        userId,
-        workflowName,
-      },
-      "Workflow created successfully from file",
-    );
-
-    return {
-      workflowId,
-      fileId,
-    };
+  if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
+    throw new Error("Workflow not found");
   }
 
-  async analyzeWorkflowDocument(workflowId: string, userId: string): Promise<void> {
-    logger.info({ workflowId, userId }, "Starting workflow document analysis");
+  // Update workflow
+  const updateData: any = {
+    updatedAt: new Date(),
+  };
 
-    // Get workflow and associated file
-    const [workflowData] = await db
-      .select({
-        workflowId: workflow.id,
-        workflowName: workflow.slug,
-        fileId: workflow.fileId,
-        filename: file.filename,
-      })
-      .from(workflow)
-      .leftJoin(file, eq(workflow.fileId, file.id))
-      .where(eq(workflow.id, workflowId));
-
-    if (!workflowData) {
-      throw new Error("Workflow not found");
-    }
-
-    if (!workflowData.fileId || !workflowData.filename) {
-      throw new Error("No file associated with this workflow");
-    }
-
-    // Get presigned URL for the existing file
-    const presignedUrl = await this.deps.s3.presign(workflowData.filename);
-
-    // Use the document analysis service to perform complete analysis
-    const analysisResult = await performCompleteAnalysis(presignedUrl, workflowId, userId);
-
-    // Update workflow configuration with analysis results and set status to extracting
-    const configuration: WorkflowConfiguration = {
-      fields: analysisResult.fields,
-      tables: analysisResult.tables,
-    };
-
-    await db
-      .update(workflow)
-      .set({
-        slug: analysisResult.workflowName,
-        description: analysisResult.description,
-        categories: JSON.stringify(analysisResult.categories),
-        configuration: JSON.stringify(configuration),
-        status: "extracting",
-        updatedAt: new Date(),
-      })
-      .where(eq(workflow.id, workflowId));
-
-    logger.info("Workflow document analysis completed, triggering data extraction");
-
-    await this.extractDataFromDocument(workflowId, workflowData.fileId, userId, configuration);
+  if (validatedData.slug) {
+    updateData.slug = validatedData.slug;
+    // When a name is provided, update status to active
+    updateData.status = "active";
   }
 
-  async extractDataFromDocument(
-    workflowId: string,
-    fileId: string,
-    userId: string,
-    configuration: WorkflowConfiguration,
-  ) {
-    logger.info("Starting data extraction from document");
-    // Get file from database
-    const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
+  if (validatedData.configuration) {
+    updateData.configuration = JSON.stringify(validatedData.configuration);
+  }
 
-    if (!fileRecord || fileRecord.ownerId !== userId) {
-      throw new Error("File not found");
-    }
+  await db.update(workflow).set(updateData).where(eq(workflow.id, workflowId));
+}
 
-    // Get presigned URL for the file
-    const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
+export async function getDocumentForFile(fileId: string, userId: string) {
+  // Get file from database
+  const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
 
-    // Use the document extraction service
-    const extractionResult = await this.deps.documentExtractionService.extractDataFromDocument(
-      presignedUrl,
+  if (!fileRecord || fileRecord.ownerId !== userId) {
+    throw new Error("File not found");
+  }
+
+  // Get presigned URL for the file
+  const presignedUrl = await s3Client.presign(fileRecord.filename);
+
+  const result = {
+    fileId,
+    filename: fileRecord.filename,
+    presignedUrl,
+  };
+
+  return result;
+}
+
+export async function executeWorkflowFromConfig(workflowId: string, userId: string, uploadedFile: File) {
+  logger.info(
+    {
       workflowId,
       userId,
-      configuration,
-    );
-
-    logger.info(
-      {
-        workflowId,
-        fileId,
-        extractedFieldsCount: extractionResult.fields.length,
-        extractedTablesCount: extractionResult.tables.length,
-      },
-      "Data extraction from document completed",
-    );
-
-    // Store sample data in workflow_sample table
-    await db
-      .update(workflow)
-      .set({
-        sampleData: JSON.stringify(extractionResult),
-        sampleDataExtractedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(workflow.id, workflowId));
-
-    // Update workflow status to configuring after extraction
-    await db
-      .update(workflow)
-      .set({
-        status: "configuring",
-        updatedAt: new Date(),
-      })
-      .where(eq(workflow.id, workflowId));
-
-    logger.info(
-      {
-        workflowId,
-        fileId,
-        extractedFieldsCount: extractionResult.fields.length,
-        extractedTablesCount: extractionResult.tables.length,
-      },
-      "Sample data stored in workflow_sample table",
-    );
-
-    return {
-      fileId,
-      extractionResult,
-    };
-  }
-
-  async getWorkflows(userId: string): Promise<Workflow[]> {
-    const workflows = await db.select().from(workflow).where(eq(workflow.ownerId, userId));
-
-    const result = await Promise.all(
-      workflows.map(async (w) => {
-        const parsedConfig = await this.#parseWorkflowConfiguration(w.configuration);
-        return {
-          ...w,
-          configuration: parsedConfig,
-          categories: JSON.parse(w.categories) as CategoriesConfiguration,
-          sampleData: w.sampleData ? (JSON.parse(w.sampleData) as ExtractionResult) : null,
-          sampleDataExtractedAt: w.sampleDataExtractedAt,
-        };
-      }),
-    );
-
-    return result;
-  }
-
-  async getWorkflow(workflowId: string, userId: string): Promise<Workflow> {
-    const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-    if (!workflowData || workflowData.ownerId !== userId) {
-      throw new Error("Workflow not found");
-    }
-
-    const parsedConfig = await this.#parseWorkflowConfiguration(workflowData.configuration);
-
-    return {
-      ...workflowData,
-      configuration: parsedConfig,
-      categories: JSON.parse(workflowData.categories) as CategoriesConfiguration,
-      sampleData: workflowData.sampleData ? (JSON.parse(workflowData.sampleData) as ExtractionResult) : null,
-      sampleDataExtractedAt: workflowData.sampleDataExtractedAt,
-    };
-  }
-
-  async updateWorkflow(
-    workflowId: string,
-    userId: string,
-    updates: {
-      slug?: string;
-      configuration?: WorkflowConfiguration;
+      fileName: uploadedFile.name,
+      fileSize: uploadedFile.size,
+      fileType: uploadedFile.type,
     },
-  ) {
-    const updateWorkflowSchema = z.object({
-      slug: z.string().optional(),
-      configuration: workflowConfigurationSchema.optional(),
-    });
+    "Starting workflow execution",
+  );
 
-    const validatedData = updateWorkflowSchema.parse(updates);
+  // Get workflow and verify ownership
+  const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
 
-    // Check if workflow exists and user owns it
-    const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-    if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
-      throw new Error("Workflow not found");
-    }
-
-    // Update workflow
-    const updateData: any = {
-      updatedAt: new Date(),
-    };
-
-    if (validatedData.slug) {
-      updateData.slug = validatedData.slug;
-      // When a name is provided, update status to active
-      updateData.status = "active";
-    }
-
-    if (validatedData.configuration) {
-      updateData.configuration = JSON.stringify(validatedData.configuration);
-    }
-
-    await db.update(workflow).set(updateData).where(eq(workflow.id, workflowId));
+  if (!workflowData || workflowData.ownerId !== userId) {
+    throw new Error("Workflow not found");
   }
 
-  async getDocumentForFile(fileId: string, userId: string) {
-    // Get file from database
-    const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
+  // Parse workflow configuration
+  const config = await parseWorkflowConfiguration(workflowData.configuration);
 
-    if (!fileRecord || fileRecord.ownerId !== userId) {
-      throw new Error("File not found");
-    }
+  // Use the workflow execution service
+  const result = await executeWorkflow(
+    workflowId,
+    config,
+    userId,
+    uploadedFile,
+  );
 
-    // Get presigned URL for the file
-    const presignedUrl = await this.deps.s3.presign(fileRecord.filename);
-
-    const result = {
-      fileId,
-      filename: fileRecord.filename,
-      presignedUrl,
-    };
-
-    return result;
-  }
-
-  async executeWorkflow(workflowId: string, userId: string, uploadedFile: File) {
-    logger.info(
-      {
-        workflowId,
-        userId,
-        fileName: uploadedFile.name,
-        fileSize: uploadedFile.size,
-        fileType: uploadedFile.type,
-      },
-      "Starting workflow execution",
-    );
-
-    // Get workflow and verify ownership
-    const [workflowData] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-    if (!workflowData || workflowData.ownerId !== userId) {
-      throw new Error("Workflow not found");
-    }
-
-    // Parse workflow configuration
-    const config = await this.#parseWorkflowConfiguration(workflowData.configuration);
-
-    // Use the workflow execution service
-    const result = await this.deps.workflowExecutionService.executeWorkflow(
+  logger.info(
+    {
       workflowId,
-      workflowData.slug,
-      config,
-      userId,
-      uploadedFile,
-    );
+      executionId: result.executionId,
+      status: result.status,
+    },
+    "Workflow execution completed via service",
+  );
 
-    logger.info(
-      {
-        workflowId,
-        executionId: result.executionId,
-        status: result.status,
-      },
-      "Workflow execution completed via service",
-    );
+  return result;
+}
 
-    return result;
+
+export async function deleteWorkflow(workflowId: string, userId: string) {
+  // Check if workflow exists and user owns it
+  const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
+
+  if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
+    throw new Error("Workflow not found");
   }
 
-  async getWorkflowExecutions(workflowId: string, userId: string): Promise<WorkflowRun[]> {
-    return await this.deps.workflowExecutionService.getWorkflowExecutions(workflowId, userId);
+  // Delete workflow files
+  await db.delete(file).where(eq(file.id, existingWorkflow.fileId));
+
+  // Delete the workflow itself
+  await db.delete(workflow).where(eq(workflow.id, workflowId));
+}
+
+export async function updateWorkflowField(
+  workflowId: string,
+  fieldId: string,
+  userId: string,
+  updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id">>,
+) {
+  // Get the workflow
+  const workflowData = await getWorkflow(workflowId, userId);
+
+  // Find and update the field
+  const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
+  if (fieldIndex === -1) {
+    throw new Error("Field not found");
   }
 
-  async getAllExecutions(userId: string): Promise<WorkflowRun[]> {
-    return await this.deps.workflowExecutionService.getAllExecutions(userId);
+  // Update the field while preserving all required properties
+  const currentField = workflowData.configuration.fields[fieldIndex];
+  if (!currentField) {
+    throw new Error("Field not found");
   }
 
-  async getExecutionDetails(executionId: string, userId: string): Promise<WorkflowRun> {
-    return await this.deps.workflowExecutionService.getExecutionDetails(executionId, userId);
+  const updatedField = {
+    ...currentField,
+    ...updates,
+    id: fieldId, // Ensure ID is never changed
+    lastModified: new Date().toISOString(),
+  };
+
+  // Update the configuration
+  const updatedConfiguration: WorkflowConfiguration = {
+    ...workflowData.configuration,
+    fields: [
+      ...workflowData.configuration.fields.slice(0, fieldIndex),
+      updatedField,
+      ...workflowData.configuration.fields.slice(fieldIndex + 1),
+    ],
+  };
+
+  await updateWorkflow(workflowId, userId, {
+    configuration: updatedConfiguration,
+  });
+
+  return updatedField;
+}
+
+export async function updateWorkflowTable(
+  workflowId: string,
+  tableId: string,
+  userId: string,
+  updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.tables.element>, "id">>,
+) {
+  // Get the workflow
+  const workflowData = await getWorkflow(workflowId, userId);
+
+  // Find and update the table
+  const tableIndex = workflowData.configuration.tables.findIndex((t) => t.id === tableId);
+  if (tableIndex === -1) {
+    throw new Error("Table not found");
   }
 
-  async deleteWorkflow(workflowId: string, userId: string) {
-    // Check if workflow exists and user owns it
-    const [existingWorkflow] = await db.select().from(workflow).where(eq(workflow.id, workflowId));
-
-    if (!existingWorkflow || existingWorkflow.ownerId !== userId) {
-      throw new Error("Workflow not found");
-    }
-
-    // Delete workflow files
-    await db.delete(file).where(eq(file.id, existingWorkflow.fileId));
-
-    // Delete the workflow itself
-    await db.delete(workflow).where(eq(workflow.id, workflowId));
+  // Update the table while preserving all required properties
+  const currentTable = workflowData.configuration.tables[tableIndex];
+  if (!currentTable) {
+    throw new Error("Table not found");
   }
 
-  async deleteExecution(executionId: string, userId: string) {
-    return await this.deps.workflowExecutionService.deleteExecution(executionId, userId);
+  // Handle columns update
+  let updatedColumns = currentTable.columns;
+  if (updates.columns) {
+    updatedColumns = updates.columns.map((col, idx) => ({
+      id: col.id || currentTable.columns[idx]?.id || generateId(ID_PREFIXES.column),
+      slug: col.slug,
+      description: col.description,
+      type: col.type,
+    }));
   }
 
-  async updateWorkflowField(
-    workflowId: string,
-    fieldId: string,
-    userId: string,
-    updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id">>,
-  ) {
-    // Get the workflow
-    const workflowData = await this.getWorkflow(workflowId, userId);
+  const updatedTable = {
+    ...currentTable,
+    ...updates,
+    id: tableId, // Ensure ID is never changed
+    columns: updatedColumns,
+    lastModified: new Date().toISOString(),
+  };
 
-    // Find and update the field
-    const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
-    if (fieldIndex === -1) {
-      throw new Error("Field not found");
-    }
+  // Update the configuration
+  const updatedConfiguration: WorkflowConfiguration = {
+    ...workflowData.configuration,
+    tables: [
+      ...workflowData.configuration.tables.slice(0, tableIndex),
+      updatedTable,
+      ...workflowData.configuration.tables.slice(tableIndex + 1),
+    ],
+  };
 
-    // Update the field while preserving all required properties
-    const currentField = workflowData.configuration.fields[fieldIndex];
-    if (!currentField) {
-      throw new Error("Field not found");
-    }
+  await updateWorkflow(workflowId, userId, {
+    configuration: updatedConfiguration,
+  });
 
-    const updatedField = {
-      ...currentField,
-      ...updates,
-      id: fieldId, // Ensure ID is never changed
-      lastModified: new Date().toISOString(),
-    };
+  return updatedTable;
+}
 
-    // Update the configuration
-    const updatedConfiguration: WorkflowConfiguration = {
-      ...workflowData.configuration,
-      fields: [
-        ...workflowData.configuration.fields.slice(0, fieldIndex),
-        updatedField,
-        ...workflowData.configuration.fields.slice(fieldIndex + 1),
-      ],
-    };
+export async function createWorkflowField(
+  workflowId: string,
+  userId: string,
+  field: Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id" | "lastModified">,
+) {
+  // Get the workflow
+  const workflowData = await getWorkflow(workflowId, userId);
 
-    await this.updateWorkflow(workflowId, userId, {
-      configuration: updatedConfiguration,
-    });
+  // Create new field with generated ID
+  const newField = {
+    ...field,
+    id: generateId(ID_PREFIXES.field),
+    lastModified: new Date().toISOString(),
+  };
 
-    return updatedField;
+  // Update the configuration
+  const updatedConfiguration: WorkflowConfiguration = {
+    ...workflowData.configuration,
+    fields: [...workflowData.configuration.fields, newField],
+  };
+
+  await updateWorkflow(workflowId, userId, {
+    configuration: updatedConfiguration,
+  });
+
+  return newField;
+}
+
+export async function deleteWorkflowField(workflowId: string, fieldId: string, userId: string) {
+  // Get the workflow
+  const workflowData = await getWorkflow(workflowId, userId);
+
+  // Find the field
+  const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
+  if (fieldIndex === -1) {
+    throw new Error("Field not found");
   }
 
-  async updateWorkflowTable(
-    workflowId: string,
-    tableId: string,
-    userId: string,
-    updates: Partial<Omit<z.infer<typeof workflowConfigurationSchema.shape.tables.element>, "id">>,
-  ) {
-    // Get the workflow
-    const workflowData = await this.getWorkflow(workflowId, userId);
+  // Update the configuration by removing the field
+  const updatedConfiguration: WorkflowConfiguration = {
+    ...workflowData.configuration,
+    fields: workflowData.configuration.fields.filter((f) => f.id !== fieldId),
+  };
 
-    // Find and update the table
-    const tableIndex = workflowData.configuration.tables.findIndex((t) => t.id === tableId);
-    if (tableIndex === -1) {
-      throw new Error("Table not found");
-    }
+  await updateWorkflow(workflowId, userId, {
+    configuration: updatedConfiguration,
+  });
+}
 
-    // Update the table while preserving all required properties
-    const currentTable = workflowData.configuration.tables[tableIndex];
-    if (!currentTable) {
-      throw new Error("Table not found");
-    }
+type CreateTableInput = {
+  slug: string;
+  description: string;
+  categoryId: string;
+  columns: {
+    slug: string;
+    description: string;
+    type: "text" | "number" | "date" | "currency" | "boolean";
+  }[];
+};
 
-    // Handle columns update
-    let updatedColumns = currentTable.columns;
-    if (updates.columns) {
-      updatedColumns = updates.columns.map((col, idx) => ({
-        id: col.id || currentTable.columns[idx]?.id || generateId(ID_PREFIXES.column),
-        slug: col.slug,
-        description: col.description,
-        type: col.type,
-      }));
-    }
+export async function createWorkflowTable(
+  workflowId: string,
+  userId: string,
+  table: CreateTableInput,
+) {
+  // Get the workflow
+  const workflowData = await getWorkflow(workflowId, userId);
 
-    const updatedTable = {
-      ...currentTable,
-      ...updates,
-      id: tableId, // Ensure ID is never changed
-      columns: updatedColumns,
-      lastModified: new Date().toISOString(),
-    };
+  // Create new table with generated ID
+  const newTable = {
+    ...table,
+    id: generateId(ID_PREFIXES.table),
+    lastModified: new Date().toISOString(),
+    columns: table.columns.map((col) => ({
+      ...col,
+      id: generateId(ID_PREFIXES.column),
+    })),
+  };
 
-    // Update the configuration
-    const updatedConfiguration: WorkflowConfiguration = {
-      ...workflowData.configuration,
-      tables: [
-        ...workflowData.configuration.tables.slice(0, tableIndex),
-        updatedTable,
-        ...workflowData.configuration.tables.slice(tableIndex + 1),
-      ],
-    };
+  // Update the configuration
+  const updatedConfiguration: WorkflowConfiguration = {
+    ...workflowData.configuration,
+    tables: [...workflowData.configuration.tables, newTable],
+  };
 
-    await this.updateWorkflow(workflowId, userId, {
-      configuration: updatedConfiguration,
-    });
+  await updateWorkflow(workflowId, userId, {
+    configuration: updatedConfiguration,
+  });
 
-    return updatedTable;
+  return newTable;
+}
+
+export async function deleteWorkflowTable(workflowId: string, tableId: string, userId: string) {
+  // Get the workflow
+  const workflowData = await getWorkflow(workflowId, userId);
+
+  // Find the table
+  const tableIndex = workflowData.configuration.tables.findIndex((t) => t.id === tableId);
+  if (tableIndex === -1) {
+    throw new Error("Table not found");
   }
 
-  async createWorkflowField(
-    workflowId: string,
-    userId: string,
-    field: Omit<z.infer<typeof workflowConfigurationSchema.shape.fields.element>, "id" | "lastModified">,
-  ) {
-    // Get the workflow
-    const workflowData = await this.getWorkflow(workflowId, userId);
+  // Update the configuration by removing the table
+  const updatedConfiguration: WorkflowConfiguration = {
+    ...workflowData.configuration,
+    tables: workflowData.configuration.tables.filter((t) => t.id !== tableId),
+  };
 
-    // Create new field with generated ID
-    const newField = {
-      ...field,
-      id: generateId(ID_PREFIXES.field),
-      lastModified: new Date().toISOString(),
-    };
+  await updateWorkflow(workflowId, userId, {
+    configuration: updatedConfiguration,
+  });
+}
 
-    // Update the configuration
-    const updatedConfiguration: WorkflowConfiguration = {
-      ...workflowData.configuration,
-      fields: [...workflowData.configuration.fields, newField],
-    };
+export async function createWorkflowFromTemplateData(
+  slug: string,
+  description: string,
+  configuration: WorkflowConfiguration,
+  categories: CategoriesConfiguration,
+  sampleData: ExtractionResult,
+  templateFile: File,
+  userId: string,
+): Promise<{
+  workflowId: string;
+  fileId?: string;
+}> {
+  logger.info(`Creating new workflow from template ${slug}`);
 
-    await this.updateWorkflow(workflowId, userId, {
-      configuration: updatedConfiguration,
-    });
+  // Handle template file upload
+  const fileId = generateId(ID_PREFIXES.file);
+  const filename = `workflow-samples/${fileId}-${templateFile.name}`;
 
-    return newField;
-  }
+  await db.insert(file).values({
+    id: fileId,
+    filename,
+    createdAt: new Date(),
+    ownerId: userId,
+  });
 
-  async deleteWorkflowField(workflowId: string, fieldId: string, userId: string) {
-    // Get the workflow
-    const workflowData = await this.getWorkflow(workflowId, userId);
+  const fileBuffer = await templateFile.arrayBuffer();
+  await s3Client.file(filename).write(fileBuffer);
 
-    // Find the field
-    const fieldIndex = workflowData.configuration.fields.findIndex((f) => f.id === fieldId);
-    if (fieldIndex === -1) {
-      throw new Error("Field not found");
-    }
-
-    // Update the configuration by removing the field
-    const updatedConfiguration: WorkflowConfiguration = {
-      ...workflowData.configuration,
-      fields: workflowData.configuration.fields.filter((f) => f.id !== fieldId),
-    };
-
-    await this.updateWorkflow(workflowId, userId, {
-      configuration: updatedConfiguration,
-    });
-  }
-
-  async createWorkflowTable(
-    workflowId: string,
-    userId: string,
-    table: Omit<z.infer<typeof workflowConfigurationSchema.shape.tables.element>, "id" | "lastModified">,
-  ) {
-    // Get the workflow
-    const workflowData = await this.getWorkflow(workflowId, userId);
-
-    // Create new table with generated ID
-    const newTable = {
-      ...table,
-      id: generateId(ID_PREFIXES.table),
-      lastModified: new Date().toISOString(),
-      columns: table.columns.map((col) => ({
-        ...col,
-        id: generateId(ID_PREFIXES.column),
-      })),
-    };
-
-    // Update the configuration
-    const updatedConfiguration: WorkflowConfiguration = {
-      ...workflowData.configuration,
-      tables: [...workflowData.configuration.tables, newTable],
-    };
-
-    await this.updateWorkflow(workflowId, userId, {
-      configuration: updatedConfiguration,
-    });
-
-    return newTable;
-  }
-
-  async deleteWorkflowTable(workflowId: string, tableId: string, userId: string) {
-    // Get the workflow
-    const workflowData = await this.getWorkflow(workflowId, userId);
-
-    // Find the table
-    const tableIndex = workflowData.configuration.tables.findIndex((t) => t.id === tableId);
-    if (tableIndex === -1) {
-      throw new Error("Table not found");
-    }
-
-    // Update the configuration by removing the table
-    const updatedConfiguration: WorkflowConfiguration = {
-      ...workflowData.configuration,
-      tables: workflowData.configuration.tables.filter((t) => t.id !== tableId),
-    };
-
-    await this.updateWorkflow(workflowId, userId, {
-      configuration: updatedConfiguration,
-    });
-  }
-
-  async createWorkflowFromTemplateData(
-    slug: string,
-    description: string,
-    configuration: WorkflowConfiguration,
-    categories: CategoriesConfiguration,
-    sampleData: ExtractionResult,
-    templateFile: File,
-    userId: string,
-  ): Promise<{
-    workflowId: string;
-    fileId?: string;
-  }> {
-    logger.info(`Creating new workflow from template ${slug}`);
-
-    // Handle template file upload
-    const fileId = generateId(ID_PREFIXES.file);
-    const filename = `workflow-samples/${fileId}-${templateFile.name}`;
-
-    await db.insert(file).values({
-      id: fileId,
+  logger.info(
+    {
+      fileId,
       filename,
-      createdAt: new Date(),
-      ownerId: userId,
-    });
+      fileSize: templateFile.size,
+    },
+    "Template file uploaded to S3",
+  );
 
-    const fileBuffer = await templateFile.arrayBuffer();
-    await this.deps.s3.file(filename).write(fileBuffer);
+  // Generate new workflow ID
+  const workflowId = generateId(ID_PREFIXES.workflow);
 
-    logger.info(
-      {
-        fileId,
-        filename,
-        fileSize: templateFile.size,
-      },
-      "Template file uploaded to S3",
-    );
+  // Prepare the new workflow data - skip analysis and go straight to active
+  const newWorkflowData = {
+    id: workflowId,
+    slug: slug,
+    description: description || "",
+    categories: JSON.stringify(categories),
+    configuration: JSON.stringify(configuration),
+    sampleData: JSON.stringify(sampleData),
+    sampleDataExtractedAt: sampleData ? new Date() : null,
+    fileId: fileId, // Reference uploaded template file
+    status: "active" as const, // Skip analysis and go straight to active
+    ownerId: userId,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
 
-    // Generate new workflow ID
-    const workflowId = generateId(ID_PREFIXES.workflow);
+  // Insert the new workflow
+  await db.insert(workflow).values(newWorkflowData);
 
-    // Prepare the new workflow data - skip analysis and go straight to active
-    const newWorkflowData = {
-      id: workflowId,
-      slug: slug,
-      description: description || "",
-      categories: JSON.stringify(categories),
-      configuration: JSON.stringify(configuration),
-      sampleData: JSON.stringify(sampleData),
-      sampleDataExtractedAt: sampleData ? new Date() : null,
-      fileId: fileId, // Reference uploaded template file
-      status: "active" as const, // Skip analysis and go straight to active
-      ownerId: userId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+  logger.info("Workflow created successfully from template data");
 
-    // Insert the new workflow
-    await db.insert(workflow).values(newWorkflowData);
-
-    logger.info("Workflow created successfully from template data");
-
-    return {
-      workflowId,
-      fileId,
-    };
-  }
+  return {
+    workflowId,
+    fileId,
+  };
 }
