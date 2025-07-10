@@ -97,7 +97,6 @@ export const workflowExecution = pgTable("workflow_execution", {
     .references(() => user.id, { onDelete: "cascade" }),
 });
 
-
 export const modelPrice = pgTable("model_price", {
   id: text("id").primaryKey(),
   model: text("model").notNull(),
@@ -105,7 +104,6 @@ export const modelPrice = pgTable("model_price", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
-
 
 export const usageData = pgTable("usage_data", {
   id: text("id").primaryKey(),

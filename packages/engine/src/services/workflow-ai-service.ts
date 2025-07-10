@@ -1,70 +1,69 @@
-import { logger } from "@paperjet/shared";
-import type { IDReference, WorkflowConfiguration } from "../types";
-import { eq } from "drizzle-orm";
-import { s3Client } from "../lib/s3";
 import { db } from "@paperjet/db";
 import { file, workflow } from "@paperjet/db/schema";
+import { logger } from "@paperjet/shared";
+import { eq } from "drizzle-orm";
+import { s3Client } from "../lib/s3";
+import type { WorkflowConfiguration } from "../types";
 import { performCompleteAnalysis } from "./document-analysis-service";
 import { runDocumentExtraction } from "./document-extraction-service";
 
+export async function analyzeWorkflowDocument(workflowId: string): Promise<void> {
+  logger.info("Starting workflow document analysis");
 
-  export async function analyzeWorkflowDocument(workflowId: string): Promise<void> {
-    logger.info("Starting workflow document analysis");
+  // Get workflow and associated file
+  const [workflowData] = await db
+    .select({
+      workflowId: workflow.id,
+      workflowName: workflow.slug,
+      fileId: workflow.fileId,
+      filename: file.filename,
+    })
+    .from(workflow)
+    .leftJoin(file, eq(workflow.fileId, file.id))
+    .where(eq(workflow.id, workflowId));
 
-    // Get workflow and associated file
-    const [workflowData] = await db
-      .select({
-        workflowId: workflow.id,
-        workflowName: workflow.slug,
-        fileId: workflow.fileId,
-        filename: file.filename,
-      })
-      .from(workflow)
-      .leftJoin(file, eq(workflow.fileId, file.id))
-      .where(eq(workflow.id, workflowId));
-
-    if (!workflowData) {
-      throw new Error("Workflow not found");
-    }
-
-    if (!workflowData.fileId || !workflowData.filename) {
-      throw new Error("No file associated with this workflow");
-    }
-    // Get presigned URL for the existing file
-    const presignedUrl = await s3Client.presign(workflowData.filename);
-
-    // Use the document analysis service to perform complete analysis
-    const analysisResult = await performCompleteAnalysis(presignedUrl);
-
-    // Update workflow configuration with analysis results and set status to extracting
-    const configuration: WorkflowConfiguration = {
-      fields: analysisResult.fields,
-      tables: analysisResult.tables,
-    };
-
-    await db
-      .update(workflow)
-      .set({
-        slug: analysisResult.workflowName,
-        description: analysisResult.description,
-        categories: JSON.stringify(analysisResult.categories),
-        configuration: JSON.stringify(configuration),
-        status: "extracting",
-        updatedAt: new Date(),
-      })
-      .where(eq(workflow.id, workflowId));
-
-    logger.info("Workflow document analysis completed, triggering data extraction");
-
-    await runDocumentExtraction(presignedUrl, configuration);
+  if (!workflowData) {
+    throw new Error("Workflow not found");
   }
 
-  export async function extractDataFromDocument(
-    workflowId: string,
-    fileId: string,
-    userId: string,
-    configuration: WorkflowConfiguration,
-  ) {
+  if (!workflowData.fileId || !workflowData.filename) {
+    throw new Error("No file associated with this workflow");
+  }
+  // Get presigned URL for the existing file
+  const presignedUrl = await s3Client.presign(workflowData.filename);
+
+  // Use the document analysis service to perform complete analysis
+  const analysisResult = await performCompleteAnalysis(presignedUrl);
+
+  // Update workflow configuration with analysis results and set status to extracting
+  const configuration: WorkflowConfiguration = {
+    fields: analysisResult.fields,
+    tables: analysisResult.tables,
+  };
+
+  await db
+    .update(workflow)
+    .set({
+      slug: analysisResult.workflowName,
+      description: analysisResult.description,
+      categories: JSON.stringify(analysisResult.categories),
+      configuration: JSON.stringify(configuration),
+      status: "extracting",
+      updatedAt: new Date(),
+    })
+    .where(eq(workflow.id, workflowId));
+
+  logger.info("Workflow document analysis completed, triggering data extraction");
+
+  await runDocumentExtraction(presignedUrl, configuration);
+}
+
+export async function extractDataFromDocument(
+  workflowId: string,
+  fileId: string,
+  userId: string,
+  configuration: WorkflowConfiguration,
+) {
   logger.info("Starting data extraction from document");
   // Get file from database
   const [fileRecord] = await db.select().from(file).where(eq(file.id, fileId));
@@ -77,10 +76,7 @@ import { runDocumentExtraction } from "./document-extraction-service";
   const presignedUrl = await s3Client.presign(fileRecord.filename);
 
   // Use the document extraction service
-  const extractionResult = await runDocumentExtraction(
-    presignedUrl,
-    configuration,
-  );
+  const extractionResult = await runDocumentExtraction(presignedUrl, configuration);
 
   logger.info(
     {

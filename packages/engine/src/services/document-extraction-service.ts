@@ -3,11 +3,13 @@ import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { aiSdkModel } from "../lib/model";
-import type { ExtractionResult, WorkflowConfiguration } from "../types";
 import { trackUsage } from "../lib/usage";
+import type { ExtractionResult, WorkflowConfiguration } from "../types";
 
-
-export async function runDocumentExtraction(presignedUrl: string, configuration: WorkflowConfiguration): Promise<ExtractionResult> {
+export async function runDocumentExtraction(
+  presignedUrl: string,
+  configuration: WorkflowConfiguration,
+): Promise<ExtractionResult> {
   logger.info("Starting data extraction from document");
   // Build dynamic schema object based on provided fields and tables
   // TODO: for now, we will not extract fields per category, we will add that later
@@ -64,9 +66,7 @@ export async function runDocumentExtraction(presignedUrl: string, configuration:
 
   const tableDescriptions = configuration.tables
     .map((table) => {
-      const columnDescs = table.columns
-        .map((col) => `    - ${col.slug} (${col.type}): ${col.description}`)
-        .join("\n");
+      const columnDescs = table.columns.map((col) => `    - ${col.slug} (${col.type}): ${col.description}`).join("\n");
       return `- ${table.slug}: ${table.description}\n${columnDescs}`;
     })
     .join("\n");
@@ -131,9 +131,7 @@ export async function processExecutionFile(
   presignedUrl: string,
   config: WorkflowConfiguration,
 ): Promise<ExtractionResult> {
-  logger.info(
-    "Starting workflow execution file processing",
-  );
+  logger.info("Starting workflow execution file processing");
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey) {
     throw new Error("Google API key not configured");
@@ -194,9 +192,7 @@ export async function processExecutionFile(
 
   const tableDescriptions = config.tables
     .map((table) => {
-      const columnDescs = table.columns
-        .map((col) => `    - ${col.slug} (${col.type}): ${col.description}`)
-        .join("\n");
+      const columnDescs = table.columns.map((col) => `    - ${col.slug} (${col.type}): ${col.description}`).join("\n");
       return `- ${table.slug}: ${table.description}\n${columnDescs}`;
     })
     .join("\n");

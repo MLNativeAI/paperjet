@@ -14,10 +14,10 @@ import executions from "./routes/executions";
 import workflows from "./routes/workflows";
 
 const app = new Hono<{
-    Variables: {
-        user: typeof auth.$Infer.Session.user | null;
-        session: typeof auth.$Infer.Session.session | null;
-    };
+  Variables: {
+    user: typeof auth.$Infer.Session.user | null;
+    session: typeof auth.$Infer.Session.session | null;
+  };
 }>();
 
 app.use("*", otel());
@@ -32,40 +32,40 @@ app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
 // Health check
 app.get("/api/health", async (c) => {
-    logger.info({ endpoint: "/api/health", method: "GET" }, "health check");
-    return c.json({
-        status: "ok",
-    });
+  logger.info({ endpoint: "/api/health", method: "GET" }, "health check");
+  return c.json({
+    status: "ok",
+  });
 });
 
 export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions);
 
 if (process.env.NODE_ENV === "production") {
-    // Serve all static files from the dist directory
-    app.use("*", serveStatic({ root: "./dist" }));
+  // Serve all static files from the dist directory
+  app.use("*", serveStatic({ root: "./dist" }));
 
-    // Serve index.html for all other routes (SPA fallback)
-    app.get("*", serveStatic({ path: "./dist/index.html" }));
+  // Serve index.html for all other routes (SPA fallback)
+  app.get("*", serveStatic({ path: "./dist/index.html" }));
 } else {
-    app.get("*", (c) => {
-        return c.redirect(envVars.BASE_URL);
-    });
+  app.get("*", (c) => {
+    return c.redirect(envVars.BASE_URL);
+  });
 }
 
 const server = Bun.serve({
-    port: envVars.PORT,
-    hostname: "0.0.0.0",
-    fetch: app.fetch,
-    idleTimeout: 60,
+  port: envVars.PORT,
+  hostname: "0.0.0.0",
+  fetch: app.fetch,
+  idleTimeout: 60,
 });
 
 logger.info(
-    {
-        port: server.port,
-        environment: envVars.ENVIRONMENT,
-        hostname: "0.0.0.0",
-    },
-    `🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`,
+  {
+    port: server.port,
+    environment: envVars.ENVIRONMENT,
+    hostname: "0.0.0.0",
+  },
+  `🚀 Server running on port ${server.port} in ${envVars.ENVIRONMENT} mode`,
 );
 
 export type ApiRoutes = typeof apiRoutes;

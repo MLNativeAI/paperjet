@@ -387,9 +387,7 @@ export default function EditTableSheet({
 
             <EditSheetFooter
               mode={mode}
-              isSubmitting={
-                mode === "create" ? createTableMutation.isPending : updateTableMutation.isPending
-              }
+              isSubmitting={mode === "create" ? createTableMutation.isPending : updateTableMutation.isPending}
               onDelete={mode === "edit" ? handleDelete : undefined}
               isDeleting={deleteTableMutation.isPending}
               submitLabel={{

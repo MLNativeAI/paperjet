@@ -27,8 +27,6 @@ const testCases: TestCase[] = [
 const timeout = 60000;
 
 describe("test document extraction accuracy", () => {
-  const service = new DocumentExtractionService();
-
   // Ensure cache directory exists
   ensureCacheDir();
 

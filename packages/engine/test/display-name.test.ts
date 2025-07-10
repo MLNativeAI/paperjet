@@ -78,15 +78,9 @@ describe("toSlug", () => {
 
 describe("bidirectional conversion", () => {
   test("toDisplayName and toSlug are reversible for standard cases", () => {
-    const testCases = [
-      "line_items",
-      "invoice_number", 
-      "total_amount",
-      "customer_name",
-      "due_date"
-    ];
+    const testCases = ["line_items", "invoice_number", "total_amount", "customer_name", "due_date"];
 
-    testCases.forEach(slug => {
+    testCases.forEach((slug) => {
       const displayName = toDisplayName(slug);
       const backToSlug = toSlug(displayName);
       expect(backToSlug).toBe(slug);
@@ -94,15 +88,9 @@ describe("bidirectional conversion", () => {
   });
 
   test("toSlug and toDisplayName are reversible for standard cases", () => {
-    const testCases = [
-      "Line Items",
-      "Invoice Number",
-      "Total Amount", 
-      "Customer Name",
-      "Due Date"
-    ];
+    const testCases = ["Line Items", "Invoice Number", "Total Amount", "Customer Name", "Due Date"];
 
-    testCases.forEach(displayName => {
+    testCases.forEach((displayName) => {
       const slug = toSlug(displayName);
       const backToDisplayName = toDisplayName(slug);
       expect(backToDisplayName).toBe(displayName);
@@ -113,7 +101,7 @@ describe("bidirectional conversion", () => {
     // These won't be perfectly reversible due to special character removal
     expect(toSlug("Total Amount!")).toBe("total_amount");
     expect(toDisplayName(toSlug("Total Amount!"))).toBe("Total Amount");
-    
+
     expect(toSlug("Line Items @#$")).toBe("line_items");
     expect(toDisplayName(toSlug("Line Items @#$"))).toBe("Line Items");
   });

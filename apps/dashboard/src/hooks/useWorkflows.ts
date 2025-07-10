@@ -3,41 +3,41 @@ import { toast } from "sonner";
 import { deleteWorkflow as deleteWorkflowApi, getAllWorkflows } from "@/lib/api";
 
 export function useWorkflows() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const {
-        data: workflows = [],
-        isLoading,
-        refetch,
-    } = useQuery({
-        queryKey: ["workflows"],
-        queryFn: getAllWorkflows,
-    });
+  const {
+    data: workflows = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["workflows"],
+    queryFn: getAllWorkflows,
+  });
 
-    const deleteWorkflow = useMutation({
-        mutationFn: ({ workflowId }: { workflowId: string }) => deleteWorkflowApi(workflowId),
-        onSuccess: () => {
-            toast.success("Workflow deleted successfully");
-            queryClient.invalidateQueries({ queryKey: ["workflows"] });
-        },
-        onError: () => {
-            toast.error("Failed to delete workflow");
-        },
-    });
+  const deleteWorkflow = useMutation({
+    mutationFn: ({ workflowId }: { workflowId: string }) => deleteWorkflowApi(workflowId),
+    onSuccess: () => {
+      toast.success("Workflow deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
+    },
+    onError: () => {
+      toast.error("Failed to delete workflow");
+    },
+  });
 
-    const handleDeleteWorkflow = async (workflowId: string, workflowName: string) => {
-        if (!confirm(`Are you sure you want to delete "${workflowName}"? This action cannot be undone.`)) {
-            return;
-        }
+  const handleDeleteWorkflow = async (workflowId: string, workflowName: string) => {
+    if (!confirm(`Are you sure you want to delete "${workflowName}"? This action cannot be undone.`)) {
+      return;
+    }
 
-        deleteWorkflow.mutate({ workflowId });
-    };
+    deleteWorkflow.mutate({ workflowId });
+  };
 
-    return {
-        workflows,
-        isLoading,
-        refetch,
-        handleDeleteWorkflow,
-        deleteWorkflow,
-    };
+  return {
+    workflows,
+    isLoading,
+    refetch,
+    handleDeleteWorkflow,
+    deleteWorkflow,
+  };
 }

@@ -1,4 +1,3 @@
-import type { IDReference } from "@paperjet/engine/types";
 import type { LanguageModelUsage } from "ai";
 
 export async function trackUsage(name: string, model: string, usage: LanguageModelUsage) {

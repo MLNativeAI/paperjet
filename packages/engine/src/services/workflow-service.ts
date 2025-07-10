@@ -3,19 +3,16 @@ import { file, workflow } from "@paperjet/db/schema";
 import { logger } from "@paperjet/shared";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { s3Client } from "../lib/s3";
 import {
   type CategoriesConfiguration,
   type ExtractionResult,
-  type TableConfiguration,
   type Workflow,
   type WorkflowConfiguration,
-  type WorkflowRun,
   workflowConfigurationSchema,
 } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
-import { s3Client } from "../lib/s3";
 import { executeWorkflow } from "./execution-service";
-
 
 async function parseWorkflowConfiguration(configuration: string): Promise<WorkflowConfiguration> {
   const parsed = JSON.parse(configuration);
@@ -233,12 +230,7 @@ export async function executeWorkflowFromConfig(workflowId: string, userId: stri
   const config = await parseWorkflowConfiguration(workflowData.configuration);
 
   // Use the workflow execution service
-  const result = await executeWorkflow(
-    workflowId,
-    config,
-    userId,
-    uploadedFile,
-  );
+  const result = await executeWorkflow(workflowId, config, userId, uploadedFile);
 
   logger.info(
     {
@@ -251,7 +243,6 @@ export async function executeWorkflowFromConfig(workflowId: string, userId: stri
 
   return result;
 }
-
 
 export async function deleteWorkflow(workflowId: string, userId: string) {
   // Check if workflow exists and user owns it
@@ -430,11 +421,7 @@ type CreateTableInput = {
   }[];
 };
 
-export async function createWorkflowTable(
-  workflowId: string,
-  userId: string,
-  table: CreateTableInput,
-) {
+export async function createWorkflowTable(workflowId: string, userId: string, table: CreateTableInput) {
   // Get the workflow
   const workflowData = await getWorkflow(workflowId, userId);
 
