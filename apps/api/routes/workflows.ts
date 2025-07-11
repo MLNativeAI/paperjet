@@ -115,6 +115,7 @@ const tableParamSchema = z.object({
 const router = app
   .get("/", async (c) => {
     try {
+      logger.info("Getting workflows");
       const user = await getUser(c);
       const workflows = await getWorkflows(user.id);
       return c.json(workflows);
@@ -222,7 +223,7 @@ const router = app
     try {
       const { id: workflowId } = c.req.valid("param");
 
-      // Start analysis in background (don't await)
+      // dont await, we want to return immediately
       analyzeWorkflowDocument(workflowId);
 
       // Return immediately

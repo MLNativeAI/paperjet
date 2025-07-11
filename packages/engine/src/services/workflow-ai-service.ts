@@ -29,6 +29,7 @@ export async function analyzeWorkflowDocument(workflowId: string): Promise<void>
   if (!workflowData.fileId || !workflowData.filename) {
     throw new Error("No file associated with this workflow");
   }
+
   // Get presigned URL for the existing file
   const presignedUrl = await s3Client.presign(workflowData.filename);
 
@@ -78,15 +79,12 @@ export async function extractDataFromDocument(
   // Use the document extraction service
   const extractionResult = await runDocumentExtraction(presignedUrl, configuration);
 
-  logger.info(
-    {
-      workflowId,
-      fileId,
-      extractedFieldsCount: extractionResult.fields.length,
-      extractedTablesCount: extractionResult.tables.length,
-    },
-    "Data extraction from document completed",
-  );
+  logger.info("Data extraction from document completed", {
+    workflowId,
+    fileId,
+    extractedFieldsCount: extractionResult.fields.length,
+    extractedTablesCount: extractionResult.tables.length,
+  });
 
   // Store sample data in workflow_sample table
   await db
@@ -107,15 +105,12 @@ export async function extractDataFromDocument(
     })
     .where(eq(workflow.id, workflowId));
 
-  logger.info(
-    {
-      workflowId,
-      fileId,
-      extractedFieldsCount: extractionResult.fields.length,
-      extractedTablesCount: extractionResult.tables.length,
-    },
-    "Sample data stored in workflow_sample table",
-  );
+  logger.info("Sample data stored in workflow_sample table", {
+    workflowId,
+    fileId,
+    extractedFieldsCount: extractionResult.fields.length,
+    extractedTablesCount: extractionResult.tables.length,
+  });
 
   return {
     fileId,

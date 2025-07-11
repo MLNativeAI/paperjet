@@ -1,4 +1,5 @@
 import pino from "pino";
+import { ExecutionContext } from "./context";
 
 const createLogger = () => {
   const transports = [];
@@ -24,8 +25,19 @@ const createLogger = () => {
     });
   }
 
+  const injectContext = () => {
+    // if (process.env.NODE_ENV === "production") {
+      const context = ExecutionContext.get();
+      return context || {};
+    // }
+    // return {};
+  }
+
   const rootLogger = pino(
-    { level: process.env.LOG_LEVEL || "debug" },
+    {
+      level: process.env.LOG_LEVEL || "debug",
+      mixin: injectContext,
+    },
     transports.length > 0
       ? pino.transport({
           targets: transports,

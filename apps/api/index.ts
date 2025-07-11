@@ -2,14 +2,15 @@
 import "./instrumentation";
 
 import { otel } from "@hono/otel";
-import { logger } from "@paperjet/shared";
+import { ExecutionContext, logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { logger as honoLogger } from "hono/logger";
 import { poweredBy } from "hono/powered-by";
-import { type auth, authHandler, requireAuth } from "./lib/auth";
+import { type auth, authHandler, getUser, requireAuth } from "./lib/auth";
 import { corsMiddleware } from "./lib/cors";
 import { envVars } from "./lib/env";
+import { withContext } from "./lib/with-context";
 import executions from "./routes/executions";
 import workflows from "./routes/workflows";
 
@@ -27,6 +28,8 @@ app.use(honoLogger());
 app.use("/api/*", corsMiddleware);
 // Require authentication for all API routes
 app.use("/api/*", requireAuth);
+// Inject context into the request
+app.use("/api/*", withContext);
 // BetterAuth handler
 app.on(["POST", "GET"], "/api/auth/*", authHandler);
 

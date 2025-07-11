@@ -233,7 +233,7 @@ Instructions:
     ],
   });
 
-  await trackUsage("document-extraction", aiSdkModel().modelId, usage);
+  await trackUsage("document-extraction", model.modelId, usage);
 
   // Transform result to match our extraction result schema
   const result: ExtractionResult = {
