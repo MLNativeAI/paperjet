@@ -1,6 +1,7 @@
 import { db } from "@paperjet/db";
 import { file, workflow, workflowExecution } from "@paperjet/db/schema";
 import { logger } from "@paperjet/shared";
+import { withExecutionContext } from "@paperjet/shared/src/context";
 import { and, desc, eq } from "drizzle-orm";
 import { s3Client } from "../lib/s3";
 import type { CategoriesConfiguration, WorkflowConfiguration, WorkflowRun } from "../types";
@@ -46,7 +47,11 @@ export async function executeWorkflow(
   // Extract data using extraction service
   logger.info({ executionId, workflowId }, "Starting data extraction for workflow execution");
   const presignedUrl = await s3Client.presign(filename);
-  const extractionResult = await runDocumentExtraction(presignedUrl, config);
+
+  let extractionResult: any;
+  await withExecutionContext({ executionId, workflowId }, async () => {
+    extractionResult = await runDocumentExtraction(presignedUrl, config);
+  });
 
   // Update execution with results
   await db

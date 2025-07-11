@@ -3,7 +3,7 @@ import type { WorkflowConfiguration } from "../types";
 
 export function buildExtractionSchema(configuration: WorkflowConfiguration) {
   const fieldSchemas: Record<string, any> = {};
-  
+
   configuration.fields.forEach((field) => {
     switch (field.type) {
       case "number":
@@ -24,10 +24,10 @@ export function buildExtractionSchema(configuration: WorkflowConfiguration) {
   });
 
   const tableSchemas: Record<string, any> = {};
-  
+
   configuration.tables.forEach((table) => {
     const columnSchemas: Record<string, any> = {};
-    
+
     table.columns.forEach((col) => {
       switch (col.type) {
         case "number":
@@ -46,7 +46,7 @@ export function buildExtractionSchema(configuration: WorkflowConfiguration) {
           columnSchemas[col.slug] = z.string().nullable();
       }
     });
-    
+
     tableSchemas[table.slug] = z.array(z.object(columnSchemas));
   });
 

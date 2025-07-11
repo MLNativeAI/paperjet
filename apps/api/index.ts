@@ -2,12 +2,12 @@
 import "./instrumentation";
 
 import { otel } from "@hono/otel";
-import { ExecutionContext, logger } from "@paperjet/shared";
+import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { logger as honoLogger } from "hono/logger";
 import { poweredBy } from "hono/powered-by";
-import { type auth, authHandler, getUser, requireAuth } from "./lib/auth";
+import { type auth, authHandler, requireAuth } from "./lib/auth";
 import { corsMiddleware } from "./lib/cors";
 import { envVars } from "./lib/env";
 import { withContext } from "./lib/with-context";

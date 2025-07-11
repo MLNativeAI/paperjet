@@ -7,7 +7,7 @@ export function generateId(prefix: string): string {
 export const ID_PREFIXES = {
   file: "fil",
   workflow: "wkf",
-  workflowExecution: "run",
+  workflowExecution: "exe",
   workflowFile: "wfl",
   WORKFLOW_SAMPLE: "wsp",
   user: "usr",

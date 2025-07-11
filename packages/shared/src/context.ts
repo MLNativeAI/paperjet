@@ -4,20 +4,39 @@ import type { IdReference } from "./types";
 
 const contextStorage = new AsyncLocalStorage<IdReference>();
 
-export class ExecutionContext {
-  static run<T>(idReference: IdReference, fn: () => Promise<T>): Promise<T> {
-    return contextStorage.run(idReference, fn);
-  }
+export function runExecutionContext<T>(idReference: IdReference, fn: () => Promise<T>): Promise<T> {
+  return contextStorage.run(idReference, fn);
+}
 
-  static get(): IdReference | undefined {
-    return contextStorage.getStore();
-  }
+export function getExecutionContext(): IdReference | undefined {
+  return contextStorage.getStore();
+}
 
-  static getOrThrow(): IdReference {
-    const context = contextStorage.getStore();
-    if (!context) {
-      throw new Error("No execution context available");
-    }
-    return context;
+export function getOrThrowExecutionContext(): IdReference {
+  const context = contextStorage.getStore();
+  if (!context) {
+    throw new Error("No execution context available");
   }
+  return context;
+}
+
+export async function withExecutionContext<T>(
+  {
+    executionId,
+    workflowId,
+  }: {
+    executionId?: string;
+    workflowId?: string;
+  },
+  fn: () => Promise<T>,
+): Promise<T> {
+  const existingContext = getExecutionContext();
+  return runExecutionContext(
+    {
+      ...existingContext,
+      executionId,
+      workflowId,
+    },
+    fn,
+  );
 }

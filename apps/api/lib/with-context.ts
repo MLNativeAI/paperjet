@@ -1,6 +1,6 @@
-import { ExecutionContext } from "@paperjet/shared";
 import type { Context } from "hono";
 import { getUser } from "./auth";
+import { runExecutionContext } from "@paperjet/shared/src/context";
 
 export const withContext = async <T>(c: Context, next: () => Promise<T>): Promise<T> => {
   const user = await getUser(c);
@@ -8,5 +8,5 @@ export const withContext = async <T>(c: Context, next: () => Promise<T>): Promis
   const executionId = c.req.param("executionId");
   const env = Bun.env.ENVIRONMENT;
 
-  return await ExecutionContext.run({ userId: user.id, workflowId, executionId, env }, () => next());
+  return await runExecutionContext({ userId: user.id, workflowId, executionId, env }, () => next());
 };

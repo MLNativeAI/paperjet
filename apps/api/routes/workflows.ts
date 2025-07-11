@@ -17,7 +17,7 @@ import {
   updateWorkflowTable,
 } from "@paperjet/engine";
 import type { CategoriesConfiguration, ExtractionResult, WorkflowConfiguration } from "@paperjet/engine/types";
-import { logger } from "@paperjet/shared";
+import { logger, withExecutionContext } from "@paperjet/shared";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getUser } from "@/lib/auth";
@@ -224,7 +224,10 @@ const router = app
       const { id: workflowId } = c.req.valid("param");
 
       // dont await, we want to return immediately
-      analyzeWorkflowDocument(workflowId);
+
+      await withExecutionContext({ workflowId }, async () => {
+        return await analyzeWorkflowDocument(workflowId);
+      });
 
       // Return immediately
       return c.json({ message: "Analysis started", workflowId });

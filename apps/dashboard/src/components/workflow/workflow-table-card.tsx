@@ -24,9 +24,6 @@ export default function WorkflowTableCard({
   const columnCount = table.columns.length;
   const isOutdated = isTableOutdated(table, sampleDataExtractedAt);
 
-  console.log(sampleData);
-  console.log(table);
-
   return (
     <Card className={cn(isOutdated && "opacity-50")}>
       <CardHeader>
