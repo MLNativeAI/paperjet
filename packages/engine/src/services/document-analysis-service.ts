@@ -1,8 +1,6 @@
 import { logger } from "@paperjet/shared";
-import { generateObject } from "ai";
 import { z } from "zod";
-import { aiSdkModel } from "../lib/model";
-import { trackUsage } from "../lib/usage";
+import { generateObject } from "../lib/ai-sdk-wrapper";
 import type { CategoriesConfiguration, FieldsConfiguration, TableConfiguration } from "../types";
 import { generateId, ID_PREFIXES } from "../utils/id";
 
@@ -77,8 +75,7 @@ async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof
         Example: "Extracts invoice details, vendor information, billing information, line items and payment terms"
         3. A workflow name for the document type ex. Invoice processor
         `;
-  const { object, usage } = await generateObject({
-    model: aiSdkModel(),
+  const result = await generateObject("document-analysis", {
     schema: documentTypeSchema,
     messages: [
       {
@@ -97,9 +94,7 @@ async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof
     ],
   });
 
-  await trackUsage("document-analysis", aiSdkModel().modelId, usage);
-
-  return object;
+  return result.object;
 }
 
 const categoriesZodSchema = z.object({
@@ -138,8 +133,7 @@ For each table within a category, provide:
 - description: What the table contains
 
 Important: Categories should be listed in the order they appear in the document, and tables should be nested within their respective categories. Focus on business-relevant data structures and logical information groupings.`;
-  const { object, usage } = await generateObject({
-    model: aiSdkModel(),
+  const result = await generateObject("categories-and-tables", {
     schema: categoriesZodSchema,
     messages: [
       {
@@ -158,18 +152,16 @@ Important: Categories should be listed in the order they appear in the document,
     ],
   });
 
-  await trackUsage("categories-and-tables", aiSdkModel().modelId, usage);
-
   logger.info(
     {
-      categoriesCount: object.categories.length,
-      tablesCount: object.categories.reduce((total, cat) => total + cat.tables.length, 0),
-      categories: object.categories.map((c) => c.displayName),
+      categoriesCount: result.object.categories.length,
+      tablesCount: result.object.categories.reduce((total, cat) => total + cat.tables.length, 0),
+      categories: result.object.categories.map((c) => c.displayName),
     },
     "Categories and tables extraction completed",
   );
 
-  return object;
+  return result.object;
 }
 
 // Schema for extracting all fields at once with category assignments
@@ -228,8 +220,7 @@ Examples of good field descriptions:
 
 Extract all fields from the document, ensuring no duplicates.`;
 
-  const { object, usage } = await generateObject({
-    model: aiSdkModel(),
+  const result = await generateObject("all-fields-extraction", {
     schema: allFieldsExtractionSchema,
     messages: [
       {
@@ -248,13 +239,11 @@ Extract all fields from the document, ensuring no duplicates.`;
     ],
   });
 
-  await trackUsage("all-fields-extraction", aiSdkModel().modelId, usage);
-
   // Create a map from slug to categoryId for conversion
   const slugToCategoryId = new Map(categories.map((cat) => [cat.slug, cat.categoryId]));
 
   // Convert slugs to categoryIds in the extracted fields and add IDs
-  const fieldsWithCorrectCategoryIds = object.fields.map((field) => ({
+  const fieldsWithCorrectCategoryIds = result.object.fields.map((field) => ({
     id: generateId(ID_PREFIXES.field),
     ...field,
     categoryId: slugToCategoryId.get(field.categoryId) || field.categoryId, // Use the mapped categoryId or keep original if not found
@@ -316,8 +305,7 @@ Analyze the actual tabular data for "${table.slug}" and provide:
 
 If the table "${table.slug}" is not found or has no actual tabular data in the document, return an empty columns array.`;
 
-  const { object, usage } = await generateObject({
-    model: aiSdkModel(),
+  const result = await generateObject("table-fields-extraction", {
     schema: singleTableExtractionSchema,
     messages: [
       {
@@ -336,8 +324,6 @@ If the table "${table.slug}" is not found or has no actual tabular data in the d
     ],
   });
 
-  await trackUsage("table-fields-extraction", aiSdkModel().modelId, usage);
-
   logger.info("Field extraction for table completed");
 
   return {
@@ -347,7 +333,7 @@ If the table "${table.slug}" is not found or has no actual tabular data in the d
       .replace(/\s+/g, "_")
       .replace(/[^a-z0-9_]/g, ""),
     description: table.description,
-    columns: object.columns.map((column) => ({
+    columns: result.object.columns.map((column) => ({
       id: generateId(ID_PREFIXES.column),
       slug: column.name,
       type: column.type,

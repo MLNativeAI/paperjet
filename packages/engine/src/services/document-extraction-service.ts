@@ -1,7 +1,5 @@
 import { logger } from "@paperjet/shared";
-import { generateObject } from "ai";
-import { aiSdkModel } from "../lib/model";
-import { trackUsage } from "../lib/usage";
+import { generateObject } from "../lib/ai-sdk-wrapper";
 import type { ExtractionResult, WorkflowConfiguration } from "../types";
 import { buildExtractionSchema } from "../utils/build-extraction-schema";
 
@@ -40,8 +38,7 @@ Instructions:
 - If a field is not found or unclear, return null
 - For tables, extract all rows found
 - Maintain data accuracy and completeness`;
-  const { object, usage } = await generateObject({
-    model: aiSdkModel(),
+  const result = await generateObject("document-extraction", {
     schema: schemaObj,
     messages: [
       {
@@ -60,17 +57,15 @@ Instructions:
     ],
   });
 
-  await trackUsage("document-extraction", aiSdkModel().modelId, usage);
-
   // Transform the result to match our extraction result schema
   const extractionResult: ExtractionResult = {
     fields: configuration.fields.map((field) => ({
       fieldName: field.slug,
-      value: (object as any)[field.slug],
+      value: (result.object as any)[field.slug],
     })),
     tables: configuration.tables.map((table) => ({
       slug: table.slug,
-      rows: ((object as any)[table.slug] || []).map((row: any) => ({
+      rows: ((result.object as any)[table.slug] || []).map((row: any) => ({
         values: row,
       })),
     })),

@@ -1,0 +1,1 @@
+ALTER TABLE "usage_data" ADD COLUMN "duration_ms" integer;

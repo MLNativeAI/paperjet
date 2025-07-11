@@ -52,7 +52,7 @@ const calculateCost = (usagePrice: UsagePrice, usage: LanguageModelUsage): {
   };
 };
 
-export async function trackUsage(name: string, model: string, usage: LanguageModelUsage) {
+export async function trackUsage(name: string, model: string, usage: LanguageModelUsage, durationMs?: number) {
   const context = ExecutionContext.get();
 
   const modelPrice = await getModelPrice(model);
@@ -70,6 +70,7 @@ export async function trackUsage(name: string, model: string, usage: LanguageMod
     outputCost,
     totalTokens: usage.totalTokens || 0,
     totalCost,
+    durationMs,
     userId: context?.userId,
     workflowId: context?.workflowId,
     executionId: context?.executionId,

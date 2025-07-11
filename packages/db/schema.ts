@@ -119,6 +119,7 @@ export const usageData = pgTable("usage_data", {
   outputCost: numeric("output_cost"),
   totalTokens: integer("total_tokens").notNull(),
   totalCost: numeric("total_cost", { precision: 10, scale: 4 }),
+  durationMs: integer("duration_ms"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });

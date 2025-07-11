@@ -1,3 +1,4 @@
+export * from "./src/lib/ai-sdk-wrapper";
 export * from "./src/services/document-analysis-service";
 export * from "./src/services/document-extraction-service";
 export * from "./src/services/execution-service";
