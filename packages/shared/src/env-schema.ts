@@ -25,11 +25,6 @@ export const envSchema = z.object({
   // logging
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().default("paperjet"),
-
-  // langfuse
-  LANGFUSE_SECRET_KEY: z.string().optional(),
-  LANGFUSE_PUBLIC_KEY: z.string().optional(),
-  LANGFUSE_BASE_URL: z.string().url().optional(),
 });
 
 // Export the inferred type for use across packages
