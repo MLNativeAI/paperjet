@@ -25,6 +25,9 @@ export const envSchema = z.object({
   // logging
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().default("paperjet"),
+
+  // authentication mode
+  AUTH_MODE: z.enum(["classic", "saas"]).default("classic"),
 });
 
 // Export the inferred type for use across packages

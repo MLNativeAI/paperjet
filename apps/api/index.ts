@@ -12,6 +12,7 @@ import { corsMiddleware } from "./lib/cors";
 import { envVars } from "./lib/env";
 import { withContext } from "./lib/with-context";
 import executions from "./routes/executions";
+import setup from "./routes/setup";
 import workflows from "./routes/workflows";
 
 const app = new Hono<{
@@ -41,7 +42,14 @@ app.get("/api/health", async (c) => {
   });
 });
 
-export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions);
+// Auth mode endpoint
+app.get("/api/auth/mode", async (c) => {
+  return c.json({
+    mode: envVars.AUTH_MODE,
+  });
+});
+
+export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions).route("/setup", setup);
 
 if (process.env.NODE_ENV === "production") {
   // Serve all static files from the dist directory

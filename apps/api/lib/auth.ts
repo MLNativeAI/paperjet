@@ -10,7 +10,7 @@ import type { Context, Next } from "hono";
 import { Resend } from "resend";
 import { envVars } from "./env";
 
-const publicRoutes = ["/api/health", "/api/auth/**"];
+const publicRoutes = ["/api/health", "/api/auth/**", "/api/setup/**"];
 
 const resend = envVars.RESEND_API_KEY ? new Resend(envVars.RESEND_API_KEY) : null;
 
@@ -25,6 +25,37 @@ export const auth = betterAuth({
     provider: "pg",
     schema: schema,
   }),
+  emailAndPassword: {
+    enabled: envVars.AUTH_MODE === "classic",
+    requireEmailVerification: false,
+    sendResetPassword: async ({ user, url }, _request) => {
+      if (!resend) {
+        logger.info({ email: user.email, url }, `Password reset link: ${url}`);
+        return;
+      }
+
+      try {
+        logger.info({ email: user.email, url }, `Sending password reset link to ${user.email}`);
+        await resend.emails.send({
+          from: envVars.FROM_EMAIL,
+          to: user.email,
+          subject: "Reset your PaperJet password",
+          html: `
+            <div>
+              <h2>Reset your password</h2>
+              <p>Click the link below to reset your password:</p>
+              <a href="${url}" style="display: inline-block; padding: 10px 20px; background: #000; color: #fff; text-decoration: none; border-radius: 5px;">Reset Password</a>
+              <p>If you didn't request this, you can safely ignore this email.</p>
+              <p>This link will expire in 1 hour.</p>
+            </div>
+          `,
+        });
+      } catch (error) {
+        logger.error({ error }, "Failed to send password reset email");
+        throw error;
+      }
+    },
+  },
   user: {
     additionalFields: {
       role: {
@@ -41,6 +72,7 @@ export const auth = betterAuth({
             data: {
               ...user,
               id: generateId(ID_PREFIXES.user),
+              role: user.role || "user", // Default to "user" role if not specified
             },
           };
         },
@@ -84,30 +116,36 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    admin(),
-    magicLink({
-      sendMagicLink: async ({ email, token, url }, _request) => {
-        if (!resend) {
-          console.log(`Magic link for ${email}: ${url}`);
-          return;
-        }
-
-        try {
-          logger.info({ email, url }, `Sending magic link to ${email}: ${url}`);
-          const emailHtml = await render(MagicLinkEmail({ url, token }));
-
-          await resend.emails.send({
-            from: envVars.FROM_EMAIL,
-            to: email,
-            subject: "Sign in to PaperJet",
-            html: emailHtml,
-          });
-        } catch (error) {
-          console.error("Failed to send magic link email:", error);
-          throw error;
-        }
-      },
+    admin({
+      defaultRole: "user",
     }),
+    ...(envVars.AUTH_MODE === "saas" || envVars.AUTH_MODE === "classic"
+      ? [
+          magicLink({
+            sendMagicLink: async ({ email, token, url }, _request) => {
+              if (!resend) {
+                console.log(`Magic link for ${email}: ${url}`);
+                return;
+              }
+
+              try {
+                logger.info({ email, url }, `Sending magic link to ${email}: ${url}`);
+                const emailHtml = await render(MagicLinkEmail({ url, token }));
+
+                await resend.emails.send({
+                  from: envVars.FROM_EMAIL,
+                  to: email,
+                  subject: "Sign in to PaperJet",
+                  html: emailHtml,
+                });
+              } catch (error) {
+                console.error("Failed to send magic link email:", error);
+                throw error;
+              }
+            },
+          }),
+        ]
+      : []),
   ],
   socialProviders: {
     google: {

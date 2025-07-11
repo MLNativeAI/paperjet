@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { getAuthMode, type AuthMode } from "@/lib/auth-mode";
 
 const GoogleIcon = () => (
   <svg className="h-4 w-4" viewBox="0 0 24 24" role="img" aria-label="Google logo">
@@ -42,9 +43,20 @@ const MicrosoftIcon = () => (
 export function SignInForm({ className, ...props }: React.ComponentProps<"div">) {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [authMethod, setAuthMethod] = useState<"social" | "magiclink">("social");
+  const [authMethod, setAuthMethod] = useState<"social" | "magiclink" | "password">("social");
   const [magicLinkSent, setMagicLinkSent] = useState(false);
-  const _navigate = useNavigate();
+  const [authMode, setAuthMode] = useState<AuthMode>("classic");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    getAuthMode().then(mode => {
+      setAuthMode(mode);
+      // In SaaS mode, don't show password option
+      if (mode === "saas" && authMethod === "password") {
+        setAuthMethod("social");
+      }
+    });
+  }, []);
 
   const handleSocialSignIn = async (provider: "google" | "microsoft") => {
     setError("");
@@ -58,6 +70,35 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
       // The loading state will be reset when the component unmounts or page reloads
     } catch (_err) {
       setError("An error occurred during sign in");
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const { error } = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message || "Invalid email or password");
+        return;
+      }
+
+      toast.success("Signed in successfully!");
+      navigate({ to: "/" });
+    } catch (_err) {
+      setError("An unexpected error occurred");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -133,9 +174,16 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
                   </div>
                 </div>
 
-                <Button type="button" variant="ghost" className="w-full" onClick={() => setAuthMethod("magiclink")}>
-                  Sign in with magic link
-                </Button>
+                <div className="flex flex-col gap-2">
+                  {authMode === "classic" && (
+                    <Button type="button" variant="ghost" className="w-full" onClick={() => setAuthMethod("password")}>
+                      Sign in with email & password
+                    </Button>
+                  )}
+                  <Button type="button" variant="ghost" className="w-full" onClick={() => setAuthMethod("magiclink")}>
+                    Sign in with magic link
+                  </Button>
+                </div>
               </>
             )}
 
@@ -202,6 +250,60 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
                     </Button>
                   </div>
                 )}
+              </div>
+            )}
+
+            {authMethod === "password" && (
+              <div className="flex flex-col gap-3">
+                <form onSubmit={handlePasswordSignIn}>
+                  <div className="flex flex-col gap-3">
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="m@example.com"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password">Password</Label>
+                        <Link
+                          from="/auth/sign-in"
+                          to="/auth/forgot-password"
+                          className="text-sm underline-offset-4 hover:underline"
+                        >
+                          Forgot password?
+                        </Link>
+                      </div>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Sign in
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => {
+                        setAuthMethod("social");
+                        setError("");
+                      }}
+                    >
+                      Back to other options
+                    </Button>
+                  </div>
+                </form>
               </div>
             )}
 
