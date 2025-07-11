@@ -138,7 +138,7 @@ For each table within a category, provide:
 - description: What the table contains
 
 Important: Categories should be listed in the order they appear in the document, and tables should be nested within their respective categories. Focus on business-relevant data structures and logical information groupings.`;
-  const { object } = await generateObject({
+  const { object, usage } = await generateObject({
     model: aiSdkModel(),
     schema: categoriesZodSchema,
     messages: [
@@ -157,6 +157,8 @@ Important: Categories should be listed in the order they appear in the document,
       },
     ],
   });
+
+  await trackUsage("categories-and-tables", aiSdkModel().modelId, usage);
 
   logger.info(
     {
@@ -226,7 +228,7 @@ Examples of good field descriptions:
 
 Extract all fields from the document, ensuring no duplicates.`;
 
-  const { object } = await generateObject({
+  const { object, usage } = await generateObject({
     model: aiSdkModel(),
     schema: allFieldsExtractionSchema,
     messages: [
@@ -245,6 +247,8 @@ Extract all fields from the document, ensuring no duplicates.`;
       },
     ],
   });
+
+  await trackUsage("all-fields-extraction", aiSdkModel().modelId, usage);
 
   // Create a map from slug to categoryId for conversion
   const slugToCategoryId = new Map(categories.map((cat) => [cat.slug, cat.categoryId]));
@@ -312,7 +316,7 @@ Analyze the actual tabular data for "${table.slug}" and provide:
 
 If the table "${table.slug}" is not found or has no actual tabular data in the document, return an empty columns array.`;
 
-  const { object } = await generateObject({
+  const { object, usage } = await generateObject({
     model: aiSdkModel(),
     schema: singleTableExtractionSchema,
     messages: [
@@ -331,6 +335,8 @@ If the table "${table.slug}" is not found or has no actual tabular data in the d
       },
     ],
   });
+
+  await trackUsage("table-fields-extraction", aiSdkModel().modelId, usage);
 
   logger.info("Field extraction for table completed");
 

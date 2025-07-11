@@ -19,18 +19,18 @@ const createLogger = () => {
       target: "pino-pretty",
       options: {
         colorize: true,
-        ignore: "pid,hostname",
+        ignore: "pid,hostname,env",
         translateTime: "HH:MM:ss",
       },
     });
   }
 
   const injectContext = () => {
-    // if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production") {
       const context = ExecutionContext.get();
       return context || {};
-    // }
-    // return {};
+    }
+    return {};
   }
 
   const rootLogger = pino(

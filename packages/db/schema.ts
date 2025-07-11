@@ -1,4 +1,4 @@
-import { boolean, integer, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const file = pgTable("file", {
   id: text("id").primaryKey(),
@@ -107,15 +107,16 @@ export const modelPrice = pgTable("model_price", {
 
 export const usageData = pgTable("usage_data", {
   id: text("id").primaryKey(),
-  idReference: text("id_reference").notNull(),
   name: text("name").notNull(),
-  userId: text("user_id").notNull(),
   model: text("model").notNull(),
-  inputTokens: integer("input_tokens"),
+  userId: text("user_id"),
+  workflowId: text("workflow_id"),
+  executionId: text("execution_id"),
+  inputTokens: integer("input_tokens").notNull(),
   inputCost: numeric("input_cost"),
-  outputTokens: integer("output_tokens"),
+  outputTokens: integer("output_tokens").notNull(),
   outputCost: numeric("output_cost"),
-  totalTokens: integer("total_tokens"),
+  totalTokens: integer("total_tokens").notNull(),
   totalCost: numeric("total_cost", { precision: 10, scale: 4 }),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
