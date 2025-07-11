@@ -1,10 +1,9 @@
-import { google } from "@ai-sdk/google";
 import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
-import { z } from "zod";
 import { aiSdkModel } from "../lib/model";
 import { trackUsage } from "../lib/usage";
 import type { ExtractionResult, WorkflowConfiguration } from "../types";
+import { buildExtractionSchema } from "../utils/build-extraction-schema";
 
 export async function runDocumentExtraction(
   presignedUrl: string,
@@ -12,52 +11,7 @@ export async function runDocumentExtraction(
 ): Promise<ExtractionResult> {
   logger.info("Starting data extraction from document");
   // Build dynamic schema object based on provided fields and tables
-  // TODO: for now, we will not extract fields per category, we will add that later
-  const fieldSchemas: Record<string, any> = {};
-  configuration.fields.forEach((field) => {
-    switch (field.type) {
-      case "number":
-        fieldSchemas[field.slug] = z.number().nullable();
-        break;
-      case "date":
-        fieldSchemas[field.slug] = z.string().nullable(); // Date as ISO string
-        break;
-      case "currency":
-        fieldSchemas[field.slug] = z.number().nullable(); // Currency as number
-        break;
-      case "boolean":
-        fieldSchemas[field.slug] = z.boolean().nullable();
-        break;
-      default:
-        fieldSchemas[field.slug] = z.string().nullable();
-    }
-  });
-
-  const tableSchemas: Record<string, any> = {};
-  configuration.tables.forEach((table) => {
-    const columnSchemas: Record<string, any> = {};
-    table.columns.forEach((col) => {
-      switch (col.type) {
-        case "number":
-          columnSchemas[col.slug] = z.number().nullable();
-          break;
-        case "date":
-          columnSchemas[col.slug] = z.string().nullable();
-          break;
-        case "currency":
-          columnSchemas[col.slug] = z.number().nullable();
-          break;
-        case "boolean":
-          columnSchemas[col.slug] = z.boolean().nullable();
-          break;
-        default:
-          columnSchemas[col.slug] = z.string().nullable();
-      }
-    });
-    tableSchemas[table.slug] = z.array(z.object(columnSchemas));
-  });
-
-  const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
+  const schemaObj = buildExtractionSchema(configuration);
 
   // Build extraction prompt with field descriptions
   const fieldDescriptions = configuration.fields
@@ -125,131 +79,4 @@ Instructions:
   logger.info("Data extraction completed successfully");
 
   return extractionResult;
-}
-
-export async function processExecutionFile(
-  presignedUrl: string,
-  config: WorkflowConfiguration,
-): Promise<ExtractionResult> {
-  logger.info("Starting workflow execution file processing");
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  if (!apiKey) {
-    throw new Error("Google API key not configured");
-  }
-
-  const model = google("gemini-2.5-flash");
-
-  // Build dynamic schema object based on provided fields and tables
-  const fieldSchemas: Record<string, any> = {};
-  config.fields.forEach((field) => {
-    switch (field.type) {
-      case "number":
-        fieldSchemas[field.slug] = z.number().nullable();
-        break;
-      case "date":
-        fieldSchemas[field.slug] = z.string().nullable();
-        break;
-      case "currency":
-        fieldSchemas[field.slug] = z.number().nullable();
-        break;
-      case "boolean":
-        fieldSchemas[field.slug] = z.boolean().nullable();
-        break;
-      default:
-        fieldSchemas[field.slug] = z.string().nullable();
-    }
-  });
-
-  const tableSchemas: Record<string, any> = {};
-  config.tables.forEach((table) => {
-    const columnSchemas: Record<string, any> = {};
-    table.columns.forEach((col) => {
-      switch (col.type) {
-        case "number":
-          columnSchemas[col.slug] = z.number().nullable();
-          break;
-        case "date":
-          columnSchemas[col.slug] = z.string().nullable();
-          break;
-        case "currency":
-          columnSchemas[col.slug] = z.number().nullable();
-          break;
-        case "boolean":
-          columnSchemas[col.slug] = z.boolean().nullable();
-          break;
-        default:
-          columnSchemas[col.slug] = z.string().nullable();
-      }
-    });
-    tableSchemas[table.slug] = z.array(z.object(columnSchemas));
-  });
-
-  const schemaObj = z.object({ ...fieldSchemas, ...tableSchemas });
-
-  const fieldDescriptions = config.fields
-    .map((field) => `- ${field.slug} (${field.type}): ${field.description}`)
-    .join("\n");
-
-  const tableDescriptions = config.tables
-    .map((table) => {
-      const columnDescs = table.columns.map((col) => `    - ${col.slug} (${col.type}): ${col.description}`).join("\n");
-      return `- ${table.slug}: ${table.description}\n${columnDescs}`;
-    })
-    .join("\n");
-
-  const prompt = `Extract the following information from this document:
-
-FIELDS TO EXTRACT:
-${fieldDescriptions}
-
-${tableDescriptions ? `TABLES TO EXTRACT:\n${tableDescriptions}` : ""}
-
-Instructions:
-- Extract exact values as they appear in the document
-- For currency fields, extract as numbers (remove currency symbols)
-- For date fields, use ISO format (YYYY-MM-DD)
-- For boolean fields, return true/false based on presence or checkmarks
-- If a field is not found or unclear, return null
-- For tables, extract all rows found
-- Maintain data accuracy and completeness`;
-
-  const { object, usage } = await generateObject({
-    model,
-    schema: schemaObj,
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: prompt,
-          },
-          {
-            type: "image",
-            image: new URL(presignedUrl),
-          },
-        ],
-      },
-    ],
-  });
-
-  await trackUsage("document-extraction", model.modelId, usage);
-
-  // Transform result to match our extraction result schema
-  const result: ExtractionResult = {
-    fields: config.fields.map((field) => ({
-      fieldName: field.slug,
-      value: (object as any)[field.slug],
-    })),
-    tables: config.tables.map((table) => ({
-      slug: table.slug,
-      rows: ((object as any)[table.slug] || []).map((row: any) => ({
-        values: row,
-      })),
-    })),
-  };
-
-  logger.info("Workflow execution file processing completed");
-
-  return result;
 }

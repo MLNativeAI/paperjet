@@ -1,4 +1,5 @@
-import { boolean, integer, jsonb, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { boolean, integer, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const file = pgTable("file", {
   id: text("id").primaryKey(),
@@ -97,16 +98,16 @@ export const workflowExecution = pgTable("workflow_execution", {
     .references(() => user.id, { onDelete: "cascade" }),
 });
 
-export const modelPrice = pgTable("model_price", {
-  id: text("id").primaryKey(),
+export const usageModelPrice = pgTable("usage_model_price", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
   model: text("model").notNull(),
-  price: numeric("price").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  inputCostPerMillionTokens: numeric("input_cost_per_million_tokens", { precision: 10, scale: 4 }).notNull(),
+  outputCostPerMillionTokens: numeric("output_cost_per_million_tokens", { precision: 10, scale: 4 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const usageData = pgTable("usage_data", {
-  id: text("id").primaryKey(),
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   model: text("model").notNull(),
   userId: text("user_id"),

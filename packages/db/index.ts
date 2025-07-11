@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import * as schema from "./schema";
 
 const queryClient = postgres(
   Bun.env.DATABASE_URL ||
@@ -8,4 +9,4 @@ const queryClient = postgres(
     })(),
 );
 
-export const db = drizzle({ client: queryClient });
+export const db = drizzle({ client: queryClient, schema });
