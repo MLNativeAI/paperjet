@@ -15,7 +15,7 @@ export type AnalysisResult = {
 };
 
 export async function performCompleteAnalysis(presignedUrl: string): Promise<AnalysisResult> {
-  logger.info({ presignedUrl }, "Starting complete document analysis");
+  logger.info("Starting complete document analysis");
   // Step 1: Analyze document type and identify categories/tables
   const [documentTypeAnalysis, categoriesAndTables] = await Promise.all([
     analyzeDocumentType(presignedUrl),
@@ -68,7 +68,7 @@ const documentTypeSchema = z.object({
 });
 
 async function analyzeDocumentType(presignedUrl: string): Promise<z.infer<typeof documentTypeSchema>> {
-  logger.info({ presignedUrl }, "Starting document type analysis");
+  logger.info("Starting document type analysis");
 
   const prompt = `You're a document analysis expert. Analyze this document and provide:
 

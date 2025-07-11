@@ -17,6 +17,7 @@ export async function analyzeWorkflowDocument(workflowId: string): Promise<void>
       workflowName: workflow.slug,
       fileId: workflow.fileId,
       filename: file.filename,
+      ownerId: workflow.ownerId,
     })
     .from(workflow)
     .leftJoin(file, eq(workflow.fileId, file.id))
@@ -56,7 +57,7 @@ export async function analyzeWorkflowDocument(workflowId: string): Promise<void>
 
   logger.info("Workflow document analysis completed, triggering data extraction");
 
-  await runDocumentExtraction(presignedUrl, configuration);
+  await extractDataFromDocument(workflowId, workflowData.fileId, workflowData.ownerId, configuration);
 }
 
 export async function extractDataFromDocument(
