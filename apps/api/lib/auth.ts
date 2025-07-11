@@ -5,7 +5,7 @@ import { generateId, ID_PREFIXES } from "@paperjet/engine";
 import { logger } from "@paperjet/shared";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { magicLink } from "better-auth/plugins";
+import { admin, magicLink } from "better-auth/plugins";
 import type { Context, Next } from "hono";
 import { Resend } from "resend";
 import { envVars } from "./env";
@@ -25,6 +25,14 @@ export const auth = betterAuth({
     provider: "pg",
     schema: schema,
   }),
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        input: false,
+      },
+    },
+  },
   databaseHooks: {
     user: {
       create: {
@@ -76,6 +84,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    admin(),
     magicLink({
       sendMagicLink: async ({ email, token, url }, _request) => {
         if (!resend) {
@@ -146,6 +155,14 @@ export const requireAuth = async (c: Context, next: Next) => {
 
 export const authHandler = async (c: Context) => {
   return auth.handler(c.req.raw);
+};
+
+export const getUserIfLoggedIn = async (c: Context): Promise<string | undefined> => {
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  if (!session) {
+    return undefined;
+  }
+  return session.user.id;
 };
 
 export const getUser = async (c: Context): Promise<User> => {

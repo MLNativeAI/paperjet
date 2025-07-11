@@ -1,4 +1,4 @@
-import { BookOpen, FileText, Play, Settings } from "lucide-react";
+import { BookOpen, FileText, Play, Settings, Shield } from "lucide-react";
 import type * as React from "react";
 import {
   Sidebar,
@@ -13,6 +13,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavUser } from "./nav-user";
+import { authClient } from "@/lib/auth-client";
 
 // This is sample data.
 const data = {
@@ -33,6 +34,12 @@ const data = {
       icon: Settings,
     },
     {
+      title: "Admin",
+      url: "/admin",
+      icon: Shield,
+      adminOnly: true,
+    },
+    {
       title: "Documentation",
       url: "https://docs.getpaperjet.com/",
       icon: BookOpen,
@@ -41,6 +48,11 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
+
+  const isAdmin = user?.role === "admin";
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -54,7 +66,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupContent>
             <SidebarMenu>
               {data.navMain.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.title} hidden={item.adminOnly && !isAdmin}>
                   <SidebarMenuButton asChild>
                     <a
                       href={item.url}
