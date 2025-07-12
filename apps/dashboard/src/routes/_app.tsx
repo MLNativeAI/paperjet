@@ -11,10 +11,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { api, getAdminSetup } from "@/lib/api";
 
 export const Route = createFileRoute("/_app")({
   component: PathlessLayoutComponent,
   beforeLoad: async ({ location }) => {
+
+    const adminSetup = await getAdminSetup()
+    console.log(adminSetup)
     const { data: session } = await authClient.getSession();
     if (!session) {
       throw redirect({

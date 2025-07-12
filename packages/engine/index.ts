@@ -4,4 +4,5 @@ export * from "./src/services/document-extraction-service";
 export * from "./src/services/execution-service";
 export * from "./src/services/workflow-ai-service";
 export * from "./src/services/workflow-service";
+export * from "./src/services/admin-service.ts"
 export * from "./src/utils/id";

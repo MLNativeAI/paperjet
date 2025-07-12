@@ -344,3 +344,8 @@ export const updateWorkflowBasicData = async (
 
   return response.json();
 };
+
+export const getAdminSetup = async () => {
+  const response = await api.admin.$get({})
+  return response.json();
+}
