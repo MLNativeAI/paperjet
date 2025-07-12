@@ -1,12 +1,18 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { authClient } from "@/lib/auth-client";
-import { getAdminSetup } from "@/lib/api";
+import { isAdminSetupRequired } from "@/lib/api";
 
 export const Route = createFileRoute("/auth")({
   beforeLoad: async () => {
-    const adminSetup = await getAdminSetup()
+    const adminSetup = await isAdminSetupRequired()
     console.log(adminSetup)
+
+    if (adminSetup) {
+      throw redirect({
+        to: "/admin/setup"
+      })
+    }
 
     const { data: session } = await authClient.getSession();
     if (session) {

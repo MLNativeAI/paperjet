@@ -15,6 +15,7 @@ import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AuthVerifyMagicLinkRouteImport } from './routes/auth/verify-magic-link'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
+import { Route as AdminSetupRouteImport } from './routes/admin/setup'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppRunsRouteImport } from './routes/_app.runs'
 import { Route as AppWorkflowsNewRouteImport } from './routes/_app.workflows.new'
@@ -52,6 +53,11 @@ const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
   getParentRoute: () => AuthRouteRoute,
+} as any)
+const AdminSetupRoute = AdminSetupRouteImport.update({
+  id: '/admin/setup',
+  path: '/admin/setup',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/runs': typeof AppRunsRoute
   '/settings': typeof AppSettingsRoute
+  '/admin/setup': typeof AdminSetupRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-magic-link': typeof AuthVerifyMagicLinkRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
   '/runs': typeof AppRunsRoute
   '/settings': typeof AppSettingsRoute
+  '/admin/setup': typeof AdminSetupRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-magic-link': typeof AuthVerifyMagicLinkRoute
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_app/runs': typeof AppRunsRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/admin/setup': typeof AdminSetupRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-magic-link': typeof AuthVerifyMagicLinkRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/runs'
     | '/settings'
+    | '/admin/setup'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/auth/verify-magic-link'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/runs'
     | '/settings'
+    | '/admin/setup'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/auth/verify-magic-link'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_app/runs'
     | '/_app/settings'
+    | '/admin/setup'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/auth/verify-magic-link'
@@ -198,6 +210,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
+  AdminSetupRoute: typeof AdminSetupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -243,6 +256,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/sign-in'
       preLoaderRoute: typeof AuthSignInRouteImport
       parentRoute: typeof AuthRouteRoute
+    }
+    '/admin/setup': {
+      id: '/admin/setup'
+      path: '/admin/setup'
+      fullPath: '/admin/setup'
+      preLoaderRoute: typeof AdminSetupRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/settings': {
       id: '/_app/settings'
@@ -348,6 +368,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   AppRoute: AppRouteWithChildren,
+  AdminSetupRoute: AdminSetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
