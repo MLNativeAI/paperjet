@@ -19,56 +19,6 @@ export const getWorkflow = async (workflowId: string) => {
   return response.json();
 };
 
-// export const updateWorkflow = async (
-//     workflowId: string,
-//     data: {
-//         name: string;
-//         fields: ExtractionField[];
-//         description?: string;
-//         isPublic?: boolean;
-//     },
-// ) => {
-//     const response = await api.workflows[":id"].$put({
-//         param: { id: workflowId },
-//         json: {
-//             name: data.name,
-//             fields: data.fields,
-//             description: data.description,
-//             isPublic: data.isPublic,
-//         },
-//     });
-
-//     if (!response.ok) {
-//         throw new Error("Failed to update workflow");
-//     }
-
-//     return response.json();
-// };
-
-// export const extractData = async (
-//     workflowId: string,
-//     data: {
-//         fileId: string;
-//         fields?: ExtractionField[];
-//         tables?: ExtractionTable[];
-//     },
-// ) => {
-//     const response = await api.workflows[":id"].extract.$post({
-//         param: { id: workflowId },
-//         json: {
-//             fileId: data.fileId,
-//             fields: data.fields,
-//             tables: data.tables,
-//         },
-//     });
-
-//     if (!response.ok) {
-//         throw new Error("Failed to extract data");
-//     }
-
-//     return response.json();
-// };
-
 export const getAnalysisStatus = async (workflowId: string) => {
   const response = await api.workflows[":id"].$get({
     param: { id: workflowId },
@@ -394,3 +344,13 @@ export const updateWorkflowBasicData = async (
 
   return response.json();
 };
+
+export const isAdminSetupRequired = async () => {
+  const response = await api.admin.$get({})
+  return response.json();
+}
+
+export const getAuthMode = async () => {
+  const response = await api.admin['auth-mode'].$get({})
+  return response.json();
+}

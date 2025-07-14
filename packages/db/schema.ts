@@ -128,3 +128,8 @@ export const usageData = pgTable("usage_data", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const adminSetup = pgTable("admin_setup", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  admin_exists: boolean("admin_exists").notNull().default(false)
+})

@@ -13,6 +13,7 @@ import { envVars } from "./lib/env";
 import { withContext } from "./lib/with-context";
 import executions from "./routes/executions";
 import workflows from "./routes/workflows";
+import admin from "./routes/admin";
 
 const app = new Hono<{
   Variables: {
@@ -27,7 +28,8 @@ app.use(honoLogger());
 // Cors middleware for local development
 app.use("/api/*", corsMiddleware);
 // Require authentication for all API routes
-app.use("/api/*", requireAuth);
+app.use("/api/workflows", requireAuth);
+app.use("/api/executions", requireAuth);
 // Inject context into the request
 app.use("/api/*", withContext);
 // BetterAuth handler
@@ -41,7 +43,7 @@ app.get("/api/health", async (c) => {
   });
 });
 
-export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions);
+export const apiRoutes = app.basePath("/api").route("/workflows", workflows).route("/executions", executions).route('/admin', admin)
 
 if (process.env.NODE_ENV === "production") {
   // Serve all static files from the dist directory

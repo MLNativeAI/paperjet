@@ -12,8 +12,8 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { NavUser } from "./nav-user";
 import { authClient } from "@/lib/auth-client";
+import { NavUser } from "./nav-user";
 
 // This is sample data.
 const data = {
