@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { authClient } from "@/lib/auth-client";
-import { isAdminSetupRequired } from "@/lib/api";
+import { getAuthMode, isAdminSetupRequired } from "@/lib/api";
 
 export const Route = createFileRoute("/auth")({
   beforeLoad: async () => {
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/auth")({
         to: "/",
       });
     }
+
   },
   component: AuthLayout,
 });

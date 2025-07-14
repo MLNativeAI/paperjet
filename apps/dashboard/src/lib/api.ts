@@ -349,3 +349,8 @@ export const isAdminSetupRequired = async () => {
   const response = await api.admin.$get({})
   return response.json();
 }
+
+export const getAuthMode = async () => {
+  const response = await api.admin['auth-mode'].$get({})
+  return response.json();
+}

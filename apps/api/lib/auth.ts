@@ -10,7 +10,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, createAuthMiddleware, magicLink } from "better-auth/plugins";
 import type { Context, Next } from "hono";
 import { Resend } from "resend";
-import { envVars } from "./env";
+import { envVars, getAuthMode } from "./env";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];
 
@@ -24,11 +24,11 @@ export const auth = betterAuth({
     },
   },
   emailAndPassword: {
-    enabled: true,
+    enabled: getAuthMode() == 'password',
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path == "/sign-up/email") {
+      if (ctx.path == "/sign-up/email" && getAuthMode() == 'password') {
         const isAdminSetupRequired = await isSetupRequired();
         if (!isAdminSetupRequired) {
           throw new APIError("BAD_REQUEST", { message: "An admin account already exists" })
@@ -53,7 +53,7 @@ export const auth = betterAuth({
       create: {
         before: async (user) => {
           const isAdminSetupRequired = await isSetupRequired();
-          if (isAdminSetupRequired) {
+          if (Bun.env.SAAS_MODE && isAdminSetupRequired) {
             return {
               data: {
                 ...user,
@@ -199,3 +199,4 @@ export const getUser = async (c: Context): Promise<User> => {
   }
   return session.user;
 };
+
