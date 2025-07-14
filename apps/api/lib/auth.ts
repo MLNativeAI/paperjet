@@ -29,10 +29,9 @@ export const auth = betterAuth({
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
       if (ctx.path == "/sign-up/email") {
-        if (!isSetupRequired()) {
+        const isAdminSetupRequired = await isSetupRequired();
+        if (!isAdminSetupRequired) {
           throw new APIError("BAD_REQUEST", { message: "An admin account already exists" })
-        } else {
-
         }
       }
     })
@@ -53,14 +52,24 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
-          return {
-            data: {
-              ...user,
-              id: generateId(ID_PREFIXES.user),
-              role: 'admin',
-              emailVerified: true
-            },
-          };
+          const isAdminSetupRequired = await isSetupRequired();
+          if (isAdminSetupRequired) {
+            return {
+              data: {
+                ...user,
+                id: generateId(ID_PREFIXES.user),
+                role: 'admin',
+                emailVerified: true
+              },
+            };
+          } else {
+            return {
+              data: {
+                ...user,
+                id: generateId(ID_PREFIXES.user),
+              },
+            }
+          }
         },
       },
     },
