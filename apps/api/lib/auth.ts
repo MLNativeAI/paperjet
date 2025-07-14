@@ -24,18 +24,8 @@ export const auth = betterAuth({
     },
   },
   emailAndPassword: {
-    enabled: getAuthMode() == 'password',
+    enabled: true
   },
-  // hooks: {
-  //   before: createAuthMiddleware(async (ctx) => {
-  //     if (ctx.path == "/sign-up/email" && getAuthMode() == 'password') {
-  //       const isAdminSetupRequired = await isSetupRequired();
-  //       if (!isAdminSetupRequired) {
-  //         throw new APIError("BAD_REQUEST", { message: "An admin account already exists" })
-  //       }
-  //     }
-  //   })
-  // },
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: schema,
@@ -53,7 +43,7 @@ export const auth = betterAuth({
       create: {
         before: async (user) => {
           const isAdminSetupRequired = await isSetupRequired();
-          if (getAuthMode() == 'password' && isAdminSetupRequired) {
+          if (isAdminSetupRequired) {
             return {
               data: {
                 ...user,

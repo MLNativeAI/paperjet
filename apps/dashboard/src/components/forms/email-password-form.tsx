@@ -28,6 +28,13 @@ const getFailureMessage = (formMode: FormMode): string => {
   }
 }
 
+const getSubmitButtonText = (formMode: FormMode): string => {
+  switch (formMode) {
+    case 'sign-in': return 'Sign in'
+    case 'sign-up': return "Create account"
+    case 'admin-sign-up': return 'Create admin account'
+  }
+}
 export function EmailPasswordForm({
   formMode,
   setError, isLoading, setIsLoading
@@ -103,7 +110,7 @@ export function EmailPasswordForm({
         </div>
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Sign in
+          {getSubmitButtonText(formMode)}
         </Button>
       </form>
     </Form>
