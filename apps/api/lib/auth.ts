@@ -24,7 +24,7 @@ export const auth = betterAuth({
     },
   },
   emailAndPassword: {
-    enabled: true
+    enabled: true,
   },
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -48,8 +48,8 @@ export const auth = betterAuth({
               data: {
                 ...user,
                 id: generateId(ID_PREFIXES.user),
-                role: 'admin',
-                emailVerified: true
+                role: "admin",
+                emailVerified: true,
               },
             };
           } else {
@@ -58,7 +58,7 @@ export const auth = betterAuth({
                 ...user,
                 id: generateId(ID_PREFIXES.user),
               },
-            }
+            };
           }
         },
       },
@@ -189,4 +189,3 @@ export const getUser = async (c: Context): Promise<User> => {
   }
   return session.user;
 };
-
