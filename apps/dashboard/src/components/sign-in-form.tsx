@@ -35,6 +35,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
             />}
             {authMode === 'password' &&
               <EmailPasswordForm
+                formMode='sign-in'
                 setError={setError}
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}

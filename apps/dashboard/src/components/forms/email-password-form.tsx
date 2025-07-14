@@ -9,9 +9,30 @@ import { Form, FormField, FormItem, FormLabel, FormControl } from "../ui/form";
 import { Input } from "../ui/input";
 import { Loader2 } from "lucide-react";
 
+export type FormMode = 'sign-in' | 'sign-up' | 'admin-sign-up'
+
+
+const getSuccessMessage = (formMode: FormMode): string => {
+  switch (formMode) {
+    case 'sign-in': return 'Signed in successfully'
+    case 'admin-sign-up': return 'Admin account created successfully'
+    case 'sign-up': return 'Account created successfully'
+  }
+}
+
+const getFailureMessage = (formMode: FormMode): string => {
+  switch (formMode) {
+    case 'sign-in': return 'Failed to sign in'
+    case 'admin-sign-up': return 'Failed to create account'
+    case 'sign-up': return 'Failed to create account'
+  }
+}
+
 export function EmailPasswordForm({
+  formMode,
   setError, isLoading, setIsLoading
 }: {
+  formMode: FormMode,
   setError: (_: string) => void,
   isLoading: boolean,
   setIsLoading: (_: boolean) => void
@@ -24,19 +45,33 @@ export function EmailPasswordForm({
   })
   const form = useForm<z.infer<typeof emailPasswordSchema>>({ resolver: zodResolver(emailPasswordSchema) });
 
+  const callAuthFunction = async (values: z.infer<typeof emailPasswordSchema>) => {
+    if (formMode == 'sign-in') {
+      const { data, error } = await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+      })
+      return { data, error }
+    } else {
+      const { data, error } = await authClient.signUp.email({
+        email: values.email,
+        password: values.password,
+        name: values.email,
+      })
+      return { data, error }
+    }
+  }
+
   const onSubmit = async (values: z.infer<typeof emailPasswordSchema>) => {
     setIsLoading(true)
-    const { data, error } = await authClient.signIn.email({
-      email: values.email,
-      password: values.password,
-    })
+    const { data, error } = await callAuthFunction(values)
     setIsLoading(false)
     if (data) {
-      toast.success("Signed in successfully")
+      toast.success(getSuccessMessage(formMode))
       await navigate({ to: "/" })
     } else {
-      setError(error.message || '')
-      toast.error("Sign in failed")
+      setError(error?.message || '')
+      toast.error(getFailureMessage(formMode))
       console.error(error)
     }
   }
