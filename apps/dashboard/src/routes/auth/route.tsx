@@ -5,10 +5,9 @@ import { isAdminSetupRequired } from "@/lib/api";
 
 export const Route = createFileRoute("/auth")({
   beforeLoad: async () => {
-    const adminSetup = await isAdminSetupRequired()
-    console.log(adminSetup)
+    const { isSetupRequired } = await isAdminSetupRequired()
 
-    if (adminSetup) {
+    if (isSetupRequired) {
       throw redirect({
         to: "/admin/setup"
       })

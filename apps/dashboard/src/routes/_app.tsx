@@ -17,8 +17,8 @@ export const Route = createFileRoute("/_app")({
   component: PathlessLayoutComponent,
   beforeLoad: async ({ location }) => {
 
-    const setupRequired = await isAdminSetupRequired()
-    if (setupRequired) {
+    const { isSetupRequired } = await isAdminSetupRequired()
+    if (isSetupRequired) {
       throw redirect({
         to: "/admin/setup"
       })

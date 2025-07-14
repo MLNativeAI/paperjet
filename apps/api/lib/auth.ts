@@ -1,11 +1,13 @@
 import { db } from "@paperjet/db";
 import * as schema from "@paperjet/db/schema";
 import { MagicLinkEmail, render } from "@paperjet/email";
-import { generateId, ID_PREFIXES } from "@paperjet/engine";
+import { generateId, ID_PREFIXES, isSetupRequired } from "@paperjet/engine";
 import { logger } from "@paperjet/shared";
 import { betterAuth, type User } from "better-auth";
+
+import { APIError } from "better-auth/api";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin, magicLink } from "better-auth/plugins";
+import { admin, createAuthMiddleware, magicLink } from "better-auth/plugins";
 import type { Context, Next } from "hono";
 import { Resend } from "resend";
 import { envVars } from "./env";
@@ -20,6 +22,20 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60, // Cache duration in seconds
     },
+  },
+  emailAndPassword: {
+    enabled: true,
+  },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path == "/sign-up/email") {
+        if (!isSetupRequired()) {
+          throw new APIError("BAD_REQUEST", { message: "An admin account already exists" })
+        } else {
+
+        }
+      }
+    })
   },
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -41,6 +57,8 @@ export const auth = betterAuth({
             data: {
               ...user,
               id: generateId(ID_PREFIXES.user),
+              role: 'admin',
+              emailVerified: true
             },
           };
         },
