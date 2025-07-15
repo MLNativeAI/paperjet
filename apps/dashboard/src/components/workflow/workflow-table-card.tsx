@@ -1,4 +1,4 @@
-import type { ExtractedTable, TableConfiguration } from "@paperjet/engine/types";
+import type { TableConfiguration } from "@paperjet/engine/types";
 import { toDisplayName } from "@paperjet/engine/utils/display-name";
 import { isTableOutdated } from "@paperjet/engine/utils/outdated-check";
 import { AlertCircle, Table2 } from "lucide-react";
@@ -6,10 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { renderCellValue } from "../table-utils";
 
 interface WorkflowTableCardProps {
   table: TableConfiguration[number];
-  sampleData: ExtractedTable | null;
+  sampleData: {
+    slug: string;
+    rows: Record<string, string | number | boolean | Date | null>[];
+  } | null | undefined;
   sampleDataExtractedAt?: Date | null;
   onEdit: (table: TableConfiguration[number]) => void;
 }
@@ -53,13 +57,9 @@ export default function WorkflowTableCard({
                   </tr>
                 </thead>
                 <tbody>
-                  {sampleData.rows.slice(0, 3).map((row, idx) => (
+                  {sampleData.rows.map((row, idx) => (
                     <tr key={`${table.slug}-row-${idx}`} className="border-b last:border-0">
-                      {table.columns.map((col) => (
-                        <td key={col.slug} className="px-2 py-1.5">
-                          {String(row.values[col.slug] || "-")}
-                        </td>
-                      ))}
+                      {table.columns.map(col => renderCellValue(col, row))}
                     </tr>
                   ))}
                 </tbody>
