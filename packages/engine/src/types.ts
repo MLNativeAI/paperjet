@@ -112,3 +112,11 @@ export type UsageData = {
   durationMs: number;
   createdAt: string;
 }
+
+export type UsageStats = {
+  timePeriod: '30days',
+  cost: number,
+  requests: number,
+  users: number,
+  executions: number
+}

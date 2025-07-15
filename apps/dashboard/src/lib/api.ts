@@ -359,3 +359,8 @@ export const getUsageData = async () => {
   const response = await api.admin['usage-data'].$get({})
   return response.json();
 }
+
+export const getUsageStats = async () => {
+  const response = await api.admin['usage-stats'].$get({})
+  return response.json();
+}
