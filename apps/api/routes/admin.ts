@@ -1,5 +1,5 @@
 import { getAuthMode } from "@/lib/env";
-import { isSetupRequired } from "@paperjet/engine";
+import { getUsageData, isSetupRequired } from "@paperjet/engine";
 import { Hono } from "hono";
 
 const app = new Hono();
@@ -13,6 +13,9 @@ const router = app.get('/', async (c) => {
   return c.json({
     authMode: getAuthMode()
   })
+}).get('/usage-data', async (c) => {
+  const usageData = await getUsageData()
+  return c.json(usageData)
 })
 
 export default router

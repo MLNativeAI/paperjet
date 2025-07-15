@@ -103,12 +103,12 @@ export type UsageData = {
   id: string;
   name: string;
   model: string;
-  userId: string;
-  userEmail: string;
-  workflowId: string;
-  executionId: string;
-  totalTokens: string;
-  totalCost: string;
-  durationMs: string;
+  userId: string | null;
+  userEmail: string | null;
+  workflowId: string | null;
+  executionId: string | null;
+  totalTokens: number;
+  totalCost: number;
+  durationMs: number;
   createdAt: string;
 }

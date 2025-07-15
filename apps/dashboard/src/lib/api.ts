@@ -354,3 +354,8 @@ export const getAuthMode = async () => {
   const response = await api.admin['auth-mode'].$get({})
   return response.json();
 }
+
+export const getUsageData = async () => {
+  const response = await api.admin['usage-data'].$get({})
+  return response.json();
+}

@@ -37,7 +37,7 @@ import { UsageData } from "@paperjet/engine/types"
 
 const getTextColumn = (identifier: string, label: string, sortable = true) => {
   return {
-    accessorKey: "identifier",
+    accessorKey: identifier,
     header: ({ column }: { column: any }) => {
       if (sortable) {
         return (
@@ -53,7 +53,11 @@ const getTextColumn = (identifier: string, label: string, sortable = true) => {
         return <div>{label}</div>
       }
     },
-    cell: ({ row }: { row: any }) => <div> {row.getValue(identifier)}</div>,
+    cell: ({ row }: { row: any }) => {
+      return (
+        <div> {row.getValue(identifier)}</div>
+      )
+    }
   }
 }
 
@@ -122,7 +126,9 @@ export const columns: ColumnDef<UsageData>[] = [
   },
 ]
 
-export default function UsageTable({ usageData }: { usageData: UsageData[] }) {
+
+
+export default function UsageTable({ usageData, isLoading }: { usageData: UsageData[], isLoading: boolean }) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -153,14 +159,14 @@ export default function UsageTable({ usageData }: { usageData: UsageData[] }) {
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+        {/* <Input */}
+        {/*   placeholder="Filter emails..." */}
+        {/*   value={(table.getColumn("email")?.getFilterValue() as string) ?? ""} */}
+        {/*   onChange={(event) => */}
+        {/*     table.getColumn("email")?.setFilterValue(event.target.value) */}
+        {/*   } */}
+        {/*   className="max-w-sm" */}
+        {/* /> */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
