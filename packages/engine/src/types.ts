@@ -98,3 +98,17 @@ export type WorkflowRun = Omit<DbWorkflowExecution, "ownerId"> & {
   workflowName: string;
   categories: CategoriesConfiguration;
 };
+
+export type UsageData = {
+  id: string;
+  name: string;
+  model: string;
+  userId: string;
+  userEmail: string;
+  workflowId: string;
+  executionId: string;
+  totalTokens: string;
+  totalCost: string;
+  durationMs: string;
+  createdAt: string;
+}

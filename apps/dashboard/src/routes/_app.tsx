@@ -60,6 +60,12 @@ function PathlessLayoutComponent() {
         current: "Settings",
       };
     }
+    if (pathname === "/admin") {
+      return {
+        parent: null,
+        current: "Admin",
+      };
+    }
     if (pathname === "/workflows/new") {
       return {
         parent: "Workflows",
