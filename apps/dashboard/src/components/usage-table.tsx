@@ -24,16 +24,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import {
   Table,
-  TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
 import { UsageData } from "@paperjet/engine/types"
+import { TableBodyWithSkeleton } from "./table-body-with-skeleton"
+import { UserFilterComboBox } from "./usage-table/user-filter-combo-box"
+import { cn } from "@/lib/utils"
 
 const getTextColumn = (identifier: string, label: string, sortable = true) => {
   return {
@@ -137,6 +137,24 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
+
+  const filters = [
+    {
+      name: "None",
+      component: null
+    },
+    {
+      name: "User",
+      component: <UserFilterComboBox />
+    },
+    {
+      name: "Workflow",
+      component: null
+    }
+  ]
+
+  const [selectedFilter, selectFilter] = React.useState(filters[0])
+
   const table = useReactTable({
     data: usageData,
     columns,
@@ -159,6 +177,46 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
+        <div className="flex gap-2 items-center"
+        >
+          <span className="text-muted-foreground text-sm">
+            Filter by
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className={cn("ml-auto", selectedFilter.name == "None" && "opacity-75")}>
+                {selectedFilter.name} <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {filters.map(filter => {
+                return <DropdownMenuItem key={filter.name} onClick={(_) => {
+                  selectFilter(filter)
+                }}>
+                  {filter.name}
+                </DropdownMenuItem>
+              })}
+              {/* {table */}
+              {/*   .getAllColumns() */}
+              {/*   .filter((column) => column.getCanHide()) */}
+              {/*   .map((column) => { */}
+              {/*     return ( */}
+              {/*       <DropdownMenuCheckboxItem */}
+              {/*         key={column.id} */}
+              {/*         className="capitalize" */}
+              {/*         checked={column.getIsVisible()} */}
+              {/*         onCheckedChange={(value) => */}
+              {/*           column.toggleVisibility(!!value) */}
+              {/*         } */}
+              {/*       > */}
+              {/*         {column.id} */}
+              {/*       </DropdownMenuCheckboxItem> */}
+              {/*     ) */}
+              {/*   })} */}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {selectedFilter.component}
+        </div>
         {/* <Input */}
         {/*   placeholder="Filter emails..." */}
         {/*   value={(table.getColumn("email")?.getFilterValue() as string) ?? ""} */}
@@ -214,34 +272,7 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+          <TableBodyWithSkeleton isLoading={isLoading} table={table} />
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
@@ -268,7 +299,7 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
           </Button>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 
