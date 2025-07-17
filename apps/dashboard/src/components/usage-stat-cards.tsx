@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { UsageStats } from "@paperjet/engine/types"
+import { renderMonetaryValue } from "./format-utils"
 
 export function UsageStatCards({ usageStats }: { usageStats: UsageStats }) {
   return (
@@ -16,7 +17,7 @@ export function UsageStatCards({ usageStats }: { usageStats: UsageStats }) {
         <CardHeader>
           <CardDescription>Total Cost</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            ${usageStats.cost}
+            {usageStats.cost && renderMonetaryValue(usageStats.cost)}
           </CardTitle>
           <CardAction>
             {/* <Badge variant="outline"> */}

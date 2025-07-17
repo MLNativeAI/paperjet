@@ -11,7 +11,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { ChevronDown, MoreHorizontal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -34,32 +34,8 @@ import { UsageData } from "@paperjet/engine/types"
 import { TableBodyWithSkeleton } from "./table-body-with-skeleton"
 import { UserFilterComboBox } from "./usage-table/user-filter-combo-box"
 import { cn } from "@/lib/utils"
-
-const getTextColumn = (identifier: string, label: string, sortable = true) => {
-  return {
-    accessorKey: identifier,
-    header: ({ column }: { column: any }) => {
-      if (sortable) {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            {label}
-            <ArrowUpDown />
-          </Button>
-        )
-      } else {
-        return <div>{label}</div>
-      }
-    },
-    cell: ({ row }: { row: any }) => {
-      return (
-        <div> {row.getValue(identifier)}</div>
-      )
-    }
-  }
-}
+import { WorkflowFilterComboBox } from "./usage-table/workflow-filter-combo-box"
+import { getColumn } from "./format-utils"
 
 export const columns: ColumnDef<UsageData>[] = [
   {
@@ -84,17 +60,50 @@ export const columns: ColumnDef<UsageData>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  getTextColumn("id", "ID", false),
-  getTextColumn("name", "Prompt name"),
-  getTextColumn("model", "Model name"),
-  getTextColumn("userId", "User ID", false),
-  getTextColumn("userEmail", "Email"),
-  getTextColumn("workflowId", "Workflow", false),
-  getTextColumn("executionId", "Execution ID", false),
-  getTextColumn("totalTokens", "Tokens"),
-  getTextColumn("totalCost", "Cost"),
-  getTextColumn("durationMs", "Duration"),
-  getTextColumn("createdAt", "Created At"),
+
+  getColumn({
+    identifier: "id",
+    label: "ID",
+  }),
+  getColumn({
+    identifier: "name",
+    label: "Prompt name",
+  }),
+  getColumn({
+    identifier: "model",
+    label: "Model name",
+  }),
+  getColumn({
+    identifier: "userId",
+    label: "User ID",
+  }),
+  getColumn({
+    identifier: "userEmail",
+    label: "User Email",
+    sortable: false
+  }),
+  getColumn({
+    identifier: "workflowId",
+    label: "Workflow",
+    sortable: false
+  }),
+  getColumn({
+    identifier: "executionId",
+    label: "Execution ID",
+    sortable: false
+  }),
+  getColumn({
+    identifier: "totalTokens",
+    label: "Total tokens",
+    columnType: 'token'
+  }),
+  getColumn({
+    identifier: "totalCost",
+    label: "Cost",
+    columnType: 'monetary'
+  }),
+  getColumn({ identifier: "durationMs", label: "Duration", columnType: 'duration' }),
+  getColumn({ identifier: "createdAt", label: "Created At", columnType: 'text' }),
   {
     id: "actions",
     enableHiding: false,
@@ -134,7 +143,10 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
     []
   )
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({
+      "id": false,
+      "userId": false,
+    })
   const [rowSelection, setRowSelection] = React.useState({})
 
   const filters = [
@@ -150,7 +162,9 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
     },
     {
       name: "Workflow",
-      component: null
+      component: <WorkflowFilterComboBox usageData={usageData} updateFilter={(workflowId: string) => {
+        table.getColumn("workflowId")?.setFilterValue(workflowId)
+      }} />
     }
   ]
 
@@ -193,6 +207,7 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
               {filters.map(filter => {
                 return <DropdownMenuItem key={filter.name} onClick={(_) => {
                   selectFilter(filter)
+                  table.resetColumnFilters()
                 }}>
                   {filter.name}
                 </DropdownMenuItem>
