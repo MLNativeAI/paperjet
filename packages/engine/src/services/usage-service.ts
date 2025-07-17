@@ -1,7 +1,7 @@
 import { usageData, user } from "@paperjet/db/schema"
 import type { UsageData, UsageStats } from "../types"
 import { db } from "@paperjet/db"
-import { eq } from "drizzle-orm"
+import { desc, eq } from "drizzle-orm"
 import { subDays } from "date-fns"
 
 export const getUsageData = async (): Promise<UsageData[]> => {
@@ -17,8 +17,7 @@ export const getUsageData = async (): Promise<UsageData[]> => {
     totalCost: usageData.totalCost,
     durationMs: usageData.durationMs,
     createdAt: usageData.createdAt
-  }).from(usageData).leftJoin(user, eq(user.id, usageData.userId))
-
+  }).from(usageData).leftJoin(user, eq(user.id, usageData.userId)).orderBy(desc(usageData.createdAt))
   const fixedData = data.map(usageEntry => {
     return {
       ...usageEntry,

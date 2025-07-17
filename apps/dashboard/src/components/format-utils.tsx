@@ -1,5 +1,6 @@
 import { ArrowUpDown } from "lucide-react"
 import { Button } from "./ui/button"
+import { formatDistance } from 'date-fns'
 
 
 export const renderMonetaryValue = (value: number, precision: number = 2): string => {
@@ -10,12 +11,17 @@ export const renderTokenCount = (tokenCount: number): string => {
   return `${(tokenCount / 1000).toFixed(2)}k`
 }
 
+
 export const renderDuration = (duration: number): string => {
   return `${(duration / 1000).toFixed(2)}s`
 }
 
+const renderTimestamp = (date: Date): string => {
+  return formatDistance(date, new Date(), { addSuffix: true })
+}
 
-type ColumnType = 'text' | 'monetary' | 'token' | 'duration'
+
+type ColumnType = 'text' | 'monetary' | 'token' | 'duration' | 'timestamp'
 
 export const getColumn = ({ identifier, label, sortable, columnType }: { identifier: string, label: string, sortable?: boolean, columnType?: ColumnType }) => {
   return {
@@ -46,6 +52,8 @@ export const getColumn = ({ identifier, label, sortable, columnType }: { identif
           return <div> {renderTokenCount(row.getValue(identifier))}</div>
         case 'duration':
           return <div>{renderDuration(row.getValue(identifier))}</div>
+        case 'timestamp':
+          return <div>{renderTimestamp(row.getValue(identifier))}</div>
         default:
           return <div>{row.getValue(identifier)}</div>
       }

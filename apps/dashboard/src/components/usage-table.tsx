@@ -79,7 +79,7 @@ export const columns: ColumnDef<UsageData>[] = [
   }),
   getColumn({
     identifier: "userEmail",
-    label: "User Email",
+    label: "User email",
     sortable: false
   }),
   getColumn({
@@ -103,7 +103,7 @@ export const columns: ColumnDef<UsageData>[] = [
     columnType: 'monetary'
   }),
   getColumn({ identifier: "durationMs", label: "Duration", columnType: 'duration' }),
-  getColumn({ identifier: "createdAt", label: "Created At", columnType: 'text' }),
+  getColumn({ identifier: "createdAt", label: "Created at", columnType: 'timestamp' }),
   {
     id: "actions",
     enableHiding: false,
