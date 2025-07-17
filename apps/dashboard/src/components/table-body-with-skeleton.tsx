@@ -1,6 +1,5 @@
 import { Table, flexRender } from "@tanstack/react-table";
 import { TableBody, TableRow, TableCell } from "./ui/table";
-import { columns } from "./usage-table/all-usage-table";
 import { UsageData } from "@paperjet/engine/types";
 import { Skeleton } from "./ui/skeleton";
 
@@ -51,7 +50,7 @@ export function TableBodyWithSkeleton({ isLoading, table }: { isLoading: boolean
       ) : (
         <TableRow>
           <TableCell
-            colSpan={columns.length}
+            colSpan={table.getAllColumns().length}
             className="h-24 text-center"
           >
             No results.

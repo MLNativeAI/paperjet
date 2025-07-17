@@ -137,7 +137,6 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-
   const filters = [
     {
       name: "None",
@@ -145,7 +144,9 @@ export default function UsageTable({ usageData, isLoading }: { usageData: UsageD
     },
     {
       name: "User",
-      component: <UserFilterComboBox />
+      component: <UserFilterComboBox usageData={usageData} updateFilter={((email: string) => {
+        table.getColumn("userEmail")?.setFilterValue(email)
+      })} />
     },
     {
       name: "Workflow",

@@ -1,7 +1,6 @@
 import * as React from "react"
-import { CheckIcon, ChevronsUpDownIcon } from "lucide-react"
+import { ChevronsUpDownIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -16,33 +15,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { UsageData } from "@paperjet/engine/types"
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
-
-export function UserFilterComboBox() {
+export function UserFilterComboBox({ usageData, updateFilter }: { usageData: UsageData[], updateFilter: (email: string) => void }) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
+
+  const allUserEmails = [...new Set(usageData.map((ud) => ud.userEmail))].filter((email) => email !== null)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -51,36 +30,35 @@ export function UserFilterComboBox() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[250px] justify-between"
         >
           {value
-            ? frameworks.find((framework) => framework.value === value)?.label
-            : "Select framework..."}
+            ? allUserEmails.find((email) => email === value)
+            : "Select user..."}
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[250px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Search user..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No users found.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {allUserEmails.filter(email => email !== null).map((validEmail) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
+                  key={validEmail}
+                  value={validEmail} // TODO: Figure out if this is TS server null issue or not 
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
+                    if (currentValue === validEmail) {
+                      setValue(currentValue)
+                      updateFilter(currentValue)
+                    } else {
+                      setValue("")
+                    }
                     setOpen(false)
                   }}
                 >
-                  <CheckIcon
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === framework.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {framework.label}
+                  {validEmail}
                 </CommandItem>
               ))}
             </CommandGroup>
