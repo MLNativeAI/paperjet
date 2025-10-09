@@ -2,19 +2,7 @@ import createMDX from "@next/mdx";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // transpilePackages: ["@paperjet/ui"],
-  // eslint: {
-  //   ignoreDuringBuilds: true,
-  // },
-  // typescript: {
-  //   ignoreBuildErrors: true,
-  // },
-  // Configure `pageExtensions` to include markdown and MDX files
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
-  images: {
-    unoptimized: true,
-  },
-  output: "standalone",
   async rewrites() {
     return [
       {
@@ -32,6 +20,7 @@ const nextConfig = {
     ];
   },
   skipTrailingSlashRedirect: true,
+  staticPageGenerationTimeout: 1000,
 };
 
 const withMDX = createMDX({

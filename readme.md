@@ -18,6 +18,15 @@
 
 PaperJet is a secure document processing platform. Convert docx, PDF and image files into structured data reliable and on your own hardware. Fully self-hostable with 0 cloud accounts required. 
 
+
+## Getting started
+
+The easiest way to try out PaperJet is via [our platform](https://app.getpaperjet.com). See deployment documentation for self-hosting options
+
+## Deployment
+
+Coming soon
+
 ## Repo Activity
 
 ![Alt](https://repobeats.axiom.co/api/embed/de814eff54abbecb90b886685a77d0d83ace5bd2.svg "Repobeats analytics image")

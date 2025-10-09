@@ -1,4 +1,3 @@
-import { PostHogProvider } from "@/components/posthog-provider";
 import "../styles.css";
 import type { Metadata } from "next";
 import { Fira_Code, Merriweather, Oxanium } from "next/font/google";
@@ -48,10 +47,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <PostHogProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable}`}>{children}</body>
-      </html>
-    </PostHogProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable}`}>{children}</body>
+    </html>
   );
 }
