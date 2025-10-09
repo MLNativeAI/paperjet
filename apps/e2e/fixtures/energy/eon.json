@@ -1,0 +1,51 @@
+{
+  "Invoice Data": {
+    "fields": {
+      "PPE Number": "590370100005832593",
+      "Total amount": 473.6,
+      "Invoice Number": "111501548203",
+      "Invoice Currency": "zł",
+      "Invoice due date": "2024-06-20",
+      "Billing period end": "2024-05-23",
+      "Invoice issue date": "2024-06-04",
+      "Billing period start": "2024-04-25"
+    }
+  },
+  "Buyer details": {
+    "fields": {
+      "Buyer NIP": "324-432-53-67",
+      "Buyer name": "Flip & Flap Kancelaria Adwokatów i Radców Prawnych",
+      "Buyer address": "Ul. Towarowa 232 m.16 02-432 Warszawa",
+      "Customer number": "5600337584"
+    }
+  },
+  "Seller details": {
+    "fields": {
+      "Seller NIP": "525-000-07-94",
+      "Seller name": "E.ON Polska S.A.",
+      "Seller address": "ul. Wybrzeże Kościuszkowskie 41 00-347 Warszawa"
+    }
+  },
+  "Energy usage data": {
+    "fields": {
+      "Period to": "2024-05-23",
+      "Total MWh": 0.268,
+      "Period from": "2024-04-25",
+      "Należność": 473.6,
+      "Średnia cenna netto": "0,6980"
+    },
+    "tables": {
+      "Energia czynna": [
+        {
+          "Stawka VAT": 23,
+          "Jedn. Miary": "kWh",
+          "Współczynnik": null,
+          "Wartość netto": 187.08,
+          "Cena jedn. netto": 0.698,
+          "Ilość / Zużycie": "268 kWh",
+          "Nazwa towaru lub usługi": "Energia czynna"
+        }
+      ]
+    }
+  }
+}

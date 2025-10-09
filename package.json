@@ -1,18 +1,44 @@
 {
-    "name": "hono-react",
-    "private": true,
-    "packageManager": "bun@1.2.0",
-    "scripts": {
-        "build": "turbo build",
-        "dev": "turbo dev",
-        "lint": "turbo lint"
-    },
-    "devDependencies": {
-        "prettier": "^3.2.5",
-        "turbo": "^2.0.0"
-    },
-    "workspaces": [
-        "apps/*",
-        "packages/*"
-    ]
+  "name": "paperjet",
+  "private": true,
+  "packageManager": "bun@1.2.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev --parallel",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test:e2e": "turbo test:e2e",
+    "test:e2e:smoke": "turbo test:e2e:smoke",
+    "test:e2e:acc": "turbo test:e2e:acc",
+    "db:generate": "turbo db:generate",
+    "db:migrate": "turbo db:migrate",
+    "db:push": "turbo db:push",
+    "db:studio": "turbo db:studio",
+    "db:seed": "turbo db:seed"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.2.5",
+    "semantic-release": "^24.2.0",
+    "turbo": "^2.5.6"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "version": "1.8.0",
+  "dependencies": {
+    "@biomejs/biome": "^2.2.4"
+  }
 }

@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: postgres
+    container_name: paperjet-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -14,9 +14,26 @@ services:
       - app-network
     restart: unless-stopped
 
+  redis:
+    image: redis:8-alpine
+    container_name: paperjet-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   minio:
     image: minio/minio:latest
-    container_name: minio
+    container_name: paperjet-s3
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -37,7 +54,7 @@ services:
 
   minio-setup:
     image: minio/mc
-    container_name: minio-setup
+    container_name: paperjet-s3-setup
     depends_on:
       - minio
     environment:
@@ -84,6 +101,7 @@ services:
 volumes:
   postgres_data:
   minio_data:
+  redis_data:
 
 networks:
   app-network:

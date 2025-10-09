@@ -1,0 +1,60 @@
+{
+  "Invoice Data": {
+    "fields": {
+      "PPE Number": "590322400701334485",
+      "Total amount": 441.94,
+      "Invoice Number": "E/GM//0333573/24",
+      "Invoice Currency": "zł",
+      "Invoice due date": "2024-12-05",
+      "Billing period end": "2024-11-15",
+      "Invoice issue date": "2024-11-19",
+      "Billing period start": "2024-09-16"
+    }
+  },
+  "Buyer details": {
+    "fields": {
+      "Buyer NIP": "43255557417",
+      "Buyer name": "FIRMA INŻYNIERSKA ADAM NEWMAN",
+      "Buyer address": "Scam Street 69 40-546 New York",
+      "Customer number": "56534854"
+    }
+  },
+  "Seller details": {
+    "fields": {
+      "Seller NIP": "631-22-41-337",
+      "Seller name": "TAURON Sprzedaż GZE sp. z o.o.",
+      "Seller address": "44-100 GLIWICE, UL. NORBERTA BARLICKIEGO 2"
+    }
+  },
+  "Energy usage data": {
+    "fields": {
+      "Period to": "2024-11-15",
+      "Total MWh": 0.059,
+      "Period from": "2024-09-16",
+      "Należność": 441.94,
+      "Średnia cenna netto": null
+    },
+    "tables": {
+      "Energia czynna": [
+        {
+          "Stawka VAT": 23,
+          "Jedn. Miary": "kWh",
+          "Współczynnik": null,
+          "Wartość netto": 54.7,
+          "Cena jedn. netto": 0.9272,
+          "Ilość / Zużycie": "59",
+          "Nazwa towaru lub usługi": "Stawka zmienna ceny całodobowa"
+        },
+        {
+          "Stawka VAT": 23,
+          "Jedn. Miary": "zł/mc",
+          "Współczynnik": null,
+          "Wartość netto": 70,
+          "Cena jedn. netto": 35,
+          "Ilość / Zużycie": "2",
+          "Nazwa towaru lub usługi": "Stawka stała ceny całodobowa"
+        }
+      ]
+    }
+  }
+}

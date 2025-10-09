@@ -1,0 +1,19 @@
+{
+  "name": "@paperjet/queue",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "lint": "biome check --write",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@paperjet/db": "workspace:*",
+    "@paperjet/engine": "workspace:*",
+    "@paperjet/shared": "workspace:*",
+    "bullmq": "^5.56.9",
+    "ioredis": "^5.7.0",
+    "zod": "^3.25.49"
+  }
+}

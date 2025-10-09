@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+    secrets:
+      coolify_url:
+        required: true
+      coolify_app_uuid:
+        required: true
+      coolify_token:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Deploy to Coolify
+        run: |
+          curl -X PATCH \
+            "${{ secrets.coolify_url }}/api/v1/applications/${{ secrets.coolify_app_uuid }}" \
+            -H "Authorization: Bearer ${{ secrets.coolify_token }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "docker_registry_image_name": "${{ inputs.image_name }}",
+              "docker_registry_image_tag": "${{ inputs.image_tag }}"
+            }'
+
+          curl -X GET \
+            "${{ secrets.coolify_url }}/api/v1/deploy?uuid=${{ secrets.coolify_app_uuid }}" \
+            -H "Authorization: Bearer ${{ secrets.coolify_token }}" \
+            -H "Content-Type: application/json"

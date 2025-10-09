@@ -1,41 +1,62 @@
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
+# Use the official Bun image
 FROM oven/bun:1 AS base
 WORKDIR /usr/src/app
 
-# Install dependencies and build all packages
-FROM base AS build
-# Copy package.json files for all workspaces
-COPY package.json turbo.json ./
-COPY apps/backend/package.json apps/backend/bun.lock ./apps/backend/
-COPY apps/frontend/package.json apps/frontend/bun.lock ./apps/frontend/
-COPY packages/shared/package.json ./packages/shared/
+# Install turbo globally with cache mount
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install -g turbo@^2
 
-# Install all dependencies
-RUN bun install --frozen-lockfile
-
-# Copy source code
+# Pruner stage - create minimal workspace for API, dashboard, and engine
+FROM base AS pruner
 COPY . .
+RUN turbo prune @paperjet/api @paperjet/dashboard --docker
 
-# Build all packages with Turborepo
-RUN bun turbo build
+# Installer stage - install dependencies using pruned lockfile
+FROM base AS installer
+WORKDIR /usr/src/app
+
+# Copy the pruned package.json files and lockfile
+COPY --from=pruner /usr/src/app/out/json/ .
+COPY --from=pruner /usr/src/app/out/bun.lock ./bun.lock
+
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install
+
+# Builder stage - build both projects
+FROM base AS builder
+WORKDIR /usr/src/app
+
+# Copy the full pruned source code
+COPY --from=pruner /usr/src/app/out/full/ .
+# Copy installed dependencies from installer stage
+COPY --from=installer /usr/src/app/ .
+
+# Build both the API and dashboard using turbo
+RUN turbo build --filter=@paperjet/api --filter=@paperjet/dashboard
 
 # Final production image
 FROM base AS release
 WORKDIR /usr/src/app
 
 # Copy necessary files for production
-# Copy root node_modules and workspace files
-COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/apps/backend ./apps/backend
-COPY --from=build /usr/src/app/apps/frontend/dist ./apps/backend/public
-COPY --from=build /usr/src/app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder --chown=bun:bun /usr/src/app/apps/api ./apps/api
+COPY --from=builder --chown=bun:bun /usr/src/app/packages ./packages
+COPY --from=builder --chown=bun:bun /usr/src/app/node_modules ./node_modules
 
-# Make the startup script executable
-COPY apps/backend/start.sh .
+
+# Copy and make the startup script executable
+COPY --chown=bun:bun apps/api/start.sh .
 RUN chmod +x start.sh
 
-# Run the app
+# Set production environment
+ENV NODE_ENV=production
+
+# Switch to non-root user
 USER bun
+
+# Expose port
 EXPOSE 3000/tcp
-ENTRYPOINT [ "./start.sh" ]
+
+# Run the app
+ENTRYPOINT ["./start.sh"]

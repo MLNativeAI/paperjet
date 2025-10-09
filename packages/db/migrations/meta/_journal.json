@@ -1,0 +1,97 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1755521874214,
+      "tag": "0000_glorious_ogun",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755586649611,
+      "tag": "0001_salty_piledriver",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755755881872,
+      "tag": "0002_busy_havok",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1755792678059,
+      "tag": "0003_common_blue_blade",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1756300544282,
+      "tag": "0004_square_matthew_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1757068615263,
+      "tag": "0005_faithful_iron_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1757071600326,
+      "tag": "0006_careful_la_nuit",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1758302194544,
+      "tag": "0007_glossy_killer_shrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1758384233608,
+      "tag": "0008_charming_sentry",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1758553746900,
+      "tag": "0009_perpetual_valeria_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1758881698098,
+      "tag": "0010_wealthy_inhumans",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1759251894073,
+      "tag": "0011_cynical_blizzard",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1759402213720,
+      "tag": "0012_melted_the_hand",
+      "breakpoints": true
+    }
+  ]
+}

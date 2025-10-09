@@ -1,3 +1,5 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
 # dependencies
 node_modules
 .pnp
@@ -9,6 +11,13 @@ coverage
 # next.js
 .next/
 out/
+next-env.d.ts
+
+# expo
+.expo/
+dist/
+
+# production
 build
 
 # misc
@@ -19,35 +28,34 @@ build
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
 # local env files
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
 
 # turbo
 .turbo
 
-# build directories
-dist/
+# react-email
+.react-email
+packages/email/public
+!packages/email/public/.gitkeep
+!packages/email/.react-email/.gitkeep
 
-# output
-*.tgz
+# Storybook
+storybook-static
+tailwind.css
 
-# code coverage
-*.lcov
+# Supabase
+.branches
+.temp
 
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# caches
-.eslintcache
-.cache
-*.tsbuildinfo
-
-# IntelliJ based IDEs
-.idea
+# Trigger
+.trigger

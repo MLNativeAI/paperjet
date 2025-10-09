@@ -1,0 +1,30 @@
+{
+  "name": "@paperjet/engine",
+  "exports": {
+    ".": "./index.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "lint": "biome check --write",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^2.0.14",
+    "@ai-sdk/openai": "^2.0.32",
+    "@ai-sdk/openai-compatible": "^1.0.18",
+    "@openrouter/ai-sdk-provider": "^1.2.0",
+    "@paperjet/db": "workspace:*",
+    "@paperjet/shared": "workspace:*",
+    "@paperjet/tsconfig": "workspace:*",
+    "ai": "^5.0.47",
+    "date-fns": "^4.1.0",
+    "fastest-levenshtein": "^1.0.16",
+    "zod": "^3.24.3"
+  }
+}

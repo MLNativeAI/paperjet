@@ -1,0 +1,1 @@
+ALTER TABLE "user" RENAME COLUMN "server_role" TO "role";

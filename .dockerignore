@@ -1,33 +1,78 @@
-# Version control
+# Git
 .git
 .gitignore
+.github
+
+# Documentation
+*.md
+docs
+LICENSE
+
+# Development
+.env*
+!.env.example
+.vscode
+.idea
+*.log
+*.swp
+*.swo
+*~
 
 # Dependencies
-**/node_modules
-**/dist
+node_modules
+.npm
+.yarn
+.pnp.*
 
-# Environment files
-.env
-.env.*
+# Build outputs
+dist
+build
+out
+.next
+.turbo
+.cache
+tmp
 
-# Development files
-**/.vscode
-**/.idea
-**/*.log
-**/coverage
-**/.nyc_output
+# Test files
+coverage
+.nyc_output
+*.test.*
+*.spec.*
+__tests__
+test
 
-# Build files
-**/build
-**/dist
-**/*.tsbuildinfo
+# OS files
+.DS_Store
+Thumbs.db
 
-# Backend specific
-backend/node_modules
-backend/dist
-backend/*.log
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
 
-# Frontend specific
-frontend/node_modules
-frontend/dist
-frontend/.cache 
+# CI/CD
+.gitlab-ci.yml
+.travis.yml
+circle.yml
+jenkins*
+
+# Logs and databases
+*.log
+*.sqlite
+
+# Keep migration files
+!**/migrations/**/*.sql
+
+# Package manager files (keep lock files)
+!package.json
+!package-lock.json
+!yarn.lock
+!pnpm-lock.yaml
+!bun.lock
+
+# Misc
+*.zip
+*.tar.gz
+*.tgz
+screenshots
+videos

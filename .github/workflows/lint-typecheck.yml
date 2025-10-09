@@ -1,0 +1,36 @@
+name: Lint & Typecheck
+
+on:
+  workflow_call:
+
+jobs:
+  lint-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22 
+
+    - name: Install dependencies
+      run: bun install
+
+    - name: Lint
+      run: bun run lint
+
+    - name: Typecheck
+      run: bun run typecheck

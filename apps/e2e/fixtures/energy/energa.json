@@ -1,0 +1,69 @@
+{
+  "Invoice Data": {
+    "fields": {
+      "PPE Number": "720155902438567149",
+      "Total amount": 399061.41,
+      "Invoice Number": "501016067/69/W/2024",
+      "Invoice Currency": "zł",
+      "Invoice due date": "2024-09-19",
+      "Billing period end": "2024-08-31",
+      "Invoice issue date": "2024-09-05",
+      "Billing period start": "2024-07-31"
+    }
+  },
+  "Buyer details": {
+    "fields": {
+      "Buyer NIP": "4436526255",
+      "Buyer name": "Gumiś Industries",
+      "Buyer address": "Olejowa 5 45-666 Stumilowy Las",
+      "Customer number": "6922960434"
+    }
+  },
+  "Seller details": {
+    "fields": {
+      "Seller NIP": "957-096-83-70",
+      "Seller name": "ENERGA - OBRÓT SA",
+      "Seller address": "Al. Grunwaldzka 472, 80-309 Gdańsk"
+    }
+  },
+  "Energy usage data": {
+    "fields": {
+      "Period to": "2024-08-31",
+      "Total MWh": 430.947,
+      "Period from": "2024-07-31",
+      "Należność": 324440.17,
+      "Średnia cenna netto": "752,85 zł/MWh"
+    },
+    "tables": {
+      "Energia czynna": [
+        {
+          "Stawka VAT": 23,
+          "Jedn. Miary": "MWh",
+          "Współczynnik": null,
+          "Wartość netto": 42516.75,
+          "Cena jedn. netto": 546.79,
+          "Ilość / Zużycie": "77,757",
+          "Nazwa towaru lub usługi": "szczyt przedpołudniowy"
+        },
+        {
+          "Stawka VAT": 23,
+          "Jedn. Miary": "MWh",
+          "Współczynnik": null,
+          "Wartość netto": 23623.52,
+          "Cena jedn. netto": 546.79,
+          "Ilość / Zużycie": "43,204",
+          "Nazwa towaru lub usługi": "szczyt popołudniowy"
+        },
+        {
+          "Stawka VAT": 23,
+          "Jedn. Miary": "MWh",
+          "Współczynnik": null,
+          "Wartość netto": 169497.24,
+          "Cena jedn. netto": 546.79,
+          "Ilość / Zużycie": "309,986",
+          "Nazwa towaru lub usługi": "reszta doby"
+        }
+      ]
+    }
+  }
+}

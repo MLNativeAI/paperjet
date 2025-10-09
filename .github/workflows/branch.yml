@@ -1,0 +1,62 @@
+name: Branch Build & Deploy
+
+
+permissions:
+  packages: write
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  lint-typecheck:
+    uses: ./.github/workflows/lint-typecheck.yml
+
+  build-core:
+    name: Build Core Application
+    uses: ./.github/workflows/build-core.yml
+    needs: lint-typecheck
+    with:
+      registry: docker.io
+      image_name: mlnative/paperjet-dev
+    secrets: inherit
+
+  build-ml:
+    name: Build ML Application
+    uses: ./.github/workflows/build-ml.yml
+    needs: lint-typecheck
+    with:
+      registry: docker.io
+      image_name: mlnative/paperjet-ml-dev
+    secrets: inherit
+
+  deploy-core:
+    name: Deploy Core Application
+    needs: build-core
+    uses: ./.github/workflows/deploy.yml
+    with:
+      registry: docker.io
+      image_name: mlnative/paperjet-dev
+      image_tag: sha-${{ github.sha }}
+      environment: development
+    secrets:
+      coolify_url: ${{ secrets.COOLIFY_DEV_URL }}
+      coolify_app_uuid: ${{ secrets.COOLIFY_DEV_APP_UUID }}
+      coolify_token: ${{ secrets.COOLIFY_DEV_TOKEN }}
+
+  deploy-ml:
+    name: Deploy ML Application
+    needs: build-ml
+    uses: ./.github/workflows/deploy.yml
+    with:
+      registry: docker.io
+      image_name: mlnative/paperjet-ml-dev
+      image_tag: sha-${{ github.sha }}
+      environment: development
+    secrets:
+      coolify_url: ${{ secrets.COOLIFY_DEV_URL }}
+      coolify_app_uuid: ${{ secrets.COOLIFY_DEV_ML_APP_UUID }}
+      coolify_token: ${{ secrets.COOLIFY_DEV_TOKEN }}

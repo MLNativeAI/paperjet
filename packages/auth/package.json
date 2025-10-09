@@ -1,0 +1,25 @@
+{
+  "name": "@paperjet/auth",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts",
+    "./invitations": "./src/handlers/invitations.ts",
+    "./session": "./src/handlers/session.ts"
+  },
+  "scripts": {
+    "lint": "biome check --write",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@paperjet/db": "workspace:*",
+    "@paperjet/email": "workspace:*",
+    "@paperjet/shared": "workspace:*",
+    "better-auth": "^1.3.9",
+    "hono": "^4.9.2",
+    "resend": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.3"
+  }
+}
