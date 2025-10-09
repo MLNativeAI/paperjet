@@ -151,7 +151,7 @@ export function DeploymentOptions() {
             transition={{ duration: 0.3 }}
             className="flex items-center justify-center"
           >
-            {options[activeIndex].content}
+            {options[activeIndex]?.content}
           </motion.div>
         </div>
       </div>
