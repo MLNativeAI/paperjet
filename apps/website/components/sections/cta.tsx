@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 const SignupModal = dynamic(() => import("@/components/signup-modal").then((mod) => mod.SignupModal), { ssr: false });
 

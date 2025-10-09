@@ -1,8 +1,8 @@
 {
   "name": "@paperjet/tsconfig",
   "private": true,
-  "version": "1.0.0",
-  "files": [
-    "base.json"
-  ]
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  }
 }

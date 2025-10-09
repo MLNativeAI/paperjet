@@ -20,7 +20,6 @@ const nextConfig = {
     ];
   },
   skipTrailingSlashRedirect: true,
-  staticPageGenerationTimeout: 1000,
 };
 
 const withMDX = createMDX({

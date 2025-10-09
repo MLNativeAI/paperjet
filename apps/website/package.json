@@ -1,11 +1,14 @@
 {
   "name": "website",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
-    "devw": "next dev --port 4000",
-    "build": "NODE_ENV=production & next build",
-    "start": "next start"
+    "devw": "next dev --turbopack --port 4000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint --max-warnings 0",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
@@ -19,14 +22,14 @@
     "@tailwindcss/postcss": "^4.1.10",
     "@types/mdx": "^2.0.13",
     "class-variance-authority": "^0.7.1",
+    "@paperjet/ui": "workspace:*",
+    "@paperjet/email": "workspace:*",
     "clsx": "^2.1.1",
     "framer-motion": "latest",
     "lucide-react": "^0.515.0",
     "next": "15.5.4",
     "next-mdx-remote": "^5.0.0",
     "next-themes": "latest",
-    "posthog-js": "^1.274.1",
-    "posthog-node": "^5.1.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-hook-form": "^7.54.1",
@@ -37,6 +40,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@paperjet/tsconfig": "workspace:*",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",

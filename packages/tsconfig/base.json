@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Default",
   "compilerOptions": {
-    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
     "incremental": false,
     "isolatedModules": true,
@@ -13,9 +13,7 @@
     "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noEmit": true,
     "strict": true,
-    "target": "ES2022",
-    "baseUrl": "."
+    "target": "ES2022"
   }
 }
