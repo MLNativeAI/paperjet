@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { SignupModal } from "@/components/signup-modal";
+import dynamic from "next/dynamic";
 import { Button } from "../ui/button";
+
+const SignupModal = dynamic(() => import("@/components/signup-modal").then((mod) => mod.SignupModal), { ssr: false });
 
 export function CTA() {
   return (

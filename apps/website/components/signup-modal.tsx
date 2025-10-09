@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowRight, CheckCircle, Loader2, Mail } from "lucide-react";
 import { useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,7 +37,6 @@ export function SignupModal({
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const posthog = usePostHog();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,7 +64,7 @@ export function SignupModal({
 
       if (response.ok) {
         posthog.capture("waitlist_sign_up");
-        const newSearchParams = new URLSearchParams(searchParams.toString());
+        const newSearchParams = new URLSearchParams(window.location.search);
         newSearchParams.set("subscribed", "true");
         router.push(`${pathname}?${newSearchParams.toString()}`);
         setStatus("success");

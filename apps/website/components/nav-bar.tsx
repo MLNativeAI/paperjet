@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import MobileNav from "@/components/mobile-nav";
 import { SignupModal } from "@/components/signup-modal";
