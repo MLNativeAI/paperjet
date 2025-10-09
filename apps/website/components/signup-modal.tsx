@@ -2,8 +2,9 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowRight, CheckCircle, Loader2, Mail } from "lucide-react";
-import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { usePostHog } from "posthog-js/react";
 
 interface SignupModalProps {
   triggerText?: string;

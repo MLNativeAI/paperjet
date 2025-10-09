@@ -4,7 +4,7 @@ export { FAQ } from "./faq";
 export { Features } from "./features";
 export { Hero } from "./hero";
 export { HowItWorks } from "./how-it-works";
-export { PrebuiltTemplates } from "./prebuilt-templates";
 export { Logos } from "./logos";
+export { PrebuiltTemplates } from "./prebuilt-templates";
 export { Pricing } from "./pricing";
 export { Testimonials } from "./testimonials";

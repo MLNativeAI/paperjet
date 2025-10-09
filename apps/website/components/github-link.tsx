@@ -1,9 +1,9 @@
-import * as React from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { GithubIcon } from "lucide-react";
-import { Skeleton } from "./ui/skeleton";
+import Link from "next/link";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
 import { StarsCount } from "./stars-count";
+import { Skeleton } from "./ui/skeleton";
 
 export function GitHubLink() {
   return (
