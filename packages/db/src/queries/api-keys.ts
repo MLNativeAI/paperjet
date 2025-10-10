@@ -1,9 +1,8 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { apikey } from "../schema";
 import type { ApiKey } from "../types/api-keys";
 import type { DbApiKey } from "../types/tables";
-import { and } from "drizzle-orm";
 
 export async function getApiKeys({ organizationId }: { organizationId: string }) {
   const data = await db.query.apikey.findMany({
