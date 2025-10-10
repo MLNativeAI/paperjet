@@ -1,4 +1,3 @@
-import { otel } from "@hono/otel";
 import { type auth, authHandler, requireAdmin, requireAuth } from "@paperjet/auth";
 import { envVars, logger } from "@paperjet/shared";
 import { Hono } from "hono";
@@ -20,7 +19,6 @@ export const app = new Hono<{
   };
 }>();
 
-app.use("*", otel());
 app.use(poweredBy({ serverName: "mlnative.com" }));
 app.use(
   honoLogger((message) => {
