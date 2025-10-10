@@ -1,5 +1,9 @@
 {
   "extends": "@paperjet/tsconfig/base.json",
   "include": ["src"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "declarationMap": false, // auth.tsx type is too big
+    "declaration": false
+  }
 }

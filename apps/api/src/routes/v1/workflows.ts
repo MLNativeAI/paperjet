@@ -1,4 +1,3 @@
-import { zValidator } from "@hono/zod-validator";
 import { getUserSession } from "@paperjet/auth/session";
 import {
   createWorkflow,
@@ -14,72 +13,180 @@ import { getWorkflows, uploadFileAndCreateExecution } from "@paperjet/engine";
 import { type WorkflowExtractionData, workflowExecutionQueue } from "@paperjet/queue";
 import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
+import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import z from "zod";
 import { validateFile, workflowExecutionIdSchema, workflowIdSchema } from "../../lib/validation";
 
 const app = new Hono();
 
-const createWorkflowApiSchema = z.object({
-  name: z.string().min(1, "Workflow name is required"),
-  description: z.string().default(""),
-  configuration: WorkflowConfigurationSchema,
-  modelType: z.enum(["fast", "accurate"]),
-});
-
-const updateWorkflowApiSchema = z.object({
-  name: z.string().min(1, "Workflow name is required"),
-  description: z.string().default(""),
-  configuration: WorkflowConfigurationSchema,
-  modelType: z.enum(["fast", "accurate"]),
-});
 const router = app
-  .get("/", async (c) => {
-    try {
-      const { session } = await getUserSession(c);
-      const workflows = await getWorkflows(session.activeOrganizationId);
-      return c.json(workflows);
-    } catch (error) {
-      logger.error(error, "Failed to fetch workflows");
-      return c.json({ error: "Internal server error" }, 500);
-    }
-  })
-  .post("/", zValidator("json", createWorkflowApiSchema), async (c) => {
-    try {
-      const createWorkflowData = c.req.valid("json");
-      const { session } = await getUserSession(c);
-      logger.info({ data: createWorkflowData }, `Creating new workflow via API`);
-      const { id: workflowId } = await createWorkflow({
-        name: createWorkflowData.name,
-        description: createWorkflowData.description,
-        configuration: createWorkflowData.configuration,
-        modelType: createWorkflowData.modelType,
-        organizationId: session.activeOrganizationId,
-        userId: session.userId,
-      });
-      logger.info({ workflowId, name: createWorkflowData.name }, "Workflow created");
-      return c.json({ workflowId: workflowId, message: "Workflow created" }, 201);
-    } catch (error) {
-      // TODO unified error handling for API requests & shared error types
-      logger.error(error, "Create workflow error:");
-      if (error instanceof Error) {
-        return c.json(
-          {
-            error: error.message,
+  .get(
+    "/",
+    describeRoute({
+      description: "Get all workflows for the organization",
+      responses: {
+        200: {
+          description: "List of workflows",
+          content: {
+            "application/json": {
+              schema: resolver(
+                z.array(
+                  z.object({
+                    id: z.string(),
+                    name: z.string(),
+                    description: z.string(),
+                    configuration: WorkflowConfigurationSchema,
+                    createdAt: z.string(),
+                    updatedAt: z.string(),
+                    ownerId: z.string(),
+                    modelType: z.enum(["fast", "accurate"]),
+                  }),
+                ),
+              ),
+            },
           },
-          500,
-        );
-      } else {
-        return c.json(
-          {
-            error: "Unknown server error",
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
           },
-          500,
-        );
+        },
+      },
+    }),
+    async (c) => {
+      try {
+        const { session } = await getUserSession(c);
+        const workflows = await getWorkflows(session.activeOrganizationId);
+        return c.json(workflows);
+      } catch (error) {
+        logger.error(error, "Failed to fetch workflows");
+        return c.json({ error: "Internal server error" }, 500);
       }
-    }
-  })
+    },
+  )
+  .post(
+    "/",
+    describeRoute({
+      description: "Create a new workflow",
+      responses: {
+        201: {
+          description: "Workflow created",
+          content: {
+            "application/json": {
+              schema: resolver(
+                z.object({
+                  workflowId: z.string(),
+                  message: z.string(),
+                }),
+              ),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
+    zValidator(
+      "json",
+      z.object({
+        name: z.string().min(1, "Workflow name is required"),
+        description: z.string().default(""),
+        configuration: WorkflowConfigurationSchema,
+        modelType: z.enum(["fast", "accurate"]),
+      }),
+    ),
+    async (c) => {
+      try {
+        const createWorkflowData = c.req.valid("json");
+        const { session } = await getUserSession(c);
+        logger.info({ data: createWorkflowData }, `Creating new workflow via API`);
+        const { id: workflowId } = await createWorkflow({
+          name: createWorkflowData.name,
+          description: createWorkflowData.description,
+          configuration: createWorkflowData.configuration,
+          modelType: createWorkflowData.modelType,
+          organizationId: session.activeOrganizationId,
+          userId: session.userId,
+        });
+        logger.info({ workflowId, name: createWorkflowData.name }, "Workflow created");
+        return c.json({ workflowId: workflowId, message: "Workflow created" }, 201);
+      } catch (error) {
+        // TODO unified error handling for API requests & shared error types
+        logger.error(error, "Create workflow error:");
+        if (error instanceof Error) {
+          return c.json(
+            {
+              error: error.message,
+            },
+            500,
+          );
+        } else {
+          return c.json(
+            {
+              error: "Unknown server error",
+            },
+            500,
+          );
+        }
+      }
+    },
+  )
   .post(
     "/:workflowId/execute",
+    describeRoute({
+      description: "Execute a workflow with a file",
+      responses: {
+        200: {
+          description: "Execution started",
+          content: {
+            "application/json": {
+              schema: resolver(
+                z.object({
+                  workflowExecutionId: z.string(),
+                  workflowId: z.string(),
+                  status: z.string(),
+                  fileId: z.string(),
+                  filename: z.string(),
+                }),
+              ),
+            },
+          },
+        },
+        400: {
+          description: "Invalid file",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+        404: {
+          description: "Workflow not found",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
     zValidator(
       "param",
       z.object({
@@ -141,6 +248,30 @@ const router = app
   )
   .get(
     "/:workflowId",
+    describeRoute({
+      description: "Get workflow details by ID",
+      responses: {
+        200: {
+          description: "Workflow details",
+          content: {
+            "application/json": {
+              schema: resolver(
+                z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  description: z.string(),
+                  configuration: WorkflowConfigurationSchema,
+                  createdAt: z.string(),
+                  updatedAt: z.string(),
+                  ownerId: z.string(),
+                  modelType: z.enum(["fast", "accurate"]),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    }),
     zValidator(
       "param",
       z.object({
@@ -159,7 +290,41 @@ const router = app
   )
   .put(
     "/:workflowId",
-    zValidator("json", updateWorkflowApiSchema),
+    describeRoute({
+      description: "Update an existing workflow",
+      responses: {
+        200: {
+          description: "Workflow updated",
+          content: {
+            "application/json": {
+              schema: resolver(
+                z.object({
+                  workflowId: z.string(),
+                  message: z.string(),
+                }),
+              ),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
+    zValidator(
+      "json",
+      z.object({
+        name: z.string().min(1, "Workflow name is required"),
+        description: z.string().default(""),
+        configuration: WorkflowConfigurationSchema,
+        modelType: z.enum(["fast", "accurate"]),
+      }),
+    ),
     zValidator(
       "param",
       z.object({
@@ -205,6 +370,35 @@ const router = app
   )
   .get(
     "/:workflowId/executions/:workflowExecutionId",
+    describeRoute({
+      description: "Get workflow execution details",
+      responses: {
+        200: {
+          description: "Execution details",
+          content: {
+            "application/json": {
+              schema: resolver(
+                z.object({
+                  status: z.enum(["Queued", "Processing", "Failed", "Completed"]),
+                  id: z.string(),
+                  createdAt: z.string(),
+                  ownerId: z.string(),
+                  workflowId: z.string(),
+                  workflowName: z.string(),
+                  fileId: z.string(),
+                  fileName: z.string(),
+                  jobId: z.string().nullable(),
+                  errorMessage: z.string().nullable(),
+                  startedAt: z.string(),
+                  completedAt: z.string().nullable(),
+                  extractedData: z.any(),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    }),
     zValidator(
       "param",
       z.object({
@@ -224,6 +418,35 @@ const router = app
   )
   .delete(
     "/:workflowId",
+    describeRoute({
+      description: "Delete a workflow",
+      responses: {
+        200: {
+          description: "Workflow deleted",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ message: z.string() })),
+            },
+          },
+        },
+        404: {
+          description: "Workflow not found",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
     zValidator(
       "param",
       z.object({

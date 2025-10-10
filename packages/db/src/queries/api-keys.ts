@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { apikey } from "../schema";
 import type { ApiKey } from "../types/api-keys";
@@ -32,9 +32,15 @@ export async function updateApiKeyOwner({ apiKeyId, organizationId }: { apiKeyId
     .where(eq(apikey.id, apiKeyId));
 }
 
-export async function getApiKey({ organizationId }: { organizationId: string }): Promise<DbApiKey> {
+export async function getApiKey({
+  organizationId,
+  apiKeyId,
+}: {
+  organizationId: string;
+  apiKeyId: string;
+}): Promise<DbApiKey> {
   const apiKey = await db.query.apikey.findFirst({
-    where: eq(apikey.organizationId, organizationId),
+    where: and(eq(apikey.organizationId, organizationId), eq(apikey.id, apiKeyId)),
   });
   if (!apiKey) {
     throw new Error("Api key not found");

@@ -93,7 +93,7 @@ export function EmailPasswordForm({
     if (data) {
       toast.success(getSuccessMessage(formMode));
       await queryClient.resetQueries();
-      if (invite) {
+      if (invitationId) {
         navigate({ to: "/settings/organization" });
       } else {
         navigate({ to: "/" });

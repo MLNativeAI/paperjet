@@ -1,31 +1,134 @@
-import { zValidator } from "@hono/zod-validator";
 import { getUserSession } from "@paperjet/auth/session";
 import {
   getAllWorkflowExecutions,
   getWorkflowExecutionStatus,
   getWorkflowExecutionWithExtractedData,
 } from "@paperjet/db";
+import { WorkflowExecutionStatus } from "@paperjet/db/types";
 import { exportExecution, getPresignedFileUrl } from "@paperjet/engine";
 import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
+import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import z from "zod";
 import { workflowExecutionIdSchema } from "../../lib/validation";
+
+const executionsResponseSchema = z.array(
+  z.object({
+    status: WorkflowExecutionStatus,
+    id: z.string(),
+    createdAt: z.string(),
+    ownerId: z.string(),
+    workflowId: z.string(),
+    workflowName: z.string(),
+    fileId: z.string(),
+    fileName: z.string(),
+    jobId: z.string().nullable(),
+    errorMessage: z.string().nullable(),
+    startedAt: z.string(),
+    completedAt: z.string().nullable(),
+  }),
+);
+
+const executionResponseSchema = z.object({
+  status: WorkflowExecutionStatus,
+  id: z.string(),
+  createdAt: z.string(),
+  ownerId: z.string(),
+  workflowId: z.string(),
+  workflowName: z.string(),
+  fileId: z.string(),
+  fileName: z.string(),
+  jobId: z.string().nullable(),
+  errorMessage: z.string().nullable(),
+  startedAt: z.string(),
+  completedAt: z.string().nullable(),
+  extractedData: z.any(),
+});
+
+const statusResponseSchema = z.object({
+  id: z.string(),
+  status: WorkflowExecutionStatus,
+  workflowId: z.string(),
+  fileId: z.string(),
+  jobId: z.string().nullable(),
+  errorMessage: z.string().nullable(),
+  startedAt: z.string(),
+  completedAt: z.string().nullable(),
+});
+
+const fileUrlResponseSchema = z.object({ url: z.string() });
+const exportQuerySchema = z.object({ mode: z.enum(["csv", "json"]) });
 
 const app = new Hono();
 
 const router = app
-  .get("/", async (c) => {
-    try {
-      const { session } = await getUserSession(c);
-      const executions = await getAllWorkflowExecutions({ organizationId: session.activeOrganizationId });
-      return c.json(executions);
-    } catch (error) {
-      logger.error(error, "Get all executions error:");
-      return c.json({ error: "Failed to get executions" }, 500);
-    }
-  })
+  .get(
+    "/",
+    describeRoute({
+      description: "Get all workflow executions for the organization",
+      responses: {
+        200: {
+          description: "List of executions",
+          content: {
+            "application/json": {
+              schema: resolver(executionsResponseSchema),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      try {
+        const { session } = await getUserSession(c);
+        const executions = await getAllWorkflowExecutions({
+          organizationId: session.activeOrganizationId,
+        });
+        return c.json(executions);
+      } catch (error) {
+        logger.error(error, "Get all executions error:");
+        return c.json({ error: "Failed to get executions" }, 500);
+      }
+    },
+  )
   .get(
     "/:executionId",
+    describeRoute({
+      description: "Get workflow execution details by ID",
+      responses: {
+        200: {
+          description: "Execution details",
+          content: {
+            "application/json": {
+              schema: resolver(executionResponseSchema),
+            },
+          },
+        },
+        404: {
+          description: "Execution not found",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
     zValidator(
       "param",
       z.object({
@@ -52,6 +155,35 @@ const router = app
   )
   .get(
     "/:executionId/status",
+    describeRoute({
+      description: "Get workflow execution status by ID",
+      responses: {
+        200: {
+          description: "Execution status",
+          content: {
+            "application/json": {
+              schema: resolver(statusResponseSchema),
+            },
+          },
+        },
+        404: {
+          description: "Execution not found",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
     zValidator(
       "param",
       z.object({
@@ -78,6 +210,35 @@ const router = app
   )
   .get(
     "/:executionId/file",
+    describeRoute({
+      description: "Get presigned URL for execution file",
+      responses: {
+        200: {
+          description: "Presigned URL",
+          content: {
+            "application/json": {
+              schema: resolver(fileUrlResponseSchema),
+            },
+          },
+        },
+        404: {
+          description: "Execution not found",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
     zValidator(
       "param",
       z.object({
@@ -101,18 +262,45 @@ const router = app
   )
   .get(
     "/:executionId/export",
+    describeRoute({
+      description: "Export workflow execution data",
+      responses: {
+        200: {
+          description: "Exported data file",
+          content: {
+            "application/octet-stream": {
+              schema: {
+                type: "string",
+                format: "binary",
+              },
+            },
+          },
+        },
+        404: {
+          description: "Execution data not found",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+        500: {
+          description: "Error response",
+          content: {
+            "application/json": {
+              schema: resolver(z.object({ error: z.string() })),
+            },
+          },
+        },
+      },
+    }),
     zValidator(
       "param",
       z.object({
         executionId: workflowExecutionIdSchema,
       }),
     ),
-    zValidator(
-      "query",
-      z.object({
-        mode: z.enum(["csv", "json"]),
-      }),
-    ),
+    zValidator("query", exportQuerySchema),
     async (c) => {
       try {
         const { session } = await getUserSession(c);

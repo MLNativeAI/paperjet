@@ -5,6 +5,7 @@ import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { logger as honoLogger } from "hono/logger";
 import { poweredBy } from "hono/powered-by";
+import { openAPIRouteHandler } from "hono-openapi";
 import { corsMiddleware } from "./lib/cors";
 import { type InternalRoutes, internalRouter } from "./routes/internal";
 import { type AdminRoutes, v1AdminRouter } from "./routes/v1/admin";
@@ -45,6 +46,20 @@ app
   .route("/v1/api-keys", v1ApiKeyRouter)
   .route("/v1/workflows", v1WorkflowRouter)
   .route("/v1/executions", v1ExecutionRouter);
+
+app.get(
+  "/openapi",
+  openAPIRouteHandler(app, {
+    documentation: {
+      info: {
+        title: "PaperJet API",
+        version: "1.0.0",
+        description: "Secure document extraction API",
+      },
+      servers: [{ url: "https://app.getpaperjet.com", description: "Production Server" }],
+    },
+  }),
+);
 
 if (process.env.NODE_ENV === "production") {
   // Serve all static files from the dist directory
