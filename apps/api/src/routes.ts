@@ -1,10 +1,11 @@
+import { otel } from "@hono/otel";
 import { type auth, authHandler, requireAdmin, requireAuth } from "@paperjet/auth";
 import { envVars, logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { logger as honoLogger } from "hono/logger";
 import { poweredBy } from "hono/powered-by";
-import { describeRoute, openAPIRouteHandler } from "hono-openapi";
+import { openAPIRouteHandler } from "hono-openapi";
 import { corsMiddleware } from "./lib/cors";
 import { type InternalRoutes, internalRouter } from "./routes/internal";
 import { type AdminRoutes, v1AdminRouter } from "./routes/v1/admin";
@@ -19,6 +20,7 @@ export const app = new Hono<{
   };
 }>();
 
+app.use("*", otel());
 app.use(poweredBy({ serverName: "mlnative.com" }));
 app.use(
   honoLogger((message) => {
@@ -30,23 +32,12 @@ app.use("/api/v1/*", requireAuth);
 app.use("/api/v1/admin/*", requireAdmin);
 app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
-app.get(
-  "/api/health",
-  describeRoute({
-    description: "Health check",
-    responses: {
-      200: {
-        description: "Successful response",
-      },
-    },
-  }),
-  async (c) => {
-    logger.info({ endpoint: "/api/health", method: "GET" }, "health check");
-    return c.json({
-      status: "ok",
-    });
-  },
-);
+app.get("/api/health", async (c) => {
+  logger.info({ endpoint: "/api/health", method: "GET" }, "health check");
+  return c.json({
+    status: "ok",
+  });
+});
 
 app
   .basePath("/api")
