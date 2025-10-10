@@ -18,7 +18,19 @@ const router = app
           description: "List of API keys",
           content: {
             "application/json": {
-              schema: resolver(z.array(z.any())),
+              schema: resolver(
+                z.array(
+                  z.object({
+                    id: z.string(),
+                    name: z.string().nullable(),
+                    key: z.string(),
+                    userId: z.string(),
+                    enabled: z.boolean(),
+                    createdAt: z.string(),
+                    lastRequest: z.string().nullable(),
+                  }),
+                ),
+              ),
             },
           },
         },

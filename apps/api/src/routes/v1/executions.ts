@@ -11,6 +11,55 @@ import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import z from "zod";
 import { workflowExecutionIdSchema } from "../../lib/validation";
 
+const WorkflowExecutionStatus = z.enum(["Queued", "Processing", "Failed", "Completed"]);
+
+const executionsResponseSchema = z.array(
+  z.object({
+    status: WorkflowExecutionStatus,
+    id: z.string(),
+    createdAt: z.string(),
+    ownerId: z.string(),
+    workflowId: z.string(),
+    workflowName: z.string(),
+    fileId: z.string(),
+    fileName: z.string(),
+    jobId: z.string().nullable(),
+    errorMessage: z.string().nullable(),
+    startedAt: z.string(),
+    completedAt: z.string().nullable(),
+  }),
+);
+
+const executionResponseSchema = z.object({
+  status: WorkflowExecutionStatus,
+  id: z.string(),
+  createdAt: z.string(),
+  ownerId: z.string(),
+  workflowId: z.string(),
+  workflowName: z.string(),
+  fileId: z.string(),
+  fileName: z.string(),
+  jobId: z.string().nullable(),
+  errorMessage: z.string().nullable(),
+  startedAt: z.string(),
+  completedAt: z.string().nullable(),
+  extractedData: z.any(),
+});
+
+const statusResponseSchema = z.object({
+  id: z.string(),
+  status: WorkflowExecutionStatus,
+  workflowId: z.string(),
+  fileId: z.string(),
+  jobId: z.string().nullable(),
+  errorMessage: z.string().nullable(),
+  startedAt: z.string(),
+  completedAt: z.string().nullable(),
+});
+
+const fileUrlResponseSchema = z.object({ url: z.string() });
+const exportQuerySchema = z.object({ mode: z.enum(["csv", "json"]) });
+
 const app = new Hono();
 
 const router = app
@@ -23,7 +72,7 @@ const router = app
           description: "List of executions",
           content: {
             "application/json": {
-              schema: resolver(z.array(z.any())),
+              schema: resolver(executionsResponseSchema),
             },
           },
         },
@@ -59,7 +108,7 @@ const router = app
           description: "Execution details",
           content: {
             "application/json": {
-              schema: resolver(z.any()),
+              schema: resolver(executionResponseSchema),
             },
           },
         },
@@ -114,7 +163,7 @@ const router = app
           description: "Execution status",
           content: {
             "application/json": {
-              schema: resolver(z.any()),
+              schema: resolver(statusResponseSchema),
             },
           },
         },
@@ -169,7 +218,7 @@ const router = app
           description: "Presigned URL",
           content: {
             "application/json": {
-              schema: resolver(z.any()),
+              schema: resolver(fileUrlResponseSchema),
             },
           },
         },
@@ -221,7 +270,7 @@ const router = app
           description: "Exported data file",
           content: {
             "application/octet-stream": {
-              schema: resolver(z.any()),
+              schema: resolver(executionResponseSchema),
             },
           },
         },
@@ -249,7 +298,7 @@ const router = app
         executionId: workflowExecutionIdSchema,
       }),
     ),
-    zValidator("query", z.object({ mode: z.enum(["csv", "json"]) })),
+    zValidator("query", exportQuerySchema),
     async (c) => {
       try {
         const { session } = await getUserSession(c);

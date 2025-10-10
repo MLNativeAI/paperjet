@@ -100,7 +100,18 @@ const router = app
           description: "List of models",
           content: {
             "application/json": {
-              schema: resolver(z.array(z.any())),
+              schema: resolver(
+                z.array(
+                  z.object({
+                    id: z.string(),
+                    provider: z.string(),
+                    providerApiKey: z.string().optional(),
+                    modelName: z.string(),
+                    displayName: z.string(),
+                    baseUrl: z.string().optional(),
+                  }),
+                ),
+              ),
             },
           },
         },
@@ -123,7 +134,14 @@ const router = app
               schema: resolver(
                 z.object({
                   success: z.boolean(),
-                  model: z.any(),
+                  model: z.object({
+                    id: z.string(),
+                    provider: z.string(),
+                    providerApiKey: z.string().optional(),
+                    modelName: z.string(),
+                    displayName: z.string(),
+                    baseUrl: z.string().optional(),
+                  }),
                 }),
               ),
             },
@@ -160,7 +178,12 @@ const router = app
           description: "Validation result",
           content: {
             "application/json": {
-              schema: resolver(z.any()),
+              schema: resolver(
+                z.object({
+                  isValid: z.boolean(),
+                  error: z.string().nullable(),
+                }),
+              ),
             },
           },
         },
@@ -168,7 +191,7 @@ const router = app
           description: "Error response",
           content: {
             "application/json": {
-              schema: resolver(z.object({ error: z.any() })),
+              schema: resolver(z.object({ error: z.string() })),
             },
           },
         },
@@ -197,7 +220,14 @@ const router = app
               schema: resolver(
                 z.object({
                   success: z.boolean(),
-                  model: z.any(),
+                  model: z.object({
+                    id: z.string(),
+                    provider: z.string(),
+                    providerApiKey: z.string().optional(),
+                    modelName: z.string(),
+                    displayName: z.string(),
+                    baseUrl: z.string().optional(),
+                  }),
                 }),
               ),
             },

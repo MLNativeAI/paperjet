@@ -65,7 +65,18 @@ const router = app
           description: "List of invitations",
           content: {
             "application/json": {
-              schema: resolver(z.array(z.any())), // TODO: define proper schema
+              schema: resolver(
+                z.array(
+                  z.object({
+                    id: z.string(),
+                    email: z.string(),
+                    role: z.string().optional(),
+                    status: z.string(),
+                    expiresAt: z.string(),
+                    inviterId: z.string(),
+                  }),
+                ),
+              ),
             },
           },
         },

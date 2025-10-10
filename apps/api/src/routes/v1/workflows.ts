@@ -19,19 +19,6 @@ import { validateFile, workflowExecutionIdSchema, workflowIdSchema } from "../..
 
 const app = new Hono();
 
-const createWorkflowApiSchema = z.object({
-  name: z.string().min(1, "Workflow name is required"),
-  description: z.string().default(""),
-  configuration: WorkflowConfigurationSchema,
-  modelType: z.enum(["fast", "accurate"]),
-});
-
-const updateWorkflowApiSchema = z.object({
-  name: z.string().min(1, "Workflow name is required"),
-  description: z.string().default(""),
-  configuration: WorkflowConfigurationSchema,
-  modelType: z.enum(["fast", "accurate"]),
-});
 const router = app
   .get(
     "/",
@@ -42,7 +29,20 @@ const router = app
           description: "List of workflows",
           content: {
             "application/json": {
-              schema: resolver(z.array(z.any())),
+              schema: resolver(
+                z.array(
+                  z.object({
+                    id: z.string(),
+                    name: z.string(),
+                    description: z.string(),
+                    configuration: WorkflowConfigurationSchema,
+                    createdAt: z.string(),
+                    updatedAt: z.string(),
+                    ownerId: z.string(),
+                    modelType: z.enum(["fast", "accurate"]),
+                  }),
+                ),
+              ),
             },
           },
         },
@@ -95,7 +95,15 @@ const router = app
         },
       },
     }),
-    zValidator("json", createWorkflowApiSchema),
+    zValidator(
+      "json",
+      z.object({
+        name: z.string().min(1, "Workflow name is required"),
+        description: z.string().default(""),
+        configuration: WorkflowConfigurationSchema,
+        modelType: z.enum(["fast", "accurate"]),
+      }),
+    ),
     async (c) => {
       try {
         const createWorkflowData = c.req.valid("json");
@@ -141,7 +149,15 @@ const router = app
           description: "Execution started",
           content: {
             "application/json": {
-              schema: resolver(z.any()),
+              schema: resolver(
+                z.object({
+                  workflowExecutionId: z.string(),
+                  workflowId: z.string(),
+                  status: z.string(),
+                  fileId: z.string(),
+                  filename: z.string(),
+                }),
+              ),
             },
           },
         },
@@ -239,7 +255,18 @@ const router = app
           description: "Workflow details",
           content: {
             "application/json": {
-              schema: resolver(z.any()),
+              schema: resolver(
+                z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  description: z.string(),
+                  configuration: WorkflowConfigurationSchema,
+                  createdAt: z.string(),
+                  updatedAt: z.string(),
+                  ownerId: z.string(),
+                  modelType: z.enum(["fast", "accurate"]),
+                }),
+              ),
             },
           },
         },
@@ -289,7 +316,15 @@ const router = app
         },
       },
     }),
-    zValidator("json", updateWorkflowApiSchema),
+    zValidator(
+      "json",
+      z.object({
+        name: z.string().min(1, "Workflow name is required"),
+        description: z.string().default(""),
+        configuration: WorkflowConfigurationSchema,
+        modelType: z.enum(["fast", "accurate"]),
+      }),
+    ),
     zValidator(
       "param",
       z.object({
@@ -342,7 +377,23 @@ const router = app
           description: "Execution details",
           content: {
             "application/json": {
-              schema: resolver(z.any()),
+              schema: resolver(
+                z.object({
+                  status: z.enum(["Queued", "Processing", "Failed", "Completed"]),
+                  id: z.string(),
+                  createdAt: z.string(),
+                  ownerId: z.string(),
+                  workflowId: z.string(),
+                  workflowName: z.string(),
+                  fileId: z.string(),
+                  fileName: z.string(),
+                  jobId: z.string().nullable(),
+                  errorMessage: z.string().nullable(),
+                  startedAt: z.string(),
+                  completedAt: z.string().nullable(),
+                  extractedData: z.any(),
+                }),
+              ),
             },
           },
         },

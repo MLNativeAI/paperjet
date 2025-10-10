@@ -1,0 +1,3 @@
+{
+  "extends": "@paperjet/tsconfig/base.json"
+}
