@@ -3,6 +3,7 @@
   "include": ["src"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "declarationMap": false
+    "declarationMap": false, // auth.tsx type is too big
+    "declaration": false
   }
 }
