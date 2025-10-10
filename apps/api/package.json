@@ -19,17 +19,19 @@
   },
   "dependencies": {
     "@hono/otel": "^0.2.2",
+    "@hono/standard-validator": "^0.1.5",
     "@hono/zod-validator": "^0.5.0",
     "@opentelemetry/auto-instrumentations-node": "^0.60.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.202.0",
     "@opentelemetry/sdk-node": "^0.202.0",
+    "@paperjet/auth": "workspace:*",
     "@paperjet/db": "workspace:*",
     "@paperjet/email": "workspace:*",
     "@paperjet/engine": "workspace:*",
     "@paperjet/queue": "workspace:*",
     "@paperjet/shared": "workspace:*",
-    "@paperjet/auth": "workspace:*",
     "hono": "^4.9.2",
+    "hono-openapi": "^1.1.0",
     "zod": "^3.24.3"
   }
 }

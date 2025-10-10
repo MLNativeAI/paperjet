@@ -5,6 +5,7 @@ import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { logger as honoLogger } from "hono/logger";
 import { poweredBy } from "hono/powered-by";
+import { describeRoute, openAPIRouteHandler } from "hono-openapi";
 import { corsMiddleware } from "./lib/cors";
 import { type InternalRoutes, internalRouter } from "./routes/internal";
 import { type AdminRoutes, v1AdminRouter } from "./routes/v1/admin";
@@ -31,12 +32,23 @@ app.use("/api/v1/*", requireAuth);
 app.use("/api/v1/admin/*", requireAdmin);
 app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
-app.get("/api/health", async (c) => {
-  logger.info({ endpoint: "/api/health", method: "GET" }, "health check");
-  return c.json({
-    status: "ok",
-  });
-});
+app.get(
+  "/api/health",
+  describeRoute({
+    description: "Health check",
+    responses: {
+      200: {
+        description: "Successful response",
+      },
+    },
+  }),
+  async (c) => {
+    logger.info({ endpoint: "/api/health", method: "GET" }, "health check");
+    return c.json({
+      status: "ok",
+    });
+  },
+);
 
 app
   .basePath("/api")
@@ -45,6 +57,20 @@ app
   .route("/v1/api-keys", v1ApiKeyRouter)
   .route("/v1/workflows", v1WorkflowRouter)
   .route("/v1/executions", v1ExecutionRouter);
+
+app.get(
+  "/openapi",
+  openAPIRouteHandler(app, {
+    documentation: {
+      info: {
+        title: "PaperJet API",
+        version: "1.0.0",
+        description: "Secure document extraction API",
+      },
+      servers: [{ url: "http://app.getpaperjet.com", description: "Production Server" }],
+    },
+  }),
+);
 
 if (process.env.NODE_ENV === "production") {
   // Serve all static files from the dist directory
