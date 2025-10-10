@@ -23,6 +23,7 @@
       "name": "@paperjet/api",
       "dependencies": {
         "@hono/otel": "^0.2.2",
+        "@hono/standard-validator": "^0.1.5",
         "@opentelemetry/auto-instrumentations-node": "^0.60.1",
         "@opentelemetry/exporter-trace-otlp-http": "^0.202.0",
         "@opentelemetry/sdk-node": "^0.202.0",
