@@ -151,7 +151,7 @@ const router = app
         const { session } = await getUserSession(c);
 
         try {
-          await getApiKey({ organizationId: session.activeOrganizationId });
+          await getApiKey({ organizationId: session.activeOrganizationId, apiKeyId: id });
         } catch (_) {
           return c.json({ error: "Key not found" }, 404);
         }

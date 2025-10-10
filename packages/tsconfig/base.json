@@ -1,7 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "jsx": "preserve",
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,

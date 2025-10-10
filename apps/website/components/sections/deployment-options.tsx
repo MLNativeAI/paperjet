@@ -125,8 +125,7 @@ export function DeploymentOptions() {
           <div className="space-y-4">
             {options.map((option, index) => (
               <motion.div
-                // biome-ignore lint/suspicious/noArrayIndexKey: Good enough
-                key={index}
+                key={option.title}
                 onClick={() => setActiveIndex(index)}
                 className={`cursor-pointer p-6 rounded-lg border-2 transition-all hover:shadow-md ${
                   activeIndex === index

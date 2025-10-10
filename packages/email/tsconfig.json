@@ -1,3 +1,7 @@
 {
-  "extends": "@paperjet/tsconfig/base.json"
+  "extends": "@paperjet/tsconfig/base.json",
+
+  "compilerOptions": {
+    "jsx": "preserve"
+  }
 }

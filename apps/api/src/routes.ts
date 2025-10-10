@@ -56,7 +56,7 @@ app.get(
         version: "1.0.0",
         description: "Secure document extraction API",
       },
-      servers: [{ url: "http://app.getpaperjet.com", description: "Production Server" }],
+      servers: [{ url: "https://app.getpaperjet.com", description: "Production Server" }],
     },
   }),
 );

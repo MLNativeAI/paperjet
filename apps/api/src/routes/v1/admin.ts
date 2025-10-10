@@ -204,7 +204,8 @@ const router = app
         const result = await validateConnection(modelParams);
         return c.json(result);
       } catch (error) {
-        return c.json({ error: error }, 500);
+        const message = error instanceof Error ? error.message : String(error);
+        return c.json({ error: message }, 500);
       }
     },
   )

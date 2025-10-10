@@ -4,14 +4,13 @@ import {
   getWorkflowExecutionStatus,
   getWorkflowExecutionWithExtractedData,
 } from "@paperjet/db";
+import { WorkflowExecutionStatus } from "@paperjet/db/types";
 import { exportExecution, getPresignedFileUrl } from "@paperjet/engine";
 import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import z from "zod";
 import { workflowExecutionIdSchema } from "../../lib/validation";
-
-const WorkflowExecutionStatus = z.enum(["Queued", "Processing", "Failed", "Completed"]);
 
 const executionsResponseSchema = z.array(
   z.object({
@@ -270,7 +269,10 @@ const router = app
           description: "Exported data file",
           content: {
             "application/octet-stream": {
-              schema: resolver(executionResponseSchema),
+              schema: {
+                type: "string",
+                format: "binary",
+              },
             },
           },
         },

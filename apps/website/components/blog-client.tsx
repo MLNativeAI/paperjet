@@ -40,8 +40,9 @@ export const BlogClient = ({ posts }: BlogClientProps) => {
 
     if (sectionRef.current) {
       const animatedElements = sectionRef.current.querySelectorAll(".animate-on-scroll");
-      // biome-ignore lint/suspicious/useIterableCallbackReturn: Because I said so
-      animatedElements.forEach((element) => observer.observe(element));
+      for (const element of animatedElements) {
+        observer.observe(element);
+      }
     }
 
     return () => observer.disconnect();
