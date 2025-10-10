@@ -6,15 +6,6 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import { z } from "zod";
 
-const apiKeysResponseSchema = z.array(z.any()); // TODO
-const createApiKeyRequestSchema = z.object({ name: z.string().min(1) });
-const createApiKeyResponseSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  key: z.string(),
-});
-const successMessageSchema = z.object({ message: z.string() });
-
 const app = new Hono();
 
 const router = app
@@ -27,7 +18,7 @@ const router = app
           description: "List of API keys",
           content: {
             "application/json": {
-              schema: resolver(apiKeysResponseSchema),
+              schema: resolver(z.array(z.any())),
             },
           },
         },
@@ -63,7 +54,13 @@ const router = app
           description: "API key created",
           content: {
             "application/json": {
-              schema: resolver(createApiKeyResponseSchema),
+              schema: resolver(
+                z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  key: z.string(),
+                }),
+              ),
             },
           },
         },
@@ -77,7 +74,7 @@ const router = app
         },
       },
     }),
-    zValidator("json", createApiKeyRequestSchema),
+    zValidator("json", z.object({ name: z.string().min(1) })),
     async (c) => {
       try {
         const { name } = c.req.valid("json");
@@ -114,7 +111,7 @@ const router = app
           description: "API key revoked",
           content: {
             "application/json": {
-              schema: resolver(successMessageSchema),
+              schema: resolver(z.object({ message: z.string() })),
             },
           },
         },

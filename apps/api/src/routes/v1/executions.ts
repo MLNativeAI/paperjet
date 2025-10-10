@@ -11,12 +11,6 @@ import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import z from "zod";
 import { workflowExecutionIdSchema } from "../../lib/validation";
 
-const executionsResponseSchema = z.array(z.any()); // TODO
-const executionResponseSchema = z.any(); // TODO
-const statusResponseSchema = z.any(); // TODO
-const fileUrlResponseSchema = z.any(); // TODO
-const exportQuerySchema = z.object({ mode: z.enum(["csv", "json"]) });
-
 const app = new Hono();
 
 const router = app
@@ -29,7 +23,7 @@ const router = app
           description: "List of executions",
           content: {
             "application/json": {
-              schema: resolver(executionsResponseSchema),
+              schema: resolver(z.array(z.any())),
             },
           },
         },
@@ -65,7 +59,7 @@ const router = app
           description: "Execution details",
           content: {
             "application/json": {
-              schema: resolver(executionResponseSchema),
+              schema: resolver(z.any()),
             },
           },
         },
@@ -120,7 +114,7 @@ const router = app
           description: "Execution status",
           content: {
             "application/json": {
-              schema: resolver(statusResponseSchema),
+              schema: resolver(z.any()),
             },
           },
         },
@@ -175,7 +169,7 @@ const router = app
           description: "Presigned URL",
           content: {
             "application/json": {
-              schema: resolver(fileUrlResponseSchema),
+              schema: resolver(z.any()),
             },
           },
         },
@@ -255,7 +249,7 @@ const router = app
         executionId: workflowExecutionIdSchema,
       }),
     ),
-    zValidator("query", exportQuerySchema),
+    zValidator("query", z.object({ mode: z.enum(["csv", "json"]) })),
     async (c) => {
       try {
         const { session } = await getUserSession(c);

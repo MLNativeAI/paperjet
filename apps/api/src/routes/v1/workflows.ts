@@ -17,20 +17,6 @@ import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import z from "zod";
 import { validateFile, workflowExecutionIdSchema, workflowIdSchema } from "../../lib/validation";
 
-const workflowsResponseSchema = z.array(z.any()); // TODO
-const createWorkflowResponseSchema = z.object({
-  workflowId: z.string(),
-  message: z.string(),
-});
-const workflowResponseSchema = z.any(); // TODO
-const executionResponseSchema = z.any(); // TODO
-const updateWorkflowResponseSchema = z.object({
-  workflowId: z.string(),
-  message: z.string(),
-});
-const deleteWorkflowResponseSchema = z.object({ message: z.string() });
-const executeWorkflowResponseSchema = z.any(); // TODO
-
 const app = new Hono();
 
 const createWorkflowApiSchema = z.object({
@@ -56,7 +42,7 @@ const router = app
           description: "List of workflows",
           content: {
             "application/json": {
-              schema: resolver(workflowsResponseSchema),
+              schema: resolver(z.array(z.any())),
             },
           },
         },
@@ -90,7 +76,12 @@ const router = app
           description: "Workflow created",
           content: {
             "application/json": {
-              schema: resolver(createWorkflowResponseSchema),
+              schema: resolver(
+                z.object({
+                  workflowId: z.string(),
+                  message: z.string(),
+                }),
+              ),
             },
           },
         },
@@ -150,7 +141,7 @@ const router = app
           description: "Execution started",
           content: {
             "application/json": {
-              schema: resolver(executeWorkflowResponseSchema),
+              schema: resolver(z.any()),
             },
           },
         },
@@ -248,7 +239,7 @@ const router = app
           description: "Workflow details",
           content: {
             "application/json": {
-              schema: resolver(workflowResponseSchema),
+              schema: resolver(z.any()),
             },
           },
         },
@@ -279,7 +270,12 @@ const router = app
           description: "Workflow updated",
           content: {
             "application/json": {
-              schema: resolver(updateWorkflowResponseSchema),
+              schema: resolver(
+                z.object({
+                  workflowId: z.string(),
+                  message: z.string(),
+                }),
+              ),
             },
           },
         },
@@ -346,7 +342,7 @@ const router = app
           description: "Execution details",
           content: {
             "application/json": {
-              schema: resolver(executionResponseSchema),
+              schema: resolver(z.any()),
             },
           },
         },
@@ -378,7 +374,7 @@ const router = app
           description: "Workflow deleted",
           content: {
             "application/json": {
-              schema: resolver(deleteWorkflowResponseSchema),
+              schema: resolver(z.object({ message: z.string() })),
             },
           },
         },

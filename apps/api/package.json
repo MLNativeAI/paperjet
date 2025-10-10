@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
-    "openapi": "bun src/index.ts",
+    "openapi": "http localhost:3000/openapi > ../docs/api-reference/openapi.json",
     "lint": "biome check --write",
     "typecheck": "tsc --noEmit",
     "build": "bun build --target=bun ./src/index.ts --outdir=dist"
