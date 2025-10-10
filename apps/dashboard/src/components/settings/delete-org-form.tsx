@@ -1,4 +1,3 @@
-import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { useNavigate } from "@tanstack/react-router";
 import type { Member } from "better-auth/plugins";
 import { useState } from "react";
@@ -13,7 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
 import { useOrganization } from "@/hooks/use-organization";
 import { authClient } from "@/lib/auth-client";
 
