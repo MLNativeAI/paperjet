@@ -1,13 +1,17 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "linden",
   "name": "Paperjet",
   "colors": {
     "primary": "#FDFBF7",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "light": "#FDFBF7",
+    "dark": "#FDFBF7"
   },
-  "favicon": "/favicon.svg",
+  "appearance": {
+    "default": "light",
+    "strict": true
+  },
+  "favicon": "/favicon.ico",
   "navigation": {
     "tabs": [
       {
@@ -19,14 +23,7 @@
           },
           {
             "group": "User Guide",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
-            ]
+            "pages": ["pages/user-guide/workflows"]
           },
           {
             "group": "Adminstrator Guide",
