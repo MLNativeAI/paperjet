@@ -37,7 +37,7 @@
     "apps/*",
     "packages/*"
   ],
-  "version": "1.8.0",
+  "version": "1.0.0",
   "dependencies": {
     "@biomejs/biome": "^2.2.4"
   }

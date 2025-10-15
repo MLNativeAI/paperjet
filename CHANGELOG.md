@@ -1,3 +1,11 @@
+# 1.0.0 (2025-10-15)
+
+
+### Features
+
+* openapi schema ([97c53d6](https://github.com/MLNativeAI/paperjet/commit/97c53d65206c3fc825f2c6ac57962de4c84cfd74))
+* working endpoint ([1eb6abf](https://github.com/MLNativeAI/paperjet/commit/1eb6abf2e63edb3fa2ff4c14b6e00082992c2323))
+
 # [1.8.0](https://github.com/MLNativeAI/PaperJet/compare/v1.7.0...v1.8.0) (2025-10-06)
 
 
