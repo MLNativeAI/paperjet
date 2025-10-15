@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_app/workflows/wizard")({
           label: "Workflows",
         },
         {
-          link: "/wizard",
+          link: "/workflows/wizard",
           label: "New workflow",
         },
       ],

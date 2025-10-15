@@ -15,11 +15,6 @@ export type WorkflowTemplate = {
   modelType: RuntimeModelType;
 };
 
-export function getTemplateForId(templateId: string) {
-  const template = WORKFLOW_TEMPLATES[templateId];
-  return template;
-}
-
 export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
   invoice: {
     id: "invoice",
