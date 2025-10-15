@@ -1,23 +1,28 @@
 import type { WorkflowConfiguration } from "@paperjet/db/types";
 
-export const invoiceConfig: WorkflowConfiguration = {
+export const commerceConfig: WorkflowConfiguration = {
   objects: [
     {
-      name: "Invoice Header",
+      name: "Order Header",
       fields: [
         {
-          name: "Invoice Number",
-          description: "Unique invoice identifier",
+          name: "Order Number",
+          description: "Unique order identifier",
           type: "string",
         },
         {
-          name: "Invoice Date",
-          description: "Date the invoice was issued",
+          name: "Order Date",
+          description: "Date the order was placed",
           type: "string",
         },
         {
-          name: "Due Date",
-          description: "Payment due date",
+          name: "Customer Name",
+          description: "Name of the customer",
+          type: "string",
+        },
+        {
+          name: "Customer Address",
+          description: "Address of the customer",
           type: "string",
         },
         {
@@ -30,23 +35,13 @@ export const invoiceConfig: WorkflowConfiguration = {
           description: "Address of the vendor",
           type: "string",
         },
-        {
-          name: "Customer Name",
-          description: "Name of the customer or buyer",
-          type: "string",
-        },
-        {
-          name: "Customer Address",
-          description: "Address of the customer",
-          type: "string",
-        },
       ],
     },
     {
       name: "Line Items",
       tables: [
         {
-          name: "Invoice Line Items",
+          name: "Order Line Items",
           columns: [
             {
               name: "Description",
@@ -69,7 +64,7 @@ export const invoiceConfig: WorkflowConfiguration = {
       ],
     },
     {
-      name: "Invoice Totals",
+      name: "Order Totals",
       fields: [
         {
           name: "Subtotal",

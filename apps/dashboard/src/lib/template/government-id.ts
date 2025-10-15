@@ -3,103 +3,42 @@ import type { WorkflowConfiguration } from "@paperjet/db/types";
 export const governmentIdConfig: WorkflowConfiguration = {
   objects: [
     {
-      name: "Personal Data",
+      name: "Personal Information",
       fields: [
         {
-          name: "Name",
+          name: "Full Name",
           description: "Full name of the individual",
           type: "string",
         },
         {
-          name: "Date of birth",
-          description: "Full date of birth",
+          name: "Date of Birth",
+          description: "Date of birth",
           type: "string",
         },
         {
-          name: "PESEL",
-          type: "number",
+          name: "ID Number",
+          description: "Government ID number",
+          type: "string",
         },
         {
-          name: "Age",
-          type: "number",
+          name: "Issue Date",
+          description: "Date the ID was issued",
+          type: "string",
+        },
+        {
+          name: "Expiry Date",
+          description: "Date the ID expires",
+          type: "string",
+        },
+        {
+          name: "Place of Birth",
+          description: "Place of birth",
+          type: "string",
         },
         {
           name: "Gender",
+          description: "Gender",
           type: "string",
-        },
-      ],
-    },
-    {
-      name: "Blood results",
-      tables: [
-        {
-          name: "Blood results table",
-          columns: [
-            {
-              name: "Test name",
-              type: "string",
-            },
-            {
-              name: "Value",
-              type: "number",
-            },
-            {
-              name: "Unit",
-              type: "string",
-            },
-            {
-              name: "Reference range",
-              type: "string",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: "Biochemistry results",
-      tables: [
-        {
-          name: "Biochemistry",
-          columns: [
-            {
-              name: "Test name",
-              type: "string",
-            },
-            {
-              name: "Value",
-              type: "number",
-            },
-            {
-              name: "Unit",
-              type: "string",
-            },
-            {
-              name: "Reference range",
-              type: "string",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: "Urine results",
-      tables: [
-        {
-          name: "Urine",
-          columns: [
-            {
-              name: "Test name",
-              type: "string",
-            },
-            {
-              name: "Result",
-              type: "string",
-            },
-            {
-              name: "Reference range",
-              type: "string",
-            },
-          ],
         },
       ],
     },

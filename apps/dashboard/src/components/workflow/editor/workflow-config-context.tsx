@@ -4,6 +4,7 @@ import { type UseMutationResult, useMutation, useQueryClient } from "@tanstack/r
 import { hc } from "hono/client";
 import { produce } from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
+import type { WorkflowTemplate } from "@/lib/template";
 import {
   type DraftField,
   type DraftObject,
@@ -43,9 +44,11 @@ const WorkflowConfigContext = createContext<WorkflowConfigContextType | undefine
 export function WorkflowConfigProvider({
   children,
   initialWorkflow,
+  template,
 }: {
   children: React.ReactNode;
   initialWorkflow?: Workflow;
+  template?: WorkflowTemplate;
 }) {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -105,6 +108,17 @@ export function WorkflowConfigProvider({
       queryClient.invalidateQueries({ queryKey: ["config"] });
     },
   });
+
+  useEffect(() => {
+    if (template) {
+      setWorkflowConfig({
+        objects: fromWorkflowConfig(template.config),
+      });
+      setName(template.name);
+      setDescription(template.description);
+      setModelType(template.modelType);
+    }
+  }, [template]);
 
   useEffect(() => {
     if (initialWorkflow) {

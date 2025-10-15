@@ -1,15 +1,13 @@
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useWorkflowConfig, WorkflowConfigProvider } from "@/components/workflow/editor/workflow-config-context";
 import { WorkflowForm } from "@/components/workflow/editor/workflow-form";
+import { getTemplateForId } from "@/lib/template";
 import { Route } from "@/routes/_app.workflows.new";
 
 function WorkflowCreatePageContent() {
   const { createWorkflow } = useWorkflowConfig();
-  const { templateId } = Route.useSearch();
   const navigate = useNavigate();
-
-  console.log(templateId);
 
   const handleSave = async () => {
     try {
@@ -34,9 +32,19 @@ function WorkflowCreatePageContent() {
 }
 
 export default function WorkflowCreatePage() {
-  return (
-    <WorkflowConfigProvider>
-      <WorkflowCreatePageContent />
-    </WorkflowConfigProvider>
-  );
+  const { templateId } = Route.useSearch();
+  if (templateId) {
+    const template = getTemplateForId(templateId);
+    return (
+      <WorkflowConfigProvider template={template}>
+        <WorkflowCreatePageContent />
+      </WorkflowConfigProvider>
+    );
+  } else {
+    return (
+      <WorkflowConfigProvider>
+        <WorkflowCreatePageContent />
+      </WorkflowConfigProvider>
+    );
+  }
 }
