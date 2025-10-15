@@ -40,6 +40,11 @@ export const invoiceConfig: WorkflowConfiguration = {
           description: "Address of the customer",
           type: "string",
         },
+        {
+          name: "Invoice Currency",
+          type: "string",
+          description: "3-letter currency code",
+        },
       ],
     },
     {

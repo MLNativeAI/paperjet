@@ -1,10 +1,10 @@
 import type { RuntimeModelType, WorkflowConfiguration } from "@paperjet/db/types";
-import { Building2, CircleDollarSign, Factory, Hospital, Landmark, ShoppingCart } from "lucide-react";
+import { Building2, CircleDollarSign, Hospital, Landmark, ShoppingCart } from "lucide-react";
+import { bankStatementConfig } from "@/lib/template/bank-statement";
 import { commerceConfig } from "@/lib/template/commerce";
 import { governmentIdConfig } from "@/lib/template/government-id";
 import { invoiceConfig } from "@/lib/template/invoice";
 import { labResultsConfig } from "@/lib/template/lab-results";
-import { bankStatementConfig } from "@/lib/template/bank-statement";
 
 export type WorkflowTemplate = {
   id: string;
