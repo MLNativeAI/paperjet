@@ -1,12 +1,10 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { FileText, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkflowsDataTable } from "@/components/workflows-data-table";
 import { useWorkflows } from "@/hooks/use-workflows";
 
 export default function WorkflowListPage() {
-  const navigate = useNavigate();
-
   const { workflows, isLoading, handleDeleteWorkflow } = useWorkflows();
 
   if (isLoading) {
@@ -27,16 +25,12 @@ export default function WorkflowListPage() {
           <h1 className="text-3xl font-bold">My Workflows</h1>
           <p className="text-muted-foreground mt-2">Manage your document processing workflows</p>
         </div>
-        <Button
-          size="lg"
-          className="gap-2"
-          onClick={() => {
-            navigate({ to: "/workflows/new" });
-          }}
-        >
-          <Plus className="h-5 w-5" />
-          Create New Workflow
-        </Button>
+        <Link viewTransition={{ types: ["cross-fade"] }} to={"/workflows/wizard"}>
+          <Button size="lg" className="gap-2">
+            <Plus className="h-5 w-5" />
+            Create New Workflow
+          </Button>
+        </Link>
       </div>
 
       <div className="space-y-6">
@@ -51,14 +45,12 @@ export default function WorkflowListPage() {
             <p className="text-muted-foreground mb-4">
               You haven't created any workflows yet. Start by creating your first workflow.
             </p>
-            <Button
-              onClick={() => {
-                navigate({ to: "/workflows/new" });
-              }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Your First Workflow
-            </Button>
+            <Link viewTransition={{ types: ["cross-fade"] }} to={"/workflows/wizard"}>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Workflow
+              </Button>
+            </Link>
           </div>
         ) : (
           <WorkflowsDataTable data={workflows} onDeleteWorkflow={handleDeleteWorkflow} />
