@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/MLNativeAI/paperjet/compare/v1.0.0...v1.1.0) (2025-10-15)
+
+
+### Features
+
+* workflow templates ([#2](https://github.com/MLNativeAI/paperjet/issues/2)) ([089a6d7](https://github.com/MLNativeAI/paperjet/commit/089a6d7f9fd8f6b14418e7059d670b22e9f4493e))
+
 # 1.0.0 (2025-10-15)
 
 
