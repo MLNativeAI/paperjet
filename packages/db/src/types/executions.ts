@@ -1,4 +1,5 @@
 import z from "zod";
+import type { RuntimeModelType } from "./configuration";
 
 export const WorkflowExecutionStatus = z.enum(["Queued", "Processing", "Failed", "Completed"]);
 export type WorkflowExecutionStatus = z.infer<typeof WorkflowExecutionStatus>;
@@ -50,6 +51,7 @@ export type WorkflowExecutionData = {
   errorMessage: string | null;
   startedAt: string;
   completedAt: string | null;
+  modelType: RuntimeModelType;
   extractedData: ExtractedDataType;
 };
 
