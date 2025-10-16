@@ -7,8 +7,7 @@ export const ScrollAwareHeader = () => {
       <div className="mx-auto max-w-7xl flex h-16 items-center justify-between px-4 md:px-6">
         <a href="https://getpaperjet.com">
           <div className="flex items-center gap-2 font-bold">
-            <Image src="/logo.png" alt="PaperJet Logo" width={32} height={32} className="size-8" />
-            <span>PaperJet</span>
+            <Image src="/logo.png" alt="PaperJet Logo" width={120} height={40} />
           </div>
         </a>
         <NavBar />

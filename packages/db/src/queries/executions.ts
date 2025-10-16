@@ -8,6 +8,7 @@ import {
   type WorkflowExecutionRow,
   WorkflowExecutionStatus,
 } from "../types/executions";
+import { RuntimeModelType } from "../types/configuration";
 
 export async function createWorkflowExecution({
   executionId,
@@ -111,6 +112,7 @@ export async function getWorkflowExecutionWithExtractedData({
       id: workflowExecution.id,
       workflowId: workflowExecution.workflowId,
       workflowName: workflow.name,
+      modelType: workflow.modelType,
       fileId: workflowExecution.fileId,
       fileName: file.fileName,
       jobId: workflowExecution.jobId,
@@ -135,6 +137,7 @@ export async function getWorkflowExecutionWithExtractedData({
 
   return {
     ...execution,
+    modelType: (execution.modelType as unknown as RuntimeModelType) || "accurate",
     workflowName: execution.workflowName || "Unknown Workflow",
     fileName: execution.fileName || "Unknown File",
     startedAt: execution.startedAt.toISOString(),

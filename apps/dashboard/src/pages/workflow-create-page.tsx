@@ -2,6 +2,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useWorkflowConfig, WorkflowConfigProvider } from "@/components/workflow/editor/workflow-config-context";
 import { WorkflowForm } from "@/components/workflow/editor/workflow-form";
+import { WORKFLOW_TEMPLATES } from "@/lib/template";
+import { Route } from "@/routes/_app.workflows.new";
 
 function WorkflowCreatePageContent() {
   const { createWorkflow } = useWorkflowConfig();
@@ -30,8 +32,10 @@ function WorkflowCreatePageContent() {
 }
 
 export default function WorkflowCreatePage() {
+  const { templateId } = Route.useSearch();
+  const template = templateId ? WORKFLOW_TEMPLATES[templateId] : undefined;
   return (
-    <WorkflowConfigProvider>
+    <WorkflowConfigProvider template={template}>
       <WorkflowCreatePageContent />
     </WorkflowConfigProvider>
   );

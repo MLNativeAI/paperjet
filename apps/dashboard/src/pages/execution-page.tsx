@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { useExecution } from "@/hooks/use-execution";
 import { exportExecution } from "@/lib/api/executions";
 import { formatDuration } from "@/lib/utils/date";
+import ModelTypeLabel from "@/components/model-type-label";
 
 export default function ExecutionPage() {
   const { executionId } = useParams({ from: "/_app/executions/$executionId" });
@@ -113,7 +114,7 @@ export default function ExecutionPage() {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>File Information</CardTitle>
+              <CardTitle>Details</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -129,6 +130,10 @@ export default function ExecutionPage() {
                   <p className="text-sm font-medium text-muted-foreground">Duration</p>
                   <p className="text-lg">{formatDuration(execution.startedAt, execution.completedAt)}</p>
                 </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Model type</p>
+                  <p className="text-lg">{execution.modelType}</p>
+                </div>
                 {execution.errorMessage && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Error Message</p>
@@ -143,11 +148,12 @@ export default function ExecutionPage() {
         </>
       )}
       {viewMode === "compare" && execution.status === "Completed" && execution.extractedData && (
+        //TODO: extract shared logic
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>File Information</CardTitle>
+                <CardTitle>Details</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -162,6 +168,10 @@ export default function ExecutionPage() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Duration</p>
                     <p className="text-lg">{formatDuration(execution.startedAt, execution.completedAt)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Model type</p>
+                    <ModelTypeLabel type={execution.modelType} />
                   </div>
                   {execution.errorMessage && (
                     <div>
