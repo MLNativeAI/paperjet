@@ -1,11 +1,17 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "linden",
+  "theme": "mint",
   "name": "Paperjet",
   "colors": {
-    "primary": "#FDFBF7",
-    "light": "#FDFBF7",
-    "dark": "#FDFBF7"
+    "primary": "#a67c52",
+    "light": "#e2d8c3",
+    "dark": "#5c4d3f"
+  },
+  "background": {
+    "color": {
+      "light": "#FDFBF7",
+      "dark": "#4A3B33"
+    }
   },
   "appearance": {
     "default": "light",
@@ -69,8 +75,8 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo-docs-no-bg.png",
+    "dark": "/logo-docs-no-bg.png"
   },
   "navbar": {
     "links": [
