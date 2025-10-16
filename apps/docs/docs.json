@@ -25,22 +25,15 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["index", "quickstart", "development"]
+            "pages": ["index"]
           },
           {
             "group": "User Guide",
-            "pages": ["pages/user-guide/workflows"]
+            "pages": ["pages/user/workflows"]
           },
           {
             "group": "Adminstrator Guide",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
-            ]
+            "pages": ["pages/admin/quickstart", "pages/admin/deployment"]
           }
         ]
       },
@@ -57,14 +50,19 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Support",
+          "href": "https://getpaperjet.com/support",
+          "icon": "question"
+        },
+        {
+          "anchor": "Github",
+          "href": "https://github.com/mlnativeai/paperjet",
+          "icon": "github"
         },
         {
           "anchor": "Community",
-          "href": "https://getpaperjet.com/discord",
-          "icon": "slack"
+          "href": "https://discord.gg/5AF2wDKWBT",
+          "icon": "discord"
         },
         {
           "anchor": "Blog",

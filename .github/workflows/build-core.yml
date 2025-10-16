@@ -66,4 +66,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ inputs.registry }}/${{ inputs.image_name }}:latest
           cache-to: type=inline
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
