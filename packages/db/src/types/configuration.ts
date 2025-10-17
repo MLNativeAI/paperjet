@@ -1,11 +1,20 @@
+import type { WorkflowInputType } from "./workflow-config";
+
 export type RuntimeModelType = "fast" | "accurate";
 
-export interface RuntimeModel {
+export type RuntimeModel = {
   name: string;
   modelId: string;
-}
+};
 
-export interface RuntimeConfiguration {
+export type RuntimeConfiguration = {
   fastModel: RuntimeModel | null;
   accurateModel: RuntimeModel | null;
-}
+};
+
+export type ServerInfo = {
+  adminAccountExists: boolean;
+  authMode: string;
+};
+
+export type ValidatedFile = { file: File; type: WorkflowInputType; mimeType: string };
