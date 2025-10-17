@@ -29,10 +29,17 @@
           },
           {
             "group": "User Guide",
-            "pages": ["pages/user/workflows"]
+            "icon": "user",
+            "pages": [
+              {
+                "group": "Workflows",
+                "pages": ["pages/user/workflow-basics", "pages/user/creating-workflows", "pages/user/workflow-examples"]
+              }
+            ]
           },
           {
             "group": "Adminstrator Guide",
+            "icon": "gear",
             "pages": ["pages/admin/quickstart", "pages/admin/deployment"]
           }
         ]
