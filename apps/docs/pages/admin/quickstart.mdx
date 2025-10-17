@@ -6,146 +6,22 @@ icon: "gear"
 
 PaperJet can run on any environment that supports Docker.
 
-Both x86 and ARM based systems are supported.
+Setting up your own PaperJet instance is a very simple process.
+
+<Steps>
+  <Step title="Deployment">Deploy PaperJet onto any VPS</Step>
+  <Step title="Configuration">Create an admin user and add a model</Step>
+  <Step title="Run a sample workflow">
+    Test it out to make sure everything works
+  </Step>
+</Steps>
 
 ## Hardware requirements
 
 We recommend a minimum of 2 vCPU and 4gb of RAM.
 
-
-## Environment variables
-
-PaperJet requires a minimal amount of configuration. The app works out of the box with defaults, however you can tweak this if you want to replace Postgres / S3 with a cloud solution:
-
-BETTER_AUTH_SECRET=
-DATABASE_URL=
-ENVIRONMENT=dev
-LOG_LEVEL=trace
-RESEND_API_KEY=
-
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-
-S3_ENDPOINT=http://localhost:9000
-S3_ACCESS_KEY=minioadmin
-S3_SECRET_KEY=minioadmin
-S3_BUCKET=files
-
+Both x86 and ARM based systems are supported.
 
 ## Docker compose
 
-Docker compose is the easiest way to set up PaperJet on any environment. 
-
-Here's a sample configuration:
-
-```
-services:
-
-  postgres:
-    image: postgres:16-alpine
-    container_name: paperjet-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: app
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  redis:
-    image: redis:8-alpine
-    container_name: paperjet-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - app-network
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-  minio:
-    image: minio/minio:latest
-    container_name: paperjet-s3
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    ports:
-      - "9000:9000"  # API port
-      - "9001:9001"  # Console port
-    volumes:
-      - minio_data:/data
-    command: server /data --console-address ":9001"
-    networks:
-      - app-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-  minio-setup:
-    image: minio/mc
-    container_name: paperjet-s3-setup
-    depends_on:
-      - minio
-    environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-    entrypoint: >
-      /bin/sh -c "
-      sleep 10;
-      mc alias set local http://minio:9000 minioadmin minioadmin &&
-      mc mb local/files &&
-      mc admin user add local app-user app-secret &&
-      echo '
-      {
-        \"Version\": \"2012-10-17\",
-        \"Statement\": [
-          {
-            \"Action\": [
-              \"s3:GetBucketLocation\",
-              \"s3:ListBucket\"
-            ],
-            \"Effect\": \"Allow\",
-            \"Resource\": \"arn:aws:s3:::files\"
-          },
-          {
-            \"Action\": [
-              \"s3:PutObject\",
-              \"s3:GetObject\",
-              \"s3:DeleteObject\"
-            ],
-            \"Effect\": \"Allow\",
-            \"Resource\": \"arn:aws:s3:::files/*\"
-          }
-        ]
-      }
-      ' > /tmp/files-full-access.json &&
-      mc admin policy create local files-full-access /tmp/files-full-access.json &&
-      mc admin policy attach local --user app-user --policy files-full-access &&
-      echo '✅ MinIO setup completed';
-      "
-    networks:
-      - app-network
-    restart: "no"
-
-volumes:
-  postgres_data:
-  minio_data:
-  redis_data:
-
-networks:
-  app-network:
-    driver: bridge
-```
+Docker compose is the easiest way to set up PaperJet on any environment.

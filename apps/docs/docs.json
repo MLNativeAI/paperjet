@@ -34,11 +34,12 @@
               {
                 "group": "Workflows",
                 "pages": ["pages/user/workflow-basics", "pages/user/creating-workflows", "pages/user/workflow-examples"]
-              }
+              },
+              "pages/user/executions"
             ]
           },
           {
-            "group": "Adminstrator Guide",
+            "group": "Administrator Guide",
             "icon": "gear",
             "pages": ["pages/admin/quickstart", "pages/admin/deployment"]
           }

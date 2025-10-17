@@ -10,7 +10,7 @@ services:
       BETTER_AUTH_SECRET: "allyourbasearebelongtous"
       ENVIRONMENT: "production"
       DATABASE_URL: "postgres://postgres:postgres@postgres:5432/app"
-      ML_SERVICE_URL: "http://localhost:8080"
+      ML_SERVICE_URL: "http://paperjet-ml:8080"
       REDIS_HOST: "redis"
       REDIS_PASSWORD: ""
       REDIS_PORT: "6379"
@@ -92,7 +92,8 @@ services:
     image: minio/mc
     container_name: paperjet-s3-setup
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     environment:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
