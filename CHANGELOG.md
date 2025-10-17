@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/MLNativeAI/paperjet/compare/v1.1.0...v1.2.0) (2025-10-17)
+
+
+### Features
+
+* user docs init ([#3](https://github.com/MLNativeAI/paperjet/issues/3)) ([38cf764](https://github.com/MLNativeAI/paperjet/commit/38cf76419893c6855eee15e24ae4e140dd809507))
+
 # [1.1.0](https://github.com/MLNativeAI/paperjet/compare/v1.0.0...v1.1.0) (2025-10-15)
 
 
