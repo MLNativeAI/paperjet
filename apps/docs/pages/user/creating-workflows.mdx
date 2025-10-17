@@ -1,0 +1,51 @@
+---
+title: "Authoring workflows"
+description: "How to create and edit workflows"
+---
+
+PaperJet uses LLMs in the extraction process. The size and capabilities of the LLM can vary greatly.
+
+If you want to get good results, especially with smaller models, you must limit the amount of "work" that the LLM must perform.
+
+This is a set of guidelines to help you get good results with your documents. We've found this to work well for both small inputs (images) as well as very large documents (500+ pages)
+
+### Field names are important
+
+Field names are used to match the data from the source document. This means that using <b>descriptive, self-explaining </b>field names is crucial for good results.
+
+You don't have to avoid spaces in field names, but it is recommended.
+
+Don't try to be clever.
+
+<Check>Good example: invoice_number</Check>
+
+<Danger>Bad example: the text from the 3rd row on the left side</Danger>
+
+### Use descriptions to clarify intent
+
+Descriptions act as an additional layer of instructions to help match data from the source document.
+
+You can add a description to any object, field or column to help the engine with extracting the correct data.
+
+<Check>Good example: Full name of the individual</Check>
+
+Occasionally, the data you would like to extract can have different names/labels on the source documents.
+
+This is a good use case for descriptions to handle - list out the names under which a field can appear in a source document
+
+<Check>
+  Field name: "Tax ID" <br /> Description: "Can also appear as VAT ID or EIN
+  number"
+</Check>
+
+### Use descriptions for data manipulation and filtering
+
+You can also use the description to perform filtering and/or data manipulations, such as "Format the date in YYYY-MM-DD" or "Skip rows containing X"
+
+<Warning>
+  Don't overuse data manipulations, especially with smaller models{" "}
+</Warning>
+
+If possible, it's best to do filtering in postprocessing, outside of PaperJet.
+
+See the next page for some examples.

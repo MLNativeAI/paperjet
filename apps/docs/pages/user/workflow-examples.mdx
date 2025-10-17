@@ -1,0 +1,178 @@
+---
+title: "Workflow examples"
+description: "Learn how to create your own workflows based on these samples"
+---
+
+Internally, all workflows are stored as a JSON object. Here are some sample workflow configurations from our templates.
+
+You can use these as reference on how to structure your own workflows. This schema is also what our API expects when creating a workflow.
+
+## Invoice
+
+```JSON
+{
+  "objects": [
+    {
+      "name": "Invoice Header",
+      "fields": [
+        {
+          "name": "Invoice Number",
+          "description": "Unique invoice identifier",
+          "type": "string"
+        },
+        {
+          "name": "Invoice Date",
+          "description": "Date the invoice was issued",
+          "type": "string"
+        },
+        {
+          "name": "Due Date",
+          "description": "Payment due date",
+          "type": "string"
+        },
+        {
+          "name": "Vendor Name",
+          "description": "Name of the vendor or seller",
+          "type": "string"
+        },
+        {
+          "name": "Vendor Address",
+          "description": "Address of the vendor",
+          "type": "string"
+        },
+        {
+          "name": "Customer Name",
+          "description": "Name of the customer or buyer",
+          "type": "string"
+        },
+        {
+          "name": "Customer Address",
+          "description": "Address of the customer",
+          "type": "string"
+        },
+        {
+          "name": "Invoice Currency",
+          "type": "string",
+          "description": "3-letter currency code"
+        }
+      ]
+    },
+    {
+      "name": "Line Items",
+      "tables": [
+        {
+          "name": "Invoice Line Items",
+          "columns": [
+            {
+              "name": "Description",
+              "type": "string"
+            },
+            {
+              "name": "Quantity",
+              "type": "number"
+            },
+            {
+              "name": "Unit Price",
+              "type": "number"
+            },
+            {
+              "name": "Total",
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Invoice Totals",
+      "fields": [
+        {
+          "name": "Subtotal",
+          "description": "Total before taxes",
+          "type": "number"
+        },
+        {
+          "name": "Tax Amount",
+          "description": "Total tax amount",
+          "type": "number"
+        },
+        {
+          "name": "Total Amount",
+          "description": "Final total amount due",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Bank statement
+
+```JSON
+{
+  "objects": [
+    {
+      "name": "Account Information",
+      "fields": [
+        {
+          "name": "Account Holder Name",
+          "description": "Name of the account holder",
+          "type": "string"
+        },
+        {
+          "name": "Account Number",
+          "description": "Bank account number",
+          "type": "string"
+        },
+        {
+          "name": "Bank Name",
+          "description": "Name of the bank",
+          "type": "string"
+        },
+        {
+          "name": "Statement Period",
+          "description": "Period covered by the statement",
+          "type": "string"
+        },
+        {
+          "name": "Opening Balance",
+          "description": "Balance at the start of the period",
+          "type": "number"
+        },
+        {
+          "name": "Closing Balance",
+          "description": "Balance at the end of the period",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "tables": [
+        {
+          "name": "Transaction History",
+          "columns": [
+            {
+              "name": "Date",
+              "type": "string"
+            },
+            {
+              "name": "Description",
+              "type": "string"
+            },
+            {
+              "name": "Amount",
+              "type": "number"
+            },
+            {
+              "name": "Balance",
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```

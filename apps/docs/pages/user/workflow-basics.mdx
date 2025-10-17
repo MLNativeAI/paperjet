@@ -1,0 +1,58 @@
+---
+title: "Workflow basics"
+description: "Data types and configuration"
+---
+
+Workflows are the core of PaperJet. A workflow is a blueprint that describes the configuration and the data structure that should be extracted from a document.
+
+Workflow instances are called Executions.
+
+## Creating a workflow
+
+You can start either with a pre-built template or create your own data structure from scratch. You can also create a new workflow via the API.
+
+When you create an empty workflow, you'll be greeted with an empty configuration. You need to describe the shape of the data that should be extracted from your documents.
+
+![empty configuration](/images/workflow-structure.png)
+
+## Data types
+
+A workflow configuration must have one or more objects to be extracted.
+
+### Object
+
+Object are the "root" nodes of a configuration. Each object can have multiple fields and/or tables.
+
+You must have at least one object defined in your configuration.
+
+You should treat objects like semantical groups for your data.
+
+### Field
+
+A field is a singular data variable that will be populated during extraction. There are 3-built in types:
+
+- Text
+- Number
+- Date
+
+### Table
+
+Tables are used to extract repetitive data such as lists or tables. Each table must have one or more columns, where each column definition is a Field
+
+Here's an example of a list that extracts ingredients from a product photograph:
+
+![Sample list configuration](/images/list-example.png)
+
+## Runtime configuration
+
+For every workflow, you must select one of two execution modes:
+
+### Accurate mode
+
+This is the default extraction mode, which uses LLMs to extract the data from each document page. It's recommended for the most accurate result. It leverages the visual capabilities of the LLM to perform the initial data extraction.
+
+### Fast mode
+
+The fast mode uses native OCR for the initial data extraction before passing the data to the LLM to extract the configuration. It works very well for high-quality documents, such as native PDFs or docx files, but it likely won't work for scans or image inputs.
+
+See the next page to learn how to create effective workflows.

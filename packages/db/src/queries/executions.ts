@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db";
 import { documentData, file, workflow, workflowExecution } from "../schema";
+import type { RuntimeModelType } from "../types/configuration";
 import {
   type ExecutionStatusResponse,
   type ExtractedDataType,
@@ -8,7 +9,6 @@ import {
   type WorkflowExecutionRow,
   WorkflowExecutionStatus,
 } from "../types/executions";
-import { RuntimeModelType } from "../types/configuration";
 
 export async function createWorkflowExecution({
   executionId,

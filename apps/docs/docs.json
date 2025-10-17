@@ -1,96 +1,107 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Paperjet",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#a67c52",
+    "light": "#e2d8c3",
+    "dark": "#5c4d3f"
   },
-  "favicon": "/favicon.svg",
+  "background": {
+    "color": {
+      "light": "#FDFBF7",
+      "dark": "#4A3B33"
+    }
+  },
+  "appearance": {
+    "default": "light",
+    "strict": true
+  },
+  "favicon": "/favicon.ico",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["index", "quickstart", "development"]
+            "pages": ["index"]
           },
           {
-            "group": "Essentials",
+            "group": "User Guide",
+            "icon": "user",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              {
+                "group": "Workflows",
+                "pages": ["pages/user/workflow-basics", "pages/user/creating-workflows", "pages/user/workflow-examples"]
+              },
+              "pages/user/executions"
             ]
+          },
+          {
+            "group": "Administrator Guide",
+            "icon": "gear",
+            "pages": ["pages/admin/quickstart", "pages/admin/deployment"]
           }
         ]
       },
       {
         "tab": "API Reference",
-        "groups": [
-          {
-            "group": "API Documentation",
-            "pages": ["api-reference/introduction"]
-          },
-          {
-            "group": "Endpoint Examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
+        "pages": [
+          "rest/workflows/create-workflow",
+          "rest/workflows/update-workflow",
+          "rest/workflows/delete-workflow",
+          "rest/workflows/list-workflows"
         ]
       }
     ],
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Support",
+          "href": "https://getpaperjet.com/support",
+          "icon": "question"
+        },
+        {
+          "anchor": "Github",
+          "href": "https://github.com/mlnativeai/paperjet",
+          "icon": "github"
         },
         {
           "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
+          "href": "https://discord.gg/5AF2wDKWBT",
+          "icon": "discord"
         },
         {
           "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
+          "href": "https://getpaperjet.com/blog",
           "icon": "newspaper"
         }
       ]
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo-docs-no-bg.png",
+    "dark": "/logo-docs-no-bg.png"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:contact@getpaperjet.com"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "href": "https://app.getpaperjet.com"
     }
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/nomoredevwork",
+      "github": "https://github.com/mlnativeai/paperjet",
+      "linkedin": "https://linkedin.com/company/paperjet"
     }
   }
 }

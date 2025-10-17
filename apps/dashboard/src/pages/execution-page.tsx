@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExecutionStatusBadge } from "@/components/execution-status-badge";
 import { ExtractedDataRenderer } from "@/components/extracted-data-renderer";
+import ModelTypeLabel from "@/components/model-type-label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -17,7 +18,6 @@ import { Label } from "@/components/ui/label";
 import { useExecution } from "@/hooks/use-execution";
 import { exportExecution } from "@/lib/api/executions";
 import { formatDuration } from "@/lib/utils/date";
-import ModelTypeLabel from "@/components/model-type-label";
 
 export default function ExecutionPage() {
   const { executionId } = useParams({ from: "/_app/executions/$executionId" });

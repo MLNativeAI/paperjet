@@ -1,0 +1,22 @@
+---
+title: "Executions"
+description: "How to run and export data from workflows"
+---
+
+Executions represent a single document processing pipeline. When you upload a document to a workflow, you spawn a new execution.
+
+To create an execution, you can either click "Execute" on the Workflows page and submit a new document, or do it via the API endpoint.
+
+## Process
+
+When you create a new execution, it's initially in the "Queued" state. Once it's picked up by the worker, it will shortly resolve to the "Completed", upon which you can view and export the results.
+
+## Details page
+
+All successfully executions can be inspected by going to the details page.
+
+You can toggle between viewing just the results, or the results side-by-side with the original document.
+
+## Exporting
+
+You can export the data either as a .csv or a json file from the UI. You can also access the results via the API.

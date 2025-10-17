@@ -56,6 +56,20 @@ app.get(
         version: "1.0.0",
         description: "Secure document extraction API",
       },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+          },
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
       servers: [{ url: "https://app.getpaperjet.com", description: "Production Server" }],
     },
   }),
