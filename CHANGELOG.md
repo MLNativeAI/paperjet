@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/MLNativeAI/paperjet/compare/v1.2.0...v1.2.1) (2025-10-20)
+
+
+### Bug Fixes
+
+* working build, removed semantic-release ([b5cfd76](https://github.com/MLNativeAI/paperjet/commit/b5cfd76e7c23f5d97e30e9fe5a09c58ce59cefcb))
+
 # [1.2.0](https://github.com/MLNativeAI/paperjet/compare/v1.1.0...v1.2.0) (2025-10-17)
 
 
