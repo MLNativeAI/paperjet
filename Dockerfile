@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 # Install turbo globally with cache mount
 RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install -g turbo@canary
+    bun install -g turbo@2.5.9-canary.8
 
 # Pruner stage - create minimal workspace for API, dashboard, and engine
 FROM base AS pruner
