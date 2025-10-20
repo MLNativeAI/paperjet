@@ -1,7 +1,6 @@
 {
-  "name": "paperjet",
-  "private": true,
-  "packageManager": "bun@1.2.0",
+  "name": "mlnative/paperjet",
+  "packageManager": "bun@1.3.0",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev --parallel",
@@ -17,15 +16,11 @@
     "db:seed": "turbo db:seed"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.1",
-    "@commitlint/config-conventional": "^19.6.1",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.1.7",
-    "prettier": "^3.2.5",
-    "semantic-release": "^24.2.0",
     "turbo": "^2.5.8"
   },
   "config": {
@@ -39,6 +34,6 @@
   ],
   "version": "1.2.0",
   "dependencies": {
-    "@biomejs/biome": "^2.2.4"
+    "@biomejs/biome": "^2.2.6"
   }
 }
