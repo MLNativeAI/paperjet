@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/MLNativeAI/paperjet/compare/v1.2.1...v1.2.2) (2025-10-20)
+
+
+### Bug Fixes
+
+* trigger minor release ([7f832d6](https://github.com/MLNativeAI/paperjet/commit/7f832d6a8153648b856aec2ce41ead4e09dbeb91))
+
 ## [1.2.1](https://github.com/MLNativeAI/paperjet/compare/v1.2.0...v1.2.1) (2025-10-20)
 
 
