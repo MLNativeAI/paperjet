@@ -13,7 +13,6 @@
   </p>
 </p>
 
-
 ## About PaperJet
 
 PaperJet is a secure document processing platform. Convert docx, PDF and image files into structured data reliable and on your own hardware. Fully self-hostable with 0 cloud accounts required. 
