@@ -54,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* Google tag (gtag.js) */}
           <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16468275958"></script>
           <script
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: required
             dangerouslySetInnerHTML={{
               __html: `
                 window.dataLayer = window.dataLayer || [];
