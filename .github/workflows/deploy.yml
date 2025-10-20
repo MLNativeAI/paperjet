@@ -31,16 +31,40 @@ jobs:
     steps:
       - name: Deploy to Coolify
         run: |
-          curl -X PATCH \
+          # Update application configuration
+          response=$(curl -s -w "%{http_code}" -X PATCH \
             "${{ secrets.coolify_url }}/api/v1/applications/${{ secrets.coolify_app_uuid }}" \
             -H "Authorization: Bearer ${{ secrets.coolify_token }}" \
             -H "Content-Type: application/json" \
             -d '{
               "docker_registry_image_name": "${{ inputs.image_name }}",
               "docker_registry_image_tag": "${{ inputs.image_tag }}"
-            }'
+            }')
+          
+          http_code="${response: -3}"
+          response_body="${response%???}"
+          
+          if [ "$http_code" -ne 200 ]; then
+            echo "Failed to update application configuration. HTTP status: $http_code"
+            echo "Response: $response_body"
+            exit 1
+          fi
+          
+          echo "Application configuration updated successfully"
 
-          curl -X GET \
+          # Trigger deployment
+          deploy_response=$(curl -s -w "%{http_code}" -X GET \
             "${{ secrets.coolify_url }}/api/v1/deploy?uuid=${{ secrets.coolify_app_uuid }}" \
             -H "Authorization: Bearer ${{ secrets.coolify_token }}" \
-            -H "Content-Type: application/json"
+            -H "Content-Type: application/json")
+          
+          deploy_http_code="${deploy_response: -3}"
+          deploy_response_body="${deploy_response%???}"
+          
+          if [ "$deploy_http_code" -ne 200 ]; then
+            echo "Failed to trigger deployment. HTTP status: $deploy_http_code"
+            echo "Response: $deploy_response_body"
+            exit 1
+          fi
+          
+          echo "Deployment triggered successfully"
