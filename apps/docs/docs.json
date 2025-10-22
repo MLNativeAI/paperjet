@@ -48,10 +48,48 @@
       {
         "tab": "API Reference",
         "pages": [
-          "rest/workflows/create-workflow",
-          "rest/workflows/update-workflow",
-          "rest/workflows/delete-workflow",
-          "rest/workflows/list-workflows"
+          {
+            "group": "Workflows",
+            "pages": [
+              "api-reference/get-apiv1workflows",
+              "api-reference/post-apiv1workflows",
+              "api-reference/post-apiv1workflows-execute",
+              "api-reference/get-apiv1workflows-1",
+              "api-reference/put-apiv1workflows",
+              "api-reference/delete-apiv1workflows",
+              "api-reference/get-apiv1workflows-executions"
+            ]
+          },
+          {
+            "group": "Executions",
+            "pages": [
+              "api-reference/get-apiv1executions",
+              "api-reference/get-apiv1executions-1",
+              "api-reference/get-apiv1executions-status",
+              "api-reference/get-apiv1executions-file",
+              "api-reference/get-apiv1executions-export"
+            ]
+          },
+          {
+            "group": "API Keys",
+            "pages": [
+              "api-reference/get-apiv1api-keys",
+              "api-reference/post-apiv1api-keys",
+              "api-reference/delete-apiv1api-keys"
+            ]
+          },
+          {
+            "group": "Admin",
+            "pages": [
+              "api-reference/get-apiv1adminruntime-config",
+              "api-reference/post-apiv1adminruntime-config",
+              "api-reference/get-apiv1adminmodels",
+              "api-reference/post-apiv1adminmodelsadd",
+              "api-reference/post-apiv1adminmodelsvalidate-connection",
+              "api-reference/put-apiv1adminmodelsupdate",
+              "api-reference/delete-apiv1adminmodelsdelete"
+            ]
+          }
         ]
       }
     ],
