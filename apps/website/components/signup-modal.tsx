@@ -1,5 +1,6 @@
 "use client";
 
+import { sendGTMEvent } from "@next/third-parties/google";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowRight, CheckCircle, Loader2, Mail } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -64,6 +65,12 @@ export function SignupModal({
 
       if (response.ok) {
         posthog.capture("waitlist_sign_up");
+        sendGTMEvent({
+          event: 'conversion',
+          send_to: 'AW-16468275958/oViiCPbcsKobEPbl16w9',
+          value: 1.0,
+          currency: 'PLN'
+        });
         const newSearchParams = new URLSearchParams(window.location.search);
         newSearchParams.set("subscribed", "true");
         router.push(`${pathname}?${newSearchParams.toString()}`);
