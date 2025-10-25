@@ -64,9 +64,9 @@ export function SignupModal({
       const data = await response.json();
 
       if (response.ok) {
-        posthog.capture("waitlist_signup");
+        posthog.capture("waitlist_sign_up");
         sendGTMEvent({
-          event: "conversion",
+          event: "waitlist_signup",
           send_to: "AW-16468275958/pBuYCM-7s7MbEPbl16w9",
           value: 1.0,
           currency: "PLN",
