@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <PostHogProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable}`}>{children}</body>
-        <GoogleTagManager gtmId="pBuYCM-7s7MbEPbl16w9" />
+        <GoogleTagManager gtmId="GTM-PQW5JMDW" />
         {/* <GoogleAnalytics gaId="AW-16468275958" /> */}
       </html>
     </PostHogProvider>
