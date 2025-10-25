@@ -1,5 +1,5 @@
 import { PostHogProvider } from "@/components/posthog-provider";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import "../styles.css";
 import type { Metadata } from "next";
 import { Fira_Code, Merriweather, Oxanium } from "next/font/google";
@@ -52,7 +52,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <PostHogProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable}`}>{children}</body>
-        <GoogleAnalytics gaId="AW-16468275958" />
+        <GoogleTagManager gtmId="pBuYCM-7s7MbEPbl16w9" />
+        {/* <GoogleAnalytics gaId="AW-16468275958" /> */}
       </html>
     </PostHogProvider>
   );
