@@ -76,7 +76,7 @@ export function WorkflowConfigProvider({
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["config"] });
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
     },
   });
 
@@ -105,7 +105,7 @@ export function WorkflowConfigProvider({
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["config"] });
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
     },
   });
 

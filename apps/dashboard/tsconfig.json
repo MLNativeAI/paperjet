@@ -7,13 +7,5 @@
     {
       "path": "./tsconfig.node.json"
     }
-  ],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-      // "@paperjet/api/hc": ["../api/hc.ts"],
-      // "@paperjet/engine/*": ["../../packages/engine/src/*"]
-    }
-  }
+  ]
 }

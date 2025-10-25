@@ -11,9 +11,7 @@
     "test:e2e:acc": "turbo test:e2e:acc",
     "db:generate": "turbo db:generate",
     "db:migrate": "turbo db:migrate",
-    "db:push": "turbo db:push",
-    "db:studio": "turbo db:studio",
-    "db:seed": "turbo db:seed"
+    "db:push": "turbo db:push"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -32,8 +30,5 @@
     "apps/*",
     "packages/*"
   ],
-  "version": "1.2.2",
-  "dependencies": {
-    "@biomejs/biome": "^2.2.6"
-  }
+  "version": "1.2.2"
 }
