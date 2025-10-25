@@ -20,7 +20,7 @@ function RouteComponent() {
           <div className="border-b">
             <nav className="-mb-px flex space-x-8">
               <Link
-                to="/settings"
+                to="/settings/api-keys"
                 activeProps={{
                   className: "border-primary text-primary",
                 }}

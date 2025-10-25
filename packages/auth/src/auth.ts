@@ -95,15 +95,16 @@ export const auth = betterAuth({
           products: [
             {
               productId: "f772061e-7ef7-4628-b7e2-c7f9c2eb44a7",
-              slug: "basic", // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
+              slug: "basic",
             },
             {
               productId: "9f067529-438f-44ca-9c5c-f7128b3dd9b3",
-              slug: "pro", // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
+              slug: "pro",
             },
           ],
           successUrl: "/success?checkout_id={CHECKOUT_ID}",
           authenticatedUsersOnly: true,
+          returnUrl: envVars.BASE_URL,
         }),
         portal(),
         usage(),
