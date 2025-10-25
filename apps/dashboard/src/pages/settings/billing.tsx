@@ -2,17 +2,22 @@ import { useBilling } from "@/hooks/use-billing";
 import { authClient } from "@/lib/auth-client";
 
 export default function BillingPage() {
-  const { customerState } = useBilling();
+  const { customerState, isLoading } = useBilling();
+
+  if (isLoading || !customerState) {
+    return null;
+  }
 
   return (
     <div className="space-y-17 pt-8">
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold">Subscription</h2>
-        <p className="text-muted-foreground">Your billing period resets at x</p>
+        <p>{ }</p>
+        <p className="text-muted-foreground"></p>
       </div>
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold">Usage</h2>
-        {customerState && customerState.activeMeters.length > 0 && (
+        {customerState.activeMeters.length > 0 && (
           <div>
             <div>
               consumed units:

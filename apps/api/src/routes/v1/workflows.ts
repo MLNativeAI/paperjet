@@ -224,6 +224,8 @@ const router = app
           configuration: validConfig,
           inputType: validation.file.type,
           step: "INIT",
+          userId: session.userId,
+          orgId: session.activeOrganizationId,
         };
         logger.info(workflowExecutionParams, "Workflow execuion params:");
         const job = await workflowExecutionQueue.add(execution.workflowExecutionId, workflowExecutionParams);

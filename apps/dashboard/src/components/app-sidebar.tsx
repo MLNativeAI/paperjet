@@ -17,6 +17,7 @@ import {
 import { useAuthenticatedUser } from "@/hooks/use-user";
 import { NavUser } from "./nav-user";
 import CheckoutButton from "./checkout-button";
+import { useBilling } from "@/hooks/use-billing";
 
 const data = {
   navMain: [
@@ -51,6 +52,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, session } = useAuthenticatedUser();
+  const { customerState } = useBilling();
   const isAdmin = useMemo(() => user?.role === "superadmin", [user?.role]);
 
   return (
@@ -98,7 +100,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>
-        {session?.activeOrganizationId && <CheckoutButton organizationId={session.activeOrganizationId} />}
+        {session?.activeOrganizationId && customerState?.activeSubscriptions?.length === 0 && (
+          <CheckoutButton organizationId={session.activeOrganizationId} />
+        )}
         <NavUser />
       </SidebarFooter>
     </Sidebar>

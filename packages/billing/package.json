@@ -1,0 +1,18 @@
+{
+  "name": "@paperjet/billing",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "biome check --write",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@paperjet/db": "workspace:*",
+    "@paperjet/shared": "workspace:*",
+    "@polar-sh/sdk": "^0.40.1"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.2"
+  }
+}

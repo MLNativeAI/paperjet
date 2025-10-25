@@ -12,6 +12,7 @@
     "@paperjet/db": "workspace:*",
     "@paperjet/engine": "workspace:*",
     "@paperjet/shared": "workspace:*",
+    "@paperjet/billing": "workspace:*",
     "bullmq": "^5.56.9",
     "ioredis": "^5.7.0",
     "zod": "^3.25.49"

@@ -8,6 +8,7 @@ import { markdownQueue } from "../jobs/markdown";
 import { mlServiceQueue } from "../jobs/ml";
 import { redisConnection } from "../redis";
 import { QUEUE_NAMES } from "../types";
+import { incrementUsage } from "@paperjet/billing";
 
 export const workflowExecutionQueue = new Queue(QUEUE_NAMES.EXTRACTION_WORKFLOW, {
   connection: redisConnection,
@@ -41,6 +42,8 @@ const WorkflowExtractionDataSchema = z.object({
   configuration: WorkflowConfigurationSchema,
   inputType: z.enum(["image", "document"]),
   step: workflowSteps,
+  userId: z.string(),
+  orgId: z.string(),
 });
 
 export type WorkflowExtractionData = z.infer<typeof WorkflowExtractionDataSchema>;
@@ -248,6 +251,7 @@ async function addExtractionJob(job: Job<WorkflowExtractionData>) {
 
 async function finalizeWorkflow(job: Job<WorkflowExtractionData>) {
   logger.info("Workflow execution completed");
+  await incrementUsage(job.data.userId, job.data.orgId);
   await updateExecutionStatus({
     workflowExecutionId: job.data.workflowExecutionId,
     status: WorkflowExecutionStatus.enum.Completed,

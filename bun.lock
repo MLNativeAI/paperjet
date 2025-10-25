@@ -176,11 +176,11 @@
     "packages/auth": {
       "name": "@paperjet/auth",
       "dependencies": {
+        "@paperjet/billing": "workspace:*",
         "@paperjet/db": "workspace:*",
         "@paperjet/email": "workspace:*",
         "@paperjet/shared": "workspace:*",
         "@polar-sh/better-auth": "^1.1.11",
-        "@polar-sh/sdk": "^0.40.1",
         "better-auth": "^1.3.9",
         "hono": "^4.9.2",
         "resend": "^3.2.0",
@@ -188,6 +188,16 @@
       "devDependencies": {
         "@types/node": "^20.14.10",
         "typescript": "^5.5.3",
+      },
+    },
+    "packages/billing": {
+      "name": "@paperjet/billing",
+      "dependencies": {
+        "@paperjet/db": "workspace:*",
+        "@polar-sh/sdk": "^0.40.1",
+      },
+      "devDependencies": {
+        "typescript": "~5.7.2",
       },
     },
     "packages/db": {
@@ -244,6 +254,7 @@
     "packages/queue": {
       "name": "@paperjet/queue",
       "dependencies": {
+        "@paperjet/billing": "workspace:*",
         "@paperjet/db": "workspace:*",
         "@paperjet/engine": "workspace:*",
         "@paperjet/shared": "workspace:*",
@@ -866,6 +877,8 @@
     "@paperjet/api": ["@paperjet/api@workspace:apps/api"],
 
     "@paperjet/auth": ["@paperjet/auth@workspace:packages/auth"],
+
+    "@paperjet/billing": ["@paperjet/billing@workspace:packages/billing"],
 
     "@paperjet/dashboard": ["@paperjet/dashboard@workspace:apps/dashboard"],
 
@@ -2978,6 +2991,8 @@
     "@opentelemetry/sdk-trace-base/@opentelemetry/resources": ["@opentelemetry/resources@2.0.1", "", { "dependencies": { "@opentelemetry/core": "2.0.1", "@opentelemetry/semantic-conventions": "^1.29.0" }, "peerDependencies": { "@opentelemetry/api": ">=1.3.0 <1.10.0" } }, "sha512-dZOB3R6zvBwDKnHDTB4X1xtMArB/d324VsbiPkX/Yu0Q8T2xceRthoIVFhJdvgVM2QhGVUyX9tzwiNxGtoBJUw=="],
 
     "@opentelemetry/sdk-trace-node/@opentelemetry/core": ["@opentelemetry/core@2.0.1", "", { "dependencies": { "@opentelemetry/semantic-conventions": "^1.29.0" }, "peerDependencies": { "@opentelemetry/api": ">=1.0.0 <1.10.0" } }, "sha512-MaZk9SJIDgo1peKevlbhP6+IwIiNPNmswNL4AF0WaQJLbHXjr9SrZMgS12+iqr9ToV4ZVosCcc0f8Rg67LXjxw=="],
+
+    "@paperjet/billing/typescript": ["typescript@5.7.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw=="],
 
     "@paperjet/dashboard/@types/node": ["@types/node@24.8.1", "", { "dependencies": { "undici-types": "~7.14.0" } }, "sha512-alv65KGRadQVfVcG69MuB4IzdYVpRwMG/mq8KWOaoOdyY617P5ivaDiMCGOFDWD2sAn5Q0mR3mRtUOgm99hL9Q=="],
 

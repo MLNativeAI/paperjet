@@ -1,0 +1,35 @@
+import { envVars, logger } from "@paperjet/shared";
+import { Polar } from "@polar-sh/sdk";
+import type { WebhookCustomerStateChangedPayload } from "@polar-sh/sdk/models/components/webhookcustomerstatechangedpayload.js";
+
+export async function polarWebhookHandler(payload: WebhookCustomerStateChangedPayload): Promise<void> {
+  console.log("Handling polar webhook");
+  console.log(payload);
+}
+
+export function getPolarClient() {
+  // if (envVars.SAAS_MODE) {
+  return new Polar({
+    accessToken: envVars.POLAR_ACCESS_TOKEN,
+    server: "sandbox",
+  });
+  // }
+}
+
+export async function incrementUsage(userId: string, orgId: string) {
+  // if (envVars.SAAS_MODE) {
+  logger.info(`Incrementing usage for ${userId}`);
+  const polarClient = getPolarClient();
+  await polarClient.events.ingest({
+    events: [
+      {
+        name: "document_conversion",
+        externalCustomerId: userId,
+        metadata: {
+          orgId: orgId,
+        },
+      },
+    ],
+  });
+  // }
+}
