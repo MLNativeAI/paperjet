@@ -55,3 +55,33 @@ export function useWorkflows() {
     deleteWorkflow,
   };
 }
+
+export function useWorkflow(workflowId: string) {
+  const {
+    data: workflow,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["workflow", workflowId],
+    queryFn: async (): Promise<Workflow> => {
+      const response = await workflowClient[":workflowId"].$get({
+        param: { workflowId },
+      });
+
+      if (!response.ok) {
+        console.log("Failed to fetch workflow");
+        throw new Error("Failed to fetch workflow");
+      }
+
+      const data = await response.json();
+      return data as unknown as Workflow;
+    },
+    enabled: !!workflowId,
+  });
+
+  return {
+    workflow,
+    isLoading,
+    error,
+  };
+}

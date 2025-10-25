@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useWorkflowConfig, WorkflowConfigProvider } from "@/components/workflow/editor/workflow-config-context";
 import { WorkflowForm } from "@/components/workflow/editor/workflow-form";
 import { WORKFLOW_TEMPLATES } from "@/lib/template";
-import { Route } from "@/routes/_app.workflows.new";
+import { Route } from "@/routes/_app/workflows/new";
 
 function WorkflowCreatePageContent() {
   const { createWorkflow } = useWorkflowConfig();

@@ -1,5 +1,5 @@
 import type { WorkflowExecutionStatus } from "@paperjet/db/types";
-import { useParams } from "@tanstack/react-router";
+import type { Workflow } from "@paperjet/engine/types";
 import { useState } from "react";
 import { FileUpload } from "@/components/file-upload";
 import ExecutionStatusRow from "@/components/workflow/execution/execution-status-row";
@@ -14,13 +14,14 @@ export interface ExecutionResult {
   status: WorkflowExecutionStatus;
 }
 
-export default function WorkflowExecutorPage() {
-  const { workflowId } = useParams({
-    from: "/_app/workflows/$workflowId/execute",
-  });
+interface WorkflowExecutorPageProps {
+  workflow: Workflow;
+}
+
+export default function WorkflowExecutorPage({ workflow }: WorkflowExecutorPageProps) {
   const [executions, setExecutions] = useState<ExecutionResult[]>([]);
 
-  const { executeWorkflow } = useWorkflowExecution(workflowId);
+  const { executeWorkflow } = useWorkflowExecution(workflow.id);
   const handleFileUpload = async (files: FileList) => {
     const fileArray = Array.from(files);
     try {
@@ -46,9 +47,9 @@ export default function WorkflowExecutorPage() {
     <div className="w-full px-4 py-8 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Execute workflow</h1>
+          <h1 className="text-3xl font-bold">Execute: {workflow.name}</h1>
           <p className="text-muted-foreground mt-2">
-            Upload documents to process with this workflow. Supports PDF files and images.
+            {workflow.description || "Upload documents to process with this workflow. Supports PDF files and images."}
           </p>
         </div>
       </div>
