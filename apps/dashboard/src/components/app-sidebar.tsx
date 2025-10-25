@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuthenticatedUser } from "@/hooks/use-user";
 import { NavUser } from "./nav-user";
+import CheckoutButton from "./checkout-button";
 
 const data = {
   navMain: [
@@ -49,7 +50,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useAuthenticatedUser();
+  const { user, session } = useAuthenticatedUser();
   const isAdmin = useMemo(() => user?.role === "superadmin", [user?.role]);
 
   return (
@@ -97,6 +98,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>
+        {session?.activeOrganizationId && <CheckoutButton organizationId={session.activeOrganizationId} />}
         <NavUser />
       </SidebarFooter>
     </Sidebar>

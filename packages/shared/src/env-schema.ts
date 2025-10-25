@@ -24,6 +24,10 @@ export const envSchema = z.object({
   SAAS_MODE: z.enum(["true", "false"]).default("false"),
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().default("paperjet"),
+
+  // polar
+  POLAR_ACCESS_TOKEN: z.string().optional(),
+  POLAR_WEBHOOK_SECRET: z.string().optional(),
 });
 
 // Export the inferred type for use across packages

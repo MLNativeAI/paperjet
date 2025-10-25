@@ -10,8 +10,15 @@ import type { Context, Next } from "hono";
 import { sendInvitationEmail, sendMagicLink, sendPasswordResetEmail } from "./handlers/email";
 import { beforeSessionCreateHandler } from "./handlers/session";
 import { matchesPattern } from "./util/pattern";
+import { Polar } from "@polar-sh/sdk";
+import { checkout, polar, portal, usage, webhooks } from "@polar-sh/better-auth";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];
+
+export const polarClient = new Polar({
+  accessToken: envVars.POLAR_ACCESS_TOKEN,
+  server: "sandbox",
+});
 
 export const auth = betterAuth({
   session: {
@@ -80,6 +87,31 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    polar({
+      client: polarClient,
+      createCustomerOnSignUp: true,
+      use: [
+        checkout({
+          products: [
+            {
+              productId: "f772061e-7ef7-4628-b7e2-c7f9c2eb44a7",
+              slug: "basic", // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
+            },
+            {
+              productId: "9f067529-438f-44ca-9c5c-f7128b3dd9b3",
+              slug: "pro", // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
+            },
+          ],
+          successUrl: "/success?checkout_id={CHECKOUT_ID}",
+          authenticatedUsersOnly: true,
+        }),
+        portal(),
+        usage(),
+        webhooks({
+          secret: envVars.POLAR_WEBHOOK_SECRET || "",
+        }),
+      ],
+    }),
     admin({
       adminRoles: ["superadmin"],
     }),
