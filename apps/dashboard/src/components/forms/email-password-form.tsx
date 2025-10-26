@@ -99,9 +99,16 @@ export function EmailPasswordForm({
         navigate({ to: "/" });
       }
     } else {
-      setError(error?.message || "");
-      toast.error(getFailureMessage(formMode));
       console.error(error);
+      // A rare case where a polar customer exists but not in our database - this will likely only trigger during testing
+      if (error?.code?.startsWith("POLAR_CUSTOMER_CREATION_FAILED")) {
+        const msg = "This account already exists. Please sign in.";
+        setError(msg);
+        toast.error(msg);
+      } else {
+        setError(error?.message || "");
+        toast.error(getFailureMessage(formMode));
+      }
     }
   };
 
