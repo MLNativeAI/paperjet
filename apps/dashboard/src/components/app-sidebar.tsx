@@ -100,9 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>
-        {session?.activeOrganizationId && subscriptions?.length === 0 && (
-          <CheckoutButton organizationId={session.activeOrganizationId} />
-        )}
+        {subscriptions?.length === 0 && <CheckoutButton />}
         <NavUser />
       </SidebarFooter>
     </Sidebar>
