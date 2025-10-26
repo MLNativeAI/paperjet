@@ -52,7 +52,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, session } = useAuthenticatedUser();
-  const { customerState } = useBilling();
+  const { subscriptions } = useBilling(session?.activeOrganizationId);
   const isAdmin = useMemo(() => user?.role === "superadmin", [user?.role]);
 
   return (
@@ -100,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>
-        {session?.activeOrganizationId && customerState?.activeSubscriptions?.length === 0 && (
+        {session?.activeOrganizationId && subscriptions?.length === 0 && (
           <CheckoutButton organizationId={session.activeOrganizationId} />
         )}
         <NavUser />
