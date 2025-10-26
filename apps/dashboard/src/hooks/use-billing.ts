@@ -10,10 +10,6 @@ export function useBilling(organizationId: string | null | undefined) {
     queryKey: ["billing", organizationId],
     staleTime: 30 * 1000,
     queryFn: async () => {
-      // const response = await authClient.customer.state();
-      // console.log(response.data);
-      // return response.data;
-
       if (organizationId) {
         const response = await authClient.customer.subscriptions.list({
           query: {
@@ -23,7 +19,6 @@ export function useBilling(organizationId: string | null | undefined) {
             referenceId: organizationId,
           },
         });
-        console.log(response.data);
         return response.data?.result.items;
       }
     },

@@ -1,3 +1,4 @@
+import { UsageChart } from "@/components/settings/billing/usage-chart";
 import { useBilling } from "@/hooks/use-billing";
 import { useAuthenticatedUser } from "@/hooks/use-user";
 import { authClient } from "@/lib/auth-client";
@@ -10,6 +11,7 @@ export default function BillingPage() {
   if (isLoading || !subscriptions || !productMap) {
     return null;
   }
+  console.log(subscriptions);
 
   const getSubscriptionName = () => {
     if (subscriptions.length > 0) {
@@ -21,6 +23,7 @@ export default function BillingPage() {
 
   const getTrialInformation = (): TrialInfo => {
     if (subscriptions.length > 0) {
+      console.log(subscriptions[0].trialEnd);
       const trialEnd = subscriptions[0].trialEnd;
       if (trialEnd) {
         return {
@@ -44,6 +47,7 @@ export default function BillingPage() {
       </div>
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold">Usage</h2>
+        <UsageChart />
         {subscriptions.length > 0 && subscriptions[0].meters.length > 0 && (
           <div>
             <div>
@@ -59,7 +63,9 @@ export default function BillingPage() {
       </div>
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold">Trial Info</h2>
-        {/* {getTrialInformation() ? <div>Your trial ends {formatRelativeTime(getTrialInformation().trialEnd)}</div> : null} */}
+        {getTrialInformation().onTrial ? (
+          <div>Your trial ends {formatRelativeTime(getTrialInformation().trialEnd)}</div>
+        ) : null}
       </div>
       <div>
         <span>
