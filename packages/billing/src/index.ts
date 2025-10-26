@@ -1,5 +1,6 @@
 import { envVars, logger } from "@paperjet/shared";
 import { Polar } from "@polar-sh/sdk";
+import type { Product } from "@polar-sh/sdk/models/components/product.js";
 import type { WebhookCustomerStateChangedPayload } from "@polar-sh/sdk/models/components/webhookcustomerstatechangedpayload.js";
 
 export async function polarWebhookHandler(payload: WebhookCustomerStateChangedPayload): Promise<void> {
@@ -14,6 +15,24 @@ export function getPolarClient() {
     server: "sandbox",
   });
   // }
+}
+
+export async function getProductMap() {
+  const polarClient = getPolarClient();
+  const products = await polarClient.products.list({ isArchived: false });
+  const productMap = products.result.items.reduce(
+    (
+      acc: {
+        [x: string]: Product;
+      },
+      product,
+    ) => {
+      acc[product.id] = { ...product };
+      return acc;
+    },
+    {},
+  );
+  return productMap;
 }
 
 export async function incrementUsage(userId: string, orgId: string) {

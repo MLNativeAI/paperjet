@@ -14,10 +14,10 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { useAuthenticatedUser } from "@/hooks/use-user";
-import { NavUser } from "./nav-user";
-import CheckoutButton from "./checkout-button";
 import { useBilling } from "@/hooks/use-billing";
+import { useAuthenticatedUser } from "@/hooks/use-user";
+import CheckoutButton from "./checkout-button";
+import { NavUser } from "./nav-user";
 
 const data = {
   navMain: [
