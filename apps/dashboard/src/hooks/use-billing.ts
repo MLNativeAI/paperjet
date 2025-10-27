@@ -30,6 +30,7 @@ export function useBilling() {
   // Fetch product details for each subscription
   const { data: productMap, isLoading: isProductsLoading } = useQuery({
     queryKey: ["billing", subscriptions],
+    enabled: !isCustomerLoading,
     queryFn: async () => {
       const response = await billingClient["product-info"].$get();
 
