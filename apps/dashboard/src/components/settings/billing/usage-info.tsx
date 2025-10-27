@@ -31,7 +31,7 @@ export function UsageInfo({
             )}
           </p>
         </div>
-        <Badge className="secondary w-[100px] text-md">
+        <Badge variant="secondary" className="w-[100px] text-md">
           {consumed}/{total}
         </Badge>
       </div>
