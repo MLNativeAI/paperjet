@@ -7,8 +7,7 @@ export const Footer = () => (
       <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
         <div className="space-y-4">
           <div className="flex items-center gap-2 font-bold">
-            <Image src="/logo.png" alt="PaperJet Logo" width={32} height={32} className="size-8" />
-            <span>PaperJet</span>
+            <Image src="/logo.png" alt="PaperJet Logo" width={120} height={40} />
           </div>
           <p className="text-sm text-muted-foreground">Privacy-first document processing platform.</p>
           <div className="flex gap-4">

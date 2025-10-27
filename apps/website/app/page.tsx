@@ -1,7 +1,16 @@
 import Blog from "@/components/blog";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { CTA, DeploymentOptions, FAQ, Features, Hero, HowItWorks, PrebuiltTemplates } from "../components/sections";
+import {
+  CTA,
+  DeploymentOptions,
+  FAQ,
+  Features,
+  Hero,
+  HowItWorks,
+  PrebuiltTemplates,
+  Pricing,
+} from "../components/sections";
 
 export default function LandingPage() {
   return (
@@ -17,7 +26,7 @@ export default function LandingPage() {
         <DeploymentOptions />
         <PrebuiltTemplates />
         {/* <Testimonials /> */}
-        {/* <Pricing /> */}
+        <Pricing />
         <FAQ />
         <Blog />
         <CTA />
