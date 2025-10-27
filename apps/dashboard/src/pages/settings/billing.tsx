@@ -1,34 +1,36 @@
 import SubscriptionInfo from "@/components/settings/billing/subscription-info";
 import { UsageInfo } from "@/components/settings/billing/usage-info";
 import { useBilling } from "@/hooks/use-billing";
-import { useAuthenticatedUser } from "@/hooks/use-user";
 import { authClient } from "@/lib/auth-client";
 
 export default function BillingPage() {
-  const { session } = useAuthenticatedUser();
-  const { subscriptions, productMap, isLoading } = useBilling(session?.activeOrganizationId);
-  if (isLoading || !subscriptions || !productMap) {
+  const { isLoading } = useBilling();
+
+  if (isLoading) {
     return null;
   }
-  console.log(subscriptions);
 
   return (
     <div className="space-y-17 pt-8">
-      <SubscriptionInfo subscriptions={subscriptions} productMap={productMap} />
-      <UsageInfo subscriptions={subscriptions} />
-      <div>
+      <SubscriptionInfo />
+      <UsageInfo />
+      <div className="flex flex-col gap-4">
         <span>
-          You can manage your subscription and invoices in the{" "}
-          <button
-            type="button"
-            onClick={() => {
+          You can manage your plan and invoices in the{" "}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
               authClient.customer.portal({});
             }}
             className="inline font-medium items-center gap-2 underline cursor-pointer"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            customer portal
-          </button>
+            customer portal.
+          </a>
         </span>
+        <div>For on-premise licences, reach out to us at contact@getpaperjet.com</div>
       </div>
     </div>
   );

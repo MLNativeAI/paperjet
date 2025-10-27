@@ -3,23 +3,23 @@ import { useQuery } from "@tanstack/react-query";
 import { hc } from "hono/client";
 import { authClient } from "@/lib/auth-client";
 import type { TrialInfo } from "@/types";
-import { useAuthenticatedUser } from "./use-user";
+import { useOrganization } from "./use-organization";
 
 const billingClient = hc<BillingRoutes>("/api/v1/billing/");
 
 export function useBilling() {
-  const { session } = useAuthenticatedUser();
+  const { activeOrganization } = useOrganization();
   const { data: subscriptions, isLoading: isCustomerLoading } = useQuery({
-    queryKey: ["billing", session?.activeOrganizationId],
+    queryKey: ["billing", activeOrganization],
     staleTime: 30 * 1000,
     queryFn: async () => {
-      if (session?.activeOrganizationId) {
+      if (activeOrganization?.id) {
         const response = await authClient.customer.subscriptions.list({
           query: {
             page: 1,
             limit: 10,
             active: true,
-            referenceId: session.activeOrganizationId,
+            referenceId: activeOrganization?.id,
           },
         });
         return response.data?.result.items;
@@ -69,6 +69,34 @@ export function useBilling() {
 
   const hasActiveSubscription = subscriptions && subscriptions.length > 0;
 
+  const getUsageInfo = () => {
+    if (subscriptions && subscriptions.length > 0 && subscriptions[0].meters.length > 0) {
+      const consumed = subscriptions[0].meters[0].consumedUnits;
+      const total = subscriptions[0].meters[0].creditedUnits;
+      const currentPeriodEnd = subscriptions[0].currentPeriodEnd;
+
+      return {
+        consumed,
+        total,
+        currentPeriodEnd,
+        hasUsage: true,
+      };
+    }
+    return {
+      consumed: 0,
+      total: 0,
+      currentPeriodEnd: null,
+      hasUsage: false,
+    };
+  };
+
+  const getPlanType = (): "none" | "basic" | "pro" => {
+    const name = getSubscriptionName()?.toLowerCase() || "";
+    if (name.includes("basic")) return "basic";
+    if (name.includes("pro")) return "pro";
+    return "none";
+  };
+
   const isLoading = isCustomerLoading || isProductsLoading;
 
   return {
@@ -78,5 +106,7 @@ export function useBilling() {
     subscriptionName: getSubscriptionName(),
     trialInfo: getTrialInformation(),
     hasActiveSubscription,
+    usageInfo: getUsageInfo(),
+    planType: getPlanType(),
   };
 }

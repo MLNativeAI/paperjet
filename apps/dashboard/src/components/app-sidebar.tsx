@@ -14,9 +14,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { useBilling } from "@/hooks/use-billing";
 import { useAuthenticatedUser } from "@/hooks/use-user";
-import CheckoutButton from "./checkout-button";
 import { NavUser } from "./nav-user";
 import SidebarPlanBadge from "./settings/billing/sidebar-plan-badge";
 
