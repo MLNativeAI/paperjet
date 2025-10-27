@@ -1,3 +1,4 @@
+import { incrementUsage } from "@paperjet/billing";
 import { getDocumentPagesByWorkflowExecutionId, updateDocumentMarkdown, updateExecutionStatus } from "@paperjet/db";
 import { WorkflowConfigurationSchema, WorkflowExecutionStatus } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
@@ -8,7 +9,6 @@ import { markdownQueue } from "../jobs/markdown";
 import { mlServiceQueue } from "../jobs/ml";
 import { redisConnection } from "../redis";
 import { QUEUE_NAMES } from "../types";
-import { incrementUsage } from "@paperjet/billing";
 
 export const workflowExecutionQueue = new Queue(QUEUE_NAMES.EXTRACTION_WORKFLOW, {
   connection: redisConnection,
