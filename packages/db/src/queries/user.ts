@@ -21,12 +21,3 @@ export async function getUserInvitations({ invitationId }: { invitationId: strin
   });
   return invitationResponse;
 }
-
-export async function updateLastActiveOrgId({ organizationId, userId }: { organizationId: string; userId: string }) {
-  await db
-    .update(user)
-    .set({
-      lastActiveOrgId: organizationId,
-    })
-    .where(eq(user.id, userId));
-}

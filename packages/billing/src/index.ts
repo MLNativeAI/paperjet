@@ -8,6 +8,13 @@ export async function polarWebhookHandler(payload: WebhookCustomerStateChangedPa
   console.log(payload);
 }
 
+export async function handleCustomerDeletion(userId: string) {
+  const polarClient = getPolarClient();
+  await polarClient.customers.deleteExternal({
+    externalId: userId,
+  });
+}
+
 export function getPolarClient() {
   // if (envVars.SAAS_MODE) {
   return new Polar({

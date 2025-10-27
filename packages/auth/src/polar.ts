@@ -19,7 +19,7 @@ export function getPolarPlugin() {
             slug: "pro",
           },
         ],
-        successUrl: "/success?checkout_id={CHECKOUT_ID}",
+        successUrl: `${envVars.BASE_URL}/success?checkout_id={CHECKOUT_ID}`,
         authenticatedUsersOnly: true,
         returnUrl: envVars.BASE_URL,
       }),

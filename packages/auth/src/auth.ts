@@ -1,3 +1,4 @@
+import { handleCustomerDeletion } from "@paperjet/billing";
 import { doesAdminAccountExist } from "@paperjet/db";
 import { db } from "@paperjet/db/db";
 import * as schema from "@paperjet/db/schema";
@@ -8,7 +9,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, apiKey, magicLink, organization } from "better-auth/plugins";
 import type { Context, Next } from "hono";
 import { sendInvitationEmail, sendMagicLink, sendPasswordResetEmail } from "./handlers/email";
-import { beforeSessionCreateHandler } from "./handlers/session";
+import { getDefaultOrgOrCreate } from "./handlers/session";
 import { getPolarPlugin } from "./polar";
 import { matchesPattern } from "./util/pattern";
 
@@ -32,13 +33,14 @@ export const auth = betterAuth({
     provider: "pg",
     schema: schema,
   }),
+
   user: {
+    deleteUser: {
+      enabled: true,
+      afterDelete: async (user) => handleCustomerDeletion(user.id),
+    },
     additionalFields: {
       role: {
-        type: "string",
-        input: false,
-      },
-      lastActiveOrgId: {
         type: "string",
         input: false,
       },
@@ -52,7 +54,20 @@ export const auth = betterAuth({
     },
     session: {
       create: {
-        before: beforeSessionCreateHandler,
+        before: async (session) => {
+          logger.info(`Creating session for user ${session.userId}`);
+          const organizationId = await getDefaultOrgOrCreate(session.userId);
+          if (!organizationId) {
+            throw new Error("Organization not found");
+          }
+          logger.info(`Setting activeOrganizationId to ${organizationId} for user ${session.userId}`);
+          return {
+            data: {
+              ...session,
+              activeOrganizationId: organizationId,
+            },
+          };
+        },
       },
     },
     account: {
@@ -93,6 +108,12 @@ export const auth = betterAuth({
     organization({
       sendInvitationEmail: sendInvitationEmail,
       cancelPendingInvitationsOnReInvite: true,
+      organizationHooks: {
+        afterCreateOrganization: async ({ organization, member, user }) => {
+          logger.info(`Organization ${organization.id} created for user ${user.id}`);
+          logger.info(`Member ${member.id} created with role ${member.role}`);
+        },
+      },
     }),
     magicLink({
       sendMagicLink: sendMagicLink,

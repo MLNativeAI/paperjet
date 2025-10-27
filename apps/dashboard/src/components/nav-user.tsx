@@ -24,9 +24,9 @@ export function NavUser() {
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    toast.success("Signed out successfully");
     await authClient.signOut();
-    await queryClient.invalidateQueries();
+    toast.success("Signed out successfully");
+    queryClient.clear();
     await navigate({ to: "/auth/sign-in" });
   };
 

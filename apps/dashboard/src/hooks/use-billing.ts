@@ -12,6 +12,7 @@ export function useBilling() {
   const { data: subscriptions, isLoading: isCustomerLoading } = useQuery({
     queryKey: ["billing", activeOrganization],
     staleTime: 30 * 1000,
+    enabled: !!activeOrganization?.id,
     queryFn: async () => {
       if (activeOrganization?.id) {
         const response = await authClient.customer.subscriptions.list({
@@ -30,7 +31,7 @@ export function useBilling() {
   // Fetch product details for each subscription
   const { data: productMap, isLoading: isProductsLoading } = useQuery({
     queryKey: ["billing", subscriptions],
-    enabled: !isCustomerLoading,
+    enabled: !isCustomerLoading && !!activeOrganization?.id,
     queryFn: async () => {
       const response = await billingClient["product-info"].$get();
 
