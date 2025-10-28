@@ -209,6 +209,10 @@ const router = app
           return c.json({ error: validation.error }, 400);
         }
 
+        if (authContext.activePlan === "free") {
+          return c.json({ error: "You need an active plan to run workflows" }, 403);
+        }
+
         const execution = await uploadFileAndCreateExecution(workflowId, validation.file, authContext);
         const workflow = await getWorkflow({ workflowId });
         const validConfig = workflow.configuration as WorkflowConfiguration;

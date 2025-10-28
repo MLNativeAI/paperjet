@@ -43,6 +43,7 @@ export type WorkflowExtractionData = {
   configuration: WorkflowConfiguration;
   authContext: AuthContext;
   inputType: "image" | "document";
+  step?: z.infer<typeof workflowSteps>;
 };
 export const extractionWorkflowWorker = new Worker(
   QUEUE_NAMES.EXTRACTION_WORKFLOW,
@@ -247,7 +248,7 @@ async function addExtractionJob(job: Job<WorkflowExtractionData>) {
 
 async function finalizeWorkflow(job: Job<WorkflowExtractionData>) {
   logger.info("Workflow execution completed");
-  await incrementUsage(job.data.userId, job.data.orgId);
+  await incrementUsage(job.data.authContext.userId, job.data.authContext.organizationId);
   await updateExecutionStatus({
     workflowExecutionId: job.data.workflowExecutionId,
     status: WorkflowExecutionStatus.enum.Completed,

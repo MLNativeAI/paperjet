@@ -5,7 +5,7 @@ import type { WebhookCustomerStateChangedPayload } from "@polar-sh/sdk/models/co
 
 export async function polarWebhookHandler(payload: WebhookCustomerStateChangedPayload): Promise<void> {
   console.log("Handling polar webhook");
-  console.log(payload);
+  logger.info(payload);
 }
 
 export async function handleCustomerDeletion(userId: string) {

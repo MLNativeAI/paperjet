@@ -30,7 +30,11 @@ export const userAuthMiddleware = async (c: Context, next: Next) => {
     }
     const { userId, organizationId } = await getAuthFromApiKey({ apiKeyId: data.key.id });
 
-    // TODO fetch plan info
+    if (!organizationId) {
+      logger.error("Fatal error, API key without and org Id");
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+
     const authContext: AuthContext = {
       userId,
       organizationId,
@@ -52,6 +56,7 @@ export const userAuthMiddleware = async (c: Context, next: Next) => {
       logger.info("missing auth");
       return c.json({ message: "Unauthorized" }, 401);
     }
+
     const authContext: AuthContext = {
       userId: session.user.id,
       organizationId: session.session.activeOrganizationId,
@@ -77,9 +82,10 @@ export const adminAuthMiddleware = async (c: Context, next: Next) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
   if (!(session.user.role === "superadmin")) {
-    logger.info("missing auth permissions");
+    logger.info("missing admin permissions");
     return c.json({ message: "Forbidden" }, 403);
   }
+
   const authContext: AuthContext = {
     userId: session.user.id,
     organizationId: session.session.activeOrganizationId,

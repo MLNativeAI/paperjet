@@ -6,9 +6,9 @@ import {
   WorkflowExecutionStatus,
 } from "@paperjet/db/types";
 import { generateId, ID_PREFIXES } from "@paperjet/shared/id";
+import type { AuthContext } from "@paperjet/shared/types";
 import { s3Client } from "../lib/s3";
 import type { Workflow } from "../types";
-import type { AuthContext } from "@paperjet/shared/types";
 
 export async function getWorkflows(organizationId: string): Promise<Workflow[]> {
   const workflows = await getAllWorkflows({ organizationId });
