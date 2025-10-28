@@ -9,7 +9,7 @@ import { authClient } from "@/lib/auth-client";
 const internalClient = hc<InternalRoutes>("/api/internal");
 
 export function useUserInvitations() {
-  const { setActiveOrganization } = useOrganization();
+  const { data: activeOrganization } = authClient.useActiveOrganization();
   const queryClient = useQueryClient();
   const {
     data: invitations = [],

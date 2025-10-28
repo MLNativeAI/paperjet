@@ -12,7 +12,6 @@ import { type AdminRoutes, v1AdminRouter } from "./routes/v1/admin";
 import { type ApiKeysRoutes, v1ApiKeyRouter } from "./routes/v1/api-keys";
 import { type BillingRoutes, v1BillingRouter } from "./routes/v1/billing";
 import { type ExecutionRoutes, v1ExecutionRouter } from "./routes/v1/executions";
-import { type V1OrganizationRoutes, v1OrganizationRouter } from "./routes/v1/organization";
 import { v1WorkflowRouter, type WorkflowRoutes } from "./routes/v1/workflows";
 
 export const app = new Hono<{
@@ -47,7 +46,6 @@ app
   .route("/v1/admin", v1AdminRouter)
   .route("/v1/billing", v1BillingRouter)
   .route("/v1/api-keys", v1ApiKeyRouter)
-  .route("/v1/organization", v1OrganizationRouter)
   .route("/v1/workflows", v1WorkflowRouter)
   .route("/v1/executions", v1ExecutionRouter);
 
@@ -91,12 +89,4 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-export type {
-  AdminRoutes,
-  ApiKeysRoutes,
-  BillingRoutes,
-  ExecutionRoutes,
-  InternalRoutes,
-  V1OrganizationRoutes,
-  WorkflowRoutes,
-};
+export type { AdminRoutes, ApiKeysRoutes, BillingRoutes, ExecutionRoutes, InternalRoutes, WorkflowRoutes };

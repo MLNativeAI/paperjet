@@ -8,7 +8,7 @@ import { useOrganization } from "./use-organization";
 const billingClient = hc<BillingRoutes>("/api/v1/billing/");
 
 export function useBilling() {
-  const { activeOrganization } = useOrganization();
+  const { data: activeOrganization } = authClient.useActiveOrganization();
   const { data: subscriptions, isLoading: isCustomerLoading } = useQuery({
     queryKey: ["billing", activeOrganization],
     staleTime: 30 * 1000,

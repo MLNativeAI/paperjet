@@ -1,10 +1,8 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { IconPlus } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,14 +19,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { authClient } from "@/lib/auth-client";
 
-const inviteFormSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  role: z.enum(["admin", "member"], {
-    errorMap: () => ({ message: "Please select a role" }),
-  }),
-});
-
-type InviteFormValues = z.infer<typeof inviteFormSchema>;
+type InviteFormValues = {
+  email: string;
+  role: "admin" | "member";
+};
 
 export default function InviteDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,7 +31,6 @@ export default function InviteDialog() {
   const queryClient = useQueryClient();
 
   const form = useForm<InviteFormValues>({
-    resolver: zodResolver(inviteFormSchema),
     defaultValues: {
       email: "",
       role: "member",

@@ -1,15 +1,16 @@
-import { useOrganization } from "./use-organization";
+import { useBilling } from "./use-billing";
 
 export function usePlan() {
-  const { organizationData, isOrgLoading } = useOrganization();
+  const { planType, isLoading } = useBilling();
 
-  const hasActivePlan = organizationData?.activePlan !== "free";
-  const planType = organizationData?.activePlan || "free";
+  const hasActivePlan = planType !== "none";
+  const isPro = planType === "pro";
 
   return {
-    planType,
+    planType: planType === "none" ? "free" : planType,
     hasActivePlan,
-    isLoading: isOrgLoading,
+    isPro,
+    isLoading,
   };
 }
 

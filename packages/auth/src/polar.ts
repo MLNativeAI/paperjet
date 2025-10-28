@@ -23,7 +23,9 @@ export function getPolarPlugin() {
         authenticatedUsersOnly: true,
         returnUrl: envVars.BASE_URL,
       }),
-      portal(),
+      portal({
+        returnUrl: `${envVars.BASE_URL}/settings/billing`,
+      }),
       usage(),
       webhooks({
         secret: envVars.POLAR_WEBHOOK_SECRET || "",

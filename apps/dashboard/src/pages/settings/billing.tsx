@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import SubscriptionInfo from "@/components/settings/billing/subscription-info";
 import { UsageInfo } from "@/components/settings/billing/usage-info";
 import { useBilling } from "@/hooks/use-billing";
-import { useOrganization } from "@/hooks/use-organization";
 import { authClient } from "@/lib/auth-client";
 import { Route } from "@/routes/_app/settings/billing";
 
