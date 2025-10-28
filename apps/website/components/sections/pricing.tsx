@@ -167,8 +167,8 @@ export function Pricing() {
                         </div>
                         <p className="text-muted-foreground mt-2">{plan.description}</p>
                         <ul className="space-y-3 my-6 flex-grow">
-                          {plan.features.map((feature, index) => (
-                            <li key={index} className="flex items-center">
+                          {plan.features.map((feature) => (
+                            <li key={feature} className="flex items-center">
                               <Check className="mr-2 size-4 text-primary" />
                               <span>{feature}</span>
                             </li>
