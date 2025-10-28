@@ -2,10 +2,10 @@ import { Link } from "@tanstack/react-router";
 import CheckoutButton from "@/components/checkout-button";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
-import { useBilling } from "@/hooks/use-billing";
+import { usePlan } from "@/hooks/use-plan";
 
 export default function SidebarPlanBadge() {
-  const { subscriptionName, hasActiveSubscription, isLoading } = useBilling();
+  const { planType, hasActivePlan, isLoading } = usePlan();
 
   if (isLoading) {
     return (
@@ -15,14 +15,16 @@ export default function SidebarPlanBadge() {
     );
   }
 
-  if (!hasActiveSubscription) {
+  if (!hasActivePlan) {
     return <CheckoutButton />;
   }
+
+  const planName = planType.charAt(0).toUpperCase() + planType.slice(1);
 
   return (
     <Link to="/settings/billing">
       <Badge variant="secondary" className="w-full text-md h-8">
-        {subscriptionName}
+        {planName} Plan
       </Badge>
     </Link>
   );

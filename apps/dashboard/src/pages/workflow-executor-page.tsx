@@ -5,7 +5,7 @@ import { useState } from "react";
 import { FileUpload } from "@/components/file-upload";
 import { Button } from "@/components/ui/button";
 import ExecutionStatusRow from "@/components/workflow/execution/execution-status-row";
-import { useBilling } from "@/hooks/use-billing";
+import { usePlan } from "@/hooks/use-plan";
 import { useWorkflowExecution } from "@/hooks/use-workflow-execution";
 
 export interface ExecutionResult {
@@ -23,11 +23,11 @@ interface WorkflowExecutorPageProps {
 
 export default function WorkflowExecutorPage({ workflow }: WorkflowExecutorPageProps) {
   const [executions, setExecutions] = useState<ExecutionResult[]>([]);
-  const { hasActiveSubscription, isLoading } = useBilling();
+  const { hasActivePlan, isLoading } = usePlan();
 
   const { executeWorkflow } = useWorkflowExecution(workflow.id);
   const handleFileUpload = async (files: FileList) => {
-    if (!hasActiveSubscription) {
+    if (!hasActivePlan) {
       return;
     }
 
@@ -61,7 +61,7 @@ export default function WorkflowExecutorPage({ workflow }: WorkflowExecutorPageP
           </p>
         </div>
       </div>
-      {!hasActiveSubscription && !isLoading && (
+      {!hasActivePlan && !isLoading && (
         <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
           <p className="text-muted-foreground mb-4">You need an active plan to execute workflows.</p>
           <Button asChild>
@@ -69,7 +69,7 @@ export default function WorkflowExecutorPage({ workflow }: WorkflowExecutorPageP
           </Button>
         </div>
       )}
-      {hasActiveSubscription && <FileUpload onFileUpload={handleFileUpload} />}
+      {hasActivePlan && <FileUpload onFileUpload={handleFileUpload} />}
       {executions.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Processing Status</h2>

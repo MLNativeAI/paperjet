@@ -1,11 +1,62 @@
+import { updateOrganizationActivePlan } from "@paperjet/db";
 import { envVars, logger } from "@paperjet/shared";
 import { Polar } from "@polar-sh/sdk";
 import type { Product } from "@polar-sh/sdk/models/components/product.js";
 import type { WebhookCustomerStateChangedPayload } from "@polar-sh/sdk/models/components/webhookcustomerstatechangedpayload.js";
 
 export async function polarWebhookHandler(payload: WebhookCustomerStateChangedPayload): Promise<void> {
-  console.log("Handling polar webhook");
-  logger.info(payload);
+  logger.info("Handling polar webhook", { payload });
+
+  const { activeSubscriptions } = payload.data;
+
+  let organizationId: string | undefined;
+  let activePlan: "free" | "basic" | "pro" = "free";
+
+  if (activeSubscriptions && activeSubscriptions.length > 0) {
+    try {
+      const firstSubscription = activeSubscriptions[0];
+
+      if (firstSubscription) {
+        const referenceId = firstSubscription.metadata?.referenceId;
+        if (!referenceId || typeof referenceId !== "string") {
+          logger.warn("Webhook subscription missing or invalid referenceId in metadata");
+          return;
+        }
+        organizationId = referenceId;
+
+        const productMap = await getProductMap();
+        const product = productMap[firstSubscription.productId];
+
+        if (product?.name) {
+          const planName = product.name.toLowerCase();
+
+          if (planName.includes("basic")) {
+            activePlan = "basic";
+          } else if (planName.includes("pro")) {
+            activePlan = "pro";
+          }
+        }
+      }
+    } catch (error) {
+      logger.error(error, "Failed to determine plan from webhook payload");
+      return;
+    }
+  } else {
+    logger.warn("Webhook payload has no active subscriptions");
+    return;
+  }
+
+  try {
+    if (!organizationId) {
+      logger.error("Organization ID is undefined, cannot update plan");
+      return;
+    }
+
+    await updateOrganizationActivePlan({ organizationId, activePlan });
+    logger.info(`Updated organization ${organizationId} active plan to ${activePlan}`);
+  } catch (error) {
+    logger.error(error, `Failed to update organization ${organizationId} active plan`);
+  }
 }
 
 export async function handleCustomerDeletion(userId: string) {

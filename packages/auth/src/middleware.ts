@@ -1,4 +1,4 @@
-import { getAuthFromApiKey } from "@paperjet/db";
+import { getAuthFromApiKey, getOrganizationActivePlan } from "@paperjet/db";
 import { logger } from "@paperjet/shared";
 import type { AuthContext } from "@paperjet/shared/types";
 import type { Context, Next } from "hono";
@@ -35,10 +35,13 @@ export const userAuthMiddleware = async (c: Context, next: Next) => {
       return c.json({ message: "Unauthorized" }, 401);
     }
 
+    const activePlan = await getOrganizationActivePlan({ organizationId });
+
+    logger.debug;
     const authContext: AuthContext = {
       userId,
       organizationId,
-      activePlan: "free",
+      activePlan,
       scope: "user",
     };
     c.set("context", authContext);
@@ -57,10 +60,14 @@ export const userAuthMiddleware = async (c: Context, next: Next) => {
       return c.json({ message: "Unauthorized" }, 401);
     }
 
+    const activePlan = await getOrganizationActivePlan({
+      organizationId: session.session.activeOrganizationId,
+    });
+
     const authContext: AuthContext = {
       userId: session.user.id,
       organizationId: session.session.activeOrganizationId,
-      activePlan: "free",
+      activePlan,
       scope: "user",
     };
     c.set("context", authContext);
@@ -86,10 +93,14 @@ export const adminAuthMiddleware = async (c: Context, next: Next) => {
     return c.json({ message: "Forbidden" }, 403);
   }
 
+  const activePlan = await getOrganizationActivePlan({
+    organizationId: session.session.activeOrganizationId,
+  });
+
   const authContext: AuthContext = {
     userId: session.user.id,
     organizationId: session.session.activeOrganizationId,
-    activePlan: "free",
+    activePlan,
     scope: "superadmin",
   };
   c.set("context", authContext);

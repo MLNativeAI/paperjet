@@ -1,0 +1,1 @@
+ALTER TABLE "organization" ADD COLUMN "active_plan" text DEFAULT 'free' NOT NULL;
