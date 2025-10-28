@@ -11,11 +11,11 @@ export function getPolarPlugin() {
       checkout({
         products: [
           {
-            productId: "f772061e-7ef7-4628-b7e2-c7f9c2eb44a7",
+            productId: envVars.POLAR_BASIC_PLAN_ID || "",
             slug: "basic",
           },
           {
-            productId: "9f067529-438f-44ca-9c5c-f7128b3dd9b3",
+            productId: envVars.POLAR_PRO_PLAN_ID || "",
             slug: "pro",
           },
         ],

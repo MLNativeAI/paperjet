@@ -28,6 +28,8 @@ export const envSchema = z.object({
   // polar
   POLAR_ACCESS_TOKEN: z.string().optional(),
   POLAR_WEBHOOK_SECRET: z.string().optional(),
+  POLAR_BASIC_PLAN_ID: z.string().optional(),
+  POLAR_PRO_PLAN_ID: z.string().optional(),
 });
 
 // Export the inferred type for use across packages

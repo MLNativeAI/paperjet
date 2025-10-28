@@ -108,7 +108,9 @@ const router = app
       try {
         const createWorkflowData = c.req.valid("json");
         const { organizationId, userId } = await getAuthContext(c);
-        logger.info({ data: createWorkflowData }, `Creating new workflow via API`);
+        logger.debug(createWorkflowData.name, `Creating new workflow via API`);
+        logger.trace(createWorkflowData, `Creating new workflow via API`);
+
         const { id: workflowId } = await createWorkflow({
           name: createWorkflowData.name,
           description: createWorkflowData.description,
