@@ -1,7 +1,9 @@
 import type { ValidatedFile } from "@paperjet/db/types";
+import { logger } from "@paperjet/shared";
+import type { AuthContext } from "@paperjet/shared/types";
+import { countDocumentPages } from "document-page-counter";
 import { z } from "zod";
 
-// Prefixed ID validation schemas
 export const prefixedIdSchema = (prefix: string) =>
   z
     .string()
@@ -31,12 +33,27 @@ export type FileValidationResponse =
     }
   | { success: false; error: string };
 
-export function validateFile(file: File): FileValidationResponse {
+export async function validateFile(file: File, authContext: AuthContext): Promise<FileValidationResponse> {
   if (!(file instanceof File) || file.size === 0) {
     return { success: false, error: "Invalid file" };
   }
   if (file.type !== "application/pdf" && !file.type.startsWith("image/")) {
     return { success: false, error: "File must be a PDF or image" };
+  }
+  if (file.type === "application/pdf" && authContext.activePlan !== "pro") {
+    try {
+      const buffer = await file.arrayBuffer();
+      const result = await countDocumentPages(buffer, file.type);
+      if (result.pages > 20) {
+        return {
+          success: false,
+          error: "PDFs with more than 20 pages require a pro plan",
+        };
+      }
+    } catch (error) {
+      logger.error(error, "Failed to check PDF page count");
+      return { success: false, error: "Failed to validate PDF" };
+    }
   }
 
   const type = file.type === "application/pdf" ? "document" : "image";

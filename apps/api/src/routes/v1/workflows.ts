@@ -205,7 +205,7 @@ const router = app
         if (!(body.file instanceof File)) {
           return c.json({ error: "Invalid file" }, 400);
         }
-        const validation = validateFile(body.file);
+        const validation = validateFile(body.file, authContext);
 
         if (!validation.success) {
           return c.json({ error: validation.error }, 400);
@@ -213,6 +213,25 @@ const router = app
 
         if (authContext.activePlan === "free") {
           return c.json({ error: "You need an active plan to run workflows" }, 403);
+        }
+
+        // Check PDF page count limit for non-pro users
+        if (validation.file.mimeType === "application/pdf" && authContext.activePlan !== "pro") {
+          try {
+            const fileBuffer = Buffer.from(await validation.file.file.arrayBuffer());
+            const pageCount = await getPdfPageCount(fileBuffer);
+            if (pageCount > 20) {
+              return c.json(
+                {
+                  error: "PDFs with more than 20 pages require a pro plan",
+                },
+                403,
+              );
+            }
+          } catch (error) {
+            logger.error(error, "Failed to check PDF page count");
+            return c.json({ error: "Failed to validate PDF" }, 500);
+          }
         }
 
         const execution = await uploadFileAndCreateExecution(workflowId, validation.file, authContext);
