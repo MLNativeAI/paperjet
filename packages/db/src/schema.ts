@@ -189,11 +189,10 @@ export const apikey = pgTable("apikey", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  organizationId: text("organization_id")
+  organizationId: text("organization_id") // org id must be nullable if we want to use built-in better-auth api key handlers in @api-keys.ts
     .references(() => organization.id, {
       onDelete: "cascade",
-    })
-    .notNull(),
+    }),
   refillInterval: integer("refill_interval"),
   refillAmount: integer("refill_amount"),
   lastRefillAt: timestamp("last_refill_at"),

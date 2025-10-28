@@ -1,7 +1,8 @@
 import { incrementUsage } from "@paperjet/billing";
 import { getDocumentPagesByWorkflowExecutionId, updateDocumentMarkdown, updateExecutionStatus } from "@paperjet/db";
-import { WorkflowConfiguration, WorkflowConfigurationSchema, WorkflowExecutionStatus } from "@paperjet/db/types";
+import { type WorkflowConfiguration, WorkflowExecutionStatus } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
+import type { AuthContext } from "@paperjet/shared/types";
 import { type Job, Queue, WaitingChildrenError, Worker } from "bullmq";
 import z from "zod";
 import { extractionQueue } from "../jobs/extraction";
@@ -9,7 +10,6 @@ import { markdownQueue } from "../jobs/markdown";
 import { mlServiceQueue } from "../jobs/ml";
 import { redisConnection } from "../redis";
 import { QUEUE_NAMES } from "../types";
-import type { AuthContext } from "@paperjet/shared/types";
 
 export const workflowExecutionQueue = new Queue(QUEUE_NAMES.EXTRACTION_WORKFLOW, {
   connection: redisConnection,
@@ -36,23 +36,13 @@ const workflowSteps = z.enum([
   "FINISHED",
 ]);
 
-const WorkflowExtractionDataSchema = z.object({
-  workflowId: z.string(),
-  workflowExecutionId: z.string(),
-  modelType: z.enum(["fast", "accurate"]),
-  configuration: WorkflowConfigurationSchema,
-  inputType: z.enum(["image", "document"]),
-  step: workflowSteps,
-  userId: z.string(),
-  orgId: z.string(),
-});
-
 export type WorkflowExtractionData = {
   workflowId: string;
   workflowExecutionId: string;
   modelType: "fast" | "accurate";
   configuration: WorkflowConfiguration;
   authContext: AuthContext;
+  inputType: "image" | "document";
 };
 export const extractionWorkflowWorker = new Worker(
   QUEUE_NAMES.EXTRACTION_WORKFLOW,

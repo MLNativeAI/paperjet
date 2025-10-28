@@ -1,8 +1,8 @@
 import { getAuthFromApiKey } from "@paperjet/db";
 import { logger } from "@paperjet/shared";
+import type { AuthContext } from "@paperjet/shared/types";
 import type { Context, Next } from "hono";
 import { auth } from "./auth";
-import type { AuthContext } from "./types";
 import { matchesPattern } from "./util/pattern";
 
 const publicRoutes = ["/api/health", "/api/auth/**"];

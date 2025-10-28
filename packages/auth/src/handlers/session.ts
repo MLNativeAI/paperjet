@@ -1,8 +1,8 @@
 import { createOrganization, createOrganizationMember, getUserById, getUserOrganizations } from "@paperjet/db";
 import { logger } from "@paperjet/shared";
+import type { AuthContext } from "@paperjet/shared/types";
 import type { Context } from "hono";
 import { auth } from "../auth";
-import type { AuthContext } from "../types";
 import { detectOrgNameFromEmail } from "../util/email";
 
 export const getDefaultOrgOrCreate = async (userId: string) => {

@@ -107,15 +107,15 @@ const router = app
     async (c) => {
       try {
         const createWorkflowData = c.req.valid("json");
-        const { activeOrganizationId } = await getAuthContext(c);
+        const { organizationId, userId } = await getAuthContext(c);
         logger.info({ data: createWorkflowData }, `Creating new workflow via API`);
         const { id: workflowId } = await createWorkflow({
           name: createWorkflowData.name,
           description: createWorkflowData.description,
           configuration: createWorkflowData.configuration,
           modelType: createWorkflowData.modelType,
-          organizationId: activeOrganizationId,
-          userId: (await getAuthContext(c)).userId,
+          organizationId,
+          userId,
         });
         logger.info({ workflowId, name: createWorkflowData.name }, "Workflow created");
         return c.json({ workflowId: workflowId, message: "Workflow created" }, 201);
