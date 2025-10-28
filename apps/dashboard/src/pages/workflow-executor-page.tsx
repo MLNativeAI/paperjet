@@ -47,6 +47,7 @@ export default function WorkflowExecutorPage({ workflow }: WorkflowExecutorPageP
       }));
       setExecutions((prev) => [...newExecutions, ...prev]);
     } catch (error) {
+      // Errors are handled in the useWorkflowExecution hook with appropriate toasts
       console.error("Upload failed:", error);
     }
   };

@@ -31,14 +31,14 @@ export type FileValidationResponse =
       success: true;
       file: ValidatedFile;
     }
-  | { success: false; error: string };
+  | { code: string; success: false; error: string };
 
 export async function validateFile(file: File, authContext: AuthContext): Promise<FileValidationResponse> {
   if (!(file instanceof File) || file.size === 0) {
-    return { success: false, error: "Invalid file" };
+    return { success: false, error: "Invalid file", code: "INVALID_FILE" };
   }
   if (file.type !== "application/pdf" && !file.type.startsWith("image/")) {
-    return { success: false, error: "File must be a PDF or image" };
+    return { success: false, error: "File must be a PDF or image", code: "INVALID_FILE_TYPE" };
   }
   if (file.type === "application/pdf" && authContext.activePlan !== "pro") {
     try {
@@ -48,11 +48,12 @@ export async function validateFile(file: File, authContext: AuthContext): Promis
         return {
           success: false,
           error: "PDFs with more than 20 pages require a pro plan",
+          code: "PRO_PLAN_REQUIRED",
         };
       }
     } catch (error) {
       logger.error(error, "Failed to check PDF page count");
-      return { success: false, error: "Failed to validate PDF" };
+      return { success: false, error: "Failed to validate PDF", code: "FILE_VALIDATION_FAILED" };
     }
   }
 

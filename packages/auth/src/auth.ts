@@ -97,14 +97,6 @@ export const auth = betterAuth({
       adminRoles: ["superadmin"],
     }),
     apiKey({
-      enableMetadata: true,
-      enableSessionForAPIKeys: true,
-      permissions: {
-        defaultPermissions: {
-          projects: ["read"],
-          users: ["read"],
-        },
-      },
       rateLimit: {
         enabled: true,
         timeWindow: 60000,
