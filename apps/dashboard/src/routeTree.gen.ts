@@ -17,7 +17,6 @@ import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthFinishPasswordResetRouteImport } from './routes/auth/finish-password-reset'
 import { Route as AdminSetupRouteImport } from './routes/admin/setup'
-import { Route as AppSuccessRouteImport } from './routes/_app/success'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppExecutionsRouteImport } from './routes/_app/executions'
 import { Route as AppAdminRouteImport } from './routes/_app/admin'
@@ -74,11 +73,6 @@ const AdminSetupRoute = AdminSetupRouteImport.update({
   id: '/admin/setup',
   path: '/admin/setup',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AppSuccessRoute = AppSuccessRouteImport.update({
-  id: '/success',
-  path: '/success',
-  getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
@@ -174,7 +168,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AppAdminRouteWithChildren
   '/executions': typeof AppExecutionsRouteWithChildren
   '/settings': typeof AppSettingsRouteWithChildren
-  '/success': typeof AppSuccessRoute
   '/admin/setup': typeof AdminSetupRoute
   '/auth/finish-password-reset': typeof AuthFinishPasswordResetRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -198,7 +191,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
-  '/success': typeof AppSuccessRoute
   '/admin/setup': typeof AdminSetupRoute
   '/auth/finish-password-reset': typeof AuthFinishPasswordResetRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -227,7 +219,6 @@ export interface FileRoutesById {
   '/_app/admin': typeof AppAdminRouteWithChildren
   '/_app/executions': typeof AppExecutionsRouteWithChildren
   '/_app/settings': typeof AppSettingsRouteWithChildren
-  '/_app/success': typeof AppSuccessRoute
   '/admin/setup': typeof AdminSetupRoute
   '/auth/finish-password-reset': typeof AuthFinishPasswordResetRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -256,7 +247,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/executions'
     | '/settings'
-    | '/success'
     | '/admin/setup'
     | '/auth/finish-password-reset'
     | '/auth/reset-password'
@@ -280,7 +270,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
-    | '/success'
     | '/admin/setup'
     | '/auth/finish-password-reset'
     | '/auth/reset-password'
@@ -308,7 +297,6 @@ export interface FileRouteTypes {
     | '/_app/admin'
     | '/_app/executions'
     | '/_app/settings'
-    | '/_app/success'
     | '/admin/setup'
     | '/auth/finish-password-reset'
     | '/auth/reset-password'
@@ -394,13 +382,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/setup'
       preLoaderRoute: typeof AdminSetupRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_app/success': {
-      id: '/_app/success'
-      path: '/success'
-      fullPath: '/success'
-      preLoaderRoute: typeof AppSuccessRouteImport
-      parentRoute: typeof AppRoute
     }
     '/_app/settings': {
       id: '/_app/settings'
@@ -596,7 +577,6 @@ interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppExecutionsRoute: typeof AppExecutionsRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
-  AppSuccessRoute: typeof AppSuccessRoute
   AppIndexRoute: typeof AppIndexRoute
   AppWorkflowsNewRoute: typeof AppWorkflowsNewRoute
   AppWorkflowsWizardRoute: typeof AppWorkflowsWizardRoute
@@ -608,7 +588,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRouteWithChildren,
   AppExecutionsRoute: AppExecutionsRouteWithChildren,
   AppSettingsRoute: AppSettingsRouteWithChildren,
-  AppSuccessRoute: AppSuccessRoute,
   AppIndexRoute: AppIndexRoute,
   AppWorkflowsNewRoute: AppWorkflowsNewRoute,
   AppWorkflowsWizardRoute: AppWorkflowsWizardRoute,

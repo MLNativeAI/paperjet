@@ -1,10 +1,20 @@
+import { useEffect } from "react";
+import { toast } from "sonner";
 import SubscriptionInfo from "@/components/settings/billing/subscription-info";
 import { UsageInfo } from "@/components/settings/billing/usage-info";
 import { useBilling } from "@/hooks/use-billing";
 import { authClient } from "@/lib/auth-client";
+import { Route } from "@/routes/_app/settings/billing";
 
 export default function BillingPage() {
   const { isLoading } = useBilling();
+  const { checkout_success } = Route.useSearch();
+
+  useEffect(() => {
+    if (checkout_success === true) {
+      toast.success("Checkout completed successfully");
+    }
+  }, [checkout_success]);
 
   if (isLoading) {
     return null;
@@ -17,6 +27,7 @@ export default function BillingPage() {
       <div className="flex flex-col gap-4">
         <span>
           You can manage your plan and invoices in the{" "}
+          {/** biome-ignore lint/a11y/useValidAnchor: This IS a navigation element */}
           <a
             href="#"
             onClick={(e) => {
