@@ -32,12 +32,22 @@ export async function updateApiKeyOwner({ apiKeyId, organizationId }: { apiKeyId
     .where(eq(apikey.id, apiKeyId));
 }
 
+export async function getAuthFromApiKey({ apiKeyId }: { apiKeyId: string }) {
+  const apiKey = await db.query.apikey.findFirst({
+    where: eq(apikey.id, apiKeyId),
+  });
+  if (!apiKey) {
+    throw new Error("Api key not found");
+  }
+  return { organizationId: apiKey.organizationId, userId: apiKey.userId };
+}
+
 export async function getApiKey({
-  organizationId,
   apiKeyId,
+  organizationId,
 }: {
-  organizationId: string;
   apiKeyId: string;
+  organizationId: string;
 }): Promise<DbApiKey> {
   const apiKey = await db.query.apikey.findFirst({
     where: and(eq(apikey.organizationId, organizationId), eq(apikey.id, apiKeyId)),

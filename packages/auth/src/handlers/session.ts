@@ -1,8 +1,8 @@
 import { createOrganization, createOrganizationMember, getUserById, getUserOrganizations } from "@paperjet/db";
 import { logger } from "@paperjet/shared";
-import type { Session, User } from "better-auth";
 import type { Context } from "hono";
 import { auth } from "../auth";
+import type { AuthContext } from "../types";
 import { detectOrgNameFromEmail } from "../util/email";
 
 export const getDefaultOrgOrCreate = async (userId: string) => {
@@ -43,21 +43,10 @@ export const getUserIfLoggedIn = async (c: Context): Promise<string | undefined>
   return session.user.id;
 };
 
-export const getUserSession = async (
-  c: Context,
-): Promise<{
-  user: User;
-  session: Session;
-}> => {
-  const sessionData = await auth.api.getSession({ headers: c.req.raw.headers });
-  if (!sessionData) {
-    throw new Error("Unauthorized");
+export const getAuthContext = async (c: Context): Promise<AuthContext> => {
+  const authContext: AuthContext = c.get("context");
+  if (!authContext) {
+    throw new Error("AuthContext not found");
   }
-  if (!sessionData.session.activeOrganizationId) {
-    throw new Error("Active organization is missing");
-  }
-  return {
-    user: sessionData.user,
-    session: sessionData.session,
-  };
+  return authContext;
 };

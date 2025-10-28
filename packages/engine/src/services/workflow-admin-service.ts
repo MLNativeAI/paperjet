@@ -8,6 +8,7 @@ import {
 import { generateId, ID_PREFIXES } from "@paperjet/shared/id";
 import { s3Client } from "../lib/s3";
 import type { Workflow } from "../types";
+import type { AuthContext } from "@paperjet/shared/types";
 
 export async function getWorkflows(organizationId: string): Promise<Workflow[]> {
   const workflows = await getAllWorkflows({ organizationId });
@@ -35,9 +36,8 @@ export async function getWorkflow(workflowId: string, organizationId: string): P
 
 export async function uploadFileAndCreateExecution(
   workflowId: string,
-  organizationId: string,
-  userId: string,
   validatedFile: ValidatedFile,
+  authContext: AuthContext,
 ) {
   // TODO make this a transaction
   const executionId = generateId(ID_PREFIXES.workflowExecution);
@@ -49,14 +49,13 @@ export async function uploadFileAndCreateExecution(
     filePath: filePath,
     fileType: validatedFile.type,
     mimeType: validatedFile.mimeType,
-    organizationId: organizationId,
+    organizationId: authContext.organizationId,
   });
   await createWorkflowExecution({
     executionId,
     workflowId,
     fileId,
-    organizationId,
-    userId,
+    authContext,
   });
   return {
     workflowExecutionId: executionId,

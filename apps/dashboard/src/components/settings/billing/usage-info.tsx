@@ -18,7 +18,9 @@ export function UsageInfo() {
       <div className="flex flex-col gap-2">
         <h1 className="text-xl font-bold">Usage</h1>
         <p className="text-muted-foreground">
-          You have used {consumed} out of {total} conversions.{" "}
+          You have used {consumed} out of {total} conversions. Note: This value might be slow to update
+        </p>
+        <p className="text-muted-foreground">
           {currentPeriodEnd && <span>Your usage resets {formatRelativeTime(currentPeriodEnd)} </span>}
         </p>
       </div>

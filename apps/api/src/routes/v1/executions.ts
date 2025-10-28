@@ -1,4 +1,4 @@
-import { getUserSession } from "@paperjet/auth/session";
+import { getAuthContext } from "@paperjet/auth/session";
 import {
   getAllWorkflowExecutions,
   getWorkflowExecutionStatus,
@@ -88,9 +88,9 @@ const router = app
     }),
     async (c) => {
       try {
-        const { session } = await getUserSession(c);
+        const { organizationId } = await getAuthContext(c);
         const executions = await getAllWorkflowExecutions({
-          organizationId: session.activeOrganizationId,
+          organizationId,
         });
         return c.json(executions);
       } catch (error) {
@@ -138,11 +138,11 @@ const router = app
     ),
     async (c) => {
       try {
-        const { session } = await getUserSession(c);
+        const { organizationId } = await getAuthContext(c);
         const { executionId } = c.req.valid("param");
         const execution = await getWorkflowExecutionWithExtractedData({
           workflowExecutionId: executionId,
-          organizationId: session.activeOrganizationId,
+          organizationId,
         });
         return c.json(execution);
       } catch (error) {
@@ -193,11 +193,11 @@ const router = app
     ),
     async (c) => {
       try {
-        const { session } = await getUserSession(c);
+        const { organizationId } = await getAuthContext(c);
         const { executionId } = c.req.valid("param");
         const execution = await getWorkflowExecutionStatus({
           workflowExecutionId: executionId,
-          organizationId: session.activeOrganizationId,
+          organizationId,
         });
         return c.json(execution);
       } catch (error) {
@@ -248,9 +248,9 @@ const router = app
     ),
     async (c) => {
       try {
-        const { session } = await getUserSession(c);
+        const { organizationId } = await getAuthContext(c);
         const { executionId } = c.req.valid("param");
-        const documentUrl = await getPresignedFileUrl(executionId, session.activeOrganizationId);
+        const documentUrl = await getPresignedFileUrl(executionId, organizationId);
         return c.json(documentUrl);
       } catch (error) {
         logger.error(error, "Get document url error");
@@ -304,10 +304,10 @@ const router = app
     zValidator("query", exportQuerySchema),
     async (c) => {
       try {
-        const { session } = await getUserSession(c);
+        const { organizationId } = await getAuthContext(c);
         const { executionId } = c.req.valid("param");
         const { mode } = c.req.valid("query");
-        const result = await exportExecution(executionId, mode, session.activeOrganizationId);
+        const result = await exportExecution(executionId, mode, organizationId);
 
         c.header("Content-Type", result.contentType);
         c.header("Content-Disposition", `attachment; filename="${result.filename}"`);

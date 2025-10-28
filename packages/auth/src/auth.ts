@@ -7,13 +7,9 @@ import { generateId, ID_PREFIXES } from "@paperjet/shared/id";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, apiKey, magicLink, organization } from "better-auth/plugins";
-import type { Context, Next } from "hono";
 import { sendInvitationEmail, sendMagicLink, sendPasswordResetEmail } from "./handlers/email";
 import { getDefaultOrgOrCreate } from "./handlers/session";
 import { getPolarPlugin } from "./polar";
-import { matchesPattern } from "./util/pattern";
-
-const publicRoutes = ["/api/health", "/api/auth/**"];
 
 export const auth = betterAuth({
   session: {
@@ -101,8 +97,18 @@ export const auth = betterAuth({
       adminRoles: ["superadmin"],
     }),
     apiKey({
+      enableMetadata: true,
+      enableSessionForAPIKeys: true,
+      permissions: {
+        defaultPermissions: {
+          projects: ["read"],
+          users: ["read"],
+        },
+      },
       rateLimit: {
-        enabled: false,
+        enabled: true,
+        timeWindow: 60000,
+        maxRequests: 100,
       },
     }),
     organization({
@@ -125,52 +131,15 @@ export const auth = betterAuth({
       enabled: envVars.GOOGLE_CLIENT_ID !== undefined && envVars.GOOGLE_CLIENT_SECRET !== undefined,
       clientId: envVars.GOOGLE_CLIENT_ID || "",
       clientSecret: envVars.GOOGLE_CLIENT_SECRET || "",
-      // redirectURI: envVars.BASE_URL,
     },
     microsoft: {
       enabled: envVars.MICROSOFT_CLIENT_ID !== undefined && envVars.MICROSOFT_CLIENT_SECRET !== undefined,
-      clientId: envVars.MICROSOFT_CLIENT_ID || "",
       clientSecret: envVars.MICROSOFT_CLIENT_SECRET || "",
-      // redirectURI: envVars.BASE_URL,
+      clientId: envVars.MICROSOFT_CLIENT_ID || "",
     },
   },
   trustedOrigins: [envVars.BASE_URL],
 });
-
-// Authentication middleware
-export const requireAuth = async (c: Context, next: Next) => {
-  if (publicRoutes.some((pattern) => matchesPattern(c.req.path, pattern))) {
-    return next();
-  }
-
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  if (!session) {
-    logger.info("missing auth");
-    return c.json({ message: "Unauthorized" }, 401);
-  }
-
-  c.set("user", session.user);
-  c.set("session", session.session);
-  return next();
-};
-
-// Admin middleware
-export const requireAdmin = async (c: Context, next: Next) => {
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  if (!session) {
-    logger.info("missing auth");
-    return c.json({ message: "Unauthorized" }, 401);
-  }
-  if (!(session.user.role === "superadmin")) {
-    logger.info("missing auth permissions");
-    return c.json({ message: "Forbidden" }, 403);
-  }
-  return next();
-};
-
-export const authHandler = async (c: Context) => {
-  return auth.handler(c.req.raw);
-};
 
 export async function beforeUserCreateHandler(user: User) {
   const adminAccountExists = await doesAdminAccountExist();

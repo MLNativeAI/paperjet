@@ -1,5 +1,5 @@
 import { otel } from "@hono/otel";
-import { type auth, authHandler, requireAdmin, requireAuth } from "@paperjet/auth";
+import { adminAuthMiddleware, type auth, authHandler, userAuthMiddleware } from "@paperjet/auth";
 import { envVars, logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
@@ -29,8 +29,8 @@ app.use(
   }),
 );
 app.use("/api/*", corsMiddleware);
-app.use("/api/v1/*", requireAuth);
-app.use("/api/v1/admin/*", requireAdmin);
+app.use("/api/v1/*", userAuthMiddleware);
+app.use("/api/v1/admin/*", adminAuthMiddleware);
 app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
 app.get("/api/health", async (c) => {
