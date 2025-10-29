@@ -28,9 +28,9 @@ export const flexibleIdSchema = z.string().refine((val) => {
 
 export type FileValidationResponse =
   | {
-    success: true;
-    file: ValidatedFile;
-  }
+      success: true;
+      file: ValidatedFile;
+    }
   | { code: string; success: false; error: string };
 
 export async function validateFile(file: File, authContext: AuthContext): Promise<FileValidationResponse> {

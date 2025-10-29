@@ -21,19 +21,7 @@ export const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
   RESEND_API_KEY: z.string().optional(),
   FROM_EMAIL: z.string().email("FROM_EMAIL must be a valid email address").default("noreply@getpaperjet.com"),
-  SAAS_MODE: z
-    .string()
-    .transform((val) => {
-      const truthy = ["true", "1", "yes", "on"];
-      const falsy = ["false", "0", "no", "off"];
-      const lowerVal = val.toLowerCase();
-
-      if (truthy.includes(lowerVal)) return true;
-      if (falsy.includes(lowerVal)) return false;
-
-      return Boolean(val);
-    })
-    .default("false"),
+  SAAS_MODE: z.stringbool().default(false),
   AUTH_MODE: z.enum(["magic-link", "password"]).default("password"),
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().default("paperjet"),

@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuthenticatedUser } from "@/hooks/use-user";
 import { NavUser } from "./nav-user";
-import SidebarPlanBadge from "./settings/billing/sidebar-plan-badge";
 import SidebarLicenseBadge from "./settings/billing/sidebar-license-badge";
+import SidebarPlanBadge from "./settings/billing/sidebar-plan-badge";
 
 const data = {
   navMain: [

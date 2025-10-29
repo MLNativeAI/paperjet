@@ -1,6 +1,6 @@
 import { Crown } from "lucide-react";
-import { useOrganization } from "@/hooks/use-organization";
 import { useBillingProducts } from "@/hooks/use-billing-products";
+import { useOrganization } from "@/hooks/use-organization";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "./ui/button";
 

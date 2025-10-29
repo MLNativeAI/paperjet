@@ -1,6 +1,6 @@
+import type { BillingRoutes } from "@paperjet/api/routes";
 import { useQuery } from "@tanstack/react-query";
 import { hc } from "hono/client";
-import type { BillingRoutes } from "@paperjet/api/routes";
 
 const billingClient = hc<BillingRoutes>("/api/v1/billing");
 
