@@ -43,6 +43,8 @@ const createLogger = () => {
       : undefined,
   );
 
+  rootLogger.info("Logging initialized");
+
   return rootLogger.child({
     env: process.env.ENVIRONMENT,
     baseUrl: process.env.BASE_URL,
