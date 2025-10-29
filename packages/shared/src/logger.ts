@@ -1,4 +1,5 @@
 import pino from "pino";
+import { type EnvVars, envSchema } from "./env-schema";
 
 const createLogger = () => {
   const transports = [];
@@ -43,8 +44,6 @@ const createLogger = () => {
       : undefined,
   );
 
-  rootLogger.info("Logging initialized");
-
   return rootLogger.child({
     env: process.env.ENVIRONMENT,
     baseUrl: process.env.BASE_URL,
@@ -52,3 +51,14 @@ const createLogger = () => {
 };
 
 export const logger = createLogger();
+
+// a small with putting this here to make sure that logger is initialized for env validation
+export const validateEnv = (): EnvVars => {
+  const env = envSchema.safeParse(process.env);
+  if (!env.success) {
+    logger.error(`❌ Invalid environment configuration: ${env.error.format()}`);
+    throw new Error("Invalid environment variables");
+  }
+  logger.info("✅ Environment configuration is valid");
+  return env.data;
+};

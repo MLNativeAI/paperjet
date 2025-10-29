@@ -5,8 +5,6 @@ import type {
   modelConfiguration,
   organization,
   runtimeConfiguration,
-  usageData,
-  usageModelPrice,
   workflow,
   workflowExecution,
 } from "../schema";
@@ -18,10 +16,6 @@ export type DbOrganization = typeof organization.$inferSelect;
 export type DbWorkflow = typeof workflow.$inferSelect;
 
 export type DbWorkflowExecution = typeof workflowExecution.$inferSelect;
-
-export type DbUsageModelPrice = typeof usageModelPrice.$inferSelect;
-
-export type DbUsageData = typeof usageData.$inferSelect;
 
 export type DbDocumentData = typeof documentData.$inferSelect;
 

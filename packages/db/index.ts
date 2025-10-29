@@ -5,6 +5,5 @@ export * from "./src/queries/document-data";
 export * from "./src/queries/executions";
 export * from "./src/queries/file";
 export * from "./src/queries/organization";
-export * from "./src/queries/usage";
 export * from "./src/queries/user";
 export * from "./src/queries/workflows";

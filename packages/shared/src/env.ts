@@ -1,15 +1,5 @@
-import { logger } from ".";
-import { type EnvVars, envSchema } from "./env-schema";
-
-export const validateEnv = (): EnvVars => {
-  const env = envSchema.safeParse(process.env);
-  if (!env.success) {
-    logger.error(`❌ Invalid environment configuration: ${env.error.format()}`);
-    throw new Error("Invalid environment variables");
-  }
-  logger.info("✅ Environment configuration is valid");
-  return env.data;
-};
+import type { EnvVars } from "./env-schema";
+import { validateEnv } from "./logger";
 
 // Validate environment variables
 export const envVars = validateEnv();

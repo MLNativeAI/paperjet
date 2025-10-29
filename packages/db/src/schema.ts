@@ -137,34 +137,6 @@ export const documentPage = pgTable("document_page", {
   pageNumber: integer("page_number").notNull(),
   rawMarkdown: text("raw_markdown"),
 });
-
-export const usageModelPrice = pgTable("usage_model_price", {
-  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
-  model: text("model").notNull(),
-  inputCostPerMillionTokens: numeric("input_cost_per_million_tokens", { precision: 10, scale: 4 }).notNull(),
-  outputCostPerMillionTokens: numeric("output_cost_per_million_tokens", { precision: 10, scale: 4 }).notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-export const usageData = pgTable("usage_data", {
-  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  model: text("model").notNull(),
-  userId: text("user_id"),
-  organizationId: text("organization_id"),
-  workflowId: text("workflow_id"),
-  executionId: text("execution_id"),
-  inputTokens: integer("input_tokens").notNull(),
-  inputCost: numeric("input_cost"),
-  outputTokens: integer("output_tokens").notNull(),
-  outputCost: numeric("output_cost"),
-  totalTokens: integer("total_tokens").notNull(),
-  totalCost: numeric("total_cost", { precision: 10, scale: 4 }),
-  durationMs: integer("duration_ms"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-});
-
 export const runtimeConfiguration = pgTable("runtime_configuration", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
   accurateModelId: text("accurate_model_id").references(() => modelConfiguration.id),

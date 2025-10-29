@@ -30,7 +30,6 @@ import { Route as AppSettingsModelsRouteImport } from './routes/_app/settings/mo
 import { Route as AppSettingsBillingRouteImport } from './routes/_app/settings/billing'
 import { Route as AppSettingsApiKeysRouteImport } from './routes/_app/settings/api-keys'
 import { Route as AppExecutionsExecutionIdRouteImport } from './routes/_app/executions/$executionId'
-import { Route as AppAdminUsageDataRouteImport } from './routes/_app/admin/usage-data'
 import { Route as AppAdminModelsRouteImport } from './routes/_app/admin/models'
 import { Route as AppWorkflowsWorkflowIdExecuteRouteImport } from './routes/_app/workflows/$workflowId/execute'
 import { Route as AppWorkflowsWorkflowIdEditRouteImport } from './routes/_app/workflows/$workflowId/edit'
@@ -140,11 +139,6 @@ const AppExecutionsExecutionIdRoute =
     path: '/$executionId',
     getParentRoute: () => AppExecutionsRoute,
   } as any)
-const AppAdminUsageDataRoute = AppAdminUsageDataRouteImport.update({
-  id: '/usage-data',
-  path: '/usage-data',
-  getParentRoute: () => AppAdminRoute,
-} as any)
 const AppAdminModelsRoute = AppAdminModelsRouteImport.update({
   id: '/models',
   path: '/models',
@@ -175,7 +169,6 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/': typeof AppIndexRoute
   '/admin/models': typeof AppAdminModelsRoute
-  '/admin/usage-data': typeof AppAdminUsageDataRoute
   '/executions/$executionId': typeof AppExecutionsExecutionIdRoute
   '/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/settings/billing': typeof AppSettingsBillingRoute
@@ -198,7 +191,6 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/': typeof AppIndexRoute
   '/admin/models': typeof AppAdminModelsRoute
-  '/admin/usage-data': typeof AppAdminUsageDataRoute
   '/executions/$executionId': typeof AppExecutionsExecutionIdRoute
   '/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/settings/billing': typeof AppSettingsBillingRoute
@@ -226,7 +218,6 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/models': typeof AppAdminModelsRoute
-  '/_app/admin/usage-data': typeof AppAdminUsageDataRoute
   '/_app/executions/$executionId': typeof AppExecutionsExecutionIdRoute
   '/_app/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/_app/settings/billing': typeof AppSettingsBillingRoute
@@ -254,7 +245,6 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/'
     | '/admin/models'
-    | '/admin/usage-data'
     | '/executions/$executionId'
     | '/settings/api-keys'
     | '/settings/billing'
@@ -277,7 +267,6 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/'
     | '/admin/models'
-    | '/admin/usage-data'
     | '/executions/$executionId'
     | '/settings/api-keys'
     | '/settings/billing'
@@ -304,7 +293,6 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/_app/'
     | '/_app/admin/models'
-    | '/_app/admin/usage-data'
     | '/_app/executions/$executionId'
     | '/_app/settings/api-keys'
     | '/_app/settings/billing'
@@ -474,13 +462,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppExecutionsExecutionIdRouteImport
       parentRoute: typeof AppExecutionsRoute
     }
-    '/_app/admin/usage-data': {
-      id: '/_app/admin/usage-data'
-      path: '/usage-data'
-      fullPath: '/admin/usage-data'
-      preLoaderRoute: typeof AppAdminUsageDataRouteImport
-      parentRoute: typeof AppAdminRoute
-    }
     '/_app/admin/models': {
       id: '/_app/admin/models'
       path: '/models'
@@ -525,13 +506,11 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 interface AppAdminRouteChildren {
   AppAdminModelsRoute: typeof AppAdminModelsRoute
-  AppAdminUsageDataRoute: typeof AppAdminUsageDataRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminModelsRoute: AppAdminModelsRoute,
-  AppAdminUsageDataRoute: AppAdminUsageDataRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
 
