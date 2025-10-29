@@ -20,6 +20,7 @@ import { Route as AdminSetupRouteImport } from './routes/admin/setup'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppExecutionsRouteImport } from './routes/_app/executions'
 import { Route as AppAdminRouteImport } from './routes/_app/admin'
+import { Route as AppAccountRouteImport } from './routes/_app/account'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AppExecutionsIndexRouteImport } from './routes/_app/executions/index'
 import { Route as AppAdminIndexRouteImport } from './routes/_app/admin/index'
@@ -86,6 +87,11 @@ const AppExecutionsRoute = AppExecutionsRouteImport.update({
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccountRoute = AppAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
@@ -159,6 +165,7 @@ const AppWorkflowsWorkflowIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
+  '/account': typeof AppAccountRoute
   '/admin': typeof AppAdminRouteWithChildren
   '/executions': typeof AppExecutionsRouteWithChildren
   '/settings': typeof AppSettingsRouteWithChildren
@@ -184,6 +191,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
+  '/account': typeof AppAccountRoute
   '/admin/setup': typeof AdminSetupRoute
   '/auth/finish-password-reset': typeof AuthFinishPasswordResetRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/auth': typeof AuthRouteRouteWithChildren
   '/_app': typeof AppRouteWithChildren
+  '/_app/account': typeof AppAccountRoute
   '/_app/admin': typeof AppAdminRouteWithChildren
   '/_app/executions': typeof AppExecutionsRouteWithChildren
   '/_app/settings': typeof AppSettingsRouteWithChildren
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/auth'
+    | '/account'
     | '/admin'
     | '/executions'
     | '/settings'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/account'
     | '/admin/setup'
     | '/auth/finish-password-reset'
     | '/auth/reset-password'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/auth'
     | '/_app'
+    | '/_app/account'
     | '/_app/admin'
     | '/_app/executions'
     | '/_app/settings'
@@ -390,6 +402,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/account': {
+      id: '/_app/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AppAccountRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/settings/': {
@@ -553,6 +572,7 @@ const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppAccountRoute: typeof AppAccountRoute
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppExecutionsRoute: typeof AppExecutionsRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
@@ -564,6 +584,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountRoute: AppAccountRoute,
   AppAdminRoute: AppAdminRouteWithChildren,
   AppExecutionsRoute: AppExecutionsRouteWithChildren,
   AppSettingsRoute: AppSettingsRouteWithChildren,
