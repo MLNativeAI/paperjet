@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/MLNativeAI/paperjet/compare/v1.3.2...v1.3.3) (2025-10-29)
+
+
+### Bug Fixes
+
+* env var error format ([e735e9a](https://github.com/MLNativeAI/paperjet/commit/e735e9ac913858ea9b11dfe27831f01001e02ffe))
+
 ## [1.3.2](https://github.com/MLNativeAI/paperjet/compare/v1.3.1...v1.3.2) (2025-10-29)
 
 
