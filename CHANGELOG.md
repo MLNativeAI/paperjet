@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/MLNativeAI/paperjet/compare/v1.3.3...v1.3.4) (2025-10-29)
+
+
+### Bug Fixes
+
+* zod v4 upgrade ([12fea15](https://github.com/MLNativeAI/paperjet/commit/12fea1548020da238adcd1bedc0d61a11eac258c))
+
 ## [1.3.3](https://github.com/MLNativeAI/paperjet/compare/v1.3.2...v1.3.3) (2025-10-29)
 
 
