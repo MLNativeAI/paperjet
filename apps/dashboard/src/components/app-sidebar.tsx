@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { BookOpen, FileText, Play, Settings, Shield } from "lucide-react";
 import type * as React from "react";
 import { useMemo } from "react";
@@ -17,6 +17,7 @@ import {
 import { useAuthenticatedUser } from "@/hooks/use-user";
 import { NavUser } from "./nav-user";
 import SidebarPlanBadge from "./settings/billing/sidebar-plan-badge";
+import SidebarLicenseBadge from "./settings/billing/sidebar-license-badge";
 
 const data = {
   navMain: [
@@ -51,6 +52,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuthenticatedUser();
+  const { serverInfo } = useRouteContext({ from: "__root__" });
   const isAdmin = useMemo(() => user?.role === "superadmin", [user?.role]);
 
   return (
@@ -98,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>
-        <SidebarPlanBadge />
+        {serverInfo.saasMode ? <SidebarPlanBadge /> : <SidebarLicenseBadge />}
         <NavUser />
       </SidebarFooter>
     </Sidebar>

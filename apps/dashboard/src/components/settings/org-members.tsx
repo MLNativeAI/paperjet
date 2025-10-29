@@ -10,24 +10,24 @@ export default function OrgMembers({ member, isPro }: { member: Member | undefin
 
   const isAdminOrOwner = member?.role === "admin" || member?.role === "owner";
   const isSaaSMode = serverInfo.saasMode;
-  const isUpgradeRequired = isSaaSMode && !isPro;
+  const disableTeamFeatures = isSaaSMode && !isPro;
   const canInvite = member && isAdminOrOwner;
-  const showUpgradeMessage = isUpgradeRequired && isAdminOrOwner;
+  const showUpgradeMessage = disableTeamFeatures && isAdminOrOwner;
 
   return (
     <div className="space-y-6">
-      <div className={`flex justify-between items-center ${isUpgradeRequired ? "opacity-50" : ""}`}>
+      <div className={`flex justify-between items-center ${disableTeamFeatures ? "opacity-50" : ""}`}>
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-bold">Team Members</h2>
           <p className="text-muted-foreground">Manage who has access to your organization</p>
         </div>
         {canInvite && (
-          <div className={isUpgradeRequired ? "pointer-events-none" : ""}>
+          <div className={disableTeamFeatures ? "pointer-events-none" : ""}>
             <InviteDialog />
           </div>
         )}
       </div>
-      <div className={`pt-4 ${!isPro ? "opacity-50" : ""}`}>
+      <div className={`pt-4 ${disableTeamFeatures ? "opacity-50" : ""}`}>
         {member?.role && (
           <OrgMembersTable
             data={orgMemberInvitations}
