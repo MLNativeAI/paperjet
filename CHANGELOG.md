@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/MLNativeAI/paperjet/compare/v1.3.1...v1.3.2) (2025-10-29)
+
+
+### Bug Fixes
+
+* remove usage data, log startup errors ([6929e1e](https://github.com/MLNativeAI/paperjet/commit/6929e1eb617b8b42b601405fab2440f1d853cf0e))
+
 ## [1.3.1](https://github.com/MLNativeAI/paperjet/compare/v1.3.0...v1.3.1) (2025-10-29)
 
 
