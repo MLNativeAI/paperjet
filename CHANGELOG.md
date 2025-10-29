@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/MLNativeAI/paperjet/compare/v1.4.1...v1.4.2) (2025-10-29)
+
+
+### Bug Fixes
+
+* disable polar auth plugin with env var ([29d775e](https://github.com/MLNativeAI/paperjet/commit/29d775e50df832690fee22d039a858a8c243525f))
+
 ## [1.4.1](https://github.com/MLNativeAI/paperjet/compare/v1.4.0...v1.4.1) (2025-10-29)
 
 
