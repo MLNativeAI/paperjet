@@ -9,14 +9,12 @@ import type { WorkflowConfiguration } from "../types/workflow-config";
 export async function updateWorkflow({
   workflowId,
   name,
-  modelType,
   description,
   configuration,
   organizationId,
 }: {
   workflowId: string;
   name: string;
-  modelType: string;
   description: string;
   configuration: WorkflowConfiguration;
   organizationId: string;
@@ -27,7 +25,6 @@ export async function updateWorkflow({
       name: name,
       description: description,
       configuration: configuration,
-      modelType: modelType,
     })
     .where(and(eq(workflow.id, workflowId), eq(workflow.ownerId, organizationId)));
 }

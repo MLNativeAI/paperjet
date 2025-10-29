@@ -18,10 +18,8 @@ interface WorkflowConfigContextType {
   workflowConfig: DraftWorkflowConfig;
   name: string;
   description: string;
-  modelType: "fast" | "accurate";
   setName: (name: string) => void;
   setDescription: (description: string) => void;
-  setModelType: (type: "fast" | "accurate") => void;
   createWorkflow: UseMutationResult<{ workflowId: string; message: string }, Error, void, unknown>;
   updateWorkflow: UseMutationResult<{ workflowId: string; message: string }, Error, void, unknown>;
   addAnObject: (initialValues?: { name?: string; description?: string }) => void;
@@ -52,7 +50,6 @@ export function WorkflowConfigProvider({
 }) {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [modelType, setModelType] = useState<"fast" | "accurate">("accurate");
   const [workflowConfig, setWorkflowConfig] = useState<DraftWorkflowConfig>({
     objects: [],
   });
@@ -63,7 +60,6 @@ export function WorkflowConfigProvider({
       const response = await workflowClient.index.$post({
         json: {
           configuration: toWorkflowConfig(workflowConfig),
-          modelType: modelType,
           name: name,
           description: description,
         },
@@ -94,7 +90,6 @@ export function WorkflowConfigProvider({
           configuration: toWorkflowConfig(workflowConfig),
           name: name,
           description: description,
-          modelType: modelType,
         },
       });
       if (!response.ok) {
@@ -116,7 +111,6 @@ export function WorkflowConfigProvider({
       });
       setName(template.name);
       setDescription(template.description);
-      setModelType(template.modelType);
     }
   }, [template]);
 
@@ -127,7 +121,6 @@ export function WorkflowConfigProvider({
       });
       setName(initialWorkflow.name);
       setDescription(initialWorkflow.description);
-      setModelType(initialWorkflow.modelType);
     }
   }, [initialWorkflow]);
 
@@ -263,10 +256,8 @@ export function WorkflowConfigProvider({
         workflowConfig,
         name,
         description,
-        modelType,
         setName,
         setDescription,
-        setModelType,
         createWorkflow,
         updateWorkflow,
         addAnObject,

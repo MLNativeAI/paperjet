@@ -1,5 +1,5 @@
 import type { DbModelConfiguration } from "@paperjet/db/types";
-import { IconDotsVertical, IconTrash } from "@tabler/icons-react";
+import { IconDotsVertical, IconEye, IconServer, IconTrash } from "@tabler/icons-react";
 import {
   type ColumnDef,
   flexRender,
@@ -56,6 +56,23 @@ export function ModelListTable({ data }: { data: DbModelConfiguration[] }) {
       accessorKey: "modelName",
       header: "Model",
       cell: ({ row }) => <div className="font-medium">{row.original.modelName}</div>,
+      enableHiding: false,
+    },
+    {
+      id: "type",
+      header: "Type",
+      cell: ({ row }) => {
+        const { isCore, isVision } = row.original;
+        return (
+          <div className="flex items-center gap-2">
+            {isCore && <IconServer className="h-4 w-4" />}
+            {isVision && <IconEye className="h-4 w-4" />}
+            <span className="text-sm">
+              {isCore && isVision ? "Both" : isCore ? "Core" : isVision ? "Vision" : "None"}
+            </span>
+          </div>
+        );
+      },
       enableHiding: false,
     },
     {

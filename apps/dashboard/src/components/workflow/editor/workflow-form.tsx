@@ -1,10 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
-import { BrainIcon, RocketIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { AddObjectButton } from "@/components/workflow/editor/add-object-button";
 import { useWorkflowConfig } from "@/components/workflow/editor/workflow-config-context";
@@ -19,7 +17,7 @@ interface WorkflowFormProps {
 }
 
 export function WorkflowForm({ title, subtitle, handleSave, isPending, buttonText }: WorkflowFormProps) {
-  const { workflowConfig, name, description, modelType, setName, setDescription, setModelType } = useWorkflowConfig();
+  const { workflowConfig, name, description, setName, setDescription } = useWorkflowConfig();
   const navigate = useNavigate();
 
   return (
@@ -75,66 +73,6 @@ export function WorkflowForm({ title, subtitle, handleSave, isPending, buttonTex
             <AddObjectButton />
           </>
         )}
-      </div>
-
-      <div>
-        <CardTitle>Runtime configuration</CardTitle>
-        <CardDescription>Choose the preferred processing type for this workflow.</CardDescription>
-      </div>
-      <div className="flex justify-center">
-        <div className="w-full">
-          <RadioGroup
-            value={modelType}
-            onValueChange={(value) => setModelType(value as "fast" | "accurate")}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full"
-          >
-            <Card
-              className={`cursor-pointer transition-colors ${
-                modelType === "fast" ? "border-primary bg-primary/5" : "hover:bg-muted/50"
-              }`}
-              onClick={() => setModelType("fast")}
-            >
-              <CardHeader>
-                <CardTitle className="flex w-full justify-between">
-                  <div className="flex gap-2 items-center">
-                    <RocketIcon />
-                    Fast
-                  </div>
-                  <RadioGroupItem value="fast" id="fast" className="mt-2" />
-                </CardTitle>
-              </CardHeader>
-              <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                <ul className="list-disc list-inside mt-1 space-y-1">
-                  <li>Best used for high-quality scans</li>
-                  <li>or large documents</li>
-                  <li>delivers almost instant results</li>
-                </ul>
-              </CardFooter>
-            </Card>
-            <Card
-              className={`cursor-pointer transition-colors ${
-                modelType === "accurate" ? "border-primary bg-primary/5" : "hover:bg-muted/50"
-              }`}
-              onClick={() => setModelType("accurate")}
-            >
-              <CardHeader>
-                <CardTitle className="flex w-full justify-between">
-                  <div className="flex gap-2 items-center">
-                    <BrainIcon />
-                    Accurate
-                  </div>
-                  <RadioGroupItem value="accurate" id="accurate" className="mt-2" />
-                </CardTitle>
-              </CardHeader>
-              <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                <ul className="list-disc list-inside mt-1 space-y-1">
-                  <li>Best for noisy, complex documents</li>
-                  <li>Slower but more accurate</li>
-                </ul>
-              </CardFooter>
-            </Card>
-          </RadioGroup>
-        </div>
       </div>
 
       <div className="flex justify-between gap-2">

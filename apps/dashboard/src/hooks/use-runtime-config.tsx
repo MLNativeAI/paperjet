@@ -8,7 +8,7 @@ export function useRuntimeConfig() {
   const queryClient = useQueryClient();
 
   const {
-    data: runtimeConfig = { fastModel: null, accurateModel: null },
+    data: runtimeConfig = { coreModel: null, visionModel: null },
     isLoading,
     refetch,
   } = useQuery({
@@ -26,7 +26,7 @@ export function useRuntimeConfig() {
   });
 
   const setRuntimeModelMutation = useMutation({
-    mutationFn: async ({ type, modelId }: { type: "fast" | "accurate"; modelId: string }) => {
+    mutationFn: async ({ type, modelId }: { type: "core" | "vision"; modelId: string }) => {
       const response = await adminClient["runtime-config"].$post({
         json: {
           type,

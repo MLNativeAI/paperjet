@@ -1,9 +1,9 @@
-import type { DbModelConfiguration, RuntimeConfiguration } from "@paperjet/db/types";
+import type { DbModelConfiguration, RuntimeConfiguration, RuntimeModelType } from "@paperjet/db/types";
 import RuntimeModelCard from "@/components/admin/runtime-model-card";
 
 interface RuntimeModelsConfigProps {
   runtimeConfig: RuntimeConfiguration;
-  onSetModel: (params: { type: "fast" | "accurate"; modelId: string }) => void;
+  onSetModel: (params: { type: RuntimeModelType; modelId: string }) => void;
   isSettingModel: boolean;
   availableModels: DbModelConfiguration[];
 }
@@ -21,15 +21,15 @@ export default function RuntimeModelsConfig({
       </div>
       <div className="flex gap-4">
         <RuntimeModelCard
-          modelType="accurate"
-          model={runtimeConfig.accurateModel}
+          modelType="core"
+          model={runtimeConfig.coreModel}
           onSetModel={onSetModel}
           isSettingModel={isSettingModel}
           availableModels={availableModels}
         />
         <RuntimeModelCard
-          modelType="fast"
-          model={runtimeConfig.fastModel}
+          modelType="vision"
+          model={runtimeConfig.visionModel}
           onSetModel={onSetModel}
           isSettingModel={isSettingModel}
           availableModels={availableModels}

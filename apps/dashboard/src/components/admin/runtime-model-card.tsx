@@ -1,12 +1,12 @@
-import type { DbModelConfiguration, RuntimeModel } from "@paperjet/db/types";
-import { BrainIcon, RocketIcon } from "lucide-react";
+import type { DbModelConfiguration, RuntimeModel, RuntimeModelType } from "@paperjet/db/types";
+import { BrainIcon, Eye } from "lucide-react";
 import ModelSelectorDropdown from "@/components/admin/model-selector-dropdown";
 import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface RuntimeModelCardProps {
-  modelType: "fast" | "accurate";
+  modelType: RuntimeModelType;
   model: RuntimeModel | null;
-  onSetModel: (params: { type: "fast" | "accurate"; modelId: string }) => void;
+  onSetModel: (params: { type: RuntimeModelType; modelId: string }) => void;
   isSettingModel: boolean;
   availableModels: DbModelConfiguration[];
 }
@@ -18,12 +18,12 @@ export default function RuntimeModelCard({
   isSettingModel,
   availableModels,
 }: RuntimeModelCardProps) {
-  const modelNameLabel = modelType === "fast" ? "Fast Model" : "Accurate Model";
-  const modelIcon = modelType === "fast" ? <RocketIcon /> : <BrainIcon />;
+  const modelNameLabel = modelType === "core" ? "Core Model" : "Vision Model";
+  const modelIcon = modelType === "core" ? <BrainIcon /> : <Eye />;
   const modelDesc =
-    modelType === "fast"
-      ? "Fast model is used for quick, inexpensive operations like parsing text or verification. We recommend using a snappy, smaller model"
-      : "Accurate model is used for OCR and other complex tasks. Vision is required, we recommend using the best model you have.";
+    modelType === "core"
+      ? "Code model is used for logical operations like data extraction, processing and reasoning."
+      : "Vision model is used for OCR and other visual tasks.";
 
   const displayName = model?.name || "Not set";
 

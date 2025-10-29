@@ -39,7 +39,6 @@ const router = app
                     createdAt: z.string(),
                     updatedAt: z.string(),
                     ownerId: z.string(),
-                    modelType: z.enum(["fast", "accurate"]),
                   }),
                 ),
               ),
@@ -101,7 +100,6 @@ const router = app
         name: z.string().min(1, "Workflow name is required"),
         description: z.string().default(""),
         configuration: WorkflowConfigurationSchema,
-        modelType: z.enum(["fast", "accurate"]),
       }),
     ),
     async (c) => {
@@ -264,7 +262,6 @@ const router = app
                   createdAt: z.string(),
                   updatedAt: z.string(),
                   ownerId: z.string(),
-                  modelType: z.enum(["fast", "accurate"]),
                 }),
               ),
             },
@@ -322,7 +319,6 @@ const router = app
         name: z.string().min(1, "Workflow name is required"),
         description: z.string().default(""),
         configuration: WorkflowConfigurationSchema,
-        modelType: z.enum(["fast", "accurate"]),
       }),
     ),
     zValidator(
@@ -340,7 +336,6 @@ const router = app
         await updateWorkflow({
           workflowId,
           name: updateWorkflowData.name,
-          modelType: updateWorkflowData.modelType,
           description: updateWorkflowData.description,
           configuration: updateWorkflowData.configuration,
           organizationId,

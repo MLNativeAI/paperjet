@@ -150,6 +150,8 @@ export const modelConfiguration = pgTable("model_configuration", {
   modelName: text("model_name").notNull(),
   displayName: text("display_name").notNull(),
   baseUrl: text("base_url"),
+  isCore: boolean("is_core").notNull().default(false),
+  isVision: boolean("is_vision").notNull().default(false),
 });
 
 export const apikey = pgTable("apikey", {
