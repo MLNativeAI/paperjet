@@ -67,12 +67,10 @@ export async function handleCustomerDeletion(userId: string) {
 }
 
 export function getPolarClient() {
-  // if (envVars.SAAS_MODE) {
   return new Polar({
     accessToken: envVars.POLAR_ACCESS_TOKEN,
-    server: "sandbox",
+    server: envVars.ENVIRONMENT === "prod" ? "production" : "sandbox",
   });
-  // }
 }
 
 export async function getProductMap() {
