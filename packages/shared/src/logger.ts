@@ -56,7 +56,7 @@ export const logger = createLogger();
 export const validateEnv = (): EnvVars => {
   const env = envSchema.safeParse(process.env);
   if (!env.success) {
-    logger.error(`❌ Invalid environment configuration: ${env.error.format()}`);
+    logger.error(`❌ Invalid environment configuration: ${JSON.stringify(env.error.format())}`);
     throw new Error("Invalid environment variables");
   }
   logger.info("✅ Environment configuration is valid");
