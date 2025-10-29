@@ -117,16 +117,17 @@ export const addNewModel = async (modelConfig: {
     .returning();
 };
 
-export async function updateModel(
-  modelId: string,
-  modelConfig: {
-    provider: string;
-    providerApiKey: string;
-    modelName: string;
-    displayName?: string;
-    baseUrl?: string;
-  },
-) {
+export type ModelConfigParams = {
+  provider: "custom" | "google" | "openai" | "openrouter";
+  providerApiKey: string;
+  modelName: string;
+  isCore: boolean;
+  isVision: boolean;
+  displayName?: string | undefined;
+  baseUrl?: string | undefined;
+};
+
+export async function updateModel(modelId: string, modelConfig: ModelConfigParams) {
   return await db
     .update(modelConfiguration)
     .set({
@@ -135,6 +136,8 @@ export async function updateModel(
       modelName: modelConfig.modelName,
       displayName: modelConfig.displayName || `${modelConfig.provider}/${modelConfig.modelName}`,
       baseUrl: modelConfig.baseUrl,
+      isCore: modelConfig.isCore,
+      isVision: modelConfig.isVision,
     })
     .where(eq(modelConfiguration.id, modelId))
     .returning();

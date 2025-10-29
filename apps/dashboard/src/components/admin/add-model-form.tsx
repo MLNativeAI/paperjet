@@ -1,11 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DbModelConfiguration } from "@paperjet/db/types";
 import { type ConnectionValidationResult, type ModelConfigParams, modelConfigSchema } from "@paperjet/engine/types";
+
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -28,6 +30,8 @@ export default function AddEditModelForm({
     resolver: zodResolver(modelConfigSchema),
     defaultValues: {
       provider: "google",
+      isCore: false,
+      isVision: false,
     },
   });
 
@@ -39,8 +43,8 @@ export default function AddEditModelForm({
         modelName: model.modelName || "",
         displayName: model.displayName || "",
         baseUrl: model.baseUrl || "",
-        isCore: model.isCore || true,
-        isVision: model.isVision || true,
+        isCore: model.isCore ?? false,
+        isVision: model.isVision ?? false,
       });
     }
   }, [model, form]);
@@ -161,6 +165,34 @@ export default function AddEditModelForm({
                 <Input placeholder="e.g., Gemini 1.5 Flash" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isCore"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Core Model</FormLabel>
+              </div>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isVision"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Vision Model</FormLabel>
+              </div>
             </FormItem>
           )}
         />

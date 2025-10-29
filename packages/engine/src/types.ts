@@ -8,20 +8,15 @@ export type ConnectionValidationResult = {
 
 const availableProviders = z.enum(["google", "openai", "openrouter", "custom"]);
 
-export const modelConfigSchema = z
-  .object({
-    provider: availableProviders,
-    providerApiKey: z.string().min(1, "API key is required"),
-    modelName: z.string().min(1, "Model name is required"),
-    displayName: z.string().optional(),
-    baseUrl: z.string().optional(),
-    isCore: z.boolean().default(false),
-    isVision: z.boolean().default(false),
-  })
-  .refine((data) => data.isCore || data.isVision, {
-    message: "At least one model type (Core or Vision) must be selected",
-    path: ["isCore"],
-  });
+export const modelConfigSchema = z.object({
+  provider: availableProviders,
+  providerApiKey: z.string().min(1, "API key is required"),
+  modelName: z.string().min(1, "Model name is required"),
+  displayName: z.string().optional(),
+  baseUrl: z.string().optional(),
+  isCore: z.boolean(),
+  isVision: z.boolean(),
+});
 
 export type ModelConfigParams = z.infer<typeof modelConfigSchema>;
 
