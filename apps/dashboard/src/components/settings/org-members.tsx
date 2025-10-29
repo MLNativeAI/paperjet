@@ -9,16 +9,20 @@ export default function OrgMembers({ member, isPro }: { member: Member | undefin
   const { serverInfo } = useRouteContext({ from: "__root__" });
 
   const isAdminOrOwner = member?.role === "admin" || member?.role === "owner";
+  const isSaaSMode = serverInfo.saasMode;
+  const isUpgradeRequired = isSaaSMode && !isPro;
+  const canInvite = member && isAdminOrOwner;
+  const showUpgradeMessage = isUpgradeRequired && isAdminOrOwner;
 
   return (
     <div className="space-y-6">
-      <div className={`flex justify-between items-center ${serverInfo.saasMode && !isPro ? "opacity-50" : ""}`}>
+      <div className={`flex justify-between items-center ${isUpgradeRequired ? "opacity-50" : ""}`}>
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-bold">Team Members</h2>
           <p className="text-muted-foreground">Manage who has access to your organization</p>
         </div>
-        {member && isAdminOrOwner && (
-          <div className={serverInfo.saasMode && !isPro ? "pointer-events-none" : ""}>
+        {canInvite && (
+          <div className={isUpgradeRequired ? "pointer-events-none" : ""}>
             <InviteDialog />
           </div>
         )}
@@ -33,7 +37,7 @@ export default function OrgMembers({ member, isPro }: { member: Member | undefin
           />
         )}
       </div>
-      {serverInfo.saasMode && !isPro && isAdminOrOwner && (
+      {showUpgradeMessage && (
         <div className="text-center py-4">
           <p className="text-sm text-muted-foreground">You must upgrade to the Pro plan to add more team members</p>
         </div>
