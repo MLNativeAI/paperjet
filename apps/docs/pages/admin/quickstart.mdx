@@ -26,6 +26,17 @@ Both x86 and ARM based systems are supported.
 
 Docker compose is the easiest way to set up PaperJet on any environment.
 
+### One-liner setup
+
+Run these commands to deploy PaperJet instantly:
+
+```bash
+curl -o docker-compose.yml https://raw.githubusercontent.com/MLNativeAI/paperjet/main/apps/docs/deployment/docker-compose.yml
+docker compose up -d
+```
+
+This will download the complete production setup and start all services in the background.
+
 ## Configuration
 
 Required env variables:
