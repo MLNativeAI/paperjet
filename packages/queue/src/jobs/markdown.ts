@@ -20,7 +20,6 @@ export const markdownQueue = new Queue(QUEUE_NAMES.MARKDOWN_JOB, {
 const markdownJobSchema = z.object({
   workflowExecutionId: z.string(),
   documentPageId: z.string(),
-  modelType: z.enum(["fast", "accurate"]),
 });
 
 export type MarkdownJobData = z.infer<typeof markdownJobSchema>;
@@ -28,8 +27,8 @@ export type MarkdownJobData = z.infer<typeof markdownJobSchema>;
 export const markdownWorker = new Worker(
   QUEUE_NAMES.MARKDOWN_JOB,
   async (job: Job<MarkdownJobData>) => {
-    const { workflowExecutionId, documentPageId, modelType } = job.data;
-    await convertPageToMarkdown(workflowExecutionId, documentPageId, modelType);
+    const { workflowExecutionId, documentPageId } = job.data;
+    await convertPageToMarkdown(workflowExecutionId, documentPageId);
   },
   {
     connection: redisConnection,

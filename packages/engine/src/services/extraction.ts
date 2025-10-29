@@ -5,7 +5,7 @@ import {
   getWorkflow,
   updateDocumentData,
 } from "@paperjet/db";
-import type { RuntimeModelType, WorkflowConfiguration } from "@paperjet/db/types";
+import type { WorkflowConfiguration } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { generateObject } from "ai";
 import { s3Client } from "../lib/s3";
@@ -89,7 +89,7 @@ Instructions:
 - Maintain data accuracy and completeness
 - Structure the output to match the object hierarchy shown above`;
   const result = await generateObject({
-    model: await getModelForType("accurate"),
+    model: await getModelForType("vision"),
     schema: schemaObj,
     messages: [
       {
@@ -117,7 +117,6 @@ export async function extractDataFromMarkdown(
   workflowId: string,
   workflowExecutionId: string,
   configuration: WorkflowConfiguration,
-  modelType: RuntimeModelType,
 ) {
   logger.debug(
     {
@@ -136,7 +135,7 @@ export async function extractDataFromMarkdown(
   if (!workflowData) {
     throw new Error("Fatal error, workflow not found");
   }
-  const extractionResult = await runDocumentExtraction(documentData.rawMarkdown, configuration, modelType);
+  const extractionResult = await runDocumentExtraction(documentData.rawMarkdown, configuration);
   await updateDocumentData({
     documentDataId: documentData.id,
     extractedData: extractionResult,
@@ -147,7 +146,6 @@ export async function extractDataFromMarkdown(
 export async function runDocumentExtraction(
   markdownDocument: string,
   configuration: WorkflowConfiguration,
-  modelType: RuntimeModelType,
 ): Promise<any> {
   const { schemaObj, objectDescriptions } = prepareSchema(configuration);
   const prompt = `Extract the following information from this document:
@@ -164,7 +162,7 @@ Instructions:
 - Maintain data accuracy and completeness
 - Structure the output to match the object hierarchy shown above`;
   const result = await generateObject({
-    model: await getModelForType(modelType),
+    model: await getModelForType("core"),
     schema: schemaObj,
     messages: [
       {

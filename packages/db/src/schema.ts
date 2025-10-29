@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, integer, jsonb, numeric, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const workflowExecutionStatusEnum = pgEnum("workflowExecutionStatus", [
   "Queued",
@@ -139,8 +139,8 @@ export const documentPage = pgTable("document_page", {
 });
 export const runtimeConfiguration = pgTable("runtime_configuration", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
-  accurateModelId: text("accurate_model_id").references(() => modelConfiguration.id),
-  fastModelId: text("fast_model_id").references(() => modelConfiguration.id),
+  coreModelId: text("core_model_id").references(() => modelConfiguration.id),
+  visionModelId: text("vision_model_id").references(() => modelConfiguration.id),
 });
 
 export const modelConfiguration = pgTable("model_configuration", {

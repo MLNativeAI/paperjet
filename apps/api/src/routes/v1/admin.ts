@@ -76,7 +76,7 @@ const router = app
     zValidator(
       "json",
       z.object({
-        type: z.enum(["fast", "accurate"]),
+        type: z.enum(["core", "vision"]),
         modelId: z.string(),
       }),
     ),

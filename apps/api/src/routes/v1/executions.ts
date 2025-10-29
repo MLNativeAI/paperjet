@@ -42,7 +42,6 @@ const executionResponseSchema = z.object({
   errorMessage: z.string().nullable(),
   startedAt: z.string(),
   completedAt: z.string().nullable(),
-  modelType: z.enum(["fast", "accurate"]),
   extractedData: z.any(),
 });
 

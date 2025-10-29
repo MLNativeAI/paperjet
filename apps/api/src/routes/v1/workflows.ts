@@ -115,7 +115,6 @@ const router = app
           name: createWorkflowData.name,
           description: createWorkflowData.description,
           configuration: createWorkflowData.configuration,
-          modelType: createWorkflowData.modelType,
           organizationId,
           userId,
         });
@@ -221,7 +220,6 @@ const router = app
         const workflowExecutionParams: WorkflowExtractionData = {
           workflowId: execution.workflowId,
           workflowExecutionId: execution.workflowExecutionId,
-          modelType: workflow.modelType,
           configuration: validConfig,
           inputType: validation.file.type,
           step: "INIT",

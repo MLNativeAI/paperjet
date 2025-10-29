@@ -9,30 +9,30 @@ export async function listModels(): Promise<DbModelConfiguration[]> {
 }
 
 export async function getModelConfigForType(modelType: RuntimeModelType) {
-  if (modelType === "fast") {
+  if (modelType === "core") {
     const runtimeConfig = await db.query.runtimeConfiguration.findFirst();
-    if (!runtimeConfig?.fastModelId) {
+    if (!runtimeConfig?.coreModelId) {
       throw new Error("Fast model is not configured");
     }
-    const fastModel = await db.query.modelConfiguration.findFirst({
-      where: eq(modelConfiguration.id, runtimeConfig.fastModelId),
+    const coreModel = await db.query.modelConfiguration.findFirst({
+      where: eq(modelConfiguration.id, runtimeConfig.coreModelId),
     });
-    if (!fastModel) {
+    if (!coreModel) {
       throw new Error("Fatal error, fast runtime model is not found");
     }
-    return fastModel;
+    return coreModel;
   } else {
     const runtimeConfig = await db.query.runtimeConfiguration.findFirst();
-    if (!runtimeConfig?.accurateModelId) {
-      throw new Error("Accurate model is not configured");
+    if (!runtimeConfig?.visionModelId) {
+      throw new Error("Vision model is not configured");
     }
-    const accurateModel = await db.query.modelConfiguration.findFirst({
-      where: eq(modelConfiguration.id, runtimeConfig.accurateModelId),
+    const visionModel = await db.query.modelConfiguration.findFirst({
+      where: eq(modelConfiguration.id, runtimeConfig.visionModelId),
     });
-    if (!accurateModel) {
+    if (!visionModel) {
       throw new Error("Fatal error, accurate runtime model is not found");
     }
-    return accurateModel;
+    return visionModel;
   }
 }
 
@@ -40,32 +40,32 @@ export async function getRuntimeConfiguration(): Promise<RuntimeConfiguration> {
   const runtimeConfig = await db.query.runtimeConfiguration.findFirst();
   if (!runtimeConfig)
     return {
-      fastModel: null,
-      accurateModel: null,
+      coreModel: null,
+      visionModel: null,
     };
 
-  const currentFastModel = runtimeConfig.fastModelId
+  const codeModelData = runtimeConfig.coreModelId
     ? await db.query.modelConfiguration.findFirst({
-        where: eq(modelConfiguration.id, runtimeConfig.fastModelId),
+        where: eq(modelConfiguration.id, runtimeConfig.coreModelId),
       })
     : undefined;
-  const currentAccurateModel = runtimeConfig.accurateModelId
+  const visionModelData = runtimeConfig.visionModelId
     ? await db.query.modelConfiguration.findFirst({
-        where: eq(modelConfiguration.id, runtimeConfig.accurateModelId),
+        where: eq(modelConfiguration.id, runtimeConfig.visionModelId),
       })
     : undefined;
 
   return {
-    fastModel: currentFastModel
+    coreModel: codeModelData
       ? {
-          name: currentFastModel.displayName || "",
-          modelId: currentFastModel.id,
+          name: codeModelData.displayName || "",
+          modelId: codeModelData.id,
         }
       : null,
-    accurateModel: currentAccurateModel
+    visionModel: visionModelData
       ? {
-          name: currentAccurateModel.displayName || "",
-          modelId: currentAccurateModel.id,
+          name: visionModelData.displayName || "",
+          modelId: visionModelData.id,
         }
       : null,
   };
@@ -76,22 +76,22 @@ export async function setRuntimeModel(type: RuntimeModelType, modelId: string) {
 
   if (!runtimeConfig) {
     await db.insert(runtimeConfiguration).values({
-      accurateModelId: type === "accurate" ? modelId : null,
-      fastModelId: type === "fast" ? modelId : null,
+      coreModelId: type === "core" ? modelId : null,
+      visionModelId: type === "vision" ? modelId : null,
     });
   } else {
-    if (type === "fast") {
+    if (type === "core") {
       await db
         .update(runtimeConfiguration)
         .set({
-          fastModelId: modelId,
+          coreModelId: modelId,
         })
         .where(eq(runtimeConfiguration.id, runtimeConfig.id));
     } else {
       await db
         .update(runtimeConfiguration)
         .set({
-          accurateModelId: modelId,
+          visionModelId: modelId,
         })
         .where(eq(runtimeConfiguration.id, runtimeConfig.id));
     }
@@ -144,7 +144,7 @@ export async function deleteModel(modelId: string) {
   // Check if model is assigned in runtime config
   const runtimeConfig = await db.query.runtimeConfiguration.findFirst();
   if (runtimeConfig) {
-    if (runtimeConfig.fastModelId === modelId || runtimeConfig.accurateModelId === modelId) {
+    if (runtimeConfig.coreModelId === modelId || runtimeConfig.visionModelId === modelId) {
       throw new Error("Cannot delete model that is currently assigned in runtime configuration");
     }
   }

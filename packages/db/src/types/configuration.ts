@@ -1,6 +1,6 @@
 import type { WorkflowInputType } from "./workflow-config";
 
-export type RuntimeModelType = "fast" | "accurate";
+export type RuntimeModelType = "core" | "vision";
 
 export type RuntimeModel = {
   name: string;
@@ -8,8 +8,8 @@ export type RuntimeModel = {
 };
 
 export type RuntimeConfiguration = {
-  fastModel: RuntimeModel | null;
-  accurateModel: RuntimeModel | null;
+  coreModel: RuntimeModel | null;
+  visionModel: RuntimeModel | null;
 };
 
 export type ServerInfo = {

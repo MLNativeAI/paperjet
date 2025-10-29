@@ -36,14 +36,12 @@ export async function createWorkflow({
   name,
   description,
   configuration,
-  modelType,
   organizationId,
   userId,
 }: {
   name: string;
   description: string;
   configuration: WorkflowConfiguration;
-  modelType: RuntimeModelType;
   organizationId: string;
   userId: string;
 }): Promise<DbWorkflow> {
@@ -53,7 +51,6 @@ export async function createWorkflow({
     name: name,
     description: description || "",
     configuration: configuration,
-    modelType: modelType,
     ownerId: organizationId,
     creatorId: userId,
   };

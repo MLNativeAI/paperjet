@@ -1,5 +1,4 @@
 import { getDocumentPageById, updateDocumentPageData } from "@paperjet/db";
-import type { RuntimeModelType } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
 import { generateText } from "ai";
 import { s3Client } from "../lib/s3";
@@ -10,26 +9,22 @@ export type MarkdownDocument = {
   fullDocument: string;
 };
 
-export const convertPageToMarkdown = async (
-  workflowExecutionId: string,
-  documentPageId: string,
-  modelType: RuntimeModelType,
-): Promise<void> => {
+export const convertPageToMarkdown = async (workflowExecutionId: string, documentPageId: string): Promise<void> => {
   const pageData = await getDocumentPageById({ documentPageId });
   const pageFilePath = `executions/${workflowExecutionId}/pages/page-${pageData.pageNumber}.png`;
   const pageBuffer = await s3Client.file(pageFilePath).arrayBuffer();
   logger.info(`Converting page ${pageData.pageNumber} to markdown`);
-  const markdownPage = await extractMarkdownFromPageImage(pageBuffer, modelType);
+  const markdownPage = await extractMarkdownFromPageImage(pageBuffer);
   await updateDocumentPageData({ rawMarkdown: markdownPage, documentPageId });
   logger.info(`Converted page ${pageData.pageNumber} to markdown`);
 };
 
-const extractMarkdownFromPageImage = async (pageBuffer: ArrayBuffer, modelType: RuntimeModelType) => {
+const extractMarkdownFromPageImage = async (pageBuffer: ArrayBuffer) => {
   const prompt =
     "You're an expert in document processing. Please convert this document page into markdown. Reply only with the markdown, make sure to preserve all of the original content of the document page.";
 
   const result = await generateText({
-    model: await getModelForType(modelType),
+    model: await getModelForType("vision"),
     messages: [
       {
         role: "user",

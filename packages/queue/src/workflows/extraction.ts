@@ -27,7 +27,6 @@ export const workflowExecutionQueue = new Queue(QUEUE_NAMES.EXTRACTION_WORKFLOW,
 const workflowSteps = z.enum([
   "INIT",
   "WAITING_FOR_SPLIT",
-  "WAITING_FOR_NATIVE_OCR",
   "WAITING_FOR_IMAGE",
   "MARKDOWN",
   "WAITING_FOR_MARKDOWN",
@@ -39,7 +38,6 @@ const workflowSteps = z.enum([
 export type WorkflowExtractionData = {
   workflowId: string;
   workflowExecutionId: string;
-  modelType: "fast" | "accurate";
   configuration: WorkflowConfiguration;
   authContext: AuthContext;
   inputType: "image" | "document";
@@ -48,7 +46,7 @@ export type WorkflowExtractionData = {
 export const extractionWorkflowWorker = new Worker(
   QUEUE_NAMES.EXTRACTION_WORKFLOW,
   async (job: Job<WorkflowExtractionData>, token?: string) => {
-    const { modelType, inputType } = job.data;
+    const { inputType } = job.data;
     let step = job.data.step || workflowSteps.enum.INIT;
     while (step !== workflowSteps.enum.FINISHED) {
       switch (step) {
@@ -67,23 +65,14 @@ export const extractionWorkflowWorker = new Worker(
               break;
             }
             case "document": {
-              // handle doc flow
-              if (modelType === "accurate") {
-                await addDocumentSplitJob(job);
-                await job.updateData({ ...job.data, step: workflowSteps.enum.WAITING_FOR_SPLIT });
-                step = workflowSteps.enum.WAITING_FOR_SPLIT;
-              } else {
-                // quick path
-                await addNativeOcrJob(job);
-                await job.updateData({ ...job.data, step: workflowSteps.enum.WAITING_FOR_NATIVE_OCR });
-                step = workflowSteps.enum.WAITING_FOR_NATIVE_OCR;
-              }
+              await addDocumentSplitJob(job);
+              await job.updateData({ ...job.data, step: workflowSteps.enum.WAITING_FOR_SPLIT });
+              step = workflowSteps.enum.WAITING_FOR_SPLIT;
               break;
             }
           }
           break;
         }
-        // Branch 1: Accurate OCR /w LLM's
         case workflowSteps.enum.WAITING_FOR_SPLIT: {
           await checkChildJobsCompletedSuccessfully(job, workflowSteps.enum.WAITING_FOR_SPLIT, token);
           await job.updateData({ ...job.data, step: workflowSteps.enum.MARKDOWN });
@@ -103,14 +92,6 @@ export const extractionWorkflowWorker = new Worker(
           step = workflowSteps.enum.EXTRACTION;
           break;
         }
-        // Branch 2: Fast processing with native OCR
-        case workflowSteps.enum.WAITING_FOR_NATIVE_OCR: {
-          await checkChildJobsCompletedSuccessfully(job, workflowSteps.enum.WAITING_FOR_NATIVE_OCR, token);
-          await job.updateData({ ...job.data, step: workflowSteps.enum.EXTRACTION });
-          step = workflowSteps.enum.EXTRACTION;
-          break;
-        }
-        // Joint finish
         case workflowSteps.enum.EXTRACTION: {
           await addExtractionJob(job);
           await job.updateData({ ...job.data, step: workflowSteps.enum.WAITING_FOR_EXTRACTION });
@@ -162,33 +143,6 @@ async function addDocumentSplitJob(job: Job<WorkflowExtractionData>) {
     {
       ...job.data,
       operation: "split",
-    },
-    {
-      parent: {
-        id: job.id,
-        queue: job.queueQualifiedName,
-      },
-      failParentOnFailure: true,
-    },
-  );
-}
-async function addNativeOcrJob(job: Job<WorkflowExtractionData>) {
-  const { workflowExecutionId } = job.data;
-  await updateExecutionStatus({
-    workflowExecutionId: job.data.workflowExecutionId,
-    status: WorkflowExecutionStatus.enum.Processing,
-    isCompleted: false,
-  });
-
-  if (!job.id) {
-    throw new Error("Fatal error, job ID missing");
-  }
-
-  await mlServiceQueue.add(
-    workflowExecutionId,
-    {
-      ...job.data,
-      operation: "ocr",
     },
     {
       parent: {

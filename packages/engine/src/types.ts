@@ -52,7 +52,7 @@ export const fieldsConfigurationSchema = z.array(
     description: z.string(),
     type: z.enum(["text", "number", "date", "currency", "boolean"]),
     categoryId: z.string(),
-    lastModified: z.string().datetime().optional(),
+    lastModified: z.iso.datetime().optional(),
   }),
 );
 
@@ -72,7 +72,7 @@ export const tableConfigurationSchema = z.array(
     slug: z.string(),
     description: z.string(),
     categoryId: z.string(),
-    lastModified: z.string().datetime().optional(),
+    lastModified: z.iso.datetime().optional(),
   }),
 );
 
