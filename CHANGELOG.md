@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/MLNativeAI/paperjet/compare/v1.2.2...v1.3.0) (2025-10-29)
+
+
+### Features
+
+* polar.sh ([#4](https://github.com/MLNativeAI/paperjet/issues/4)) ([af12d4e](https://github.com/MLNativeAI/paperjet/commit/af12d4e804dea6146cf49a53f4ab6f8fb834ce7b))
+
 ## [1.2.2](https://github.com/MLNativeAI/paperjet/compare/v1.2.1...v1.2.2) (2025-10-20)
 
 
