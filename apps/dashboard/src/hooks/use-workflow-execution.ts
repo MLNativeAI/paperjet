@@ -1,7 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export function useWorkflowExecution(workflowId: string) {
+  const navigate = useNavigate();
   const executeWorkflow = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -13,7 +15,12 @@ export function useWorkflowExecution(workflowId: string) {
       });
 
       if (!executeResponse.ok) {
-        throw new Error(`HTTP error! status: ${executeResponse.status}`);
+        const errorData = await executeResponse.json().catch(() => ({}));
+        throw {
+          status: executeResponse.status,
+          message: errorData.error || `HTTP error! status: ${executeResponse.status}`,
+          code: errorData.code,
+        };
       }
 
       return executeResponse.json();
@@ -21,8 +28,19 @@ export function useWorkflowExecution(workflowId: string) {
     onSuccess: () => {
       toast.success("Successfully submitted a new execution");
     },
-    onError: (error) => {
-      toast.error("Failed to execute workflow");
+    onError: (error: any) => {
+      if (error.code === "PRO_PLAN_REQUIRED") {
+        toast.error("PDFs with more than 20 pages require a pro plan", {
+          action: {
+            label: "Upgrade",
+            onClick: () => {
+              navigate({ to: "/settings/billing" });
+            },
+          },
+        });
+      } else {
+        toast.error(error.message || "Failed to execute workflow");
+      }
       console.error("Execution error:", error);
     },
   });

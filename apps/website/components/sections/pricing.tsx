@@ -7,104 +7,66 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const monthlyPlans = [
+const cloudPlans = [
   {
-    name: "Free",
-    price: "Free",
-    description: "Perfect for small teams and evaluation.",
+    name: "basic",
+    price: "$29",
+    description: "Perfect for trying things out.",
     features: [
-      "Up to 10 documents/month",
-      "Basic document extraction",
+      "100 document conversions",
+      "$0.2 per each next document",
+      "Max. 20 pages per document",
+      "1 user",
+      "Export as CSV & JSON",
+      "API Access",
       "Community support",
-      "Self-hosted deployment",
-      "Open source license",
     ],
-    cta: "Get Started",
+    cta: "Start 14 day trial",
+    href: "https://app.getpaperjet.com",
   },
   {
     name: "Pro",
-    price: "$20",
-    description: "Ideal for growing businesses.",
+    description: "For serious document processing",
+    price: "$99",
+    period: "/month",
     features: [
-      "Up to 100 documents/month",
-      "Advanced AI extraction",
-      "Custom workflows",
-      "Priority support",
-      "Advanced analytics",
+      "500 document conversions",
+      "$0.2 per each next document",
+      "Unlimited pages",
+      "Unlimited team members",
+      "Export as CSV & JSON",
       "API access",
-      "$0.25 per additional document",
+      "Priority support",
     ],
-    cta: "Start Trial",
+    cta: "Start 14 day trial",
     popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    description: "Dedicated, secure instance for your organization.",
-    features: [
-      "Unlimited document processing",
-      "Dedicated secure instance",
-      "Custom AI model training",
-      "24/7 dedicated support",
-      "On-premise deployment",
-      "SLA guarantees",
-      "Custom integrations",
-    ],
-    cta: "Contact Sales",
+    href: "https://app.getpaperjet.com",
   },
 ];
 
-const annualPlans = [
+const selfHostedPlans = [
   {
-    name: "Free",
+    name: "Personal",
+    description: "Perfect for personal projects",
     price: "Free",
-    description: "Perfect for small teams and evaluation.",
-    features: [
-      "Up to 10 documents/month",
-      "Basic document extraction",
-      "Community support",
-      "Self-hosted deployment",
-      "Open source license",
-    ],
+    features: ["All features included", "Self-hosted deployment", "Community support"],
     cta: "Get Started",
+    href: "https://docs.getpaperjet.com",
   },
   {
-    name: "Pro",
-    price: "$16",
-    description: "Ideal for growing businesses.",
-    features: [
-      "Up to 100 documents/month",
-      "Advanced AI extraction",
-      "Custom workflows",
-      "Priority support",
-      "Advanced analytics",
-      "API access",
-      "$0.20 per additional document",
-    ],
-    cta: "Start Trial",
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    description: "Dedicated, secure instance for your organization.",
-    features: [
-      "Unlimited document processing",
-      "Dedicated secure instance",
-      "Custom AI model training",
-      "24/7 dedicated support",
-      "On-premise deployment",
-      "SLA guarantees",
-      "Custom integrations",
-    ],
+    name: "Commercial",
+    description: "For commercial use",
+    price: "Contact us",
+    features: ["All features included", "Self-hosted deployment", "Priority support", "Commercial license"],
     cta: "Contact Sales",
+    href: "mailto:contact@getpaperjet.com",
   },
 ];
 
 export function Pricing() {
   return (
     <section id="pricing" className="w-full py-20 md:py-32 bg-muted/30 relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-black bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_40%,transparent_100%)]" />
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-black bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_80%_50%_at_50%_50%,#000_40%,transparent_100%)]" />
 
       <div className="container px-4 md:px-6 relative">
         <motion.div
@@ -125,20 +87,20 @@ export function Pricing() {
         </motion.div>
 
         <div className="mx-auto max-w-5xl">
-          <Tabs defaultValue="monthly" className="w-full">
+          <Tabs defaultValue="cloud" className="w-full">
             <div className="flex justify-center mb-8">
               <TabsList className="rounded-full p-1">
-                <TabsTrigger value="monthly" className="rounded-full px-6">
-                  Monthly
+                <TabsTrigger value="cloud" className="rounded-full px-6">
+                  Cloud
                 </TabsTrigger>
-                <TabsTrigger value="annually" className="rounded-full px-6">
-                  Annually (Save 20%)
+                <TabsTrigger value="self-hosted" className="rounded-full px-6">
+                  Self-hosted
                 </TabsTrigger>
               </TabsList>
             </div>
-            <TabsContent value="monthly">
-              <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
-                {monthlyPlans.map((plan, i) => (
+            <TabsContent value="cloud">
+              <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+                {cloudPlans.map((plan, i) => (
                   <motion.div
                     key={plan.name}
                     initial={{ opacity: 0, y: 20 }}
@@ -174,6 +136,7 @@ export function Pricing() {
                         <Button
                           className={`w-full mt-auto rounded-full cursor-pointer ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-muted hover:bg-muted/80"}`}
                           variant={plan.popular ? "default" : "outline"}
+                          onClick={() => window.open(plan.href, "_blank")}
                         >
                           <span className="flex items-center justify-center">{plan.cta}</span>
                         </Button>
@@ -183,9 +146,9 @@ export function Pricing() {
                 ))}
               </div>
             </TabsContent>
-            <TabsContent value="annually">
-              <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
-                {annualPlans.map((plan, i) => (
+            <TabsContent value="self-hosted">
+              <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+                {selfHostedPlans.map((plan, i) => (
                   <motion.div
                     key={plan.name}
                     initial={{ opacity: 0, y: 20 }}
@@ -193,19 +156,12 @@ export function Pricing() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: i * 0.1 }}
                   >
-                    <Card
-                      className={`relative overflow-hidden h-full ${plan.popular ? "border-primary shadow-lg" : "border-border/40 shadow-md"} bg-gradient-to-b from-background to-muted/10 backdrop-blur`}
-                    >
-                      {plan.popular && (
-                        <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium rounded-bl-lg">
-                          Most Popular
-                        </div>
-                      )}
+                    <Card className="relative overflow-hidden h-full border-border/40 shadow-md bg-gradient-to-b from-background to-muted/10 backdrop-blur">
                       <CardContent className="p-6 flex flex-col h-full">
                         <h3 className="text-2xl font-bold">{plan.name}</h3>
                         <div className="flex items-baseline mt-4">
                           <span className="text-4xl font-bold">{plan.price}</span>
-                          {plan.price !== "Free" && plan.price !== "Custom" && (
+                          {plan.price !== "Free" && plan.price !== "Custom" && plan.price !== "Contact us" && (
                             <span className="text-muted-foreground ml-1">/month</span>
                           )}
                         </div>
@@ -219,8 +175,15 @@ export function Pricing() {
                           ))}
                         </ul>
                         <Button
-                          className={`w-full mt-auto rounded-full cursor-pointer ${plan.popular ? "bg-primary hover:bg-primary/90" : "bg-muted hover:bg-muted/80"}`}
-                          variant={plan.popular ? "default" : "outline"}
+                          className="w-full mt-auto rounded-full cursor-pointer bg-muted hover:bg-muted/80"
+                          variant="outline"
+                          onClick={() => {
+                            if (plan.href.startsWith("mailto:")) {
+                              window.location.href = plan.href;
+                            } else {
+                              window.open(plan.href, "_blank");
+                            }
+                          }}
                         >
                           <span className="flex items-center justify-center">{plan.cta}</span>
                         </Button>

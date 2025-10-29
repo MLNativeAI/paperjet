@@ -1,3 +1,4 @@
+import type { AuthContext } from "@paperjet/shared/types";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db";
 import { documentData, file, workflow, workflowExecution } from "../schema";
@@ -14,14 +15,12 @@ export async function createWorkflowExecution({
   executionId,
   workflowId,
   fileId,
-  organizationId,
-  userId,
+  authContext,
 }: {
   executionId: string;
   workflowId: string;
   fileId: string;
-  organizationId: string;
-  userId: string;
+  authContext: AuthContext;
 }) {
   await db.insert(workflowExecution).values({
     id: executionId,
@@ -30,8 +29,8 @@ export async function createWorkflowExecution({
     status: WorkflowExecutionStatus.enum.Queued,
     startedAt: new Date(),
     createdAt: new Date(),
-    ownerId: organizationId,
-    creatorId: userId,
+    ownerId: authContext.organizationId,
+    creatorId: authContext.userId,
   });
 }
 

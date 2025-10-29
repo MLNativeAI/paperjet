@@ -17,7 +17,6 @@ export const user = pgTable("user", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
   role: text("role"),
-  lastActiveOrgId: text("last_active_org_id"),
   banned: boolean("banned"),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
@@ -190,9 +189,10 @@ export const apikey = pgTable("apikey", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  organizationId: text("organization_id").references(() => organization.id, {
-    onDelete: "cascade",
-  }),
+  organizationId: text("organization_id") // org id must be nullable if we want to use built-in better-auth api key handlers in @api-keys.ts
+    .references(() => organization.id, {
+      onDelete: "cascade",
+    }),
   refillInterval: integer("refill_interval"),
   refillAmount: integer("refill_amount"),
   lastRefillAt: timestamp("last_refill_at"),
@@ -217,6 +217,7 @@ export const organization = pgTable("organization", {
   logo: text("logo"),
   createdAt: timestamp("created_at").notNull(),
   metadata: text("metadata"),
+  activePlan: text("active_plan").default("free").notNull(),
 });
 
 export const member = pgTable("member", {

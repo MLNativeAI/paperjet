@@ -1,6 +1,8 @@
+import { incrementUsage } from "@paperjet/billing";
 import { getDocumentPagesByWorkflowExecutionId, updateDocumentMarkdown, updateExecutionStatus } from "@paperjet/db";
-import { WorkflowConfigurationSchema, WorkflowExecutionStatus } from "@paperjet/db/types";
+import { type WorkflowConfiguration, WorkflowExecutionStatus } from "@paperjet/db/types";
 import { logger } from "@paperjet/shared";
+import type { AuthContext } from "@paperjet/shared/types";
 import { type Job, Queue, WaitingChildrenError, Worker } from "bullmq";
 import z from "zod";
 import { extractionQueue } from "../jobs/extraction";
@@ -34,17 +36,15 @@ const workflowSteps = z.enum([
   "FINISHED",
 ]);
 
-const WorkflowExtractionDataSchema = z.object({
-  workflowId: z.string(),
-  workflowExecutionId: z.string(),
-  modelType: z.enum(["fast", "accurate"]),
-  configuration: WorkflowConfigurationSchema,
-  inputType: z.enum(["image", "document"]),
-  step: workflowSteps,
-});
-
-export type WorkflowExtractionData = z.infer<typeof WorkflowExtractionDataSchema>;
-
+export type WorkflowExtractionData = {
+  workflowId: string;
+  workflowExecutionId: string;
+  modelType: "fast" | "accurate";
+  configuration: WorkflowConfiguration;
+  authContext: AuthContext;
+  inputType: "image" | "document";
+  step?: z.infer<typeof workflowSteps>;
+};
 export const extractionWorkflowWorker = new Worker(
   QUEUE_NAMES.EXTRACTION_WORKFLOW,
   async (job: Job<WorkflowExtractionData>, token?: string) => {
@@ -248,6 +248,7 @@ async function addExtractionJob(job: Job<WorkflowExtractionData>) {
 
 async function finalizeWorkflow(job: Job<WorkflowExtractionData>) {
   logger.info("Workflow execution completed");
+  await incrementUsage(job.data.authContext.userId, job.data.authContext.organizationId);
   await updateExecutionStatus({
     workflowExecutionId: job.data.workflowExecutionId,
     status: WorkflowExecutionStatus.enum.Completed,

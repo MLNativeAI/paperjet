@@ -15,9 +15,5 @@ export const envVars = validateEnv();
 
 // Type augmentation for Bun
 declare module "bun" {
-  interface Env extends EnvVars {}
+  interface Env extends EnvVars { }
 }
-
-export const getAuthMode = () => {
-  return Bun.env.SAAS_MODE === "true" ? "magic-link" : "password";
-};

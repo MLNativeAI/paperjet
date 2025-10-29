@@ -1,8 +1,11 @@
 import type { WorkflowExecutionStatus } from "@paperjet/db/types";
 import type { Workflow } from "@paperjet/engine/types";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { FileUpload } from "@/components/file-upload";
+import { Button } from "@/components/ui/button";
 import ExecutionStatusRow from "@/components/workflow/execution/execution-status-row";
+import { usePlan } from "@/hooks/use-plan";
 import { useWorkflowExecution } from "@/hooks/use-workflow-execution";
 
 export interface ExecutionResult {
@@ -20,9 +23,14 @@ interface WorkflowExecutorPageProps {
 
 export default function WorkflowExecutorPage({ workflow }: WorkflowExecutorPageProps) {
   const [executions, setExecutions] = useState<ExecutionResult[]>([]);
+  const { hasActivePlan, isLoading } = usePlan();
 
   const { executeWorkflow } = useWorkflowExecution(workflow.id);
   const handleFileUpload = async (files: FileList) => {
+    if (!hasActivePlan) {
+      return;
+    }
+
     const fileArray = Array.from(files);
     try {
       const executionPromises = fileArray.map((file) => executeWorkflow.mutateAsync(file));
@@ -39,6 +47,7 @@ export default function WorkflowExecutorPage({ workflow }: WorkflowExecutorPageP
       }));
       setExecutions((prev) => [...newExecutions, ...prev]);
     } catch (error) {
+      // Errors are handled in the useWorkflowExecution hook with appropriate toasts
       console.error("Upload failed:", error);
     }
   };
@@ -53,7 +62,15 @@ export default function WorkflowExecutorPage({ workflow }: WorkflowExecutorPageP
           </p>
         </div>
       </div>
-      <FileUpload onFileUpload={handleFileUpload} />
+      {!hasActivePlan && !isLoading && (
+        <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
+          <p className="text-muted-foreground mb-4">You need an active plan to execute workflows.</p>
+          <Button asChild>
+            <Link to="/settings/billing">Upgrade Plan</Link>
+          </Button>
+        </div>
+      )}
+      {hasActivePlan && <FileUpload onFileUpload={handleFileUpload} />}
       {executions.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Processing Status</h2>

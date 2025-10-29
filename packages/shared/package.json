@@ -2,7 +2,8 @@
   "name": "@paperjet/shared",
   "exports": {
     ".": "./src/index.ts",
-    "./id": "./src/id.ts"
+    "./id": "./src/id.ts",
+    "./types": "./src/types.ts"
   },
   "scripts": {
     "lint": "biome check --write",

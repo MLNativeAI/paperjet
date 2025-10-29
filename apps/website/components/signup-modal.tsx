@@ -146,10 +146,11 @@ export function SignupModal({
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className={`flex items-center gap-2 text-sm p-3 rounded-lg ${status === "success"
+                  className={`flex items-center gap-2 text-sm p-3 rounded-lg ${
+                    status === "success"
                       ? "bg-green-50 text-green-700 border border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-800"
                       : "bg-red-50 text-red-700 border border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
-                    }`}
+                  }`}
                 >
                   {status === "success" ? (
                     <CheckCircle className="h-4 w-4 flex-shrink-0" />

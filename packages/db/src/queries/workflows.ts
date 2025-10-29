@@ -70,6 +70,7 @@ export async function getWorkflow({ workflowId }: { workflowId: string }) {
     where: eq(workflow.id, workflowId),
   });
   if (!workflowData) {
+    //TODO: return a standardized error and map it out in the route handler
     throw new Error("Workflow not found");
   }
   return {

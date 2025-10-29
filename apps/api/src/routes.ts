@@ -1,5 +1,5 @@
 import { otel } from "@hono/otel";
-import { type auth, authHandler, requireAdmin, requireAuth } from "@paperjet/auth";
+import { adminAuthMiddleware, type auth, authHandler, userAuthMiddleware } from "@paperjet/auth";
 import { envVars, logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
@@ -10,6 +10,7 @@ import { corsMiddleware } from "./lib/cors";
 import { type InternalRoutes, internalRouter } from "./routes/internal";
 import { type AdminRoutes, v1AdminRouter } from "./routes/v1/admin";
 import { type ApiKeysRoutes, v1ApiKeyRouter } from "./routes/v1/api-keys";
+import { type BillingRoutes, v1BillingRouter } from "./routes/v1/billing";
 import { type ExecutionRoutes, v1ExecutionRouter } from "./routes/v1/executions";
 import { v1WorkflowRouter, type WorkflowRoutes } from "./routes/v1/workflows";
 
@@ -28,8 +29,8 @@ app.use(
   }),
 );
 app.use("/api/*", corsMiddleware);
-app.use("/api/v1/*", requireAuth);
-app.use("/api/v1/admin/*", requireAdmin);
+app.use("/api/v1/*", userAuthMiddleware);
+app.use("/api/v1/admin/*", adminAuthMiddleware);
 app.on(["POST", "GET"], "/api/auth/*", authHandler);
 
 app.get("/api/health", async (c) => {
@@ -43,6 +44,7 @@ app
   .basePath("/api")
   .route("/internal", internalRouter)
   .route("/v1/admin", v1AdminRouter)
+  .route("/v1/billing", v1BillingRouter)
   .route("/v1/api-keys", v1ApiKeyRouter)
   .route("/v1/workflows", v1WorkflowRouter)
   .route("/v1/executions", v1ExecutionRouter);
@@ -87,8 +89,4 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-export type { ApiKeysRoutes };
-export type { ExecutionRoutes };
-export type { WorkflowRoutes };
-export type { AdminRoutes };
-export type { InternalRoutes };
+export type { AdminRoutes, ApiKeysRoutes, BillingRoutes, ExecutionRoutes, InternalRoutes, WorkflowRoutes };

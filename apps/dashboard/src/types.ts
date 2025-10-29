@@ -66,3 +66,13 @@ export function toWorkflowConfig(config: DraftWorkflowConfig): WorkflowConfigura
     objects: config.objects,
   };
 }
+
+export type TrialInfo =
+  | {
+      onTrial: true;
+      trialEnd: Date;
+    }
+  | {
+      onTrial: false;
+      trialEnd: undefined;
+    };

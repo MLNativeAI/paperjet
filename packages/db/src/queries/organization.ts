@@ -60,3 +60,27 @@ export async function getOrganization({ organizationId }: { organizationId: stri
   });
   return org;
 }
+
+export async function getOrganizationActivePlan({
+  organizationId,
+}: {
+  organizationId: string;
+}): Promise<"free" | "basic" | "pro"> {
+  const org = await db.query.organization.findFirst({
+    where: eq(organization.id, organizationId),
+    columns: {
+      activePlan: true,
+    },
+  });
+  return (org?.activePlan as "free" | "basic" | "pro") || "free";
+}
+
+export async function updateOrganizationActivePlan({
+  organizationId,
+  activePlan,
+}: {
+  organizationId: string;
+  activePlan: "free" | "basic" | "pro";
+}): Promise<void> {
+  await db.update(organization).set({ activePlan }).where(eq(organization.id, organizationId));
+}

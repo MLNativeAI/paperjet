@@ -21,6 +21,7 @@
   "dependencies": {
     "@hono/otel": "^0.2.2",
     "@hono/standard-validator": "^0.1.5",
+    "document-page-counter": "^v1.0.1",
     "@opentelemetry/auto-instrumentations-node": "^0.60.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.202.0",
     "@opentelemetry/sdk-node": "^0.202.0",
@@ -30,6 +31,7 @@
     "@paperjet/engine": "workspace:*",
     "@paperjet/queue": "workspace:*",
     "@paperjet/shared": "workspace:*",
+    "@polar-sh/sdk": "^0.40.1",
     "hono": "^4.9.10",
     "hono-openapi": "^1.1.0",
     "zod": "^3.24.3",

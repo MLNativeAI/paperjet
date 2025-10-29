@@ -1,5 +1,5 @@
 import { auth } from "@paperjet/auth";
-import { getUserSession } from "@paperjet/auth/session";
+import { getAuthContext } from "@paperjet/auth/session";
 import { getApiKey, getApiKeys, updateApiKeyOwner } from "@paperjet/db";
 import { logger } from "@paperjet/shared";
 import { Hono } from "hono";
@@ -46,9 +46,9 @@ const router = app
     }),
     async (c) => {
       try {
-        const { session } = await getUserSession(c);
+        const { organizationId } = await getAuthContext(c);
         const apiKeys = await getApiKeys({
-          organizationId: session.activeOrganizationId,
+          organizationId,
         });
         return c.json(apiKeys);
       } catch (error) {
@@ -90,7 +90,7 @@ const router = app
     async (c) => {
       try {
         const { name } = c.req.valid("json");
-        const { session } = await getUserSession(c);
+        const { organizationId } = await getAuthContext(c);
         const newKey = await auth.api.createApiKey({
           body: {
             name,
@@ -100,7 +100,7 @@ const router = app
 
         await updateApiKeyOwner({
           apiKeyId: newKey.id,
-          organizationId: session.activeOrganizationId,
+          organizationId,
         });
 
         return c.json({
@@ -148,10 +148,10 @@ const router = app
     async (c) => {
       try {
         const { id } = c.req.param();
-        const { session } = await getUserSession(c);
+        const { organizationId } = await getAuthContext(c);
 
         try {
-          await getApiKey({ organizationId: session.activeOrganizationId, apiKeyId: id });
+          await getApiKey({ organizationId, apiKeyId: id });
         } catch (_) {
           return c.json({ error: "Key not found" }, 404);
         }
