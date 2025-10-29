@@ -6,7 +6,7 @@ export function usePlan() {
   const { planType, isLoading } = useBilling();
 
   const hasActivePlan = () => {
-    if (serverInfo.saasMode) {
+    if (!serverInfo.saasMode) {
       return true;
     } else {
       return planType !== "none";
@@ -16,7 +16,7 @@ export function usePlan() {
 
   return {
     planType: planType === "none" ? "free" : planType,
-    activePlan: hasActivePlan(),
+    hasActivePlan: hasActivePlan(),
     isPro,
     isLoading,
   };
