@@ -168,34 +168,43 @@ export default function AddEditModelForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="isCore"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Core Model</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="isVision"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Vision Model</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
+        <div className="space-y-3">
+          <div className="text-sm text-muted-foreground">
+            Select at least one model type (Core or Vision) for this model configuration.
+          </div>
+          <div className="space-y-3">
+            <FormField
+              control={form.control}
+              name="isCore"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Core Model</FormLabel>
+                    <div className="text-xs text-muted-foreground">Used for general document processing tasks</div>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isVision"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Vision Model</FormLabel>
+                    <div className="text-xs text-muted-foreground">Used for image and document analysis tasks</div>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
         <DialogFooter>
           <div className="flex justify-between w-full">
             <div className="flex gap-2 items-center">

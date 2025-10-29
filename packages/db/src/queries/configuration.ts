@@ -102,10 +102,12 @@ export const addNewModel = async (modelConfig: {
   provider: string;
   providerApiKey: string;
   modelName: string;
+  isCore: boolean;
+  isVision: boolean;
   displayName?: string;
   baseUrl?: string;
 }) => {
-  return await db
+  const result = await db
     .insert(modelConfiguration)
     .values({
       provider: modelConfig.provider,
@@ -113,8 +115,29 @@ export const addNewModel = async (modelConfig: {
       modelName: modelConfig.modelName,
       displayName: modelConfig.displayName || `${modelConfig.provider}/${modelConfig.modelName}`,
       baseUrl: modelConfig.baseUrl,
+      isCore: modelConfig.isCore,
+      isVision: modelConfig.isVision,
     })
     .returning();
+
+  if (result.length === 0) {
+    throw new Error("Failed to create model");
+  }
+
+  const newModel = result[0]!; // Non-null assertion since we checked length
+
+  // Auto-assign as runtime model if it's the first model of that type
+  const runtimeConfig = await db.query.runtimeConfiguration.findFirst();
+
+  if (modelConfig.isCore && !runtimeConfig?.coreModelId) {
+    await setRuntimeModel("core", newModel.id);
+  }
+
+  if (modelConfig.isVision && !runtimeConfig?.visionModelId) {
+    await setRuntimeModel("vision", newModel.id);
+  }
+
+  return result;
 };
 
 export type ModelConfigParams = {

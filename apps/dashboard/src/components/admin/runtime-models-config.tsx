@@ -16,8 +16,11 @@ export default function RuntimeModelsConfig({
 }: RuntimeModelsConfigProps) {
   return (
     <div className="flex flex-col space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2">
         <h2 className="text-xl font-bold">Runtime models</h2>
+        <p className="text-muted-foreground">
+          You must configure a core model and a runtime model for PaperJet to work.
+        </p>
       </div>
       <div className="flex gap-4">
         <RuntimeModelCard

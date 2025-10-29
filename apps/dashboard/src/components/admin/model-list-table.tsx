@@ -1,5 +1,6 @@
 import type { DbModelConfiguration } from "@paperjet/db/types";
-import { IconDotsVertical, IconEye, IconServer, IconTrash } from "@tabler/icons-react";
+import { IconDotsVertical, IconTrash } from "@tabler/icons-react";
+import { BrainIcon, Eye } from "lucide-react";
 import {
   type ColumnDef,
   flexRender,
@@ -13,6 +14,7 @@ import {
 } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { EditModelDialog } from "@/components/admin/edit-model-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -65,11 +67,17 @@ export function ModelListTable({ data }: { data: DbModelConfiguration[] }) {
         const { isCore, isVision } = row.original;
         return (
           <div className="flex items-center gap-2">
-            {isCore && <IconServer className="h-4 w-4" />}
-            {isVision && <IconEye className="h-4 w-4" />}
-            <span className="text-sm">
-              {isCore && isVision ? "Both" : isCore ? "Core" : isVision ? "Vision" : "None"}
-            </span>
+            {isCore && (
+              <Badge variant="default">
+                <BrainIcon /> Core
+              </Badge>
+            )}
+            {isVision && (
+              <Badge variant="secondary">
+                <Eye />
+                Vision
+              </Badge>
+            )}
           </div>
         );
       },
@@ -95,7 +103,7 @@ export function ModelListTable({ data }: { data: DbModelConfiguration[] }) {
               <EditModelDialog model={row.original} />
               <DropdownMenuItem onClick={() => onDeleteModelConfiguration(row.original)} className="text-destructive">
                 <IconTrash className="h-4 w-4 mr-2" />
-                Delete
+                <span>Delete model</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
