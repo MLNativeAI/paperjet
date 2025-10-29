@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/MLNativeAI/paperjet/compare/v1.3.4...v1.4.0) (2025-10-29)
+
+
+### Features
+
+* account settings and deletion ([76d1375](https://github.com/MLNativeAI/paperjet/commit/76d13756a2f18b0ac7488f324634bf47c15e8f85))
+
 ## [1.3.4](https://github.com/MLNativeAI/paperjet/compare/v1.3.3...v1.3.4) (2025-10-29)
 
 
