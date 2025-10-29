@@ -1,13 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DbModelConfiguration } from "@paperjet/db/types";
 import { type ConnectionValidationResult, type ModelConfigParams, modelConfigSchema } from "@paperjet/engine/types";
-import { CpuIcon, EyeIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -30,8 +28,6 @@ export default function AddEditModelForm({
     resolver: zodResolver(modelConfigSchema),
     defaultValues: {
       provider: "google",
-      isCore: false,
-      isVision: false,
     },
   });
 
@@ -43,8 +39,8 @@ export default function AddEditModelForm({
         modelName: model.modelName || "",
         displayName: model.displayName || "",
         baseUrl: model.baseUrl || "",
-        isCore: model.isCore || false,
-        isVision: model.isVision || false,
+        isCore: model.isCore || true,
+        isVision: model.isVision || true,
       });
     }
   }, [model, form]);
@@ -77,11 +73,7 @@ export default function AddEditModelForm({
       } else {
         addModel.mutate(values);
         toast.success("Model configuration added successfully");
-        form.reset({
-          provider: "google",
-          isCore: false,
-          isVision: false,
-        });
+        form.reset();
       }
       setDialogOpen(false);
     } catch (err) {
@@ -172,80 +164,6 @@ export default function AddEditModelForm({
             </FormItem>
           )}
         />
-
-        <div className="space-y-3">
-          <FormLabel>Model Type</FormLabel>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="isCore"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Card
-                      className={`cursor-pointer transition-colors ${
-                        field.value ? "border-primary bg-primary/5" : "hover:bg-muted/50"
-                      }`}
-                      onClick={() => field.onChange(!field.value)}
-                    >
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <CpuIcon className="h-5 w-5" />
-                          Core Model
-                          <Checkbox
-                            checked={field.value}
-                            onChange={() => field.onChange(!field.value)}
-                            className="ml-auto"
-                          />
-                        </CardTitle>
-                      </CardHeader>
-                      <CardFooter className="text-sm text-muted-foreground">
-                        For text processing and data extraction tasks
-                      </CardFooter>
-                    </Card>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="isVision"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Card
-                      className={`cursor-pointer transition-colors ${
-                        field.value ? "border-primary bg-primary/5" : "hover:bg-muted/50"
-                      }`}
-                      onClick={() => field.onChange(!field.value)}
-                    >
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <EyeIcon className="h-5 w-5" />
-                          Vision Model
-                          <Checkbox
-                            checked={field.value}
-                            onChange={() => field.onChange(!field.value)}
-                            className="ml-auto"
-                          />
-                        </CardTitle>
-                      </CardHeader>
-                      <CardFooter className="text-sm text-muted-foreground">
-                        For image processing and OCR tasks
-                      </CardFooter>
-                    </Card>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          {form.formState.errors.isCore && (
-            <p className="text-sm text-destructive">{form.formState.errors.isCore.message}</p>
-          )}
-        </div>
         <DialogFooter>
           <div className="flex justify-between w-full">
             <div className="flex gap-2 items-center">
