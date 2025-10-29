@@ -4,10 +4,11 @@ import { Hono } from "hono";
 
 const router = new Hono().get("/product-info", async (c) => {
   try {
+    logger.info("getting product info");
     const products = await getProductMap();
     return c.json(products, 200);
   } catch (error) {
-    logger.error(error, "Create workflow error:");
+    logger.error(error, "Failed to fetch product info");
     return c.json({ error: "Iternal server error" }, 500);
   }
 });

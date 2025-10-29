@@ -1,5 +1,6 @@
 import type { BillingRoutes } from "@paperjet/api/routes";
 import { useQuery } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
 import { hc } from "hono/client";
 import { authClient } from "@/lib/auth-client";
 import type { TrialInfo } from "@/types";
@@ -8,11 +9,12 @@ import { useOrganization } from "./use-organization";
 const billingClient = hc<BillingRoutes>("/api/v1/billing/");
 
 export function useBilling() {
+  const { serverInfo } = useRouteContext({ from: "__root__" });
   const { activeOrganization } = useOrganization();
   const { data: subscriptions, isLoading: isCustomerLoading } = useQuery({
     queryKey: ["billing", activeOrganization],
     staleTime: 30 * 1000,
-    enabled: !!activeOrganization?.id,
+    enabled: !!activeOrganization?.id && serverInfo.saasMode,
     queryFn: async () => {
       if (activeOrganization?.id) {
         const response = await authClient.customer.subscriptions.list({
@@ -31,7 +33,7 @@ export function useBilling() {
   // Fetch product details for each subscription
   const { data: productMap, isLoading: isProductsLoading } = useQuery({
     queryKey: ["billing", subscriptions],
-    enabled: !isCustomerLoading && !!activeOrganization?.id,
+    enabled: !isCustomerLoading && !!activeOrganization?.id && serverInfo.saasMode,
     queryFn: async () => {
       const response = await billingClient["product-info"].$get();
 

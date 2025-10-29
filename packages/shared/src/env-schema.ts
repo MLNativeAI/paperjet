@@ -19,9 +19,12 @@ export const envSchema = z.object({
   MICROSOFT_CLIENT_ID: z.string().optional(),
   MICROSOFT_CLIENT_SECRET: z.string().optional(),
   BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
+
   RESEND_API_KEY: z.string().min(1, "RESEND_API_KEY is required"),
+
   FROM_EMAIL: z.string().email("FROM_EMAIL must be a valid email address").default("noreply@getpaperjet.com"),
-  SAAS_MODE: z.enum(["true", "false"]).default("false"),
+  SAAS_MODE: z.boolean().default(false),
+  AUTH_MODE: z.enum(["magic-link", "password"]).default("password"),
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().default("paperjet"),
 

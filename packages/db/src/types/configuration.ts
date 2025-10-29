@@ -14,6 +14,7 @@ export type RuntimeConfiguration = {
 
 export type ServerInfo = {
   adminAccountExists: boolean;
+  saasMode: boolean;
   authMode: string;
 };
 

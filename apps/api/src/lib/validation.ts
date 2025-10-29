@@ -1,5 +1,5 @@
 import type { ValidatedFile } from "@paperjet/db/types";
-import { logger } from "@paperjet/shared";
+import { envVars, logger } from "@paperjet/shared";
 import type { AuthContext } from "@paperjet/shared/types";
 import { countDocumentPages } from "document-page-counter";
 import { z } from "zod";
@@ -28,9 +28,9 @@ export const flexibleIdSchema = z.string().refine((val) => {
 
 export type FileValidationResponse =
   | {
-      success: true;
-      file: ValidatedFile;
-    }
+    success: true;
+    file: ValidatedFile;
+  }
   | { code: string; success: false; error: string };
 
 export async function validateFile(file: File, authContext: AuthContext): Promise<FileValidationResponse> {
@@ -40,7 +40,7 @@ export async function validateFile(file: File, authContext: AuthContext): Promis
   if (file.type !== "application/pdf" && !file.type.startsWith("image/")) {
     return { success: false, error: "File must be a PDF or image", code: "INVALID_FILE_TYPE" };
   }
-  if (file.type === "application/pdf" && authContext.activePlan !== "pro") {
+  if (envVars.SAAS_MODE && file.type === "application/pdf" && authContext.activePlan !== "pro") {
     try {
       const buffer = await file.arrayBuffer();
       const result = await countDocumentPages(buffer, file.type);

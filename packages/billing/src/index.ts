@@ -76,6 +76,11 @@ export function getPolarClient() {
 }
 
 export async function getProductMap() {
+  logger.debug(envVars.SAAS_MODE);
+  if (!envVars.SAAS_MODE) {
+    logger.debug("Saas mode not enabled");
+    return {};
+  }
   const polarClient = getPolarClient();
   const products = await polarClient.products.list({ isArchived: false });
   const productMap = products.result.items.reduce(
@@ -94,7 +99,10 @@ export async function getProductMap() {
 }
 
 export async function incrementUsage(userId: string, orgId: string) {
-  // if (envVars.SAAS_MODE) {
+  if (!envVars.SAAS_MODE) {
+    logger.debug("Not incrementing usage");
+    return;
+  }
   logger.info(`Incrementing usage for ${userId}`);
   const polarClient = getPolarClient();
   await polarClient.events.ingest({
@@ -108,5 +116,4 @@ export async function incrementUsage(userId: string, orgId: string) {
       },
     ],
   });
-  // }
 }

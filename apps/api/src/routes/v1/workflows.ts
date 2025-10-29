@@ -11,7 +11,7 @@ import {
 import { type WorkflowConfiguration, WorkflowConfigurationSchema } from "@paperjet/db/types";
 import { getWorkflows, uploadFileAndCreateExecution } from "@paperjet/engine";
 import { type WorkflowExtractionData, workflowExecutionQueue } from "@paperjet/queue";
-import { logger } from "@paperjet/shared";
+import { envVars, logger } from "@paperjet/shared";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import z from "zod";
@@ -200,7 +200,7 @@ const router = app
         const authContext = await getAuthContext(c);
         const { workflowId } = c.req.valid("param");
 
-        if (authContext.activePlan === "free") {
+        if (envVars.SAAS_MODE && authContext.activePlan === "free") {
           return c.json({ error: "You need an active plan to run workflows" }, 403);
         }
 

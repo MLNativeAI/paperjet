@@ -1,6 +1,6 @@
 import { handleOrganizationInvite, listUserInvitations } from "@paperjet/auth/invitations";
 import { doesAdminAccountExist } from "@paperjet/db";
-import { envVars, getAuthMode } from "@paperjet/shared";
+import { envVars } from "@paperjet/shared";
 import { Hono } from "hono";
 import { describeRoute, resolver } from "hono-openapi";
 import { z } from "zod";
@@ -20,6 +20,7 @@ const router = app
               schema: resolver(
                 z.object({
                   adminAccountExists: z.boolean(),
+                  saasMode: z.boolean(),
                   authMode: z.string(),
                 }),
               ),
@@ -31,10 +32,10 @@ const router = app
     }),
     async (c) => {
       const adminAccountExists = await doesAdminAccountExist();
-      const authMode = getAuthMode();
       return c.json({
         adminAccountExists: adminAccountExists,
-        authMode: authMode,
+        saasMode: envVars.SAAS_MODE,
+        authMode: envVars.AUTH_MODE,
       });
     },
   )
