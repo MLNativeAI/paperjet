@@ -45,6 +45,26 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/site.webmanifest",
+  openGraph: {
+    title: "PaperJet | Secure document processing for your business.",
+    description: "Secure document processing for your business.",
+    type: "website",
+    url: "https://getpaperjet.com",
+    images: [
+      {
+        url: "/social-banner.png",
+        width: 1200,
+        height: 630,
+        alt: "PaperJet - Secure document processing",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PaperJet | Secure document processing for your business.",
+    description: "Secure document processing for your business.",
+    images: ["/social-banner.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
