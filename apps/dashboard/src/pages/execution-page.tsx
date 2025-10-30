@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExecutionStatusBadge } from "@/components/execution-status-badge";
 import { ExtractedDataRenderer } from "@/components/extracted-data-renderer";
-import ModelTypeLabel from "@/components/model-type-label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
