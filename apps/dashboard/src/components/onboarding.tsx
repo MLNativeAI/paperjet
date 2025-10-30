@@ -14,9 +14,32 @@ export function Onboarding({ userRole, run, onTourComplete }: OnboardingProps) {
   const userSteps: Step[] = [
     {
       target: "body",
-      content: "Welcome to PaperJet! Let's show you around your workspace.",
+      content: (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Welcome to PaperJet! 🎉</h3>
+          <p className="text-sm text-muted-foreground">
+            You're all set up! Let's walk you through your workspace and show you how to create and manage your
+            workflows.
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-sm">Quick introduction to the interface</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-sm">Learn about key features</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span className="text-sm">Tips to get you started quickly</span>
+            </div>
+          </div>
+        </div>
+      ),
       title: "Welcome to PaperJet!",
       placement: "center",
+      disableBeacon: true,
     },
     {
       target: "[data-tour='workflows']",
@@ -39,8 +62,32 @@ export function Onboarding({ userRole, run, onTourComplete }: OnboardingProps) {
   const adminSteps: Step[] = [
     {
       target: "body",
-      content: "Welcome to PaperJet! As an admin, you have access to powerful management features.",
+      content: (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Welcome to PaperJet! 🎉</h3>
+          <p className="text-sm text-muted-foreground">
+            You're all set up as an admin! Let's walk you through your workspace and show you how to manage your team
+            and workflows.
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-sm">Quick introduction to the interface</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-sm">Learn about key features</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span className="text-sm">Tips to get you started quickly</span>
+            </div>
+          </div>
+        </div>
+      ),
       title: "Welcome Admin!",
+      placement: "center",
+      disableBeacon: true,
     },
     {
       target: "[data-tour='workflows']",
