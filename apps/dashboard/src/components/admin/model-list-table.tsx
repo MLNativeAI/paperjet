@@ -1,6 +1,5 @@
 import type { DbModelConfiguration } from "@paperjet/db/types";
 import { IconDotsVertical, IconTrash } from "@tabler/icons-react";
-import { BrainIcon, Eye } from "lucide-react";
 import {
   type ColumnDef,
   flexRender,
@@ -12,6 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { BrainIcon, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { EditModelDialog } from "@/components/admin/edit-model-dialog";
 import { Badge } from "@/components/ui/badge";

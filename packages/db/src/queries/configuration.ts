@@ -124,7 +124,11 @@ export const addNewModel = async (modelConfig: {
     throw new Error("Failed to create model");
   }
 
-  const newModel = result[0]!; // Non-null assertion since we checked length
+  const newModel = result[0];
+
+  if (!newModel) {
+    throw new Error("Model data missing");
+  }
 
   // Auto-assign as runtime model if it's the first model of that type
   const runtimeConfig = await db.query.runtimeConfiguration.findFirst();
