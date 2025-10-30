@@ -74,9 +74,7 @@ export function getPolarClient() {
 }
 
 export async function getProductMap() {
-  logger.debug(envVars.SAAS_MODE);
   if (!envVars.SAAS_MODE) {
-    logger.debug("Saas mode not enabled");
     return {};
   }
   const polarClient = getPolarClient();

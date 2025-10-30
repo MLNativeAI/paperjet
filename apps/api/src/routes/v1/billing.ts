@@ -4,7 +4,6 @@ import { Hono } from "hono";
 
 const router = new Hono().get("/product-info", async (c) => {
   try {
-    logger.info("getting product info");
     const products = await getProductMap();
     return c.json(products, 200);
   } catch (error) {
