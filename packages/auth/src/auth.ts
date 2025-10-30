@@ -8,6 +8,7 @@ import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, apiKey, magicLink, organization } from "better-auth/plugins";
 import { sendInvitationEmail, sendMagicLink, sendPasswordResetEmail } from "./handlers/email";
+import { completeOnboarding } from "./handlers/onboarding";
 import { getDefaultOrgOrCreate } from "./handlers/session";
 import { getPolarPlugin } from "./polar";
 
@@ -38,6 +39,10 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
+        input: false,
+      },
+      onboardingCompleted: {
+        type: "boolean",
         input: false,
       },
     },
@@ -143,6 +148,7 @@ export async function beforeUserCreateHandler(user: User) {
         id: generateId(ID_PREFIXES.user),
         role: "superadmin",
         emailVerified: true,
+        onboardingCompleted: false,
       },
     };
   } else {
@@ -150,6 +156,7 @@ export async function beforeUserCreateHandler(user: User) {
       data: {
         ...user,
         id: generateId(ID_PREFIXES.user),
+        onboardingCompleted: false,
       },
     };
   }

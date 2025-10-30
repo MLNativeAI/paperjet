@@ -29,7 +29,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ context }) => {
     const serverInfo = await context.queryClient.fetchQuery(serverInfoQueries.serverInfo());
     const userSession = await context.queryClient.fetchQuery(authQueries.session());
-    return { session: userSession.session, user: userSession.user, serverInfo };
+    return { session: userSession.session, user: userSession.user, serverInfo, useFullWidth: true };
   },
   notFoundComponent: () => <div>404 Not Found</div>,
 });

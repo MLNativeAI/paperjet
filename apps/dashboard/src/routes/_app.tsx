@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import z from "zod";
 import { AppSidebar } from "@/components/app-sidebar";
+import { OnboardingProvider } from "@/components/onboarding-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useQueryNotifications } from "@/hooks/use-query-notifications";
@@ -37,31 +38,33 @@ export const Route = createFileRoute("/_app")({
 });
 
 function PathlessLayoutComponent() {
-  const context = useRouterState({
-    select: (state) => {
-      const lastMatch = state.matches[state.matches.length - 1];
-      return lastMatch?.context || {};
-    },
-  });
+  // const context = useRouterState({
+  //   select: (state) => {
+  //     const lastMatch = state.matches[state.matches.length - 1];
+  //     return lastMatch?.context || {};
+  //   },
+  // });
 
   const _ = useQueryNotifications();
-  const { useFullWidth } = context;
+  const { useFullWidth } = Route.useRouteContext({ from: "__root__" });
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <SiteHeader />
-          {useFullWidth ? (
-            <Outlet />
-          ) : (
-            <div className="max-w-7xl mx-auto w-full">
+    <OnboardingProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <SiteHeader />
+            {useFullWidth ? (
               <Outlet />
-            </div>
-          )}
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+            ) : (
+              <div className="max-w-7xl mx-auto w-full">
+                <Outlet />
+              </div>
+            )}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </OnboardingProvider>
   );
 }
