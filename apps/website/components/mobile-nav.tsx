@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { navigationLinks } from "@/nav-config";
 import { Button } from "@/components/ui/button";
+import { navigationLinks } from "@/nav-config";
 
 export default function MobileNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

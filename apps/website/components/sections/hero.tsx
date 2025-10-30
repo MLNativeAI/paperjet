@@ -15,7 +15,6 @@ export function Hero() {
           transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-12"
         >
-
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 pb-4">
             Privacy-First Document Processing
           </h1>
@@ -25,11 +24,7 @@ export function Hero() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="rounded-full h-12 px-8 text-base cursor-pointer" asChild>
-              <Link
-                href="https://app.getpaperjet.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link href="https://app.getpaperjet.com" target="_blank" rel="noopener noreferrer">
                 Try for free
               </Link>
             </Button>

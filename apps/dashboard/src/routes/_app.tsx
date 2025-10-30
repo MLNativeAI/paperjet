@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useRouteContext } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import z from "zod";
 import { AppSidebar } from "@/components/app-sidebar";
 import { OnboardingProvider } from "@/components/onboarding-provider";
@@ -38,8 +38,13 @@ export const Route = createFileRoute("/_app")({
 });
 
 function PathlessLayoutComponent() {
-  const _ = useQueryNotifications();
-  const { useFullWidth } = useRouteContext({ from: "__root__" });
+  useQueryNotifications();
+  const routerState = useRouterState();
+  const matches = routerState.matches as any[];
+
+  // Find the first route that has useFullWidth context
+  const fullWidthMatch = matches.find((match: any) => match.context?.useFullWidth === true);
+  const useFullWidth = fullWidthMatch?.context?.useFullWidth ?? false;
 
   return (
     <OnboardingProvider>

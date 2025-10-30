@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import MobileNav from "@/components/mobile-nav";
+import { Button } from "@/components/ui/button";
 import { navigationLinks } from "@/nav-config";
 import { GitHubLink } from "./github-link";
-import { Button } from "@/components/ui/button";
 
 export const NavBar = () => {
   return (
@@ -22,12 +22,7 @@ export const NavBar = () => {
       </nav>
       <div className="hidden md:flex gap-4 items-center">
         <GitHubLink />
-        <Button
-          asChild
-          variant="default"
-          size="default"
-          className="rounded-full cursor-pointer flex items-center"
-        >
+        <Button asChild variant="default" size="default" className="rounded-full cursor-pointer flex items-center">
           <Link href="https://app.getpaperjet.com" target="_blank" rel="noopener noreferrer">
             Try for free
           </Link>
