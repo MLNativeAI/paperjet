@@ -40,6 +40,10 @@ export const auth = betterAuth({
         type: "string",
         input: false,
       },
+      onboardingCompleted: {
+        type: "boolean",
+        input: false,
+      },
     },
   },
   databaseHooks: {
@@ -143,6 +147,7 @@ export async function beforeUserCreateHandler(user: User) {
         id: generateId(ID_PREFIXES.user),
         role: "superadmin",
         emailVerified: true,
+        onboardingCompleted: false,
       },
     };
   } else {
@@ -150,6 +155,7 @@ export async function beforeUserCreateHandler(user: User) {
       data: {
         ...user,
         id: generateId(ID_PREFIXES.user),
+        onboardingCompleted: false,
       },
     };
   }

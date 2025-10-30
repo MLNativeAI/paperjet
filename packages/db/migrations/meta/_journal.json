@@ -120,6 +120,13 @@
       "when": 1761859400000,
       "tag": "0016_minor_tenebrous",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1761859400001,
+      "tag": "0017_nostalgic_black_widow",
+      "breakpoints": true
     }
   ]
 }

@@ -20,6 +20,7 @@ export const user = pgTable("user", {
   banned: boolean("banned"),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
+  onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
 });
 
 export const session = pgTable("session", {
