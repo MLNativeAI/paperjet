@@ -130,10 +130,6 @@ export default function ExecutionPage() {
                   <p className="text-sm font-medium text-muted-foreground">Duration</p>
                   <p className="text-lg">{formatDuration(execution.startedAt, execution.completedAt)}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Model type</p>
-                  <p className="text-lg">{execution.modelType}</p>
-                </div>
                 {execution.errorMessage && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Error Message</p>
@@ -148,7 +144,6 @@ export default function ExecutionPage() {
         </>
       )}
       {viewMode === "compare" && execution.status === "Completed" && execution.extractedData && (
-        //TODO: extract shared logic
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-4">
             <Card>
@@ -168,10 +163,6 @@ export default function ExecutionPage() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Duration</p>
                     <p className="text-lg">{formatDuration(execution.startedAt, execution.completedAt)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Model type</p>
-                    <ModelTypeLabel type={execution.modelType} />
                   </div>
                   {execution.errorMessage && (
                     <div>

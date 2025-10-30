@@ -236,7 +236,7 @@ const router = app
           ...execution,
         });
       } catch (error) {
-        logger.error(error, "Re-extract data error:");
+        logger.error(error, "Failed to run data extraction");
         if (error instanceof Error && error.message === "Workflow not found") {
           return c.json({ error: "Workflow not found" }, 404);
         }
