@@ -24,7 +24,7 @@ export const envSchema = z.object({
   SAAS_MODE: z
     .union([z.literal("true"), z.literal("false")])
     .transform((val) => val === "true")
-    .default("false"),
+    .default(false),
   AUTH_MODE: z.enum(["magic-link", "password"]).default("password"),
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().default("paperjet"),
