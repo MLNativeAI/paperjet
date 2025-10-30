@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/MLNativeAI/paperjet/compare/v1.4.3...v1.4.4) (2025-10-30)
+
+
+### Bug Fixes
+
+* openapi update, api key dialog fix ([8781529](https://github.com/MLNativeAI/paperjet/commit/87815294a65512688c81aa2a6327c3b7122a6856))
+
 ## [1.4.3](https://github.com/MLNativeAI/paperjet/compare/v1.4.2...v1.4.3) (2025-10-30)
 
 
