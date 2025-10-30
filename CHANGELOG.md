@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/MLNativeAI/paperjet/compare/v1.5.1...v1.5.2) (2025-10-30)
+
+
+### Bug Fixes
+
+* full width works again ([b2cbbc6](https://github.com/MLNativeAI/paperjet/commit/b2cbbc6c621cdc834a659d8ee4cea0ea502b8291))
+
 ## [1.5.1](https://github.com/MLNativeAI/paperjet/compare/v1.5.0...v1.5.1) (2025-10-30)
 
 
