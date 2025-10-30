@@ -1,3 +1,12 @@
+## [1.4.3](https://github.com/MLNativeAI/paperjet/compare/v1.4.2...v1.4.3) (2025-10-30)
+
+
+### Bug Fixes
+
+* back to zod v3 ([48faa67](https://github.com/MLNativeAI/paperjet/commit/48faa67547f9be8b7e54d64106fa36388f04c18b))
+* update admin configs ([0847dfb](https://github.com/MLNativeAI/paperjet/commit/0847dfbe1101e9e9680ccab8a1209104ac6c2ad1))
+* zod aligned, all good ([22980cf](https://github.com/MLNativeAI/paperjet/commit/22980cf0a8b53a63616aafd9e779f569a8560b3e))
+
 ## [1.4.2](https://github.com/MLNativeAI/paperjet/compare/v1.4.1...v1.4.2) (2025-10-29)
 
 
