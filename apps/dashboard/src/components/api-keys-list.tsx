@@ -19,7 +19,8 @@ import {
 import { Calendar } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { NewApiKeyDialog } from "@/components/new-api-key-dialog";
+import { CreateApiKeyDialog } from "@/components/create-api-key-dialog";
+import { ApiKeyDisplayDialog } from "@/components/api-key-display-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,6 +53,8 @@ export function ApiKeysList({ apiKeys, onRefresh }: ApiKeysListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [keyToDelete, setKeyToDelete] = useState<ApiKey | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [displayDialogOpen, setDisplayDialogOpen] = useState(false);
+  const [newApiKey, setNewApiKey] = useState<string | null>(null);
   const { mutate: revokeApiKey, isPending: isRevoking } = useRevokeApiKey();
 
   const handleDelete = () => {
@@ -68,6 +71,17 @@ export function ApiKeysList({ apiKeys, onRefresh }: ApiKeysListProps) {
         toast.error("Failed to revoke API key");
       },
     });
+  };
+
+  const handleKeyCreated = (apiKey: string) => {
+    setNewApiKey(apiKey);
+    setDisplayDialogOpen(true);
+  };
+
+  const handleDisplayDialogClose = () => {
+    setDisplayDialogOpen(false);
+    setNewApiKey(null);
+    onRefresh();
   };
 
   const columns: ColumnDef<ApiKey>[] = [
@@ -180,7 +194,8 @@ export function ApiKeysList({ apiKeys, onRefresh }: ApiKeysListProps) {
           </div>
         </Card>
 
-        <NewApiKeyDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} onSuccess={onRefresh} />
+        <CreateApiKeyDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} onSuccess={handleKeyCreated} />
+        <ApiKeyDisplayDialog open={displayDialogOpen} onOpenChange={handleDisplayDialogClose} apiKey={newApiKey} />
       </>
     );
   }
@@ -336,7 +351,8 @@ export function ApiKeysList({ apiKeys, onRefresh }: ApiKeysListProps) {
       </Dialog>
 
       {/* Create API Key Dialog */}
-      <NewApiKeyDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} onSuccess={onRefresh} />
+      <CreateApiKeyDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} onSuccess={handleKeyCreated} />
+      <ApiKeyDisplayDialog open={displayDialogOpen} onOpenChange={handleDisplayDialogClose} apiKey={newApiKey} />
     </>
   );
 }
