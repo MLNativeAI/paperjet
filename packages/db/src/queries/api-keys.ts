@@ -6,7 +6,7 @@ import type { DbApiKey } from "../types/tables";
 
 export async function getApiKeys({ organizationId }: { organizationId: string }) {
   const data = await db.query.apikey.findMany({
-    where: eq(apikey.organizationId, organizationId),
+    where: and(eq(apikey.organizationId, organizationId), eq(apikey.enabled, true)),
   });
 
   const apiKeys: ApiKey[] = data.map((fullKey) => {
