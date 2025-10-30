@@ -50,6 +50,7 @@ const data = {
       title: "Documentation",
       url: "https://docs.getpaperjet.com/",
       icon: BookOpen,
+      tourId: "docs",
     },
   ],
 };

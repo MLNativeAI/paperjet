@@ -36,7 +36,7 @@ export function Onboarding({ run, onTourComplete }: OnboardingProps) {
     },
     {
       target: "[data-tour='docs']",
-      content: "That's it, if you need more information you can find them in the docs",
+      content: "If you need more information you can find them in the docs here",
       title: "That's it!",
     },
   ];
