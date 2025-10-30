@@ -8,7 +8,6 @@ import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, apiKey, magicLink, organization } from "better-auth/plugins";
 import { sendInvitationEmail, sendMagicLink, sendPasswordResetEmail } from "./handlers/email";
-import { completeOnboarding } from "./handlers/onboarding";
 import { getDefaultOrgOrCreate } from "./handlers/session";
 import { getPolarPlugin } from "./polar";
 

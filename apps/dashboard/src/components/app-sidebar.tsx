@@ -53,6 +53,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuthenticatedUser();
   const { serverInfo } = useRouteContext({ from: "__root__" });
+  //TODO: Figure out why better auth stopped reconginized the extra fields
   const isAdmin = useMemo(() => user?.role === "superadmin", [user?.role]);
 
   return (

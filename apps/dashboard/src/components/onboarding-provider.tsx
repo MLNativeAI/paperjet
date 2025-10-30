@@ -1,23 +1,26 @@
 "use client";
 
-import { User } from "better-auth";
 import { useEffect, useState } from "react";
 import { Onboarding } from "@/components/onboarding";
 import { WelcomeModal } from "@/components/welcome-modal";
+import { useCompleteOnboarding, useOnboardingInfo } from "@/hooks/use-onboarding";
 import { useAuthenticatedUser } from "@/hooks/use-user";
 
 export function OnboardingProvider({ children }: { children: React.PropsWithChildren }) {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const { user } = useAuthenticatedUser();
   const [runTour, setRunTour] = useState(false);
+  const completeOnboardingMutation = useCompleteOnboarding();
+  const { data: onboardingInfo, isLoading: isOnboardingLoading } = useOnboardingInfo();
 
   useEffect(() => {
-    const hasCompletedOnboarding = user?.onboardingCompleted;
-
-    if (!hasCompletedOnboarding && user) {
-      setShowWelcomeModal(true);
+    if (!isOnboardingLoading && onboardingInfo) {
+      const hasCompletedOnboarding = onboardingInfo.onboardingCompleted;
+      if (!hasCompletedOnboarding && user) {
+        setShowWelcomeModal(true);
+      }
     }
-  }, [user?.onboardingCompleted]);
+  }, [onboardingInfo, isOnboardingLoading, user]);
 
   const handleStartTour = () => {
     setShowWelcomeModal(false);
@@ -27,30 +30,12 @@ export function OnboardingProvider({ children }: { children: React.PropsWithChil
   const handleSkipOnboarding = () => {
     setShowWelcomeModal(false);
     // Mark as completed so it doesn't show again
-    completeOnboarding();
+    completeOnboardingMutation.mutate();
   };
 
   const handleTourComplete = async () => {
     setRunTour(false);
-    await completeOnboarding();
-  };
-
-  const completeOnboarding = async () => {
-    try {
-      // Call our custom onboarding completion endpoint
-      const response = await fetch("/api/auth/onboarding/complete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to complete onboarding");
-      }
-    } catch (error) {
-      console.error("Failed to complete onboarding:", error);
-    }
+    await completeOnboardingMutation.mutateAsync();
   };
 
   return (
@@ -62,7 +47,7 @@ export function OnboardingProvider({ children }: { children: React.PropsWithChil
         onStartTour={handleStartTour}
         user={user}
       />
-      <Onboarding userRole={user?.role} run={runTour} onTourComplete={handleTourComplete} />
+      <Onboarding userRole={onboardingInfo?.role || undefined} run={runTour} onTourComplete={handleTourComplete} />
     </>
   );
 }

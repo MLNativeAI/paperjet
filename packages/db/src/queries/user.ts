@@ -21,3 +21,13 @@ export async function getUserInvitations({ invitationId }: { invitationId: strin
   });
   return invitationResponse;
 }
+
+export async function updateUserOnboarding({ userId }: { userId: string }) {
+  const updatedUser = await db
+    .update(user)
+    .set({ onboardingCompleted: true, updatedAt: new Date() })
+    .where(eq(user.id, userId))
+    .returning();
+
+  return updatedUser[0];
+}
