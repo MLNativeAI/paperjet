@@ -5,4 +5,5 @@ export const navigationLinks = [
   // { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
   { href: "/blog", label: "Blog" },
+  { href: "/support", label: "Support" },
 ];

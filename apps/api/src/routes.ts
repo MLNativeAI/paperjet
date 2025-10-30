@@ -60,16 +60,16 @@ app.get(
       },
       components: {
         securitySchemes: {
-          bearerAuth: {
-            type: "http",
-            scheme: "bearer",
-            bearerFormat: "JWT",
+          apiKeyAuth: {
+            type: "apiKey",
+            in: "header",
+            name: "x-api-key",
           },
         },
       },
       security: [
         {
-          bearerAuth: [],
+          apiKeyAuth: [],
         },
       ],
       servers: [{ url: "https://app.getpaperjet.com", description: "Production Server" }],

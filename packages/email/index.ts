@@ -10,3 +10,5 @@ export { ResetPasswordEmailTemplate } from "./emails/password-reset";
 // Types
 export type { WelcomeEmailProps } from "./emails/welcome";
 export { WelcomeEmail } from "./emails/welcome";
+export type { ContactEmailProps } from "./emails/contact";
+export { ContactEmail } from "./emails/contact";
