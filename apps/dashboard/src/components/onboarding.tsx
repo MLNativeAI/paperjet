@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Joyride, { type Step } from "react-joyride";
 import { toast } from "sonner";
 
@@ -10,6 +11,7 @@ interface OnboardingProps {
 }
 
 export function Onboarding({ run, onTourComplete }: OnboardingProps) {
+  const hasHandledFinish = useRef(false);
   const userSteps: Step[] = [
     {
       target: "body",
@@ -46,12 +48,13 @@ export function Onboarding({ run, onTourComplete }: OnboardingProps) {
       steps={userSteps}
       run={run}
       callback={(data) => {
-        if (data.status === "finished") {
-          toast.success("Onboarding completed! Happy converting!");
-          onTourComplete();
-        }
-        if (data.status === "skipped") {
-          toast.success("Got it! We won't bother you again");
+        if ((data.status === "finished" || data.status === "skipped") && !hasHandledFinish.current) {
+          hasHandledFinish.current = true;
+          toast.success(
+            data.status === "finished"
+              ? "Onboarding completed! Happy converting!"
+              : "Got it! We won't bother you again",
+          );
           onTourComplete();
         }
       }}
