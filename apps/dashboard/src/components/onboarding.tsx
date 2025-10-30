@@ -16,6 +16,7 @@ export function Onboarding({ userRole, run, onTourComplete }: OnboardingProps) {
       target: "body",
       content: "Welcome to PaperJet! Let's show you around your workspace.",
       title: "Welcome to PaperJet!",
+      placement: "center",
     },
     {
       target: "[data-tour='workflows']",

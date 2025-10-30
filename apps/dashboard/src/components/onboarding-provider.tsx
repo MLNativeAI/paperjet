@@ -20,7 +20,7 @@ export function OnboardingProvider({ children }: { children: React.PropsWithChil
         setShowWelcomeModal(true);
       }
     }
-  }, [onboardingInfo, isOnboardingLoading, user]);
+  }, [onboardingInfo, isOnboardingLoading]);
 
   const handleStartTour = () => {
     setShowWelcomeModal(false);
@@ -29,7 +29,6 @@ export function OnboardingProvider({ children }: { children: React.PropsWithChil
 
   const handleSkipOnboarding = () => {
     setShowWelcomeModal(false);
-    // Mark as completed so it doesn't show again
     completeOnboardingMutation.mutate();
   };
 

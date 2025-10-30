@@ -25,22 +25,26 @@ const data = {
       title: "Workflows",
       url: "/",
       icon: FileText,
+      tourId: "workflows",
     },
     {
       title: "Executions",
       url: "/executions",
       icon: Play,
+      tourId: "executions",
     },
     {
       title: "Settings",
       url: "/settings/api-keys",
       icon: Settings,
+      tourId: "settings",
     },
     {
       title: "Admin",
       url: "/admin/models",
       icon: Shield,
       adminOnly: true,
+      tourId: "admin",
     },
     {
       title: "Documentation",
@@ -75,6 +79,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         className="font-medium flex items-center gap-2"
                         target="_blank"
                         rel="noreferrer"
+                        {...(item.tourId ? { "data-tour": item.tourId } : {})}
                       >
                         <Icon className="h-4 w-4" />
                         <span>{item.title}</span>
@@ -87,6 +92,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         }}
                         className="font-medium flex items-center gap-2"
                         viewTransition={{ types: ["cross-fade"] }}
+                        {...(item.tourId ? { "data-tour": item.tourId } : {})}
                       >
                         <Icon className="h-4 w-4" />
                         <span>{item.title}</span>
