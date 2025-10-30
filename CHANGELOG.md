@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/MLNativeAI/paperjet/compare/v1.4.4...v1.5.0) (2025-10-30)
+
+
+### Features
+
+* user onboarding ([#5](https://github.com/MLNativeAI/paperjet/issues/5)) ([60705e8](https://github.com/MLNativeAI/paperjet/commit/60705e8af7c574d8d6731816383967c415b3ebd8))
+
 ## [1.4.4](https://github.com/MLNativeAI/paperjet/compare/v1.4.3...v1.4.4) (2025-10-30)
 
 
