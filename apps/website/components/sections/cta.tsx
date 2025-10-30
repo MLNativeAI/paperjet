@@ -1,10 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-const SignupModal = dynamic(() => import("@/components/signup-modal").then((mod) => mod.SignupModal), { ssr: false });
 
 export function CTA() {
   return (
@@ -29,18 +27,24 @@ export function CTA() {
             privacy and control.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
-            <SignupModal
-              triggerText="Get Started"
-              triggerVariant="default"
-              triggerSize="lg"
-              triggerClassName="rounded-full h-12 px-8 text-base text-primary-foreground cursor-pointer flex items-center"
-            />
+            <Button
+              size="lg"
+              className="rounded-full h-12 px-8 text-base text-primary-foreground cursor-pointer bg-white text-primary hover:bg-white/90"
+              asChild
+            >
+              <Link href="https://app.getpaperjet.com" target="_blank" rel="noopener noreferrer">
+                Try for free
+              </Link>
+            </Button>
             <Button
               size="lg"
               variant="outline"
               className="rounded-full h-12 px-8 text-base bg-transparent border-white text-white hover:bg-white/10 cursor-pointer"
+              asChild
             >
-              View Documentation
+              <Link href="https://docs.getpaperjet.com" target="_blank" rel="noopener noreferrer">
+                View Documentation
+              </Link>
             </Button>
           </div>
           <p className="text-sm text-primary-foreground/80 mt-4">Open source. Self-hosted. Privacy-first.</p>

@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { SignupModal } from "@/components/signup-modal";
 import { navigationLinks } from "@/nav-config";
+import { Button } from "@/components/ui/button";
 
 export default function MobileNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -36,18 +36,26 @@ export default function MobileNav() {
               ))}
             </nav>
             <div className="flex flex-col gap-2 pt-2 border-t">
-              <SignupModal
-                triggerText="Log in"
-                triggerVariant="ghost"
-                triggerSize="default"
-                triggerClassName="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground py-2 justify-start"
-              />
-              <SignupModal
-                triggerText="Get Started"
-                triggerVariant="default"
-                triggerSize="default"
-                triggerClassName="rounded-full cursor-pointer flex items-center"
-              />
+              <Button
+                asChild
+                variant="ghost"
+                size="default"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground py-2 justify-start"
+              >
+                <Link href="https://app.getpaperjet.com" target="_blank" rel="noopener noreferrer">
+                  Log in
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="default"
+                size="default"
+                className="rounded-full cursor-pointer flex items-center"
+              >
+                <Link href="https://app.getpaperjet.com" target="_blank" rel="noopener noreferrer">
+                  Try for free
+                </Link>
+              </Button>
             </div>
           </div>
         </motion.div>

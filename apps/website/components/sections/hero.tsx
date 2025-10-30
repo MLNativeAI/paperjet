@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
 import Link from "next/link";
-import { SignupModal } from "@/components/signup-modal";
 import { Button } from "@/components/ui/button";
 
 export function Hero() {
@@ -16,16 +15,7 @@ export function Hero() {
           transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-12"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="inline-block mb-4"
-          >
-            <div className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full border border-primary/20">
-              Launching Q4 2025
-            </div>
-          </motion.div>
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 pb-4">
             Privacy-First Document Processing
           </h1>
@@ -34,13 +24,15 @@ export function Hero() {
             data private.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <SignupModal
-              triggerText="Get Early Access"
-              triggerVariant="default"
-              triggerSize="lg"
-              triggerClassName="rounded-full h-12 px-8 text-base cursor-pointer flex items-center"
-              showArrow={true}
-            />
+            <Button size="lg" className="rounded-full h-12 px-8 text-base cursor-pointer" asChild>
+              <Link
+                href="https://app.getpaperjet.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Try for free
+              </Link>
+            </Button>
             <Button size="lg" variant="outline" className="rounded-full h-12 px-8 text-base cursor-pointer" asChild>
               <Link
                 href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ3wKFKKFR1VT3FvgEBn1UkkFWNt98CHd7gz5yZ-9Agz_MOrD4Kf6WINDpDtuvHoGkzILg-KpVKo"
