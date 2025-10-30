@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/MLNativeAI/paperjet/compare/v1.5.0...v1.5.1) (2025-10-30)
+
+
+### Bug Fixes
+
+* new api key handling ([617c110](https://github.com/MLNativeAI/paperjet/commit/617c1101973e2170ae2a794d027914f0e657dc3a))
+
 # [1.5.0](https://github.com/MLNativeAI/paperjet/compare/v1.4.4...v1.5.0) (2025-10-30)
 
 
