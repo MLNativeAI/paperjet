@@ -1,6 +1,7 @@
 "use client";
 
 import Joyride, { type Step } from "react-joyride";
+import { toast } from "sonner";
 
 interface OnboardingProps {
   userRole?: string;
@@ -8,38 +9,14 @@ interface OnboardingProps {
   onTourComplete: () => void;
 }
 
-export function Onboarding({ userRole, run, onTourComplete }: OnboardingProps) {
-  const isAdmin = userRole === "superadmin" || userRole === "admin";
-
+export function Onboarding({ run, onTourComplete }: OnboardingProps) {
   const userSteps: Step[] = [
     {
       target: "body",
-      content: (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Welcome to PaperJet! 🎉</h3>
-          <p className="text-sm text-muted-foreground">
-            You're all set up! Let's walk you through your workspace and show you how to create and manage your
-            workflows.
-          </p>
-          <div className="space-y-2">
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm">Quick introduction to the interface</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm">Learn about key features</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-sm">Tips to get you started quickly</span>
-            </div>
-          </div>
-        </div>
-      ),
+      content: "Would you like an express tour of the app? It literally takes 1 minute.",
       title: "Welcome to PaperJet!",
       placement: "center",
-      disableBeacon: true,
+      // disableBeacon: true,
     },
     {
       target: "[data-tour='workflows']",
@@ -57,69 +34,24 @@ export function Onboarding({ userRole, run, onTourComplete }: OnboardingProps) {
       content: "Manage your account, organization settings, and API keys here.",
       title: "Settings",
     },
-  ];
-
-  const adminSteps: Step[] = [
     {
-      target: "body",
-      content: (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Welcome to PaperJet! 🎉</h3>
-          <p className="text-sm text-muted-foreground">
-            You're all set up as an admin! Let's walk you through your workspace and show you how to manage your team
-            and workflows.
-          </p>
-          <div className="space-y-2">
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm">Quick introduction to the interface</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm">Learn about key features</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-sm">Tips to get you started quickly</span>
-            </div>
-          </div>
-        </div>
-      ),
-      title: "Welcome Admin!",
-      placement: "center",
-      disableBeacon: true,
-    },
-    {
-      target: "[data-tour='workflows']",
-      content:
-        "Manage workflows for your organization. You can create, edit, and configure document processing workflows.",
-      title: "Workflow Management",
-    },
-    {
-      target: "[data-tour='executions']",
-      content: "Monitor all document processing executions across your organization.",
-      title: "Execution Monitoring",
-    },
-    {
-      target: "[data-tour='admin']",
-      content: "Access admin-specific features including user management and system configuration.",
-      title: "Admin Features",
-    },
-    {
-      target: "[data-tour='settings']",
-      content: "Manage organization settings, billing, and team members.",
-      title: "Organization Settings",
+      target: "[data-tour='docs']",
+      content: "That's it, if you need more information you can find them in the docs",
+      title: "That's it!",
     },
   ];
-
-  const steps = isAdmin ? adminSteps : userSteps;
 
   return (
     <Joyride
-      steps={steps}
+      steps={userSteps}
       run={run}
       callback={(data) => {
-        if (data.status === "finished" || data.status === "skipped") {
+        if (data.status === "finished") {
+          toast.success("Onboarding completed! Happy converting!");
+          onTourComplete();
+        }
+        if (data.status === "skipped") {
+          toast.success("Got it! We won't bother you again");
           onTourComplete();
         }
       }}
@@ -128,11 +60,48 @@ export function Onboarding({ userRole, run, onTourComplete }: OnboardingProps) {
       showSkipButton
       styles={{
         options: {
-          arrowColor: "#fff",
-          backgroundColor: "#fff",
-          primaryColor: "#007bff",
-          textColor: "#333",
+          arrowColor: "var(--card-foreground)",
+          backgroundColor: "var(--card)",
+          primaryColor: "var(--primary)",
+          textColor: "var(--card-foreground)",
           zIndex: 1000,
+          overlayColor: "rgba(0, 0, 0, 0.5)",
+          spotlightShadow: "var(--shadow-lg)",
+        },
+        tooltip: {
+          backgroundColor: "var(--card)",
+          // border: `1px solid var(--border)`,
+          // borderRadius: "var(--radius-lg)",
+          boxShadow: "var(--shadow-lg)",
+          color: "var(--card-foreground)",
+          fontFamily: "var(--font-sans)",
+          // fontSize: "0.875rem",
+          // lineHeight: 1.5,
+          // padding: "calc(var(--spacing) * 1.5)",
+          // maxWidth: "320px",
+        },
+        tooltipTitle: {
+          color: "var(--card-foreground)",
+          fontFamily: "var(--font-sans)",
+          // fontSize: "1.125rem",
+          fontWeight: 600,
+          // marginBottom: "var(--spacing)",
+        },
+        tooltipContent: {
+          color: "var(--muted-foreground)",
+          fontFamily: "var(--font-sans)",
+          // fontSize: "0.875rem",
+          // lineHeight: 1.5,
+          // padding: "calc(var(--spacing) / 2) 0",
+        },
+        tooltipContainer: {
+          textAlign: "left",
+        },
+        spotlight: {
+          borderRadius: "var(--radius-xl)",
+        },
+        beacon: {
+          display: "none",
         },
       }}
     />

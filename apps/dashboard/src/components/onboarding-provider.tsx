@@ -1,12 +1,8 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { Onboarding } from "@/components/onboarding";
 import { useCompleteOnboarding, useOnboardingInfo } from "@/hooks/use-onboarding";
-import { useAuthenticatedUser } from "@/hooks/use-user";
 
-export function OnboardingProvider({ children }: { children: React.PropsWithChildren }) {
-  const { user } = useAuthenticatedUser();
+export function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const [runTour, setRunTour] = useState(false);
   const completeOnboardingMutation = useCompleteOnboarding();
   const { data: onboardingInfo, isLoading: isOnboardingLoading } = useOnboardingInfo();
@@ -14,12 +10,11 @@ export function OnboardingProvider({ children }: { children: React.PropsWithChil
   useEffect(() => {
     if (!isOnboardingLoading && onboardingInfo) {
       const hasCompletedOnboarding = onboardingInfo.onboardingCompleted;
-      if (!hasCompletedOnboarding && user) {
-        // Start tour directly when onboarding is not completed
+      if (!hasCompletedOnboarding) {
         setRunTour(true);
       }
     }
-  }, [onboardingInfo, isOnboardingLoading, user]);
+  }, [onboardingInfo, isOnboardingLoading]);
 
   const handleTourComplete = async () => {
     setRunTour(false);
@@ -29,7 +24,7 @@ export function OnboardingProvider({ children }: { children: React.PropsWithChil
   return (
     <>
       {children}
-      <Onboarding userRole={onboardingInfo?.role || undefined} run={runTour} onTourComplete={handleTourComplete} />
+      <Onboarding run={runTour} onTourComplete={handleTourComplete} />
     </>
   );
 }
