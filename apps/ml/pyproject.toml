@@ -7,7 +7,6 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.116.1",
     "fitz>=0.0.1.dev2",
-    "ocrmypdf>=16.11.0",
     "pymupdf>=1.26.3",
     "pymupdf4llm>=0.0.27",
     "python-multipart>=0.0.20",

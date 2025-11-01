@@ -1,46 +1,47 @@
-FROM python:3.12-slim
+# An example using multi-stage image builds to create a final image without uv.
 
-WORKDIR /code
+# First, build the application in the `/app` directory.
+# See `Dockerfile` for details.
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libgl1 \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Disable Python downloads, because we want to use the system interpreter
+# across both images. If using a managed Python version, it needs to be
+# copied from the build image into the final image; see `standalone.Dockerfile`
+# for an example.
+ENV UV_PYTHON_DOWNLOADS=0
 
-# Configure Poetry
-ENV POETRY_VERSION=2.1.3
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VENV=/opt/poetry-venv
-ENV POETRY_CACHE_DIR=/opt/.cache
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+  --mount=type=bind,source=uv.lock,target=uv.lock \
+  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  uv sync --locked --no-install-project --no-dev
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+  uv sync --locked --no-dev
 
-# Install poetry separated from system interpreter
-RUN python3 -m venv $POETRY_VENV \
-    && $POETRY_VENV/bin/pip install -U pip setuptools \
-    && $POETRY_VENV/bin/pip install "poetry==$POETRY_VERSION"
 
-# Add Poetry to PATH
-ENV PATH="${PATH}:${POETRY_VENV}/bin"
+# Then, use a final image without uv
+FROM python:3.12-slim-bookworm
+# It is important to use the image that matches the builder, as the path to the
+# Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
+# will fail.
 
-# Configure poetry to not create virtual environments
-RUN poetry config virtualenvs.create false
+# Setup a non-root user
+RUN groupadd --system --gid 999 nonroot \
+  && useradd --system --gid 999 --uid 999 --create-home nonroot
 
-# Copy only pyproject.toml and poetry.lock first to cache dependencies
-COPY pyproject.toml poetry.lock* ./
+# Copy the application from the builder
+COPY --from=builder --chown=nonroot:nonroot /app /app
 
-# Install dependencies
-RUN poetry install --no-root --no-interaction
+# Place executables in the environment at the front of the path
+ENV PATH="/app/.venv/bin:$PATH"
 
-# Copy the rest of the application
-COPY . .
+# Use the non-root user to run our application
+USER nonroot
 
-# Expose the port the app runs on
-EXPOSE 8000
+# Use `/app` as the working directory
+WORKDIR /app
 
-# Command to run the application
-CMD ["poetry", "run", "fastapi", "run", "--host", "0.0.0.0", "--port", "8000"] 
+# Run the FastAPI application by default
+CMD ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000"]
