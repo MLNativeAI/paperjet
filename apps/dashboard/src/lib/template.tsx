@@ -1,4 +1,5 @@
-import type { RuntimeModelType, WorkflowConfiguration } from "@paperjet/db/types";
+import type { WorkflowConfiguration } from "@paperjet/db/types";
+
 import { Building2, CircleDollarSign, Hospital, Landmark, ShoppingCart } from "lucide-react";
 import { bankStatementConfig } from "@/lib/template/bank-statement";
 import { commerceConfig } from "@/lib/template/commerce";
@@ -12,7 +13,6 @@ export type WorkflowTemplate = {
   icon: React.ReactNode;
   config: WorkflowConfiguration;
   description: string;
-  modelType: RuntimeModelType;
 };
 
 export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
@@ -22,7 +22,6 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
     icon: <CircleDollarSign />,
     description: "Extract invoice line items, monetary and tax values and buyer/seller details",
     config: invoiceConfig,
-    modelType: "accurate",
   },
   medical: {
     id: "medical",
@@ -30,7 +29,6 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
     icon: <Hospital />,
     description: "Extract a structured list of lab results along with reference values",
     config: labResultsConfig,
-    modelType: "accurate",
   },
   commerce: {
     id: "commerce",
@@ -38,7 +36,6 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
     icon: <ShoppingCart />,
     description: "Extract line items from order documents",
     config: commerceConfig,
-    modelType: "accurate",
   },
   government: {
     id: "government",
@@ -46,7 +43,6 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
     icon: <Building2 />,
     description: "Extract personal information from government ID's such as Passports and driver licenses",
     config: governmentIdConfig,
-    modelType: "accurate",
   },
   bank_statement: {
     id: "bank_statement",
@@ -54,6 +50,5 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
     icon: <Landmark />,
     description: "Extracts a list of transactions, account owner and bank details",
     config: bankStatementConfig,
-    modelType: "accurate",
   },
 };
