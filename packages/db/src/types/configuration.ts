@@ -16,6 +16,7 @@ export type ServerInfo = {
   adminAccountExists: boolean;
   saasMode: boolean;
   authMode: string;
+  posthogKey: string | undefined;
 };
 
 export type ValidatedFile = { file: File; type: WorkflowInputType; mimeType: string };

@@ -1,12 +1,11 @@
-import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouteContext, useRouterState } from "@tanstack/react-router";
 import z from "zod";
 import { AppSidebar } from "@/components/app-sidebar";
 import { OnboardingProvider } from "@/components/onboarding-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useQueryNotifications } from "@/hooks/use-query-notifications";
-import posthog from "posthog-js";
-import { PostHogProvider } from "@posthog/react";
+import TelemetryProvider from "@/components/providers/telemetry-provider";
 
 export const Route = createFileRoute("/_app")({
   validateSearch: z.object({
@@ -39,11 +38,6 @@ export const Route = createFileRoute("/_app")({
   },
 });
 
-posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY || "", {
-  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
-  defaults: "2025-05-24",
-});
-
 function PathlessLayoutComponent() {
   useQueryNotifications();
   const routerState = useRouterState();
@@ -54,7 +48,7 @@ function PathlessLayoutComponent() {
   const useFullWidth = fullWidthMatch?.context?.useFullWidth ?? false;
 
   return (
-    <PostHogProvider client={posthog}>
+    <TelemetryProvider>
       <OnboardingProvider>
         <SidebarProvider>
           <AppSidebar />
@@ -72,6 +66,6 @@ function PathlessLayoutComponent() {
           </SidebarInset>
         </SidebarProvider>
       </OnboardingProvider>
-    </PostHogProvider>
+    </TelemetryProvider>
   );
 }
