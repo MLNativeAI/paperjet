@@ -34,6 +34,9 @@ export const envSchema = z.object({
   POLAR_WEBHOOK_SECRET: z.string().optional(),
   POLAR_BASIC_PLAN_ID: z.string().optional(),
   POLAR_PRO_PLAN_ID: z.string().optional(),
+
+  // posthog
+  POSTHOG_API_KEY: z.string().optional(),
 });
 
 // Export the inferred type for use across packages

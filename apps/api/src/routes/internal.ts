@@ -23,6 +23,7 @@ const router = app
                   adminAccountExists: z.boolean(),
                   saasMode: z.boolean(),
                   authMode: z.string(),
+                  posthogKey: z.string().optional(),
                 }),
               ),
             },
@@ -37,6 +38,7 @@ const router = app
         adminAccountExists: adminAccountExists,
         saasMode: envVars.SAAS_MODE,
         authMode: envVars.AUTH_MODE,
+        posthogKey: envVars.POSTHOG_API_KEY,
       });
     },
   )
