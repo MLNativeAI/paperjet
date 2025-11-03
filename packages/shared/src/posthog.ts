@@ -3,8 +3,8 @@ import { envVars } from "./env";
 
 const client = envVars.POSTHOG_API_KEY
   ? new PostHog(envVars.POSTHOG_API_KEY, {
-    host: "https://eu.i.posthog.com",
-  })
+      host: "https://eu.i.posthog.com",
+    })
   : undefined;
 
 export const PosthogEventType = {
@@ -37,7 +37,7 @@ export async function reportExecutionComplete({
   });
 }
 
-export async function reportExeuctionFailure({
+export async function reportExecutionFailure({
   userId,
   workflowId,
   executionId,

@@ -1,6 +1,5 @@
 import { usePostHog } from "@posthog/react";
 import { useEffect } from "react";
-import { toast } from "sonner";
 import { Route } from "@/routes/_app";
 import { useOrganization } from "./use-organization";
 import { useAuthenticatedUser } from "./use-user";
@@ -38,7 +37,6 @@ export function useTelemetry() {
         email: user.email,
         company_id: activeOrganization?.id,
       });
-      toast.success("Welcome back!");
     }
   }, [signedIn, user, activeOrganization, posthog]);
 
@@ -48,7 +46,6 @@ export function useTelemetry() {
         email: user.email,
         company_id: activeOrganization?.id,
       });
-      toast.success("Welcome to Paperjet!");
     }
   }, [newUser, user, activeOrganization, posthog]);
 }

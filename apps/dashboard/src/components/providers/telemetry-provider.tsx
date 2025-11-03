@@ -16,6 +16,6 @@ export default function TelemetryProvider({ children }: { children: React.ReactN
   if (posthog.__loaded) {
     return <PostHogProvider client={posthog}>{children}</PostHogProvider>;
   } else {
-    return <div>{children}</div>;
+    return <>{children}</>;
   }
 }

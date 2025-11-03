@@ -1,7 +1,7 @@
 import { incrementUsage } from "@paperjet/billing";
 import { getDocumentPagesByWorkflowExecutionId, updateDocumentMarkdown, updateExecutionStatus } from "@paperjet/db";
 import { type WorkflowConfiguration, WorkflowExecutionStatus } from "@paperjet/db/types";
-import { logger, reportExecutionComplete, reportExeuctionFailure } from "@paperjet/shared";
+import { logger, reportExecutionComplete, reportExecutionFailure } from "@paperjet/shared";
 import type { AuthContext } from "@paperjet/shared/types";
 import { type Job, Queue, WaitingChildrenError, Worker } from "bullmq";
 import z from "zod";
@@ -123,7 +123,7 @@ extractionWorkflowWorker.on("failed", async (job, _) => {
       status: WorkflowExecutionStatus.enum.Failed,
       isCompleted: true,
     });
-    await reportExeuctionFailure({
+    await reportExecutionFailure({
       userId: job.data.authContext.userId,
       executionId: job.data.workflowExecutionId,
       workflowId: job.data.workflowId,
