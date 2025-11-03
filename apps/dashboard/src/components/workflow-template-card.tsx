@@ -1,4 +1,3 @@
-import { toDisplayName } from "@paperjet/engine/utils/display-name";
 import type { LucideIcon } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,7 +41,7 @@ export function WorkflowTemplateCard({
             {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Icon className="h-6 w-6" />}
           </div>
           <div className="flex-1">
-            <CardTitle className="text-lg">{toDisplayName(template.slug)}</CardTitle>
+            <CardTitle className="text-lg">{template.slug}</CardTitle>
             <CardDescription className="mt-1">
               {isLoading ? "Creating workflow..." : template.description}
             </CardDescription>

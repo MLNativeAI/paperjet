@@ -1,10 +1,11 @@
-import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouteContext, useRouterState } from "@tanstack/react-router";
 import z from "zod";
 import { AppSidebar } from "@/components/app-sidebar";
 import { OnboardingProvider } from "@/components/onboarding-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useQueryNotifications } from "@/hooks/use-query-notifications";
+import TelemetryProvider from "@/components/providers/telemetry-provider";
 
 export const Route = createFileRoute("/_app")({
   validateSearch: z.object({
@@ -47,22 +48,24 @@ function PathlessLayoutComponent() {
   const useFullWidth = fullWidthMatch?.context?.useFullWidth ?? false;
 
   return (
-    <OnboardingProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <SiteHeader />
-            {useFullWidth ? (
-              <Outlet />
-            ) : (
-              <div className="max-w-7xl mx-auto w-full">
+    <TelemetryProvider>
+      <OnboardingProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+              <SiteHeader />
+              {useFullWidth ? (
                 <Outlet />
-              </div>
-            )}
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
-    </OnboardingProvider>
+              ) : (
+                <div className="max-w-7xl mx-auto w-full">
+                  <Outlet />
+                </div>
+              )}
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+      </OnboardingProvider>
+    </TelemetryProvider>
   );
 }

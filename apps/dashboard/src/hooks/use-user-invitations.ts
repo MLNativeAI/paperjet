@@ -5,12 +5,14 @@ import { hc } from "hono/client";
 import { toast } from "sonner";
 import { useOrganization } from "@/hooks/use-organization";
 import { authClient } from "@/lib/auth-client";
+import { usePostHog } from "@posthog/react";
 
 const internalClient = hc<InternalRoutes>("/api/internal");
 
 export function useUserInvitations() {
   const { setActiveOrganization } = useOrganization();
   const queryClient = useQueryClient();
+  const posthog = usePostHog();
   const {
     data: invitations = [],
     isLoading,
@@ -35,14 +37,24 @@ export function useUserInvitations() {
     });
     if (!invResponse) {
       toast.error(`Failed to join ${orgName}`);
+      return;
     }
     setActiveOrganization(invResponse.invitation.organizationId);
+    posthog.capture("invitation_accepted", {
+      invitation_id: invitationId,
+      organization_name: orgName,
+      organization_id: invResponse.invitation.organizationId,
+    });
     toast.success(`You've joined the ${orgName} Organization`);
   };
 
   const rejectInvitation = async (invitationId: string, orgName: string) => {
     await authClient.organization.rejectInvitation({
       invitationId: invitationId,
+    });
+    posthog.capture("invitation_rejected", {
+      invitation_id: invitationId,
+      organization_name: orgName,
     });
     toast.success(`Invitation to ${orgName} rejected`);
     queryClient.invalidateQueries({ queryKey: ["user-invitations"] });

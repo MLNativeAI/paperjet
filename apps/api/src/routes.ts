@@ -7,6 +7,7 @@ import { logger as honoLogger } from "hono/logger";
 import { poweredBy } from "hono/powered-by";
 import { openAPIRouteHandler } from "hono-openapi";
 import { corsMiddleware } from "./lib/cors";
+import { posthogProxy } from "./lib/posthog-proxy";
 import { type InternalRoutes, internalRouter } from "./routes/internal";
 import { type AdminRoutes, v1AdminRouter } from "./routes/v1/admin";
 import { type ApiKeysRoutes, v1ApiKeyRouter } from "./routes/v1/api-keys";
@@ -32,6 +33,8 @@ app.use("/api/*", corsMiddleware);
 app.use("/api/v1/*", userAuthMiddleware);
 app.use("/api/v1/admin/*", adminAuthMiddleware);
 app.on(["POST", "GET"], "/api/auth/*", authHandler);
+
+app.route("/ph", posthogProxy);
 
 app.get("/api/health", async (c) => {
   logger.info({ endpoint: "/api/health", method: "GET" }, "health check");

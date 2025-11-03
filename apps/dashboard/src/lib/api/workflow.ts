@@ -45,7 +45,7 @@ export const deleteWorkflowMutation = async (workflowId: string) => {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || "Failed to delete workflow");
+    throw new Error((error as any).error || "Failed to delete workflow");
   }
 
   return response.json();

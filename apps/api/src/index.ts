@@ -1,5 +1,5 @@
 import { allWorkers } from "@paperjet/queue";
-import { envVars, logger } from "@paperjet/shared";
+import { envVars, flushPosthog, logger } from "@paperjet/shared";
 import "./instrumentation";
 import { app } from "./routes";
 
@@ -8,6 +8,15 @@ const server = Bun.serve({
   hostname: "0.0.0.0",
   fetch: app.fetch,
   idleTimeout: 60,
+});
+
+process.on("SIGINT", async () => {
+  await flushPosthog();
+  process.exit(0);
+});
+process.on("SIGTERM", async () => {
+  await flushPosthog();
+  process.exit(0);
 });
 
 logger.info(`Started ${allWorkers.length} job workers`);
