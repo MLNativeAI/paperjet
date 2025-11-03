@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/MLNativeAI/paperjet/compare/v1.5.2...v1.6.0) (2025-11-03)
+
+
+### Features
+
+* posthog telemetry ([#6](https://github.com/MLNativeAI/paperjet/issues/6)) ([8594278](https://github.com/MLNativeAI/paperjet/commit/85942783dd67b4d8840ec9817cd3fbac023ec547))
+
 ## [1.5.2](https://github.com/MLNativeAI/paperjet/compare/v1.5.1...v1.5.2) (2025-10-30)
 
 
