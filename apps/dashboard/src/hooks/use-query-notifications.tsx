@@ -10,10 +10,10 @@ export function useQueryNotifications() {
     if (signedIn === true && user) {
       toast.success(`Welcome back, ${user.name}!`);
     }
-  }, [signedIn]);
+  }, [signedIn, user]);
   useEffect(() => {
     if (newUser === true && user) {
       toast.success(`Hi, ${user.name}`);
     }
-  }, [newUser]);
+  }, [newUser, user]);
 }

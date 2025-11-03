@@ -10,7 +10,7 @@ const client = envVars.POSTHOG_API_KEY
 export const PosthogEventType = {
   ExecutionComplete: "execution_complete",
   ExecutionFailure: "execution_failure",
-};
+} as const;
 
 export async function flushPosthog() {
   if (client) {
@@ -18,7 +18,7 @@ export async function flushPosthog() {
   }
 }
 
-export async function reportExecutionComplete({
+export function reportExecutionComplete({
   userId,
   workflowId,
   executionId,
@@ -37,7 +37,7 @@ export async function reportExecutionComplete({
   });
 }
 
-export async function reportExecutionFailure({
+export function reportExecutionFailure({
   userId,
   workflowId,
   executionId,

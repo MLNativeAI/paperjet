@@ -123,7 +123,7 @@ extractionWorkflowWorker.on("failed", async (job, _) => {
       status: WorkflowExecutionStatus.enum.Failed,
       isCompleted: true,
     });
-    await reportExecutionFailure({
+    reportExecutionFailure({
       userId: job.data.authContext.userId,
       executionId: job.data.workflowExecutionId,
       workflowId: job.data.workflowId,
@@ -213,7 +213,7 @@ async function finalizeWorkflow(job: Job<WorkflowExtractionData>) {
     status: WorkflowExecutionStatus.enum.Completed,
     isCompleted: true,
   });
-  await reportExecutionComplete({
+  reportExecutionComplete({
     userId: job.data.authContext.userId,
     executionId: job.data.workflowExecutionId,
     workflowId: job.data.workflowId,
