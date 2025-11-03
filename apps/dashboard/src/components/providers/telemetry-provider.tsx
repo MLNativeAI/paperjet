@@ -7,7 +7,8 @@ export default function TelemetryProvider({ children }: { children: React.ReactN
 
   if (serverInfo.posthogKey && !posthog.__loaded) {
     posthog.init(serverInfo.posthogKey, {
-      api_host: "https://eu.i.posthog.com",
+      api_host: "/ph",
+      ui_host: "https://eu.posthog.com",
       defaults: "2025-05-24",
     });
     console.log("Telemetry is enabled");
