@@ -9,7 +9,10 @@ posthogProxy.all("/*", async (c) => {
   const pathname = c.req.path;
   const posthogHost = pathname.startsWith("/static/") ? ASSET_HOST : API_HOST;
 
-  const targetUrl = new URL(pathname.replace(/^\/ph/, "") + c.req.query(), `https://${posthogHost}`);
+  const cleanPath = pathname.replace(/^\/ph/, "");
+
+  const queryString = c.req.query();
+  const targetUrl = new URL(cleanPath + (queryString ? `?${queryString}` : ""), `https://${posthogHost}`);
 
   const headers = new Headers(c.req.raw.headers);
   headers.set("host", posthogHost);
