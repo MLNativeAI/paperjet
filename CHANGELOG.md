@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/MLNativeAI/paperjet/compare/v1.6.0...v1.6.1) (2025-11-04)
+
+
+### Bug Fixes
+
+* use s3 endpoint for presigned urls ([679cbeb](https://github.com/MLNativeAI/paperjet/commit/679cbebc6871cdf17d97433d84e96dd0348cd2fb))
+
 # [1.6.0](https://github.com/MLNativeAI/paperjet/compare/v1.5.2...v1.6.0) (2025-11-03)
 
 
