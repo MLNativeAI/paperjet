@@ -1,5 +1,5 @@
 import type { DbWorkflowExecution, RuntimeModelType, WorkflowConfiguration } from "@paperjet/db/types";
-import { MODEL_PROVIDERS } from "@paperjet/shared";
+import { MODEL_PROVIDERS } from "@paperjet/shared/types";
 import z from "zod";
 
 export type ConnectionValidationResult = {
