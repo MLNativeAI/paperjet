@@ -29,11 +29,11 @@ PaperJet is a secure document processing platform. Convert docx, PDF and image f
 
 ## Getting started
 
-The easiest way to try out PaperJet is via [our platform](https://app.getpaperjet.com). See deployment documentation for self-hosting options
+See [User guide](https://docs.getpaperjet.com) 
 
 ## Deployment
 
-Coming soon
+See [Administrator guide](https://docs.getpaperjet.com) 
 
 ## Repo Activity
 
