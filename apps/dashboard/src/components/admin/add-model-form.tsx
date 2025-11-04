@@ -1,8 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DbModelConfiguration } from "@paperjet/db/types";
 import { type ConnectionValidationResult, type ModelConfigParams, modelConfigSchema } from "@paperjet/engine/types";
-import type { ModelProvider } from "@paperjet/shared/types";
-
+import type { ModelProviderEntry } from "@paperjet/shared/types";
 import { BrainIcon, EyeIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useModelConfiguration } from "@/hooks/use-model-configuration";
 
-const modelProviders: ModelProvider[] = [
+const modelProviders: ModelProviderEntry[] = [
   {
     id: "anthropic",
     name: "Anthropic",
@@ -226,9 +225,8 @@ export default function AddEditModelForm({
                   <FormControl>
                     <button
                       type="button"
-                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${
-                        field.value ? "border-primary bg-accent" : ""
-                      }`}
+                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${field.value ? "border-primary bg-accent" : ""
+                        }`}
                       onClick={() => field.onChange(!field.value)}
                     >
                       <BrainIcon />
@@ -250,9 +248,8 @@ export default function AddEditModelForm({
                   <FormControl>
                     <button
                       type="button"
-                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${
-                        field.value ? "border-primary bg-accent" : ""
-                      }`}
+                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${field.value ? "border-primary bg-accent" : ""
+                        }`}
                       onClick={() => field.onChange(!field.value)}
                     >
                       <EyeIcon />

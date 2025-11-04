@@ -31,5 +31,5 @@ export type ModelProvider = (typeof MODEL_PROVIDERS)[number];
 export type ModelProviderEntry = {
   id: ModelProvider;
   name: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string;
 };
