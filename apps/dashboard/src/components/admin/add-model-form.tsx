@@ -3,18 +3,15 @@ import type { DbModelConfiguration } from "@paperjet/db/types";
 import { type ConnectionValidationResult, type ModelConfigParams, modelConfigSchema } from "@paperjet/engine/types";
 import type { ModelProvider } from "@paperjet/shared/types";
 
-import { Loader2 } from "lucide-react";
+import { BrainIcon, EyeIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useModelConfiguration } from "@/hooks/use-model-configuration";
-import { IconBrandOpenai, IconBrandAbstract } from "@tabler/icons-react";
-import { SiGoogle, SiMistralai, SiOpenai, SiOpenproject } from "@icons-pack/react-simple-icons";
 
 const modelProviders: ModelProvider[] = [
   {
@@ -101,7 +98,6 @@ export default function AddEditModelForm({
         provider: (model.provider as "google" | "openai" | "openrouter" | "mistral" | "custom") || "google",
         providerApiKey: model.providerApiKey || "",
         modelName: model.modelName || "",
-        displayName: model.displayName || "",
         baseUrl: model.baseUrl || "",
         isCore: model.isCore ?? false,
         isVision: model.isVision ?? false,
@@ -160,15 +156,15 @@ export default function AddEditModelForm({
               <FormControl>
                 <div className="flex flex-wrap gap-2">
                   {modelProviders.map((provider) => (
-                    // biome-ignore lint/a11y/noStaticElementInteractions: LGTM
-                    <div
+                    <button
+                      type="button"
                       key={provider.id}
                       className={`h-16 w-40 flex items-center justify-center cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border ${field.value === provider.id ? "border-primary bg-accent" : ""}`}
                       onClick={() => field.onChange(provider.id)}
                     >
                       <img src={`/brand-icons/${provider.icon}`} className="h-4 w-4" alt={provider.id} />
                       <span className="text-sm font-medium">{provider.name}</span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </FormControl>
@@ -217,36 +213,31 @@ export default function AddEditModelForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="displayName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Display Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Gemini Flash" {...field} disabled={isLoading} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <div className="space-y-3">
           <div className="text-sm text-muted-foreground">
             Select at least one model type (Core or Vision) for this model configuration.
           </div>
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
             <FormField
               control={form.control}
               name="isCore"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem>
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+                    <button
+                      type="button"
+                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${field.value ? "border-primary bg-accent" : ""
+                        }`}
+                      onClick={() => field.onChange(!field.value)}
+                    >
+                      <BrainIcon />
+                      <div className="text-start">
+                        <div className="text-sm font-medium">Core Model</div>
+                        <div className="text-xs text-muted-foreground mt-1">General document processing</div>
+                      </div>
+                    </button>
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Core Model</FormLabel>
-                    <div className="text-xs text-muted-foreground">Used for general document processing tasks</div>
-                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -254,14 +245,22 @@ export default function AddEditModelForm({
               control={form.control}
               name="isVision"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem>
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+                    <button
+                      type="button"
+                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${field.value ? "border-primary bg-accent" : ""
+                        }`}
+                      onClick={() => field.onChange(!field.value)}
+                    >
+                      <EyeIcon />
+                      <div className="text-start">
+                        <div className="text-sm font-medium">Vision Model</div>
+                        <div className="text-xs text-muted-foreground mt-1">Image and document analysis</div>
+                      </div>
+                    </button>
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Vision Model</FormLabel>
-                    <div className="text-xs text-muted-foreground">Used for image and document analysis tasks</div>
-                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
