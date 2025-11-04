@@ -12,9 +12,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useModelConfiguration } from "@/hooks/use-model-configuration";
-import { IconBrandGoogle, IconBrandOpenai } from "@tabler/icons-react";
+import { IconBrandGoogle, IconBrandOpenai, IconBrandAbstract } from "@tabler/icons-react";
 
 const modelProviders: ModelProvider[] = [
   {
@@ -26,6 +25,16 @@ const modelProviders: ModelProvider[] = [
     id: "openai",
     name: "OpenAI",
     icon: IconBrandOpenai,
+  },
+  {
+    id: "mistral",
+    name: "Mistral",
+    icon: (
+      <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <title>Google</title>
+        <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+      </svg>
+    ),
   },
   {
     id: "openrouter",
@@ -122,20 +131,21 @@ export default function AddEditModelForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Provider</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a provider" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
+              <FormControl>
+                <div className="flex gap-2">
                   {modelProviders.map((provider) => (
-                    <SelectItem key={provider.id} value={provider.id}>
-                      <provider.icon /> {provider.name}
-                    </SelectItem>
+                    // biome-ignore lint/a11y/noStaticElementInteractions: LGTM
+                    <div
+                      key={provider.id}
+                      className={`flex items-center justify-center cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border ${field.value === provider.id ? "border-primary bg-accent" : ""}`}
+                      onClick={() => field.onChange(provider.id)}
+                    >
+                      <provider.icon className="h-4 w-4" />
+                      <span className="text-sm font-medium">{provider.name}</span>
+                    </div>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -249,7 +259,14 @@ export default function AddEditModelForm({
               )}
             </div>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isLoading}
+                onClick={() => {
+                  setDialogOpen(false);
+                }}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
