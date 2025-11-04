@@ -12,8 +12,24 @@ export type AuthContext = {
   scope: "user" | "superadmin";
 };
 
-export type ModelProvider = {
-  id: "google" | "openai" | "openrouter" | "mistral" | "custom";
+export const MODEL_PROVIDERS = [
+  "anthropic",
+  "azure",
+  "google",
+  "groq",
+  "lmstudio",
+  "mistral",
+  "ollama",
+  "openai",
+  "openrouter",
+  "vllm",
+  "custom",
+] as const;
+
+export type ModelProvider = (typeof MODEL_PROVIDERS)[number];
+
+export type ModelProviderEntry = {
+  id: ModelProvider;
   name: string;
   icon: React.ComponentType<{ className?: string }>;
 };

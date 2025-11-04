@@ -1,10 +1,14 @@
+import { createAzure } from "@ai-sdk/azure";
+import { createOllama } from "ollama-ai-provider-v2";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { getModelConfigForType } from "@paperjet/db";
 import type { RuntimeModelType } from "@paperjet/db/types";
-
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createGroq, groq } from "@ai-sdk/groq";
 import { logger } from "@paperjet/shared";
 import { AISDKError, generateObject, type LanguageModel } from "ai";
 import z from "zod";
@@ -58,6 +62,37 @@ export async function validateConnection(modelConfig: ModelConfigParams): Promis
 
 export async function getModelInstance(modelConfig: ModelConfigParams): Promise<LanguageModel> {
   switch (modelConfig.provider) {
+    case "anthropic": {
+      const anthropic = createAnthropic({
+        apikey: modelConfig.providerApiKey,
+      });
+      return anthropic(modelConfig.modelName);
+    }
+    case "groq": {
+      const groq = createGroq({
+        apikey: modelConfig.providerApiKey,
+      });
+      return groq(modelConfig.modelName);
+    }
+    case "azure": {
+      const azure = createAzure({
+        apiKey: modelConfig.providerApiKey,
+      });
+      return azure(modelConfig.modelName);
+    }
+    case "lmstudio": {
+      const lmstudio = createOpenAICompatible({
+        name: "lmstudio",
+        baseURL: modelConfig.baseUrl || "",
+      });
+      return lmstudio(modelConfig.modelName);
+    }
+    case "ollama": {
+      const ollama = createOllama({
+        baseURL: modelConfig.baseUrl,
+      });
+      return ollama(modelConfig.modelName);
+    }
     case "google": {
       const google = createGoogleGenerativeAI({
         apiKey: modelConfig.providerApiKey,
@@ -90,6 +125,15 @@ export async function getModelInstance(modelConfig: ModelConfigParams): Promise<
         supportsStructuredOutputs: true,
       });
       return custom(modelConfig.modelName);
+    }
+    case "mistral": {
+      const mistral = createMistral({
+        apiKey: modelConfig.providerApiKey,
+      });
+      return mistral(modelConfig.modelName);
+    }
+    default: {
+      throw new Error(`Unsupported provider: ${(modelConfig as any).provider}`);
     }
   }
 }

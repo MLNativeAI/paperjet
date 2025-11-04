@@ -3,6 +3,7 @@ import { db } from "../db";
 import { modelConfiguration, runtimeConfiguration } from "../schema";
 import type { RuntimeConfiguration, RuntimeModelType } from "../types/configuration";
 import type { DbModelConfiguration } from "../types/tables";
+import { ModelProvider } from "@paperjet/shared/types";
 
 export async function listModels(): Promise<DbModelConfiguration[]> {
   return await db.query.modelConfiguration.findMany();
@@ -46,27 +47,27 @@ export async function getRuntimeConfiguration(): Promise<RuntimeConfiguration> {
 
   const codeModelData = runtimeConfig.coreModelId
     ? await db.query.modelConfiguration.findFirst({
-        where: eq(modelConfiguration.id, runtimeConfig.coreModelId),
-      })
+      where: eq(modelConfiguration.id, runtimeConfig.coreModelId),
+    })
     : undefined;
   const visionModelData = runtimeConfig.visionModelId
     ? await db.query.modelConfiguration.findFirst({
-        where: eq(modelConfiguration.id, runtimeConfig.visionModelId),
-      })
+      where: eq(modelConfiguration.id, runtimeConfig.visionModelId),
+    })
     : undefined;
 
   return {
     coreModel: codeModelData
       ? {
-          name: codeModelData.displayName || "",
-          modelId: codeModelData.id,
-        }
+        name: codeModelData.displayName || "",
+        modelId: codeModelData.id,
+      }
       : null,
     visionModel: visionModelData
       ? {
-          name: visionModelData.displayName || "",
-          modelId: visionModelData.id,
-        }
+        name: visionModelData.displayName || "",
+        modelId: visionModelData.id,
+      }
       : null,
   };
 }
@@ -99,12 +100,11 @@ export async function setRuntimeModel(type: RuntimeModelType, modelId: string) {
 }
 
 export const addNewModel = async (modelConfig: {
-  provider: string;
+  provider: ModelProvider;
   providerApiKey: string;
   modelName: string;
   isCore: boolean;
   isVision: boolean;
-  displayName?: string;
   baseUrl?: string;
 }) => {
   const result = await db
@@ -113,7 +113,7 @@ export const addNewModel = async (modelConfig: {
       provider: modelConfig.provider,
       providerApiKey: modelConfig.providerApiKey,
       modelName: modelConfig.modelName,
-      displayName: modelConfig.displayName || `${modelConfig.provider}/${modelConfig.modelName}`,
+      displayName: `${modelConfig.provider}/${modelConfig.modelName}`,
       baseUrl: modelConfig.baseUrl,
       isCore: modelConfig.isCore,
       isVision: modelConfig.isVision,
@@ -145,12 +145,11 @@ export const addNewModel = async (modelConfig: {
 };
 
 export type ModelConfigParams = {
-  provider: "custom" | "google" | "openai" | "openrouter";
+  provider: "custom" | "google" | "openai" | "openrouter" | "mistral";
   providerApiKey: string;
   modelName: string;
   isCore: boolean;
   isVision: boolean;
-  displayName?: string | undefined;
   baseUrl?: string | undefined;
 };
 
@@ -161,7 +160,7 @@ export async function updateModel(modelId: string, modelConfig: ModelConfigParam
       provider: modelConfig.provider,
       providerApiKey: modelConfig.providerApiKey,
       modelName: modelConfig.modelName,
-      displayName: modelConfig.displayName || `${modelConfig.provider}/${modelConfig.modelName}`,
+      displayName: `${modelConfig.provider}/${modelConfig.modelName}`,
       baseUrl: modelConfig.baseUrl,
       isCore: modelConfig.isCore,
       isVision: modelConfig.isVision,

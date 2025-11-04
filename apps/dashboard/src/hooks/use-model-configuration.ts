@@ -39,7 +39,7 @@ export function useModelConfiguration() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["models"] });
+      queryClient.invalidateQueries({ queryKey: ["models", "runtime-config"] });
     },
   });
 
@@ -58,7 +58,7 @@ export function useModelConfiguration() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["models"] });
+      queryClient.invalidateQueries({ queryKey: ["models", "runtime-config"] });
     },
   });
 

@@ -1,4 +1,5 @@
 import type { DbWorkflowExecution, RuntimeModelType, WorkflowConfiguration } from "@paperjet/db/types";
+import { MODEL_PROVIDERS } from "@paperjet/shared";
 import z from "zod";
 
 export type ConnectionValidationResult = {
@@ -6,14 +7,13 @@ export type ConnectionValidationResult = {
   error: string | null;
 };
 
-const availableProviders = z.enum(["google", "openai", "openrouter", "mistral", "custom"]);
+const availableProviders = z.enum(MODEL_PROVIDERS);
 
 export const modelConfigSchema = z
   .object({
     provider: availableProviders,
     providerApiKey: z.string().min(1, "API key is required"),
     modelName: z.string().min(1, "Model name is required"),
-    displayName: z.string().optional(),
     baseUrl: z.string().optional(),
     isCore: z.boolean(),
     isVision: z.boolean(),
