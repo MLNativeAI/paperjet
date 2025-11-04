@@ -13,7 +13,7 @@ export type AuthContext = {
 };
 
 export type ModelProvider = {
-  id: "google" | "openai" | "openrouter" | "custom";
+  id: "google" | "openai" | "openrouter" | "mistral" | "custom";
   name: string;
   icon: React.ComponentType<{ className?: string }>;
 };

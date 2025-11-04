@@ -13,38 +13,64 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useModelConfiguration } from "@/hooks/use-model-configuration";
-import { IconBrandGoogle, IconBrandOpenai, IconBrandAbstract } from "@tabler/icons-react";
+import { IconBrandOpenai, IconBrandAbstract } from "@tabler/icons-react";
+import { SiGoogle, SiMistralai, SiOpenai, SiOpenproject } from "@icons-pack/react-simple-icons";
 
 const modelProviders: ModelProvider[] = [
   {
+    id: "anthropic",
+    name: "Anthropic",
+    icon: "anthropic.jpeg",
+  },
+  {
+    id: "azure",
+    name: "Azure OpenAI",
+    icon: "azure.png",
+  },
+  {
     id: "google",
-    name: "Google",
-    icon: IconBrandGoogle,
+    name: "Google Gemini",
+    icon: "google.jpeg",
+  },
+  {
+    id: "groq",
+    name: "Groq",
+    icon: "groq.png",
+  },
+  {
+    id: "lmstudio",
+    name: "LM Studio",
+    icon: "lmstudio.jpeg",
+  },
+  {
+    id: "mistral",
+    name: "Mistral AI",
+    icon: "mistral.jpeg",
+  },
+  {
+    id: "ollama",
+    name: "Ollama",
+    icon: "ollama.png",
   },
   {
     id: "openai",
     name: "OpenAI",
-    icon: IconBrandOpenai,
-  },
-  {
-    id: "mistral",
-    name: "Mistral",
-    icon: (
-      <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <title>Google</title>
-        <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
-      </svg>
-    ),
+    icon: "openai.webp",
   },
   {
     id: "openrouter",
     name: "OpenRouter",
-    icon: IconBrandAbstract,
+    icon: "openrouter.jpeg",
+  },
+  {
+    id: "vllm",
+    name: "vLLM",
+    icon: "vllm.jpeg",
   },
   {
     id: "custom",
     name: "Custom (OpenAI-compatible)",
-    icon: Loader2,
+    icon: "openai.webp",
   },
 ];
 
@@ -72,7 +98,7 @@ export default function AddEditModelForm({
   useEffect(() => {
     if (model) {
       form.reset({
-        provider: (model.provider as "google" | "openai" | "openrouter" | "custom") || "google",
+        provider: (model.provider as "google" | "openai" | "openrouter" | "mistral" | "custom") || "google",
         providerApiKey: model.providerApiKey || "",
         modelName: model.modelName || "",
         displayName: model.displayName || "",
@@ -132,15 +158,15 @@ export default function AddEditModelForm({
             <FormItem>
               <FormLabel>Provider</FormLabel>
               <FormControl>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {modelProviders.map((provider) => (
                     // biome-ignore lint/a11y/noStaticElementInteractions: LGTM
                     <div
                       key={provider.id}
-                      className={`flex items-center justify-center cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border ${field.value === provider.id ? "border-primary bg-accent" : ""}`}
+                      className={`h-16 w-40 flex items-center justify-center cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border ${field.value === provider.id ? "border-primary bg-accent" : ""}`}
                       onClick={() => field.onChange(provider.id)}
                     >
-                      <provider.icon className="h-4 w-4" />
+                      <img src={`/brand-icons/${provider.icon}`} className="h-4 w-4" alt={provider.id} />
                       <span className="text-sm font-medium">{provider.name}</span>
                     </div>
                   ))}
