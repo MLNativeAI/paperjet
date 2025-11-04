@@ -47,27 +47,27 @@ export async function getRuntimeConfiguration(): Promise<RuntimeConfiguration> {
 
   const codeModelData = runtimeConfig.coreModelId
     ? await db.query.modelConfiguration.findFirst({
-      where: eq(modelConfiguration.id, runtimeConfig.coreModelId),
-    })
+        where: eq(modelConfiguration.id, runtimeConfig.coreModelId),
+      })
     : undefined;
   const visionModelData = runtimeConfig.visionModelId
     ? await db.query.modelConfiguration.findFirst({
-      where: eq(modelConfiguration.id, runtimeConfig.visionModelId),
-    })
+        where: eq(modelConfiguration.id, runtimeConfig.visionModelId),
+      })
     : undefined;
 
   return {
     coreModel: codeModelData
       ? {
-        name: codeModelData.displayName || "",
-        modelId: codeModelData.id,
-      }
+          name: codeModelData.displayName || "",
+          modelId: codeModelData.id,
+        }
       : null,
     visionModel: visionModelData
       ? {
-        name: visionModelData.displayName || "",
-        modelId: visionModelData.id,
-      }
+          name: visionModelData.displayName || "",
+          modelId: visionModelData.id,
+        }
       : null,
   };
 }

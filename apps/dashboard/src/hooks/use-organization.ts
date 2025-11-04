@@ -1,6 +1,6 @@
+import { usePostHog } from "@posthog/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
-import { usePostHog } from "@posthog/react";
 
 export function useOrganization() {
   const queryClient = useQueryClient();

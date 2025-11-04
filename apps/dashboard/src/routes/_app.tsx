@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useRouteContext, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import z from "zod";
 import { AppSidebar } from "@/components/app-sidebar";
 import { OnboardingProvider } from "@/components/onboarding-provider";
