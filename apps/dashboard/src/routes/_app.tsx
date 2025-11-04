@@ -2,10 +2,10 @@ import { createFileRoute, Outlet, redirect, useRouteContext, useRouterState } fr
 import z from "zod";
 import { AppSidebar } from "@/components/app-sidebar";
 import { OnboardingProvider } from "@/components/onboarding-provider";
+import TelemetryProvider from "@/components/providers/telemetry-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useQueryNotifications } from "@/hooks/use-query-notifications";
-import TelemetryProvider from "@/components/providers/telemetry-provider";
 
 export const Route = createFileRoute("/_app")({
   validateSearch: z.object({

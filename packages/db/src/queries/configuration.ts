@@ -1,9 +1,9 @@
+import type { ModelProvider } from "@paperjet/shared/types";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { modelConfiguration, runtimeConfiguration } from "../schema";
 import type { RuntimeConfiguration, RuntimeModelType } from "../types/configuration";
 import type { DbModelConfiguration } from "../types/tables";
-import { ModelProvider } from "@paperjet/shared/types";
 
 export async function listModels(): Promise<DbModelConfiguration[]> {
   return await db.query.modelConfiguration.findMany();
@@ -145,7 +145,7 @@ export const addNewModel = async (modelConfig: {
 };
 
 export type ModelConfigParams = {
-  provider: "custom" | "google" | "openai" | "openrouter" | "mistral";
+  provider: ModelProvider;
   providerApiKey: string;
   modelName: string;
   isCore: boolean;

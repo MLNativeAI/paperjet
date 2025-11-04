@@ -1,18 +1,16 @@
-import { createAzure } 
-import { createMistral } from '@ai-sdk/mistral';
-
-import { createOllama } from "ollama-ai-provider-v2";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createAzure } from "@ai-sdk/azure";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
+import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { getModelConfigForType } from "@paperjet/db";
 import type { RuntimeModelType } from "@paperjet/db/types";
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGroq, groq } from "@ai-sdk/groq";
 import { logger } from "@paperjet/shared";
 import { AISDKError, generateObject, type LanguageModel } from "ai";
+import { createOllama } from "ollama-ai-provider-v2";
 import z from "zod";
 import type { ConnectionValidationResult, ModelConfigParams } from "../../types";
 
@@ -66,7 +64,7 @@ export async function getModelInstance(modelConfig: ModelConfigParams): Promise<
   switch (modelConfig.provider) {
     case "anthropic": {
       const anthropic = createAnthropic({
-        apikey: modelConfig.providerApiKey,
+        apiKey: modelConfig.providerApiKey,
       });
       return anthropic(modelConfig.modelName);
     }
