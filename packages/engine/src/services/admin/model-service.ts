@@ -1,4 +1,6 @@
-import { createAzure } from "@ai-sdk/azure";
+import { createAzure } 
+import { createMistral } from '@ai-sdk/mistral';
+
 import { createOllama } from "ollama-ai-provider-v2";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
@@ -70,7 +72,7 @@ export async function getModelInstance(modelConfig: ModelConfigParams): Promise<
     }
     case "groq": {
       const groq = createGroq({
-        apikey: modelConfig.providerApiKey,
+        apiKey: modelConfig.providerApiKey,
       });
       return groq(modelConfig.modelName);
     }
@@ -117,6 +119,7 @@ export async function getModelInstance(modelConfig: ModelConfigParams): Promise<
       });
       return openrouter(modelConfig.modelName);
     }
+    case "vllm": // same as custom
     case "custom": {
       const custom = createOpenAICompatible({
         baseURL: modelConfig.baseUrl || "",
