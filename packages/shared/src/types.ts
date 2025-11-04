@@ -11,3 +11,9 @@ export type AuthContext = {
   activePlan: "free" | "basic" | "pro";
   scope: "user" | "superadmin";
 };
+
+export type ModelProvider = {
+  id: "google" | "openai" | "openrouter" | "custom";
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+};

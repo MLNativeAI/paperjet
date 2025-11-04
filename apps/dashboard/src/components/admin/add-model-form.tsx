@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DbModelConfiguration } from "@paperjet/db/types";
 import { type ConnectionValidationResult, type ModelConfigParams, modelConfigSchema } from "@paperjet/engine/types";
+import type { ModelProvider } from "@paperjet/shared/types";
 
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -13,6 +14,30 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useModelConfiguration } from "@/hooks/use-model-configuration";
+import { IconBrandGoogle, IconBrandOpenai } from "@tabler/icons-react";
+
+const modelProviders: ModelProvider[] = [
+  {
+    id: "google",
+    name: "Google",
+    icon: IconBrandGoogle,
+  },
+  {
+    id: "openai",
+    name: "OpenAI",
+    icon: IconBrandOpenai,
+  },
+  {
+    id: "openrouter",
+    name: "OpenRouter",
+    icon: IconBrandAbstract,
+  },
+  {
+    id: "custom",
+    name: "Custom (OpenAI-compatible)",
+    icon: Loader2,
+  },
+];
 
 export default function AddEditModelForm({
   setDialogOpen,
@@ -104,10 +129,11 @@ export default function AddEditModelForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="google">Google</SelectItem>
-                  <SelectItem value="openai">OpenAI</SelectItem>
-                  <SelectItem value="openrouter">OpenRouter</SelectItem>
-                  <SelectItem value="custom">Custom (OpenAI-compatible)</SelectItem>
+                  {modelProviders.map((provider) => (
+                    <SelectItem key={provider.id} value={provider.id}>
+                      <provider.icon /> {provider.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -149,7 +175,7 @@ export default function AddEditModelForm({
             <FormItem>
               <FormLabel>Model Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., gemini-1.5-flash" {...field} disabled={isLoading} />
+                <Input placeholder="gemini-2.5-flash" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -162,7 +188,7 @@ export default function AddEditModelForm({
             <FormItem>
               <FormLabel>Display Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Gemini 1.5 Flash" {...field} disabled={isLoading} />
+                <Input placeholder="Gemini Flash" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>
