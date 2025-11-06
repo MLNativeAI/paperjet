@@ -207,7 +207,6 @@ export default function AddEditModelForm({
             <FormItem>
               <FormLabel>Model Name</FormLabel>
               <FormControl>
-                <Input placeholder="gemini-2.5-flash" {...field} disabled={isLoading} />+{" "}
                 <Input placeholder="e.g., Qwen/Qwen3-VL, gemini-2.5-flash" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
