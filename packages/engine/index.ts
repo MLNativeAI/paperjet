@@ -1,4 +1,5 @@
 export * from "./src/services/admin/model-service";
+export * from "./src/services/email-service";
 export * from "./src/services/execution";
 export * from "./src/services/extraction";
 export * from "./src/services/markdown-service";

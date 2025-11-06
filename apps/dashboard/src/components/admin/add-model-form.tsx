@@ -114,7 +114,7 @@ export default function AddEditModelForm({
       onSuccess: (result) => {
         setValidationResult(result);
       },
-      onError: (error) => {
+      onError: () => {
         // this triggers on form failure
         setValidationResult({
           isValid: false,

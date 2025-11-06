@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@paperjet/engine": "workspace:*",
     "@paperjet/db": "workspace:*",
     "@paperjet/shared": "workspace:*",
     "@polar-sh/sdk": "^0.40.1"

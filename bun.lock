@@ -187,6 +187,7 @@
         "@paperjet/billing": "workspace:*",
         "@paperjet/db": "workspace:*",
         "@paperjet/email": "workspace:*",
+        "@paperjet/queue": "workspace:*",
         "@paperjet/shared": "workspace:*",
         "@polar-sh/better-auth": "^1.1.11",
         "better-auth": "^1.3.9",
@@ -202,6 +203,7 @@
       "name": "@paperjet/billing",
       "dependencies": {
         "@paperjet/db": "workspace:*",
+        "@paperjet/engine": "workspace:*",
         "@paperjet/shared": "workspace:*",
         "@polar-sh/sdk": "^0.40.1",
       },

@@ -26,18 +26,6 @@ export const InvitationEmail = ({ url, inviter, organizationName, role }: Invita
         <strong>{role}</strong>.
       </Text>
 
-      <Section className="bg-[#f6f9fc] rounded-lg p-[16px] my-[24px]">
-        <Text className="text-[#374151] text-[14px] leading-[20px] m-0">
-          <strong>What you can do with PaperJet:</strong>
-        </Text>
-        <Text className="text-[#374151] text-[12px] leading-[18px] mt-[8px] mb-0">
-          📄 <strong>Process any document</strong> - PDFs, images, scanned documents
-          <br />🤖 <strong>AI-powered extraction</strong> - Extract data automatically
-          <br />🔒 <strong>Privacy-first</strong> - Your data stays secure and private
-          <br />⚡ <strong>Custom workflows</strong> - Build workflows for your specific needs
-        </Text>
-      </Section>
-
       <Text className="text-black text-[14px] leading-[24px]">
         Click the button below to accept the invitation and get started. This link will expire in 7 days.
       </Text>
@@ -48,12 +36,11 @@ export const InvitationEmail = ({ url, inviter, organizationName, role }: Invita
         If you didn't expect this invitation, you can safely ignore this email.
       </Text>
 
-      <FooterSection>
-        <Text className="text-[#666666] text-[12px] leading-[24px]">
-          If the button doesn't work, copy and paste this link into your browser:
-        </Text>
-        <Text className="text-[#666666] text-[12px] leading-[24px] break-all">{url}</Text>
-      </FooterSection>
+      <Text className="text-[#666666] text-[12px] leading-[24px]">
+        If the button doesn't work, copy and paste this link into your browser:
+      </Text>
+
+      <FooterSection />
     </EmailLayout>
   );
 };
