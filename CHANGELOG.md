@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/MLNativeAI/paperjet/compare/v1.7.0...v1.8.0) (2025-11-06)
+
+
+### Features
+
+* email sequencing ([#8](https://github.com/MLNativeAI/paperjet/issues/8)) ([ed7eb0b](https://github.com/MLNativeAI/paperjet/commit/ed7eb0ba001fe8e6237b9d5bdef8c58290484e41))
+
 # [1.7.0](https://github.com/MLNativeAI/paperjet/compare/v1.6.1...v1.7.0) (2025-11-06)
 
 
