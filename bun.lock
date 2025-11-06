@@ -203,6 +203,7 @@
       "name": "@paperjet/billing",
       "dependencies": {
         "@paperjet/db": "workspace:*",
+        "@paperjet/engine": "workspace:*",
         "@paperjet/shared": "workspace:*",
         "@polar-sh/sdk": "^0.40.1",
       },

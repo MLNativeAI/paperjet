@@ -1,12 +1,16 @@
 import { updateOrganizationActivePlan } from "@paperjet/db";
+import { sendNewSubscriptionEmail } from "@paperjet/engine";
 import { envVars, logger } from "@paperjet/shared";
 import { Polar } from "@polar-sh/sdk";
 import type { Product } from "@polar-sh/sdk/models/components/product.js";
 import type { WebhookCustomerStateChangedPayload } from "@polar-sh/sdk/models/components/webhookcustomerstatechangedpayload.js";
+import type { WebhookSubscriptionCreatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncreatedpayload.js";
 
-export async function polarWebhookHandler(payload: WebhookCustomerStateChangedPayload): Promise<void> {
-  logger.info("Handling polar webhook", { payload });
+export async function handleSubscriptionCreated(payload: WebhookSubscriptionCreatedPayload) {
+  await sendNewSubscriptionEmail(payload.data.customer.email, payload.data.product.name);
+}
 
+export async function handleCustomerStateChanged(payload: WebhookCustomerStateChangedPayload) {
   const { activeSubscriptions } = payload.data;
 
   let organizationId: string | undefined;

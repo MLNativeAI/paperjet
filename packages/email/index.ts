@@ -8,6 +8,7 @@ export { FeedbackEmail } from "./emails/feedback";
 export { InvitationEmail } from "./emails/invitation";
 export type { MagicLinkEmailProps } from "./emails/magic-link";
 export { MagicLinkEmail } from "./emails/magic-link";
+export { NewSubscriptionEmail } from "./emails/new-subscription";
 export type { ResetPasswordEmailTemplateProps } from "./emails/password-reset";
 export { ResetPasswordEmailTemplate } from "./emails/password-reset";
 // Types

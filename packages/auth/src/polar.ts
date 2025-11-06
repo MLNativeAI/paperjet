@@ -1,4 +1,4 @@
-import { getPolarClient, polarWebhookHandler } from "@paperjet/billing";
+import { getPolarClient, handleCustomerStateChanged, handleSubscriptionCreated } from "@paperjet/billing";
 import { envVars } from "@paperjet/shared";
 import { checkout, polar, portal, usage, webhooks } from "@polar-sh/better-auth";
 import type { BetterAuthPlugin } from "better-auth";
@@ -30,7 +30,8 @@ export function getPolarPlugin(): BetterAuthPlugin {
         usage(),
         webhooks({
           secret: envVars.POLAR_WEBHOOK_SECRET || "",
-          onCustomerStateChanged: (payload) => polarWebhookHandler(payload),
+          onCustomerStateChanged: (payload) => handleCustomerStateChanged(payload),
+          onSubscriptionCreated: (payload) => handleSubscriptionCreated(payload),
         }),
       ],
     });

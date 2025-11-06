@@ -5,6 +5,7 @@ import {
   ResetPasswordEmailTemplate,
   render,
   WelcomeEmail,
+  NewSubscriptionEmail,
 } from "@paperjet/email";
 import { emailQueue } from "@paperjet/queue";
 import { envVars, logger } from "@paperjet/shared";
@@ -14,6 +15,36 @@ import { addDays } from "date-fns";
 import { Resend } from "resend";
 
 const resend = envVars.RESEND_API_KEY ? new Resend(envVars.RESEND_API_KEY) : null;
+
+async function sendEmailHandler({
+  to,
+  subject,
+  html,
+  replyTo,
+}: {
+  to: string | string[];
+  subject: string;
+  html: string;
+  replyTo?: string;
+}) {
+  if (!resend) {
+    logger.info(`Resend is disabled, not sending email to ${Array.isArray(to) ? to[0] : to}`);
+    return;
+  }
+
+  try {
+    await resend.emails.send({
+      from: envVars.FROM_EMAIL || process.env.RESEND_FROM_EMAIL || "Łukasz from PaperJet <lukasz@getpaperjet.com>",
+      to,
+      subject,
+      reply_to: replyTo,
+      html,
+    });
+  } catch (error) {
+    logger.error(error, "Failed to send email");
+    throw error;
+  }
+}
 
 function getApiBaseUrl() {
   if (envVars.ENVIRONMENT === "dev") {
@@ -35,48 +66,35 @@ export async function scheduleFeedbackEmail(email: string) {
   await emailQueue.add("feedback-email", { email: email, emailType: "feedback" }, { delay });
 }
 
-export async function sendFeedbackEmail(email: string) {
-  if (!resend) {
-    logger.info(`Resend is disabled, not sending feedback email`);
-    return;
-  }
-  try {
-    logger.info(`Sending feedback email to ${email}:`);
-    const emailHtml = await render(FeedbackEmail());
+export async function sendNewSubscriptionEmail(email: string, planName: string) {
+  const emailHtml = await render(NewSubscriptionEmail({ planName }));
+  await sendEmailHandler({
+    to: [email],
+    subject: `You are now on the ${planName} plan`,
+    html: emailHtml,
+    replyTo: "lukasz@getpaperjet.com",
+  });
+}
 
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "Łukasz from PaperJet <lukasz@getpaperjet.com>",
-      to: [email],
-      subject: "How's your PaperJet experience so far?",
-      reply_to: "lukasz@getpaperjet.com",
-      html: emailHtml,
-    });
-  } catch (error) {
-    logger.error(error, "Failed to send feedback email:");
-    throw error;
-  }
+export async function sendFeedbackEmail(email: string) {
+  const emailHtml = await render(FeedbackEmail());
+  await sendEmailHandler({
+    to: [email],
+    subject: "How's your PaperJet experience so far?",
+    html: emailHtml,
+    replyTo: "lukasz@getpaperjet.com",
+  });
 }
 
 export async function sendWelcomeEmail(email: string) {
-  if (!resend) {
-    logger.info(`Resend is disabled, not sending welcome email`);
-    return;
-  }
-  try {
-    logger.info(`Sending welcome email to ${email}:`);
-    const emailHtml = await render(WelcomeEmail());
+  const emailHtml = await render(WelcomeEmail());
 
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "Łukasz from PaperJet <lukasz@getpaperjet.com>",
-      to: [email],
-      subject: "Welcome to PaperJet!",
-      reply_to: "lukasz@getpaperjet.com",
-      html: emailHtml,
-    });
-  } catch (error) {
-    logger.error(error, "Failed to send magic link email:");
-    throw error;
-  }
+  await sendEmailHandler({
+    to: [email],
+    subject: "Welcome to PaperJet!",
+    html: emailHtml,
+    replyTo: "lukasz@getpaperjet.com",
+  });
 }
 
 export async function sendMagicLink({ email, url }: { email: string; url: string }) {
@@ -84,20 +102,15 @@ export async function sendMagicLink({ email, url }: { email: string; url: string
     logger.info(`Magic link for ${email}: ${url}`);
     return;
   }
-  try {
-    logger.info({ email, url }, `Sending magic link to ${email}: ${url}`);
-    const emailHtml = await render(MagicLinkEmail({ url }));
 
-    await resend.emails.send({
-      from: envVars.FROM_EMAIL,
-      to: email,
-      subject: "Sign in to PaperJet",
-      html: emailHtml,
-    });
-  } catch (error) {
-    console.error("Failed to send magic link email:", error);
-    throw error;
-  }
+  logger.info({ email, url }, `Sending magic link to ${email}: ${url}`);
+  const emailHtml = await render(MagicLinkEmail({ url }));
+
+  await sendEmailHandler({
+    to: email,
+    subject: "Sign in to PaperJet",
+    html: emailHtml,
+  });
 }
 
 export async function sendInvitationEmail({
@@ -119,28 +132,23 @@ export async function sendInvitationEmail({
     logger.info(`Invitation link for ${email}: ${envVars.BASE_URL}/accept-invitation/${id}`);
     return;
   }
-  try {
-    const url = `${getApiBaseUrl()}/api/internal/accept-invitation?invitationId=${id}`;
-    logger.info({ email, url }, `Sending invitation link to ${email}: ${url}`);
-    const emailHtml = await render(
-      InvitationEmail({
-        url,
-        inviter: inviter.user.name || inviter.user.email,
-        organizationName: organization.name,
-        role,
-      }),
-    );
 
-    await resend.emails.send({
-      from: envVars.FROM_EMAIL,
-      to: email,
-      subject: `You've been invited to join ${organization.name} on PaperJet`,
-      html: emailHtml,
-    });
-  } catch (error) {
-    console.error("Failed to send invitation email:", error);
-    throw error;
-  }
+  const url = `${getApiBaseUrl()}/api/internal/accept-invitation?invitationId=${id}`;
+  logger.info({ email, url }, `Sending invitation link to ${email}: ${url}`);
+  const emailHtml = await render(
+    InvitationEmail({
+      url,
+      inviter: inviter.user.name || inviter.user.email,
+      organizationName: organization.name,
+      role,
+    }),
+  );
+
+  await sendEmailHandler({
+    to: email,
+    subject: `You've been invited to join ${organization.name} on PaperJet`,
+    html: emailHtml,
+  });
 }
 
 export async function sendPasswordResetEmail({ user, url }: { user: User; url: string }) {
@@ -148,18 +156,13 @@ export async function sendPasswordResetEmail({ user, url }: { user: User; url: s
     logger.info(`Reset password link for ${user.email}: ${url}`);
     return;
   }
-  try {
-    logger.info(`Sending password reset link to ${user.email}: ${url}`);
-    const emailHtml = await render(ResetPasswordEmailTemplate({ resetUrl: url, username: user.name }));
 
-    await resend.emails.send({
-      from: envVars.FROM_EMAIL,
-      to: user.email,
-      subject: "Password reset",
-      html: emailHtml,
-    });
-  } catch (error) {
-    console.error("Failed to send password reset email:", error);
-    throw error;
-  }
+  logger.info(`Sending password reset link to ${user.email}: ${url}`);
+  const emailHtml = await render(ResetPasswordEmailTemplate({ resetUrl: url, username: user.name }));
+
+  await sendEmailHandler({
+    to: user.email,
+    subject: "Password reset",
+    html: emailHtml,
+  });
 }
