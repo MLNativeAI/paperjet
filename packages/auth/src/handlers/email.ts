@@ -1,4 +1,4 @@
-import { InvitationEmail, MagicLinkEmail, ResetPasswordEmailTemplate, render } from "@paperjet/email";
+import { InvitationEmail, MagicLinkEmail, ResetPasswordEmailTemplate, render, WelcomeEmail } from "@paperjet/email";
 import { envVars, logger } from "@paperjet/shared";
 import type { User } from "better-auth";
 import type { Member, Organization } from "better-auth/plugins";
@@ -12,6 +12,28 @@ function getApiBaseUrl() {
     return "http://localhost:3000";
   } else {
     return envVars.BASE_URL;
+  }
+}
+
+export async function sendWelcomeEmail(email: string) {
+  if (!resend) {
+    logger.info(`Resend is disabled, not sending welcome email`);
+    return;
+  }
+  try {
+    logger.info(`Sending welcome email to ${email}:`);
+    const emailHtml = await render(WelcomeEmail());
+
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "Łukasz from PaperJet <lukasz@getpaperjet.com>",
+      to: [email],
+      subject: "Welcome to PaperJet!",
+      reply_to: "lukasz@getpaperjet.com",
+      html: emailHtml,
+    });
+  } catch (error) {
+    logger.error(error, "Failed to send magic link email:");
+    throw error;
   }
 }
 

@@ -7,7 +7,7 @@ import { generateId, ID_PREFIXES } from "@paperjet/shared/id";
 import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, apiKey, magicLink, organization } from "better-auth/plugins";
-import { sendInvitationEmail, sendMagicLink, sendPasswordResetEmail } from "./handlers/email";
+import { sendInvitationEmail, sendMagicLink, sendPasswordResetEmail, sendWelcomeEmail } from "./handlers/email";
 import { getDefaultOrgOrCreate } from "./handlers/session";
 import { getPolarPlugin } from "./polar";
 
@@ -50,6 +50,9 @@ export const auth = betterAuth({
     user: {
       create: {
         before: beforeUserCreateHandler,
+        after: async (user) => {
+          await sendWelcomeEmail(user.email);
+        },
       },
     },
     session: {
@@ -79,6 +82,10 @@ export const auth = betterAuth({
               id: generateId(ID_PREFIXES.account),
             },
           };
+        },
+        after: async (account) => {
+          await sendWelcomeEmail(account.email);
+          return account;
         },
       },
     },
