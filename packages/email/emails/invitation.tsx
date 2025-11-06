@@ -48,12 +48,11 @@ export const InvitationEmail = ({ url, inviter, organizationName, role }: Invita
         If you didn't expect this invitation, you can safely ignore this email.
       </Text>
 
-      <FooterSection>
-        <Text className="text-[#666666] text-[12px] leading-[24px]">
-          If the button doesn't work, copy and paste this link into your browser:
-        </Text>
-        <Text className="text-[#666666] text-[12px] leading-[24px] break-all">{url}</Text>
-      </FooterSection>
+      <Text className="text-[#666666] text-[12px] leading-[24px]">
+        If the button doesn't work, copy and paste this link into your browser:
+      </Text>
+
+      <FooterSection />
     </EmailLayout>
   );
 };

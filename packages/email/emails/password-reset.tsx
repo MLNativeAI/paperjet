@@ -30,16 +30,11 @@ export const ResetPasswordEmailTemplate = ({ username, resetUrl }: ResetPassword
         If you didn&apos;t request a password reset, you can ignore this message. Your account will remain secure.
       </Text>
 
-      <FooterSection>
-        <Text className="text-[#666666] text-[12px] leading-[24px]">
-          If the button doesn&apos;t work, copy and paste this link into your browser:
-        </Text>
-        <Text className="text-[#666666] text-[12px] leading-[24px] break-all">{resetUrl}</Text>
-        <Text className="text-[#666666] text-[12px] leading-[24px]">
-          Need help? Reach out to <span className="text-black">support@getpaperjet.com</span> and we&apos;ll assist you
-          right away.
-        </Text>
-      </FooterSection>
+      <Text className="text-[#666666] text-[12px] leading-[24px]">
+        If the button doesn&apos;t work, copy and paste this link into your browser:
+      </Text>
+      <Text className="text-[#666666] text-[12px] leading-[24px] break-all">{resetUrl}</Text>
+      <FooterSection />
     </EmailLayout>
   );
 };

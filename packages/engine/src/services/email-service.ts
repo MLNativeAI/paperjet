@@ -2,10 +2,10 @@ import {
   FeedbackEmail,
   InvitationEmail,
   MagicLinkEmail,
+  NewSubscriptionEmail,
   ResetPasswordEmailTemplate,
   render,
   WelcomeEmail,
-  NewSubscriptionEmail,
 } from "@paperjet/email";
 import { emailQueue } from "@paperjet/queue";
 import { envVars, logger } from "@paperjet/shared";
