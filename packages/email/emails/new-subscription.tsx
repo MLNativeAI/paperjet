@@ -21,7 +21,7 @@ export const NewSubscriptionEmail = ({ planName }: NewSubscriptionEmailProps) =>
         <b>{planName}</b> plan, which comes with the following features:
       </Text>
 
-      {planName === "basic" &&
+      {planName === "Basic" &&
         ["- 100 document conversions", "- Max. 20 pages per document", "- Export as CSV & JSON", "- API Support"].map(
           (feature) => (
             <Text key={feature.substring(0, 5)} className="ml-4 leading-[8px]">
@@ -30,7 +30,7 @@ export const NewSubscriptionEmail = ({ planName }: NewSubscriptionEmailProps) =>
           ),
         )}
 
-      {planName === "pro" &&
+      {planName === "Pro" &&
         [
           "- 500 document conversions",
           "- Unlimited team members",
