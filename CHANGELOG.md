@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/MLNativeAI/paperjet/compare/v1.6.1...v1.7.0) (2025-11-06)
+
+
+### Features
+
+* more AI providers ([#7](https://github.com/MLNativeAI/paperjet/issues/7)) ([69fe6b6](https://github.com/MLNativeAI/paperjet/commit/69fe6b6480aa82a6ef545bc2d582576dd9aaa81d))
+
 ## [1.6.1](https://github.com/MLNativeAI/paperjet/compare/v1.6.0...v1.6.1) (2025-11-04)
 
 
