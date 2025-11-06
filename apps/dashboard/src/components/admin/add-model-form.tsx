@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DbModelConfiguration } from "@paperjet/db/types";
 import { type ConnectionValidationResult, type ModelConfigParams, modelConfigSchema } from "@paperjet/engine/types";
-import type { ModelProviderEntry } from "@paperjet/shared/types";
+import type { ModelProvider, ModelProviderEntry } from "@paperjet/shared/types";
 import { BrainIcon, EyeIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -94,7 +94,7 @@ export default function AddEditModelForm({
   useEffect(() => {
     if (model) {
       form.reset({
-        provider: (model.provider as "google" | "openai" | "openrouter" | "mistral" | "custom") || "google",
+        provider: (model.provider as ModelProvider) || "google",
         providerApiKey: model.providerApiKey || "",
         modelName: model.modelName || "",
         baseUrl: model.baseUrl || "",
