@@ -1,18 +1,74 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DbModelConfiguration } from "@paperjet/db/types";
 import { type ConnectionValidationResult, type ModelConfigParams, modelConfigSchema } from "@paperjet/engine/types";
-
-import { Loader2 } from "lucide-react";
+import type { ModelProvider, ModelProviderEntry } from "@paperjet/shared/types";
+import { BrainIcon, EyeIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useModelConfiguration } from "@/hooks/use-model-configuration";
+
+const modelProviders: ModelProviderEntry[] = [
+  {
+    id: "anthropic",
+    name: "Anthropic",
+    icon: "anthropic.jpeg",
+  },
+  {
+    id: "azure",
+    name: "Azure OpenAI",
+    icon: "azure.png",
+  },
+  {
+    id: "google",
+    name: "Google Gemini",
+    icon: "google.jpeg",
+  },
+  {
+    id: "groq",
+    name: "Groq",
+    icon: "groq.png",
+  },
+  {
+    id: "lmstudio",
+    name: "LM Studio",
+    icon: "lmstudio.jpeg",
+  },
+  {
+    id: "mistral",
+    name: "Mistral AI",
+    icon: "mistral.jpeg",
+  },
+  {
+    id: "ollama",
+    name: "Ollama",
+    icon: "ollama.png",
+  },
+  {
+    id: "openai",
+    name: "OpenAI",
+    icon: "openai.webp",
+  },
+  {
+    id: "openrouter",
+    name: "OpenRouter",
+    icon: "openrouter.jpeg",
+  },
+  {
+    id: "vllm",
+    name: "vLLM",
+    icon: "vllm.jpeg",
+  },
+  {
+    id: "custom",
+    name: "Custom (OpenAI-compatible)",
+    icon: "openai.webp",
+  },
+];
 
 export default function AddEditModelForm({
   setDialogOpen,
@@ -38,10 +94,9 @@ export default function AddEditModelForm({
   useEffect(() => {
     if (model) {
       form.reset({
-        provider: (model.provider as "google" | "openai" | "openrouter" | "custom") || "google",
+        provider: (model.provider as ModelProvider) || "google",
         providerApiKey: model.providerApiKey || "",
         modelName: model.modelName || "",
-        displayName: model.displayName || "",
         baseUrl: model.baseUrl || "",
         isCore: model.isCore ?? false,
         isVision: model.isVision ?? false,
@@ -60,9 +115,10 @@ export default function AddEditModelForm({
         setValidationResult(result);
       },
       onError: (error) => {
+        // this triggers on form failure
         setValidationResult({
           isValid: false,
-          error: error.message || "Failed to validate connection",
+          error: "Failed to validate connection",
         });
       },
     });
@@ -97,24 +153,26 @@ export default function AddEditModelForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Provider</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a provider" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="google">Google</SelectItem>
-                  <SelectItem value="openai">OpenAI</SelectItem>
-                  <SelectItem value="openrouter">OpenRouter</SelectItem>
-                  <SelectItem value="custom">Custom (OpenAI-compatible)</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <div className="flex flex-wrap gap-2">
+                  {modelProviders.map((provider) => (
+                    <button
+                      type="button"
+                      key={provider.id}
+                      className={`h-16 w-40 flex items-center justify-center cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border ${field.value === provider.id ? "border-primary bg-accent" : ""}`}
+                      onClick={() => field.onChange(provider.id)}
+                    >
+                      <img src={`/brand-icons/${provider.icon}`} className="h-4 w-4" alt={provider.id} />
+                      <span className="text-sm font-medium">{provider.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        {watchedProvider === "custom" && (
+        {["custom", "lmstudio", "vllm"].includes(watchedProvider) && (
           <FormField
             control={form.control}
             name="baseUrl"
@@ -149,20 +207,7 @@ export default function AddEditModelForm({
             <FormItem>
               <FormLabel>Model Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., gemini-1.5-flash" {...field} disabled={isLoading} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="displayName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Display Name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Gemini 1.5 Flash" {...field} disabled={isLoading} />
+                <Input placeholder="e.g., Qwen/Qwen3-VL, gemini-2.5-flash" {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -172,19 +217,28 @@ export default function AddEditModelForm({
           <div className="text-sm text-muted-foreground">
             Select at least one model type (Core or Vision) for this model configuration.
           </div>
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
             <FormField
               control={form.control}
               name="isCore"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem>
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+                    <button
+                      type="button"
+                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${
+                        field.value ? "border-primary bg-accent" : ""
+                      }`}
+                      onClick={() => field.onChange(!field.value)}
+                    >
+                      <BrainIcon />
+                      <div className="text-start">
+                        <div className="text-sm font-medium">Core Model</div>
+                        <div className="text-xs text-muted-foreground mt-1">General document processing</div>
+                      </div>
+                    </button>
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Core Model</FormLabel>
-                    <div className="text-xs text-muted-foreground">Used for general document processing tasks</div>
-                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -192,14 +246,23 @@ export default function AddEditModelForm({
               control={form.control}
               name="isVision"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem>
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+                    <button
+                      type="button"
+                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${
+                        field.value ? "border-primary bg-accent" : ""
+                      }`}
+                      onClick={() => field.onChange(!field.value)}
+                    >
+                      <EyeIcon />
+                      <div className="text-start">
+                        <div className="text-sm font-medium">Vision Model</div>
+                        <div className="text-xs text-muted-foreground mt-1">Image and document analysis</div>
+                      </div>
+                    </button>
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Vision Model</FormLabel>
-                    <div className="text-xs text-muted-foreground">Used for image and document analysis tasks</div>
-                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -223,7 +286,14 @@ export default function AddEditModelForm({
               )}
             </div>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isLoading}
+                onClick={() => {
+                  setDialogOpen(false);
+                }}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>

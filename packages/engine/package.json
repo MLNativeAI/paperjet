@@ -15,9 +15,13 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.41",
+    "@ai-sdk/azure": "^2.0.63",
     "@ai-sdk/google": "^2.0.14",
+    "@ai-sdk/groq": "^2.0.28",
+    "@ai-sdk/mistral": "^2.0.23",
     "@ai-sdk/openai": "^2.0.32",
-    "@ai-sdk/openai-compatible": "^1.0.18",
+    "@ai-sdk/openai-compatible": "^1.0.26",
     "@openrouter/ai-sdk-provider": "^1.2.0",
     "@paperjet/db": "workspace:*",
     "@paperjet/shared": "workspace:*",
@@ -25,6 +29,7 @@
     "ai": "^5.0.47",
     "date-fns": "^4.1.0",
     "fastest-levenshtein": "^1.0.16",
+    "ollama-ai-provider-v2": "^1.5.2",
     "zod": "^4.0.0"
   }
 }

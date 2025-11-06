@@ -1,3 +1,4 @@
+import type { ModelProvider } from "@paperjet/shared/types";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { modelConfiguration, runtimeConfiguration } from "../schema";
@@ -99,12 +100,11 @@ export async function setRuntimeModel(type: RuntimeModelType, modelId: string) {
 }
 
 export const addNewModel = async (modelConfig: {
-  provider: string;
+  provider: ModelProvider;
   providerApiKey: string;
   modelName: string;
   isCore: boolean;
   isVision: boolean;
-  displayName?: string;
   baseUrl?: string;
 }) => {
   const result = await db
@@ -113,7 +113,7 @@ export const addNewModel = async (modelConfig: {
       provider: modelConfig.provider,
       providerApiKey: modelConfig.providerApiKey,
       modelName: modelConfig.modelName,
-      displayName: modelConfig.displayName || `${modelConfig.provider}/${modelConfig.modelName}`,
+      displayName: `${modelConfig.provider}/${modelConfig.modelName}`,
       baseUrl: modelConfig.baseUrl,
       isCore: modelConfig.isCore,
       isVision: modelConfig.isVision,
@@ -145,12 +145,11 @@ export const addNewModel = async (modelConfig: {
 };
 
 export type ModelConfigParams = {
-  provider: "custom" | "google" | "openai" | "openrouter";
+  provider: ModelProvider;
   providerApiKey: string;
   modelName: string;
   isCore: boolean;
   isVision: boolean;
-  displayName?: string | undefined;
   baseUrl?: string | undefined;
 };
 
@@ -161,7 +160,7 @@ export async function updateModel(modelId: string, modelConfig: ModelConfigParam
       provider: modelConfig.provider,
       providerApiKey: modelConfig.providerApiKey,
       modelName: modelConfig.modelName,
-      displayName: modelConfig.displayName || `${modelConfig.provider}/${modelConfig.modelName}`,
+      displayName: `${modelConfig.provider}/${modelConfig.modelName}`,
       baseUrl: modelConfig.baseUrl,
       isCore: modelConfig.isCore,
       isVision: modelConfig.isVision,

@@ -1,11 +1,11 @@
 import type { InternalRoutes } from "@paperjet/api/routes";
 import type { UserInvitation } from "@paperjet/auth/types";
+import { usePostHog } from "@posthog/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { hc } from "hono/client";
 import { toast } from "sonner";
 import { useOrganization } from "@/hooks/use-organization";
 import { authClient } from "@/lib/auth-client";
-import { usePostHog } from "@posthog/react";
 
 const internalClient = hc<InternalRoutes>("/api/internal");
 

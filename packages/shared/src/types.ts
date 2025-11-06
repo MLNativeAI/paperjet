@@ -11,3 +11,25 @@ export type AuthContext = {
   activePlan: "free" | "basic" | "pro";
   scope: "user" | "superadmin";
 };
+
+export const MODEL_PROVIDERS = [
+  "anthropic",
+  "azure",
+  "google",
+  "groq",
+  "lmstudio",
+  "mistral",
+  "ollama",
+  "openai",
+  "openrouter",
+  "vllm",
+  "custom",
+] as const;
+
+export type ModelProvider = (typeof MODEL_PROVIDERS)[number];
+
+export type ModelProviderEntry = {
+  id: ModelProvider;
+  name: string;
+  icon: string;
+};

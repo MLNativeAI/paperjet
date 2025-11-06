@@ -7,7 +7,7 @@ import {
   updateModel,
 } from "@paperjet/db";
 import { validateConnection } from "@paperjet/engine";
-import { modelConfigSchema } from "@paperjet/engine/types";
+import { ConnectionValidationResult, modelConfigSchema } from "@paperjet/engine/types";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator as zValidator } from "hono-openapi";
 import { z } from "zod";

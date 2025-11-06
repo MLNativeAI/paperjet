@@ -29,7 +29,7 @@ export function ModelListTable({ data }: { data: DbModelConfiguration[] }) {
   const { deleteModel } = useModelConfiguration();
 
   function onDeleteModelConfiguration(modelConfig: DbModelConfiguration) {
-    if (confirm(`Are you sure you want to delete the model "${modelConfig.displayName}"?`)) {
+    if (confirm(`Are you sure you want to delete the model "${modelConfig.provider}/${modelConfig.modelName}"?`)) {
       deleteModel.mutate(modelConfig.id, {
         onSuccess: () => {
           toast.success("Model configuration deleted successfully");
@@ -45,7 +45,10 @@ export function ModelListTable({ data }: { data: DbModelConfiguration[] }) {
     {
       accessorKey: "displayName",
       header: "Display Name",
-      cell: ({ row }) => <div className="font-medium">{row.original.displayName}</div>,
+      cell: ({ row }) => {
+        const { provider, modelName } = row.original;
+        return <div className="font-medium">{`${provider}/${modelName}`}</div>;
+      },
       enableHiding: false,
     },
     {
