@@ -1,8 +1,16 @@
-import { InvitationEmail, MagicLinkEmail, ResetPasswordEmailTemplate, render, WelcomeEmail } from "@paperjet/email";
+import {
+  FeedbackEmail,
+  InvitationEmail,
+  MagicLinkEmail,
+  ResetPasswordEmailTemplate,
+  render,
+  WelcomeEmail,
+} from "@paperjet/email";
+import { emailQueue } from "@paperjet/queue";
 import { envVars, logger } from "@paperjet/shared";
 import type { User } from "better-auth";
 import type { Member, Organization } from "better-auth/plugins";
-
+import { addDays } from "date-fns";
 import { Resend } from "resend";
 
 const resend = envVars.RESEND_API_KEY ? new Resend(envVars.RESEND_API_KEY) : null;
@@ -12,6 +20,40 @@ function getApiBaseUrl() {
     return "http://localhost:3000";
   } else {
     return envVars.BASE_URL;
+  }
+}
+
+export async function scheduleFeedbackEmail(email: string) {
+  if (!resend) {
+    logger.info(`Resend is disabled, not sending feedback email`);
+    return;
+  }
+  const targetTime = addDays(new Date(), 7);
+  logger.info(`Scheduling feedback email for ${targetTime.toLocaleString()}`);
+  const delay = Number(targetTime) - Number(Date.now());
+
+  await emailQueue.add("feedback-email", { email: email, emailType: "feedback" }, { delay });
+}
+
+export async function sendFeedbackEmail(email: string) {
+  if (!resend) {
+    logger.info(`Resend is disabled, not sending feedback email`);
+    return;
+  }
+  try {
+    logger.info(`Sending feedback email to ${email}:`);
+    const emailHtml = await render(FeedbackEmail());
+
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "Łukasz from PaperJet <lukasz@getpaperjet.com>",
+      to: [email],
+      subject: "How's your PaperJet experience so far?",
+      reply_to: "lukasz@getpaperjet.com",
+      html: emailHtml,
+    });
+  } catch (error) {
+    logger.error(error, "Failed to send feedback email:");
+    throw error;
   }
 }
 
