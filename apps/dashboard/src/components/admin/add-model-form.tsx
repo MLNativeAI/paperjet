@@ -115,9 +115,10 @@ export default function AddEditModelForm({
         setValidationResult(result);
       },
       onError: (error) => {
+        // this triggers on form failure
         setValidationResult({
           isValid: false,
-          error: error.message || "Failed to validate connection",
+          error: "Failed to validate connection",
         });
       },
     });
@@ -171,7 +172,7 @@ export default function AddEditModelForm({
             </FormItem>
           )}
         />
-        {watchedProvider === "custom" && (
+        {["custom", "lmstudio", "vllm"].includes(watchedProvider) && (
           <FormField
             control={form.control}
             name="baseUrl"
@@ -225,8 +226,9 @@ export default function AddEditModelForm({
                   <FormControl>
                     <button
                       type="button"
-                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${field.value ? "border-primary bg-accent" : ""
-                        }`}
+                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${
+                        field.value ? "border-primary bg-accent" : ""
+                      }`}
                       onClick={() => field.onChange(!field.value)}
                     >
                       <BrainIcon />
@@ -248,8 +250,9 @@ export default function AddEditModelForm({
                   <FormControl>
                     <button
                       type="button"
-                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${field.value ? "border-primary bg-accent" : ""
-                        }`}
+                      className={`h-16 w-full flex items-center justify-start cursor-pointer transition-colors hover:bg-accent gap-4 px-4 border rounded-md ${
+                        field.value ? "border-primary bg-accent" : ""
+                      }`}
                       onClick={() => field.onChange(!field.value)}
                     >
                       <EyeIcon />

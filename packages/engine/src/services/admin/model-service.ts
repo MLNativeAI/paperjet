@@ -23,7 +23,6 @@ export async function validateConnection(modelConfig: ModelConfigParams): Promis
       schema: z.object({
         answer: z.string(),
       }),
-      // mode: "json",
       prompt: `Respond with pong.`,
     });
     logger.info(result.object.answer, "Validation result:");
@@ -84,6 +83,7 @@ export async function getModelInstance(modelConfig: ModelConfigParams): Promise<
       const lmstudio = createOpenAICompatible({
         name: "lmstudio",
         baseURL: modelConfig.baseUrl || "",
+        apiKey: modelConfig.providerApiKey || "",
       });
       return lmstudio(modelConfig.modelName);
     }
@@ -95,13 +95,13 @@ export async function getModelInstance(modelConfig: ModelConfigParams): Promise<
     }
     case "google": {
       const google = createGoogleGenerativeAI({
-        apiKey: modelConfig.providerApiKey,
+        apiKey: modelConfig.providerApiKey || "",
       });
       return google(modelConfig.modelName);
     }
     case "openai": {
       const openai = createOpenAI({
-        apiKey: modelConfig.providerApiKey,
+        apiKey: modelConfig.providerApiKey || "",
       });
       return openai(modelConfig.modelName);
     }
@@ -121,7 +121,7 @@ export async function getModelInstance(modelConfig: ModelConfigParams): Promise<
     case "custom": {
       const custom = createOpenAICompatible({
         baseURL: modelConfig.baseUrl || "",
-        apiKey: modelConfig.providerApiKey,
+        apiKey: modelConfig.providerApiKey || "",
         name: modelConfig.modelName,
         supportsStructuredOutputs: true,
       });

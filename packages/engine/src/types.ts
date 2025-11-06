@@ -12,7 +12,7 @@ const availableProviders = z.enum(MODEL_PROVIDERS);
 export const modelConfigSchema = z
   .object({
     provider: availableProviders,
-    providerApiKey: z.string().min(1, "API key is required"),
+    providerApiKey: z.string(),
     modelName: z.string().min(1, "Model name is required"),
     baseUrl: z.string().optional(),
     isCore: z.boolean(),
