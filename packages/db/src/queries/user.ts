@@ -6,6 +6,7 @@ export async function getUserById({ userId }: { userId: string }) {
   const userData = await db.query.user.findFirst({
     where: eq(user.id, userId),
   });
+
   return userData;
 }
 

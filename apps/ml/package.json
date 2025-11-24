@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "uv run fastapi dev"
+    "dev": "uv run fastapi dev --port 8001"
   }
 }

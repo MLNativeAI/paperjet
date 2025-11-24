@@ -47,4 +47,4 @@ USER nonroot
 WORKDIR /app
 
 # Run the FastAPI application by default
-CMD ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["fastapi", "run", "--host", "0.0.0.0", "--port", "8001"]

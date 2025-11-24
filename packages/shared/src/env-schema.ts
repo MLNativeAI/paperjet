@@ -3,7 +3,7 @@ import { z } from "zod";
 // Shared environment variable schema - used by API for validation and by shared logger for configuration
 export const envSchema = z.object({
   OTEL_SERVICE_NAME: z.string().default("paperjet-api"),
-  ML_SERVICE_URL: z.string().default("http://localhost:8000"),
+  ML_SERVICE_URL: z.string().default("http://localhost:8001"),
   BASE_URL: z.string().default("http://localhost:5173"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   S3_ENDPOINT: z.string().url("S3_ENDPOINT must be a valid URL"),
