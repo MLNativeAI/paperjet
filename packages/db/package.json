@@ -18,6 +18,7 @@
     "typescript": "~5.7.2"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.5",
     "pg": "^8.15.6",
