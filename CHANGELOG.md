@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/MLNativeAI/paperjet/compare/v1.8.0...v1.9.0) (2025-12-12)
+
+
+### Features
+
+* move to neon ([5a82341](https://github.com/MLNativeAI/paperjet/commit/5a82341463f054d2ecb871680bd4149a8d6eb3ad))
+
 # [1.8.0](https://github.com/MLNativeAI/paperjet/compare/v1.7.0...v1.8.0) (2025-11-06)
 
 
