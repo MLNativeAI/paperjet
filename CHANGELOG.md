@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/MLNativeAI/paperjet/compare/v1.9.0...v1.9.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* react2shell on landing ([ddcb560](https://github.com/MLNativeAI/paperjet/commit/ddcb560aa543c0969b2a8ef5319cf9456a8e63b0))
+
 # [1.9.0](https://github.com/MLNativeAI/paperjet/compare/v1.8.0...v1.9.0) (2025-12-12)
 
 
